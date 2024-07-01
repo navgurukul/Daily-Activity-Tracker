@@ -3,6 +3,7 @@ import "./Form.css";
 
 const Form = () => {
   const [formData, setFormData] = useState({
+    type: "contribution",
     email: "",
     achievements: "",
     challenges: "",
@@ -70,10 +71,7 @@ const Form = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (
-      formData.achievements.length < 25 ||
-      formData.challenges.length < 25
-    ) {
+    if (formData.achievements.length < 25 || formData.challenges.length < 25) {
       setError(
         "Achievements, Blockers, and Challenges must be at least 25 characters long."
       );
@@ -91,7 +89,7 @@ const Form = () => {
     }
 
     const url =
-      "https://script.google.com/macros/s/AKfycbww1PJau59E-OcH7FGhzESYNfYyVfOjsBCc3GTEXIGVkrOVa4yHgBnuNmzwA7NFfOGyyw/exec";
+      "https://script.google.com/macros/s/AKfycbyNmsmsHoq6Idag5o5dCNm8oIgxp4xwQZklYyVSaXSOz13z_JB2hsyRsSdo0zdeySru/exec";
     fetch(url, {
       method: "POST",
       headers: {
@@ -105,6 +103,7 @@ const Form = () => {
         console.log("Response from Google Apps Script:", data);
         setSuccessMessage("Thanks for sharing the update!");
         setFormData({
+          type: "contribution",
           email: "",
           achievements: "",
           challenges: "",

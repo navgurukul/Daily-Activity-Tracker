@@ -3,6 +3,7 @@ import "./Leaves.css";
 
 const Leaves = () => {
   const [leaveData, setLeaveData] = useState({
+    type: "leave",
     leaveType: "",
     reason: "",
     fromDate: "",
@@ -35,18 +36,35 @@ const Leaves = () => {
     }
 
     setError(""); // Clear any previous error messages
-    setSuccessMessage("Leave request submitted successfully!");
 
-    // Reset form after submission
-    setLeaveData({
-      leaveType: "",
-      reason: "",
-      fromDate: "",
-      toDate: "",
-      email: "",
-    });
-
-    setTimeout(() => setSuccessMessage(""), 3000); // Clear success message after 3 seconds
+    const url =
+      "https://script.google.com/macros/s/AKfycbyNmsmsHoq6Idag5o5dCNm8oIgxp4xwQZklYyVSaXSOz13z_JB2hsyRsSdo0zdeySru/exec";
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(leaveData),
+      mode: "no-cors",
+    })
+      .then((response) => response.text())
+      .then((data) => {
+        console.log("Response from Google Apps Script:", data);
+        setSuccessMessage("Leave request submitted successfully!");
+        setLeaveData({
+          type: "leave",
+          leaveType: "",
+          reason: "",
+          fromDate: "",
+          toDate: "",
+          email: "",
+        });
+        setTimeout(() => setSuccessMessage(""), 3000); // Clear message after 3 seconds
+      })
+      .catch((error) => {
+        console.error("Error sending data to Google Apps Script:", error);
+        setError("Error submitting leave request.");
+      });
   };
 
   return (

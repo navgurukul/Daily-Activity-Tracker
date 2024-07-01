@@ -1,0 +1,7 @@
+{
+  "projects": ["bharat-fpo", "connectopia","LDExplained"],
+  "questions": {
+    "achievements": "What did you achieve today?",
+    "projectHours": "Number of hours spent on the project:"
+  }
+}

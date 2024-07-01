@@ -6,8 +6,8 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Daily Achievements Form</h1>
-        <p>Fill out the form below to record your daily achievements.</p>
+        <h1>Daily Tracker Form</h1>
+        <p>Fill out the form below to record your daily Tasks.</p>
       </header>
       <main>
         <Form />

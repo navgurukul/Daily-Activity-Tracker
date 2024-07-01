@@ -132,7 +132,7 @@ const Form = () => {
         {error && <p style={{ color: "red" }}>{error}</p>}
       </div>
       <div>
-        <label>Blockers:</label>
+        <label>Please Mention Any Blockers:</label>
         <textarea
           name="blockers"
           value={formData.blockers}
@@ -141,7 +141,7 @@ const Form = () => {
         />
       </div>
       <div>
-        <label>Challenges:</label>
+        <label>Please Mention Any Challenges You Are Facing:</label>
         <textarea
           name="challenges"
           value={formData.challenges}
@@ -164,7 +164,7 @@ const Form = () => {
         {selectedProject && (
           <div>
             <h4>{selectedProject}</h4>
-            <label>Hours:</label>
+            <label>Total Hours Spent:</label>
             <input
               type="number"
               name="hours"
@@ -173,7 +173,8 @@ const Form = () => {
               min="0"
               required
             />
-            <label>What did you achieve:</label>
+            <br />
+            <label>What did you achieve in this project?</label>
             <textarea
               name="task"
               value={currentContribution.task}

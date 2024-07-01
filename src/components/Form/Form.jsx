@@ -5,10 +5,10 @@ const Form = () => {
   const [formData, setFormData] = useState({
     email: "",
     achievements: "",
-    blockers: "",
     challenges: "",
     description: "",
     contributions: [],
+    selectedDate: "",
   });
   const [projectData, setProjectData] = useState([]);
   const [selectedProject, setSelectedProject] = useState("");
@@ -70,14 +70,28 @@ const Form = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.achievements.length < 100) {
-      setError("Achievements must be at least 100 characters long.");
+    if (
+      formData.achievements.length < 25 ||
+      formData.challenges.length < 25
+    ) {
+      setError(
+        "Achievements, Blockers, and Challenges must be at least 25 characters long."
+      );
       return;
     }
     setError(""); // Clear any previous error messages
 
+    // Set current date if not selected by user
+    if (!formData.selectedDate) {
+      const today = new Date();
+      const formattedDate = `${today.getFullYear()}-${
+        today.getMonth() + 1
+      }-${today.getDate()}`;
+      setFormData({ ...formData, selectedDate: formattedDate });
+    }
+
     const url =
-      "https://script.google.com/macros/s/AKfycbymEomStpJ3EpovGSGQuF2HCpQWigKRQtjPrL_frCwK6L_f1CYDa-JfTT4G-LbFUpRpkQ/exec";
+      "https://script.google.com/macros/s/AKfycbww1PJau59E-OcH7FGhzESYNfYyVfOjsBCc3GTEXIGVkrOVa4yHgBnuNmzwA7NFfOGyyw/exec";
     fetch(url, {
       method: "POST",
       headers: {
@@ -89,15 +103,14 @@ const Form = () => {
       .then((response) => response.text())
       .then((data) => {
         console.log("Response from Google Apps Script:", data);
-        // Optionally reset form state or show success message
         setSuccessMessage("Thanks for sharing the update!");
         setFormData({
           email: "",
           achievements: "",
-          blockers: "",
           challenges: "",
           description: "",
           contributions: [],
+          selectedDate: "",
         });
         setTimeout(() => setSuccessMessage(""), 3000); // Clear message after 3 seconds
       })
@@ -122,7 +135,7 @@ const Form = () => {
       </div>
 
       <div>
-        <label>What did you achieve today?</label>
+        <label>What did you achieve today? (Minimum 25 characters)</label>
         <textarea
           name="achievements"
           value={formData.achievements}
@@ -131,17 +144,12 @@ const Form = () => {
         />
         {error && <p style={{ color: "red" }}>{error}</p>}
       </div>
+
       <div>
-        <label>Please Mention Any Blockers:</label>
-        <textarea
-          name="blockers"
-          value={formData.blockers}
-          onChange={handleChange}
-          required
-        />
-      </div>
-      <div>
-        <label>Please Mention Any Challenges You Are Facing:</label>
+        <label>
+          Please Mention Any Blockers or Challenges You Are Facing (Minimum 25
+          characters):
+        </label>
         <textarea
           name="challenges"
           value={formData.challenges}
@@ -151,7 +159,17 @@ const Form = () => {
       </div>
 
       <div>
-        <label>Select a project:</label>
+        <label>Select the date for which you want to update the form:</label>
+        <input
+          type="date"
+          name="selectedDate"
+          value={formData.selectedDate}
+          onChange={handleChange}
+        />
+      </div>
+
+      <div>
+        <label>Select a project in which you contributed:</label>
         <select value={selectedProject} onChange={handleProjectSelect}>
           <option value="">--Select a project--</option>
           {projectData.map((project, index) => (
@@ -191,6 +209,10 @@ const Form = () => {
       {formData.contributions.length > 0 && (
         <div>
           <h3>Contributions Summary</h3>
+
+          <p>
+            You can select multiple projects by clicking on the dropdown above
+          </p>
           <table>
             <thead>
               <tr>
@@ -210,9 +232,6 @@ const Form = () => {
             </tbody>
           </table>
           <br />
-          <button type="button" onClick={() => setShowProjectForm(true)}>
-            Add Contribution
-          </button>
         </div>
       )}
 

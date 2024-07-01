@@ -13,7 +13,7 @@ function App() {
         <Form />
       </main>
       <footer className="App-footer">
-        <p>&copy; 2024 Your Company. All rights reserved.</p>
+        <p>&copy; 2024 @Samyarth.org. All rights reserved.</p>
       </footer>
     </div>
   );

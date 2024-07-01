@@ -17,6 +17,8 @@ const Form = () => {
     task: "",
   });
   const [showProjectForm, setShowProjectForm] = useState(false);
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     fetch("/data.json")
@@ -68,8 +70,14 @@ const Form = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (formData.achievements.length < 100) {
+      setError("Achievements must be at least 100 characters long.");
+      return;
+    }
+    setError(""); // Clear any previous error messages
+
     const url =
-      "https://script.google.com/macros/s/AKfycbzMlhGdQ3610WzDLsUKM8HsqzsoWYyCbPCPs1fl4Ns9AHWxn_rUlUWY3CL-GSrnc5zJZQ/exec";
+      "https://script.google.com/macros/s/AKfycbymEomStpJ3EpovGSGQuF2HCpQWigKRQtjPrL_frCwK6L_f1CYDa-JfTT4G-LbFUpRpkQ/exec";
     fetch(url, {
       method: "POST",
       headers: {
@@ -82,6 +90,16 @@ const Form = () => {
       .then((data) => {
         console.log("Response from Google Apps Script:", data);
         // Optionally reset form state or show success message
+        setSuccessMessage("Thanks for sharing the update!");
+        setFormData({
+          email: "",
+          achievements: "",
+          blockers: "",
+          challenges: "",
+          description: "",
+          contributions: [],
+        });
+        setTimeout(() => setSuccessMessage(""), 3000); // Clear message after 3 seconds
       })
       .catch((error) => {
         console.error("Error sending data to Google Apps Script:", error);
@@ -91,6 +109,7 @@ const Form = () => {
 
   return (
     <form onSubmit={handleSubmit}>
+      {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
       <div>
         <label>Email:</label>
         <input
@@ -110,6 +129,7 @@ const Form = () => {
           onChange={handleChange}
           required
         />
+        {error && <p style={{ color: "red" }}>{error}</p>}
       </div>
       <div>
         <label>Blockers:</label>
@@ -130,10 +150,9 @@ const Form = () => {
         />
       </div>
 
-      {/* {showProjectForm && ( */}
       <div>
         <label>Select a project:</label>
-        <select value={selectedProject} onChange={handleProjectSelect} >
+        <select value={selectedProject} onChange={handleProjectSelect}>
           <option value="">--Select a project--</option>
           {projectData.map((project, index) => (
             <option key={index} value={project}>
@@ -167,7 +186,6 @@ const Form = () => {
           </div>
         )}
       </div>
-      {/* )} */}
 
       {formData.contributions.length > 0 && (
         <div>
@@ -189,8 +207,8 @@ const Form = () => {
                 </tr>
               ))}
             </tbody>
-                  </table>
-                  <br />
+          </table>
+          <br />
           <button type="button" onClick={() => setShowProjectForm(true)}>
             Add Contribution
           </button>

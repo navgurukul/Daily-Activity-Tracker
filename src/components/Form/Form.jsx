@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Form.css";
+import config from "../../config";
 
 const Form = () => {
   const [formData, setFormData] = useState({
@@ -88,8 +89,7 @@ const Form = () => {
       setFormData({ ...formData, selectedDate: formattedDate });
     }
 
-    const url =
-      "https://script.google.com/macros/s/AKfycbyNmsmsHoq6Idag5o5dCNm8oIgxp4xwQZklYyVSaXSOz13z_JB2hsyRsSdo0zdeySru/exec";
+    const url = config.FORM_SUBMIT_URL
     fetch(url, {
       method: "POST",
       headers: {

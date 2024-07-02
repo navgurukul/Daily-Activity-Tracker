@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./Leaves.css";
+import config from "../../config";
 
 const Leaves = () => {
   const [leaveData, setLeaveData] = useState({
@@ -21,6 +22,14 @@ const Leaves = () => {
     });
   };
 
+  const calculateNumberOfDays = (fromDate, toDate) => {
+    const from = new Date(fromDate);
+    const to = new Date(toDate);
+    const timeDiff = to - from;
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    return daysDiff;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -35,16 +44,27 @@ const Leaves = () => {
       return;
     }
 
+    // Calculate the number of days
+    const numberOfDays = calculateNumberOfDays(
+      leaveData.fromDate,
+      leaveData.toDate
+    );
+
+    const leaveDataWithDays = {
+      ...leaveData,
+      numberOfDays,
+      };
+      console.log(leaveDataWithDays);
+
     setError(""); // Clear any previous error messages
 
-    const url =
-      "https://script.google.com/macros/s/AKfycbyNmsmsHoq6Idag5o5dCNm8oIgxp4xwQZklYyVSaXSOz13z_JB2hsyRsSdo0zdeySru/exec";
+      const url = config.LEAVE_SUBMIT_URL;
     fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(leaveData),
+      body: JSON.stringify(leaveDataWithDays),
       mode: "no-cors",
     })
       .then((response) => response.text())

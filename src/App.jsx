@@ -3,17 +3,34 @@ import Form from "./components/Form/Form";
 import "./App.css";
 import { Route, Routes, Link } from "react-router-dom";
 import Leaves from "./components/Leaves/Leaves";
+import Navbar from "./components/Navbar/Navbar";
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Daily Tracker Form</h1>
-        <p>Fill out the form below to record your daily tasks.</p>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/leaves">Leaves</Link>
-        </nav>
+        <Navbar />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <div>
+          <img
+            src="/public/brain.png"
+            style={{
+              height: "100px",
+            }}
+            alt=""
+          />
+          <br />
+          <p>Decipline &gt; Motivation</p>
+        </div>
       </header>
       <main>
         <Routes>
@@ -21,9 +38,9 @@ function App() {
           <Route path="/leaves" element={<Leaves />} />
         </Routes>
       </main>
-      <footer className="App-footer">
+      {/* <footer className="App-footer">
         <p>&copy; 2024 @Samyarth.org. All rights reserved.</p>
-      </footer>
+      </footer> */}
     </div>
   );
 }

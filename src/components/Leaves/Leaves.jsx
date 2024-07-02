@@ -88,6 +88,9 @@ const Leaves = () => {
   };
 
   return (
+     <div>
+      <h1 style={{ textAlign: "center" }}>Leave Application Form</h1>
+      <p style={{ textAlign: "center" }}>  Make Sure to check the leave balance before applying</p>
     <form onSubmit={handleSubmit}>
       {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
       {error && <p style={{ color: "red" }}>{error}</p>}
@@ -152,7 +155,8 @@ const Leaves = () => {
       </div>
 
       <button type="submit">Submit</button>
-    </form>
+      </form>
+    </div>
   );
 };
 

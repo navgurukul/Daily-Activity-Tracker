@@ -6,7 +6,6 @@ const Form = () => {
   const [formData, setFormData] = useState({
     type: "contribution",
     email: "",
-    achievements: "",
     challenges: "",
     description: "",
     contributions: [],
@@ -14,6 +13,7 @@ const Form = () => {
   });
   const [projectData, setProjectData] = useState([]);
   const [selectedProject, setSelectedProject] = useState("");
+  const [loading, setLoading] = useState(false);
   const [currentContribution, setCurrentContribution] = useState({
     hours: "",
     task: "",
@@ -21,6 +21,8 @@ const Form = () => {
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  const [showSelect, setShowSelect] = useState(true);
 
   useEffect(() => {
     fetch("/data.json")
@@ -52,6 +54,7 @@ const Form = () => {
   };
 
   const addContribution = () => {
+    setShowSelect(false); // Hide the project selection dropdown
     if (
       selectedProject &&
       currentContribution.hours &&
@@ -71,8 +74,11 @@ const Form = () => {
   };
 
   const handleSubmit = (e) => {
+    setShowSelect(true);
     e.preventDefault();
-    if (formData.achievements.length < 25 || formData.challenges.length < 25) {
+    handleLoading(true);
+    setLoading(true);
+    if ( formData.challenges.length < 25) {
       setError(
         "Achievements, Blockers, and Challenges must be at least 25 characters long."
       );
@@ -89,7 +95,7 @@ const Form = () => {
       setFormData({ ...formData, selectedDate: formattedDate });
     }
 
-    const url = config.FORM_SUBMIT_URL
+    const url = config.FORM_SUBMIT_URL;
     fetch(url, {
       method: "POST",
       headers: {
@@ -105,12 +111,13 @@ const Form = () => {
         setFormData({
           type: "contribution",
           email: "",
-          achievements: "",
           challenges: "",
           description: "",
           contributions: [],
           selectedDate: "",
         });
+        setLoading(false);
+        handleLoading(false);
         setTimeout(() => setSuccessMessage(""), 3000); // Clear message after 3 seconds
       })
       .catch((error) => {
@@ -119,123 +126,165 @@ const Form = () => {
       });
   };
 
+  const handleLoading = (load) => {
+    load == true
+      ? (document.getElementById("root").style.opacity = "0.8")
+      : (document.getElementById("root").style.opacity = "1");
+  };
+
   return (
-    <form onSubmit={handleSubmit}>
-      {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
-      <div>
-        <label>Email:</label>
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
+    <div>
+      <div
+        aria-label="Orange and tan hamster running in a metal wheel"
+        role="img"
+        class="wheel-and-hamster"
+        style={{
+          position: "absolute",
+          display: loading ? "block" : "none",
+          top: "42%",
+          left: "45%",
+          zIndex: "100",
+        }}
+      >
+        <div class="wheel"></div>
+        <div class="hamster">
+          <div class="hamster__body">
+            <div class="hamster__head">
+              <div class="hamster__ear"></div>
+              <div class="hamster__eye"></div>
+              <div class="hamster__nose"></div>
+            </div>
+            <div class="hamster__limb hamster__limb--fr"></div>
+            <div class="hamster__limb hamster__limb--fl"></div>
+            <div class="hamster__limb hamster__limb--br"></div>
+            <div class="hamster__limb hamster__limb--bl"></div>
+            <div class="hamster__tail"></div>
+          </div>
+        </div>
+        <div class="spoke"></div>
       </div>
+      <h1 style={{ textAlign: "center" }}>Daily Tracker Form</h1>
+      <p style={{ textAlign: "center" }}>
+        Fill out the form below to record your daily tasks.
+      </p>
 
-      <div>
-        <label>What did you achieve today? (Minimum 25 characters)</label>
-        <textarea
-          name="achievements"
-          value={formData.achievements}
-          onChange={handleChange}
-          required
-        />
-        {error && <p style={{ color: "red" }}>{error}</p>}
-      </div>
+      <form onSubmit={handleSubmit}>
+        {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
+        <div>
+          <label>Email:</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-      <div>
-        <label>
-          Please Mention Any Blockers or Challenges You Are Facing (Minimum 25
-          characters):
-        </label>
-        <textarea
-          name="challenges"
-          value={formData.challenges}
-          onChange={handleChange}
-          required
-        />
-      </div>
 
-      <div>
-        <label>Select the date for which you want to update the form:</label>
-        <input
-          type="date"
-          name="selectedDate"
-          value={formData.selectedDate}
-          onChange={handleChange}
-        />
-      </div>
+        <div>
+          <label>
+            Please Mention Any Blockers or Challenges You Are Facing (Minimum 25
+            characters):
+          </label>
+          <textarea
+            name="challenges"
+            value={formData.challenges}
+            onChange={handleChange}
+            required
+          />
 
-      <div>
-        <label>Select a project in which you contributed:</label>
-        <select value={selectedProject} onChange={handleProjectSelect}>
-          <option value="">--Select a project--</option>
-          {projectData.map((project, index) => (
-            <option key={index} value={project}>
-              {project}
-            </option>
-          ))}
-        </select>
+          {error && <p style={{ color: "red" }}>{error}</p>}
+        </div>
 
-        {selectedProject && (
+        <div>
+          <label>Select the date for which you want to update the form:</label>
+          <input
+            type="date"
+            name="selectedDate"
+            value={formData.selectedDate}
+            onChange={handleChange}
+          />
+        </div>
+
+        {formData.contributions.length > 0 && (
           <div>
-            <h4>{selectedProject}</h4>
-            <label>Total Hours Spent:</label>
-            <input
-              type="number"
-              name="hours"
-              value={currentContribution.hours}
-              onChange={handleContributionChange}
-              min="0"
-              required
-            />
+            <h3>Contributions Summary</h3>
+
+            <table>
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Hours</th>
+                  <th>Task</th>
+                </tr>
+              </thead>
+              <tbody>
+                {formData.contributions.map((contribution, index) => (
+                  <tr key={index}>
+                    <td>{contribution.project}</td>
+                    <td>{contribution.hours}</td>
+                    <td>{contribution.task}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
             <br />
-            <label>What did you achieve in this project?</label>
-            <textarea
-              name="task"
-              value={currentContribution.task}
-              onChange={handleContributionChange}
-              required
-            />
-            <button type="button" onClick={addContribution}>
-              Save Contribution
-            </button>
+
+            <p>
+              You can select multiple projects by clicking on the dropdown above
+            </p>
+            {!showSelect ? (
+              <button type="button" onClick={() => setShowSelect(true)}>
+                Add Contribution
+              </button>
+            ) : null}
           </div>
         )}
-      </div>
-
-      {formData.contributions.length > 0 && (
         <div>
-          <h3>Contributions Summary</h3>
+          {showSelect ? (
+            <>
+              <label>Select a project in which you contributed:</label>
+              <select value={selectedProject} onChange={handleProjectSelect}>
+                <option value="">--Select a project--</option>
+                {projectData.map((project, index) => (
+                  <option key={index} value={project}>
+                    {project}
+                  </option>
+                ))}
+              </select>
+            </>
+          ) : null}
 
-          <p>
-            You can select multiple projects by clicking on the dropdown above
-          </p>
-          <table>
-            <thead>
-              <tr>
-                <th>Project</th>
-                <th>Hours</th>
-                <th>Task</th>
-              </tr>
-            </thead>
-            <tbody>
-              {formData.contributions.map((contribution, index) => (
-                <tr key={index}>
-                  <td>{contribution.project}</td>
-                  <td>{contribution.hours}</td>
-                  <td>{contribution.task}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <br />
+          {selectedProject && (
+            <div>
+              <h4>{selectedProject}</h4>
+              <label>Total Hours Spent:</label>
+              <input
+                type="number"
+                name="hours"
+                value={currentContribution.hours}
+                onChange={handleContributionChange}
+                min="0"
+                required
+              />
+              <br />
+              <label>What did you achieve in this project?</label>
+              <textarea
+                name="task"
+                value={currentContribution.task}
+                onChange={handleContributionChange}
+                required
+              />
+              <button type="button" onClick={addContribution}>
+                Save Contribution
+              </button>
+            </div>
+          )}
         </div>
-      )}
-
-      <button type="submit">Submit</button>
-    </form>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
   );
 };
 

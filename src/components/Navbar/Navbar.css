@@ -1,0 +1,40 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color:#878787; /* Subtle light gray background */
+  color: white;
+  background-color: inherit;
+}
+
+.heading {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-right: 1rem; /* Adjust margin as needed */
+}
+
+.nav-buttons {
+  display: flex;
+  list-style: none;
+  gap: 2rem; /* Add space between buttons */
+  margin: 0;
+  padding: 0;
+}
+
+.nav-button {
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; /* Combined transition */
+}
+
+.nav-button.selected {
+  background-color: #ffffff; /* Customize selected button color */
+  color: #000000; /* Customize selected button text color */
+}
+
+.nav-button:hover {
+  background-color: #b5b5b5; /* Customize hover background color */
+  color: #333; /* Customize hover text color */
+}

@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./Form.css";
 import config from "../../config";
-
+import { useNavigate } from "react-router-dom";
+import { LoginContext } from "../context/LoginContext";
 const Form = () => {
+  const dataContext = useContext(LoginContext);
+  const { email } = dataContext;
   const [formData, setFormData] = useState({
     type: "contribution",
-    email: "",
+    email: email,
     challenges: "",
     description: "",
     contributions: [],
     selectedDate: "",
   });
+
   const [projectData, setProjectData] = useState([]);
   const [selectedProject, setSelectedProject] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,10 +25,14 @@ const Form = () => {
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [saved, setSaved] = useState(false);
 
   const [showSelect, setShowSelect] = useState(true);
-
+  const navigate = useNavigate();
   useEffect(() => {
+    if (!email) {
+      navigate("/");
+    }
     fetch("/data.json")
       .then((response) => response.json())
       .then((data) => {
@@ -54,6 +62,7 @@ const Form = () => {
   };
 
   const addContribution = () => {
+    setSaved(true);
     setShowSelect(false); // Hide the project selection dropdown
     if (
       selectedProject &&
@@ -74,11 +83,14 @@ const Form = () => {
   };
 
   const handleSubmit = (e) => {
-    setShowSelect(true);
     e.preventDefault();
+    if (!saved)
+      return alert("Please save the contribution before submitting the form");
+    setShowSelect(true);
+
     handleLoading(true);
     setLoading(true);
-    if ( formData.challenges.length < 25) {
+    if (formData.challenges.length < 25) {
       setError(
         "Achievements, Blockers, and Challenges must be at least 25 characters long."
       );
@@ -110,7 +122,7 @@ const Form = () => {
         setSuccessMessage("Thanks for sharing the update!");
         setFormData({
           type: "contribution",
-          email: "",
+          email: email,
           challenges: "",
           description: "",
           contributions: [],
@@ -163,7 +175,7 @@ const Form = () => {
         </div>
         <div class="spoke"></div>
       </div>
-      <h1 style={{ textAlign: "center" }}>Daily Tracker Form</h1>
+      <h1 style={{ textAlign: "center" }}>Daily Activity Tracker </h1>
       <p style={{ textAlign: "center" }}>
         Fill out the form below to record your daily tasks.
       </p>
@@ -178,9 +190,10 @@ const Form = () => {
             value={formData.email}
             onChange={handleChange}
             required
+            disabled
+            color="red"
           />
         </div>
-
 
         <div>
           <label>
@@ -221,10 +234,17 @@ const Form = () => {
               </thead>
               <tbody>
                 {formData.contributions.map((contribution, index) => (
-                  <tr key={index}>
+                  <tr key={index} style={{ height: "auto" }}>
                     <td>{contribution.project}</td>
                     <td>{contribution.hours}</td>
-                    <td>{contribution.task}</td>
+                    <td
+                      style={{
+                        height: "auto",
+                        maxWidth: "100px",
+                      }}
+                    >
+                      {contribution.task}
+                    </td>
                   </tr>
                 ))}
               </tbody>

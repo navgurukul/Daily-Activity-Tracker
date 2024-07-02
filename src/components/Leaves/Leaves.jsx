@@ -1,16 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./Leaves.css";
 import config from "../../config";
+import { useNavigate } from "react-router-dom";
+import { LoginContext } from "../context/LoginContext";
 
 const Leaves = () => {
+  const dataContext = useContext(LoginContext);
+  const { email } = dataContext;
   const [leaveData, setLeaveData] = useState({
     type: "leave",
     leaveType: "",
     reason: "",
     fromDate: "",
     toDate: "",
-    email: "",
+    email: email,
   });
+
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -23,13 +28,35 @@ const Leaves = () => {
       [name]: value,
     });
   };
+  useEffect(() => {
+    if (!email) {
+      navigate("/");
+    }
+  }, []);
 
   const calculateNumberOfDays = (fromDate, toDate) => {
     const from = new Date(fromDate);
     const to = new Date(toDate);
-    const timeDiff = to - from;
-    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
-    return daysDiff;
+    let totalDays = 0;
+    let currentDate = new Date(from);
+
+    while (currentDate <= to) {
+      const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
+      const dateOfMonth = currentDate.getDate();
+      const isSecondSaturday =
+        dayOfWeek === 6 && dateOfMonth >= 8 && dateOfMonth <= 14;
+      const isFourthSaturday =
+        dayOfWeek === 6 && dateOfMonth >= 22 && dateOfMonth <= 28;
+
+      if (dayOfWeek !== 0 && !isSecondSaturday && !isFourthSaturday) {
+        totalDays++;
+      }
+
+      // Move to the next day
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return totalDays;
   };
 
   const handleSubmit = (e) => {
@@ -81,7 +108,7 @@ const Leaves = () => {
           reason: "",
           fromDate: "",
           toDate: "",
-          email: "",
+          email: email,
         });
 
         setLoading(false);
@@ -149,6 +176,7 @@ const Leaves = () => {
               value={leaveData.email}
               onChange={handleChange}
               required
+              disabled
             />
           </div>
           <label>Leave Type:</label>

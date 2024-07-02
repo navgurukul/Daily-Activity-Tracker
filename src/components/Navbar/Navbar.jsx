@@ -1,20 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./Navbar.css"; // Import the CSS file
 import { useNavigate } from "react-router-dom";
-
+import { LoginContext } from "../context/LoginContext";
 const Navbar = () => {
   const [selected, setSelected] = useState(
     localStorage.getItem("selectedButton") || "daily-tracker"
   ); // Initial selected button from localStorage or default
   const navigate = useNavigate();
 
+  const dataContext = useContext(LoginContext);
+  const { email, setEmail } = dataContext;
   useEffect(() => {
-    localStorage.setItem("selectedButton", selected);
-
-    // Redirect to / route if "daily-tracker" is selected on initial load
-    if (selected === "daily-tracker") {
+    if (email) {
+      localStorage.setItem("selectedButton", selected);
+      if (selected === "daily-tracker") {
+        navigate("/form");
+      }
+    } else {
+      localStorage.removeItem("selectedButton");
       navigate("/");
     }
+
+    // Redirect to / route if "daily-tracker" is selected on initial load
   }, [selected, navigate]);
 
   useEffect(() => {
@@ -26,6 +33,11 @@ const Navbar = () => {
   }, []);
 
   const handleClick = (button) => {
+    console.log(button);
+    if (button == "logout") {
+      localStorage.clear();
+      return navigate("/");
+    }
     const newSelection = button === "" ? "daily-tracker" : "leave-app";
     setSelected(newSelection);
     navigate(`/${button}`); // Navigate to the selected button
@@ -48,6 +60,16 @@ const Navbar = () => {
           onClick={() => handleClick("leaves")}
         >
           Leave Application
+        </li>
+        <li
+          className="logout nav-button"
+          onClick={() => {
+            localStorage.clear();
+            handleClick("logout");
+            setEmail("");
+          }}
+        >
+          Logout 💀
         </li>
       </ul>
     </nav>

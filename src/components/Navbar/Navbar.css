@@ -3,7 +3,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 1rem;
-  background-color:#878787; /* Subtle light gray background */
+  background-color: #878787; /* Subtle light gray background */
   color: white;
   background-color: inherit;
 }
@@ -37,4 +37,15 @@
 .nav-button:hover {
   background-color: #b5b5b5; /* Customize hover background color */
   color: #333; /* Customize hover text color */
+}
+.logout{
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #5c0000;
+
+}
+.logout:hover {
+  background-color: #f60000; /* Customize hover background color */
+  color: #ffffff; /* Customize hover text color */
 }

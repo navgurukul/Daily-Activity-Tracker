@@ -7,6 +7,7 @@ import Navbar from "./components/Navbar/Navbar";
 import Login from "./components/Login/Login";
 import NoTabNavBar from "./components/Navbar/NoTabNavbar";
 import { LoginContext } from "./components/context/LoginContext";
+import brainImg  from  '../public/brain.png';
 function App() {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
@@ -27,7 +28,7 @@ function App() {
         <br />
         <div id="img-container">
           <img
-            src="/public/brain.png"
+            src={brainImg}
             style={{
               height: "100px",
             }}

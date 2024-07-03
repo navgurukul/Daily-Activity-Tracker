@@ -3,6 +3,7 @@ import "./Leaves.css";
 import config from "../../../public/api";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
+import leaveTypes from "../../../public/leaves";
 
 const Leaves = () => {
   const dataContext = useContext(LoginContext);
@@ -111,7 +112,6 @@ const Leaves = () => {
     })
       .then((response) => response.text())
       .then((data) => {
-        console.log("Response from Google Apps Script:", data);
         setSuccessMessage("Leave request submitted successfully!");
         setLeaveData({
           type: "leave",
@@ -195,10 +195,11 @@ const Leaves = () => {
             required
           >
             <option value="">--Select Leave Type--</option>
-            <option value="bereavement">Bereavement</option>
-            <option value="casual">Casual</option>
-            <option value="wellness">Wellness</option>
-            <option value="wedding">Wedding</option>
+            {leaveTypes.map((leaveType, index) => (
+              <option key={index} value={leaveType}>
+                {leaveType}
+              </option>
+            ))}
           </select>
         </div>
 

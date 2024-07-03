@@ -7,19 +7,34 @@ import { LoginContext } from "../context/LoginContext";
 const Leaves = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
+  const navigate = useNavigate();
+
+  const getTodayDate = () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
   const [leaveData, setLeaveData] = useState({
     type: "leave",
     leaveType: "",
     reason: "",
-    fromDate: "",
-    toDate: "",
+    fromDate: getTodayDate(),
+    toDate: getTodayDate(),
     email: email,
   });
 
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!email) {
+      navigate("/");
+    }
+  }, [email, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,11 +43,6 @@ const Leaves = () => {
       [name]: value,
     });
   };
-  useEffect(() => {
-    if (!email) {
-      navigate("/");
-    }
-  }, []);
 
   const calculateNumberOfDays = (fromDate, toDate) => {
     const from = new Date(fromDate);
@@ -72,6 +82,8 @@ const Leaves = () => {
       !leaveData.email
     ) {
       setError("All fields are required.");
+      setLoading(false);
+      handleLoading(false);
       return;
     }
 
@@ -85,7 +97,6 @@ const Leaves = () => {
       ...leaveData,
       numberOfDays,
     };
-    console.log(leaveDataWithDays);
 
     setError(""); // Clear any previous error messages
 
@@ -106,25 +117,24 @@ const Leaves = () => {
           type: "leave",
           leaveType: "",
           reason: "",
-          fromDate: "",
-          toDate: "",
+          fromDate: getTodayDate(),
+          toDate: getTodayDate(),
           email: email,
         });
-
         setLoading(false);
-
         handleLoading(false);
-        setTimeout(() => setSuccessMessage(""), 4000); // Clear message after 3 seconds
+        setTimeout(() => setSuccessMessage(""), 4000); // Clear message after 4 seconds
       })
       .catch((error) => {
         console.error("Error sending data to Google Apps Script:", error);
         setError("Error submitting leave request.");
+        setLoading(false);
+        handleLoading(false);
       });
   };
+
   const handleLoading = (load) => {
-    load == true
-      ? (document.getElementById("root").style.opacity = "0.8")
-      : (document.getElementById("root").style.opacity = "1");
+    document.getElementById("root").style.opacity = load ? "0.8" : "1";
   };
 
   return (
@@ -132,41 +142,39 @@ const Leaves = () => {
       <div
         aria-label="Orange and tan hamster running in a metal wheel"
         role="img"
-        class="wheel-and-hamster"
+        className="wheel-and-hamster"
         style={{
           position: "absolute",
           display: loading ? "block" : "none",
           top: "42%",
-          left: "45%",
+          left: "35%",
           zIndex: "100",
         }}
       >
-        <div class="wheel"></div>
-        <div class="hamster">
-          <div class="hamster__body">
-            <div class="hamster__head">
-              <div class="hamster__ear"></div>
-              <div class="hamster__eye"></div>
-              <div class="hamster__nose"></div>
+        <div className="wheel"></div>
+        <div className="hamster">
+          <div className="hamster__body">
+            <div className="hamster__head">
+              <div className="hamster__ear"></div>
+              <div className="hamster__eye"></div>
+              <div className="hamster__nose"></div>
             </div>
-            <div class="hamster__limb hamster__limb--fr"></div>
-            <div class="hamster__limb hamster__limb--fl"></div>
-            <div class="hamster__limb hamster__limb--br"></div>
-            <div class="hamster__limb hamster__limb--bl"></div>
-            <div class="hamster__tail"></div>
+            <div className="hamster__limb hamster__limb--fr"></div>
+            <div className="hamster__limb hamster__limb--fl"></div>
+            <div className="hamster__limb hamster__limb--br"></div>
+            <div className="hamster__limb hamster__limb--bl"></div>
+            <div className="hamster__tail"></div>
           </div>
         </div>
-        <div class="spoke"></div>
+        <div className="spoke"></div>
       </div>
       <h1 style={{ textAlign: "center" }}>Leave Application Form</h1>
       <p style={{ textAlign: "center" }}>
-        {" "}
-        Make Sure to check the leave balance before applying
+        Make sure to check the leave balance before applying
       </p>
       <form onSubmit={handleSubmit}>
         {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
         {error && <p style={{ color: "red" }}>{error}</p>}
-
         <div>
           <div>
             <label>Employee Email:</label>

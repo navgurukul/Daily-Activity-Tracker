@@ -3,16 +3,26 @@ import "./Form.css";
 import config from "../../config";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
+
 const Form = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
+
+  const getTodayDate = () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
   const [formData, setFormData] = useState({
     type: "contribution",
     email: email,
     challenges: "",
     description: "",
     contributions: [],
-    selectedDate: "",
+    selectedDate: getTodayDate(),
   });
 
   const [projectData, setProjectData] = useState([]);
@@ -26,9 +36,9 @@ const Form = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [saved, setSaved] = useState(false);
-
   const [showSelect, setShowSelect] = useState(true);
   const navigate = useNavigate();
+
   useEffect(() => {
     if (!email) {
       navigate("/");
@@ -86,27 +96,19 @@ const Form = () => {
     e.preventDefault();
     if (!saved)
       return alert("Please save the contribution before submitting the form");
-    setShowSelect(true);
 
-    handleLoading(true);
-    setLoading(true);
     if (formData.challenges.length < 25) {
       setError(
         "Achievements, Blockers, and Challenges must be at least 25 characters long."
       );
+
       return;
     }
+
+    handleLoading(true);
+    setLoading(true);
     setError(""); // Clear any previous error messages
-
-    // Set current date if not selected by user
-    if (!formData.selectedDate) {
-      const today = new Date();
-      const formattedDate = `${today.getFullYear()}-${
-        today.getMonth() + 1
-      }-${today.getDate()}`;
-      setFormData({ ...formData, selectedDate: formattedDate });
-    }
-
+    setShowSelect(true);
     const url = config.FORM_SUBMIT_URL;
     fetch(url, {
       method: "POST",
@@ -126,7 +128,7 @@ const Form = () => {
           challenges: "",
           description: "",
           contributions: [],
-          selectedDate: "",
+          selectedDate: getTodayDate(),
         });
         setLoading(false);
         handleLoading(false);
@@ -251,30 +253,23 @@ const Form = () => {
             </table>
             <br />
 
-            <p>
-              You can select multiple projects by clicking on the dropdown above
+            <p style={{
+              color:"green"
+            }}>
+              You can select multiple projects by clicking on the dropdown below
             </p>
-            {!showSelect ? (
-              <button type="button" onClick={() => setShowSelect(true)}>
-                Add Contribution
-              </button>
-            ) : null}
           </div>
         )}
         <div>
-          {showSelect ? (
-            <>
-              <label>Select a project in which you contributed:</label>
-              <select value={selectedProject} onChange={handleProjectSelect}>
-                <option value="">--Select a project--</option>
-                {projectData.map((project, index) => (
-                  <option key={index} value={project}>
-                    {project}
-                  </option>
-                ))}
-              </select>
-            </>
-          ) : null}
+          <label>Select a project in which you contributed:</label>
+          <select value={selectedProject} onChange={handleProjectSelect}>
+            <option value="">--Select a project--</option>
+            {projectData.map((project, index) => (
+              <option key={index} value={project}>
+                {project}
+              </option>
+            ))}
+          </select>
 
           {selectedProject && (
             <div>

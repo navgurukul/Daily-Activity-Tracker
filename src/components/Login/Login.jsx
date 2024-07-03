@@ -11,7 +11,7 @@ function Login() {
   const dataContext = useContext(LoginContext);
     const { email, setEmail } = dataContext;
     
-    
+
   const handleCallbackResponse = async (response) => {
     let jwtToken = response.credential;
     const decoded = jwtDecode(jwtToken);
@@ -31,7 +31,7 @@ function Login() {
 
     google?.accounts.id.renderButton(document.getElementById("signInDiv"), {
       theme: "outline",
-      width: 250,
+        width: 250,
       size: "large",
     });
   }, []);

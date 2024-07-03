@@ -7,7 +7,7 @@ form {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 50%;
+  width: 300px;
   margin: auto;
 }
 
@@ -88,9 +88,9 @@ td {
 
 
 
-main {
+/* main {
   padding: 20px;
-}
+} */
 .wheel-and-hamster {
   --dur: 1s;
   position: relative;

@@ -8,24 +8,25 @@
   background-color: inherit;
 }
 
-.heading {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-right: 1rem; /* Adjust margin as needed */
-}
+
 
 .nav-buttons {
   display: flex;
   list-style: none;
-  gap: 2rem; /* Add space between buttons */
+  gap: 1rem; /* Add space between buttons */
   margin: 0;
+  justify-content: flex-end;
   padding: 0;
+  width: 80%;
 }
 
 .nav-button {
   padding: 0.5rem 1rem;
   border-radius: 5px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; /* Combined transition */
 }
 
@@ -38,14 +39,80 @@
   background-color: #b5b5b5; /* Customize hover background color */
   color: #333; /* Customize hover text color */
 }
-.logout{
+
+.logout {
   padding: 0.5rem 1rem;
   border-radius: 5px;
   cursor: pointer;
   background-color: #5c0000;
-
 }
+
 .logout:hover {
   background-color: #f60000; /* Customize hover background color */
   color: #ffffff; /* Customize hover text color */
+}
+
+/* Responsive styles */
+@media (max-width: 1008px) {
+  .heading {
+    display: none;
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-button {
+    width: 80px;
+    height: 20px;
+    font-size: x-small;
+  }
+  .nav-button,
+  .logout {
+    padding: 0.5rem 0.75rem; /* Adjust padding for smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+    .nav-buttons {
+  display: flex;
+  justify-content: space-around;
+  list-style: none;
+  gap: 1rem; /* Add space between buttons */
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+  .nav-button {
+    width: auto;
+    height: auto;
+    font-size: xx-small;
+  }
+  .nav-button,
+  .logout {
+    padding: 0.5rem 0.75rem; /* Adjust padding for smaller screens */
+  }
+}
+
+@media (max-width: 390px) {
+  .nav-buttons {
+  display: flex;
+  justify-content: space-around;
+  list-style: none;
+  gap: 1rem; /* Add space between buttons */
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+
+  .nav-button {
+    width: auto;
+    height: auto;
+    font-size: xx-small;
+  }
+  .nav-button,
+  .logout {
+    padding: 0.5rem 0.75rem; /* Adjust padding for smaller screens */
+  }
 }

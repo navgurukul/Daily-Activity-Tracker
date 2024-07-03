@@ -45,7 +45,17 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <h1 className="heading">Daily Tracker</h1>
+      <h1
+        className="heading"
+        style={{
+          color: "white",
+          fontSize: "1.5rem",
+          fontWeight: "bold",
+          margin: "0",
+        }}
+      >
+        Daily Tracker
+      </h1>
       <ul className="nav-buttons">
         <li
           className={`nav-button ${

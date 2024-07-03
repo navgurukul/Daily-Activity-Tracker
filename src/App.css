@@ -11,7 +11,6 @@ body {
   display: flex;
   flex-direction: row;
   min-height: 100vh;
-  
 }
 
 .App-header {
@@ -109,13 +108,19 @@ form button {
 form button:hover {
   background-color: #21a1f1;
 }
+
 @media (max-width: 600px) {
   .App {
     flex-direction: column;
-  }
 
+    justify-content: center;
+    align-items: center;
+  }
+  #img-container {
+    display: none;
+  }
   .App-header {
-    width: 100%;
+    width: 95%;
     height: 50px;
   }
 
@@ -125,12 +130,22 @@ form button:hover {
   }
 
   main {
-    width: 100%;
+    width: 90%;
     padding: 10px;
   }
 
   form {
-    width: 100%;
+    width: 90%;
+    max-width: 100%;
+  }
+}
+@media (max-width: 600px) {
+  main {
+    width: 85%;
+    padding: 10px;
+  }
+  form {
+    width: 80%;
     max-width: 100%;
   }
 }

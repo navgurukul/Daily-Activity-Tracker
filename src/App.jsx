@@ -25,7 +25,7 @@ function App() {
         <br />
         <br />
         <br />
-        <div>
+        <div id="img-container">
           <img
             src="/public/brain.png"
             style={{

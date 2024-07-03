@@ -185,7 +185,7 @@ const Form = () => {
       <form onSubmit={handleSubmit}>
         {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
         <div>
-          <label>Email:</label>
+          <label>Employee Email:</label>
           <input
             type="email"
             name="email"

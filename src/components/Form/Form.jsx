@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./Form.css";
-import config from "../../config";
+import config from "../../../public/api";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 
@@ -43,7 +43,7 @@ const Form = () => {
     if (!email) {
       navigate("/");
     }
-    fetch("/data.json")
+    fetch("/projects.json")
       .then((response) => response.json())
       .then((data) => {
         setProjectData(data.projects);
@@ -253,9 +253,11 @@ const Form = () => {
             </table>
             <br />
 
-            <p style={{
-              color:"green"
-            }}>
+            <p
+              style={{
+                color: "green",
+              }}
+            >
               You can select multiple projects by clicking on the dropdown below
             </p>
           </div>

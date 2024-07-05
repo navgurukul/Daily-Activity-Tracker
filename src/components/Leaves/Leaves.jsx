@@ -27,6 +27,7 @@ const Leaves = () => {
     email: email,
   });
 
+  const [halfDay, setHalfDay] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -45,9 +46,19 @@ const Leaves = () => {
     });
   };
 
-  const calculateNumberOfDays = (fromDate, toDate) => {
+  const handleHalfDayChange = (e) => {
+    setHalfDay(e.target.checked);
+  };
+
+  const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
     const from = new Date(fromDate);
     const to = new Date(toDate);
+
+    // If fromDate and toDate are the same and halfDay is checked, return 0.5
+    if (fromDate === toDate && halfDay) {
+      return 0.5;
+    }
+
     let totalDays = 0;
     let currentDate = new Date(from);
 
@@ -65,6 +76,11 @@ const Leaves = () => {
 
       // Move to the next day
       currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    // If half day is selected, add 0.5 to the total days if fromDate and toDate are different
+    if (halfDay && fromDate !== toDate) {
+      totalDays += 0.5;
     }
 
     return totalDays;
@@ -91,7 +107,8 @@ const Leaves = () => {
     // Calculate the number of days
     const numberOfDays = calculateNumberOfDays(
       leaveData.fromDate,
-      leaveData.toDate
+      leaveData.toDate,
+      halfDay
     );
 
     const leaveDataWithDays = {
@@ -121,6 +138,7 @@ const Leaves = () => {
           toDate: getTodayDate(),
           email: email,
         });
+        setHalfDay(false);
         setLoading(false);
         handleLoading(false);
         setTimeout(() => setSuccessMessage(""), 4000); // Clear message after 4 seconds
@@ -232,6 +250,39 @@ const Leaves = () => {
             value={leaveData.toDate}
             onChange={handleChange}
             required
+          />
+        </div>
+        <div className="tooltip">
+          How to use Half Day?
+          <span
+            style={{
+              width: "300px",
+            }}
+            className="tooltiptext"
+          >
+            Note: Do not change the date if you want to avail half day for the
+            single day. If the date is increased by 1 and halfday is checked You
+            will be availing today's leave + tomorrow's + half day.
+          </span>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            gap: "0.5rem",
+            alignItems: "baseline",
+            marginTop: "10px",
+          }}
+        >
+          <label style={{ width: "25%" }}>Half Day:</label>
+          <input
+            style={{
+              width: "20px",
+            }}
+            type="checkbox"
+            name="halfDay"
+            checked={halfDay}
+            onChange={handleHalfDayChange}
           />
         </div>
 

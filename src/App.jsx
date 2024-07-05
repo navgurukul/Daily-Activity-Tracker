@@ -35,7 +35,7 @@ function App() {
             alt=""
           />
           <br />
-          <p>Decipline &gt; Motivation</p>
+          <p>Discipline &gt; Motivation</p>
         </div>
       </header>
       <main>

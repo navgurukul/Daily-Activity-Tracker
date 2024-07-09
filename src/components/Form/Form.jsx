@@ -49,6 +49,11 @@ const Form = () => {
         setProjectData(data.projects);
       });
   }, []);
+  document.querySelectorAll('input[type="number"]').forEach(function (input) {
+    input.addEventListener("wheel", function (event) {
+      event.preventDefault();
+    });
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -280,6 +285,7 @@ const Form = () => {
               <input
                 type="number"
                 name="hours"
+                onWheel="this.blur()"
                 value={currentContribution.hours}
                 onChange={handleContributionChange}
                 min="0"

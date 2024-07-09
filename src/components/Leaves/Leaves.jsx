@@ -162,7 +162,7 @@ const Leaves = () => {
         role="img"
         className="wheel-and-hamster"
         style={{
-          position: "absolute",
+          position: "fixed",
           display: loading ? "block" : "none",
           top: "42%",
           left: "35%",

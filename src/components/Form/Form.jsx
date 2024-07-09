@@ -37,6 +37,11 @@ const Form = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [saved, setSaved] = useState(false);
   const [showSelect, setShowSelect] = useState(true);
+  const [editIndex, setEditIndex] = useState(null);
+  const [editContribution, setEditContribution] = useState({
+    hours: "",
+    task: "",
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,7 +54,7 @@ const Form = () => {
         setProjectData(data.projects);
       });
   }, []);
-  
+
   document.querySelectorAll('input[type="number"]').forEach(function (input) {
     input.addEventListener("wheel", function (event) {
       event.preventDefault();
@@ -98,6 +103,40 @@ const Form = () => {
     }
   };
 
+  const handleEditContributionChange = (e) => {
+    const { name, value } = e.target;
+    setEditContribution({
+      ...editContribution,
+      [name]: value,
+    });
+  };
+
+  const handleEdit = (index) => {
+    setEditIndex(index);
+    setEditContribution(formData.contributions[index]);
+  };
+
+  const handleSaveEdit = (index) => {
+    const updatedContributions = formData.contributions.map(
+      (contribution, idx) => (idx === index ? editContribution : contribution)
+    );
+    setFormData({
+      ...formData,
+      contributions: updatedContributions,
+    });
+    setEditIndex(null);
+  };
+
+  const handleDelete = (index) => {
+    const updatedContributions = formData.contributions.filter(
+      (contribution, idx) => idx !== index
+    );
+    setFormData({
+      ...formData,
+      contributions: updatedContributions,
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!saved)
@@ -142,7 +181,6 @@ const Form = () => {
       })
       .catch((error) => {
         console.error("Error sending data to Google Apps Script:", error);
-        // Handle error
       });
   };
 
@@ -159,7 +197,7 @@ const Form = () => {
         role="img"
         className="wheel-and-hamster"
         style={{
-          position: "absolute",
+          position: "fixed",
           display: loading ? "block" : "none",
           top: "42%",
           left: "45%",
@@ -238,21 +276,77 @@ const Form = () => {
                   <th>Project</th>
                   <th>Hours</th>
                   <th>Task</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {formData.contributions.map((contribution, index) => (
                   <tr key={index} style={{ height: "auto" }}>
-                    <td>{contribution.project}</td>
-                    <td>{contribution.hours}</td>
-                    <td
-                      style={{
-                        height: "auto",
-                        maxWidth: "100px",
-                      }}
-                    >
-                      {contribution.task}
-                    </td>
+                    {editIndex === index ? (
+                      <>
+                        <td>{contribution.project}</td>
+                        <td>
+                          <input
+                            type="number"
+                            name="hours"
+                            value={editContribution.hours}
+                            onChange={handleEditContributionChange}
+                          />
+                        </td>
+                        <td>
+                          <textarea
+                            name="task"
+                            value={editContribution.task}
+                            onChange={handleEditContributionChange}
+                          />
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            className="save-button"
+                            onClick={() => handleSaveEdit(index)}
+                          >
+                            Save
+                          </button>
+                          <button
+                            type="button"
+                            className="delete-button"
+                            onClick={() => handleDelete(index)}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td>{contribution.project}</td>
+                        <td>{contribution.hours}</td>
+                        <td
+                          style={{
+                            height: "auto",
+                            maxWidth: "100px",
+                          }}
+                        >
+                          {contribution.task}
+                        </td>
+                        <td>
+                            <button
+                              className="edit-button"
+                            type="button"
+                            onClick={() => handleEdit(index)}
+                          >
+                            Edit
+                          </button>
+                            <button
+                              className="delete-button"
+                            type="button"
+                            onClick={() => handleDelete(index)}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -286,7 +380,6 @@ const Form = () => {
               <input
                 type="number"
                 name="hours"
-                onWheel="this.blur()"
                 value={currentContribution.hours}
                 onChange={handleContributionChange}
                 min="0"

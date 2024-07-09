@@ -49,6 +49,7 @@ const Form = () => {
         setProjectData(data.projects);
       });
   }, []);
+  
   document.querySelectorAll('input[type="number"]').forEach(function (input) {
     input.addEventListener("wheel", function (event) {
       event.preventDefault();

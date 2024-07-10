@@ -4,6 +4,8 @@ import config from "../../../public/api";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import leaveTypes from "../../../public/leaves";
+import SimpleSnackbar from "../Form/Snackbar";
+import { Troubleshoot } from "@mui/icons-material";
 
 const Leaves = () => {
   const dataContext = useContext(LoginContext);
@@ -31,6 +33,7 @@ const Leaves = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
     if (!email) {
@@ -130,6 +133,7 @@ const Leaves = () => {
       .then((response) => response.text())
       .then((data) => {
         setSuccessMessage("Leave request submitted successfully!");
+        setSnackbarOpen(true);
         setLeaveData({
           type: "leave",
           leaveType: "",
@@ -141,7 +145,7 @@ const Leaves = () => {
         setHalfDay(false);
         setLoading(false);
         handleLoading(false);
-        setTimeout(() => setSuccessMessage(""), 4000); // Clear message after 4 seconds
+        setTimeout(() => {setSnackbarOpen(false);setSuccessMessage("")}, 4000); // Clear message after 4 seconds
       })
       .catch((error) => {
         console.error("Error sending data to Google Apps Script:", error);
@@ -150,7 +154,12 @@ const Leaves = () => {
         handleLoading(false);
       });
   };
-
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
   const handleLoading = (load) => {
     document.getElementById("root").style.opacity = load ? "0.8" : "1";
   };
@@ -288,6 +297,11 @@ const Leaves = () => {
 
         <button type="submit">Submit</button>
       </form>
+      <SimpleSnackbar
+      message={successMessage}
+      open={snackbarOpen}
+      handleClose={handleSnackbarClose}
+    />
     </div>
   );
 };

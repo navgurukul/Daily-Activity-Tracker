@@ -58,6 +58,7 @@ const Form = () => {
   const [deleteIndex, setDeleteIndex] = useState(null);
   const navigate = useNavigate();
 
+  const today = new Date().toISOString().split("T")[0];
   useEffect(() => {
     try {
       fetch(
@@ -303,8 +304,10 @@ const Form = () => {
           <input
             type="date"
             name="selectedDate"
+            max={today}
             value={formData.selectedDate}
             onChange={handleChange}
+            
           />
         </div>
 

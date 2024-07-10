@@ -3,6 +3,11 @@ import "./Form.css";
 import config from "../../../public/api";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
+
 
 const Form = () => {
   const dataContext = useContext(LoginContext);
@@ -42,6 +47,9 @@ const Form = () => {
     hours: "",
     task: "",
   });
+
+  const [open, setOpen] = useState(false);
+  const [deleteIndex, setDeleteIndex] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -128,15 +136,24 @@ const Form = () => {
   };
 
   const handleDelete = (index) => {
+    setDeleteIndex(index);
+    setOpen(true);
+  };
+
+  const confirmDelete = () => {
     const updatedContributions = formData.contributions.filter(
-      (contribution, idx) => idx !== index
+      (contribution, idx) => idx !== deleteIndex
     );
     setFormData({
       ...formData,
       contributions: updatedContributions,
     });
+    setOpen(false);
   };
 
+  const handleClose = () => {
+    setOpen(false);
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!saved)
@@ -306,14 +323,14 @@ const Form = () => {
                             className="save-button"
                             onClick={() => handleSaveEdit(index)}
                           >
-                            Save
+                            <SaveIcon className="icon-white" />
                           </button>
                           <button
                             type="button"
                             className="delete-button"
                             onClick={() => handleDelete(index)}
                           >
-                            Delete
+                            <DeleteIcon className="icon-white" />
                           </button>
                         </td>
                       </>
@@ -330,19 +347,19 @@ const Form = () => {
                           {contribution.task}
                         </td>
                         <td>
-                            <button
-                              className="edit-button"
+                          <button
+                            className="edit-button"
                             type="button"
                             onClick={() => handleEdit(index)}
                           >
-                            Edit
+                            <EditIcon className="icon-white" />
                           </button>
-                            <button
-                              className="delete-button"
+                          <button
+                            className="delete-button"
                             type="button"
                             onClick={() => handleDelete(index)}
                           >
-                            Delete
+                            <DeleteIcon className="icon-white" />
                           </button>
                         </td>
                       </>
@@ -401,6 +418,27 @@ const Form = () => {
         </div>
         <button type="submit">Submit</button>
       </form>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete this contribution?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={confirmDelete} color="primary" autoFocus>
+            Yes
+          </Button>
+          <Button onClick={handleClose} color="primary">
+            No
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

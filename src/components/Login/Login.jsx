@@ -4,11 +4,14 @@ import {jwtDecode} from "jwt-decode"; // Ensure you have this package installed
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
+import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
 
 function Login() {
   const navigate = useNavigate();
   const dataContext = useContext(LoginContext);
   const { email, setEmail } = dataContext;
+  const [snackbarOpen, setSnackbarOpen]=useState(false);
 
   const handleCallbackResponse = async (response) => {
     let jwtToken = response.credential;
@@ -21,7 +24,7 @@ function Login() {
       setEmail(userEmail);
       navigate("/form");
     } else {
-     return alert("Access restricted to NavGurukul users only.");
+      setSnackbarOpen(true)
     }
   };
 
@@ -38,7 +41,9 @@ function Login() {
       size: "large",
     });
   }, []);
-
+  const handleCloseSnackbar=()=>{
+    setSnackbarOpen(false);
+  }
   return (
     <div className="container">
       <div id="login-container">
@@ -47,8 +52,24 @@ function Login() {
         </h2>
         <div id="signInDiv" className="custom-google-button"></div>
       </div>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{vertical:"bottom", horizontal:"left"}}
+      >
+        <MuiAlert
+          elevation={6}
+          variant="filled"
+          onClose={handleCloseSnackbar}
+          severity="warning"
+        >
+          Access restricted to NavGurukul users only.
+        </MuiAlert>
+      </Snackbar>
     </div>
   );
 }
-
 export default Login;
+
+

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./Form.css";
 import config from "../../../public/api";
-import { useNavigate } from "react-router-dom";
+import { json, useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -52,16 +52,28 @@ const Form = () => {
   const [deleteIndex, setDeleteIndex] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!email) {
-      navigate("/");
-    }
-    fetch("/projects.json")
-      .then((response) => response.json())
-      .then((data) => {
-        setProjectData(data.projects);
-      });
-  }, []);
+
+
+    useEffect(() => {
+        try {
+          fetch(
+            "https://script.google.com/macros/s/AKfycbx0lT1BKg_XHx3P01BChnaROnk79NFSOVVyQLAHYwb1VqC56OsOvxIyINTu93H2NUfTOA/exec",
+           
+          )
+            .then((response) =>response.json()
+            )
+            .then((data) => {
+              console.log("Data fetched:",data.content);
+               const filteredProjects = data.content.map((project) => project[0]).filter((project) => project !== "");
+           //   setProjectNames(filteredProjects);
+              console.log("Project Names:", filteredProjects)
+              setProjectData(filteredProjects);
+            });
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+    }, []);
+
 
   document.querySelectorAll('input[type="number"]').forEach(function (input) {
     input.addEventListener("wheel", function (event) {

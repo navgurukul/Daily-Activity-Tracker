@@ -6,7 +6,7 @@ import { LoginContext } from "../context/LoginContext";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Snackbar, Alert } from '@mui/material';
 
 
 const Form = () => {
@@ -439,6 +439,19 @@ const Form = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={!!successMessage}
+        autoHideDuration={6000}
+        onClose={() => setSuccessMessage("")}
+      >
+        <Alert
+          onClose={() => setSuccessMessage("")}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

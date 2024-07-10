@@ -1,13 +1,19 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./Form.css";
 import config from "../../../public/api";
-import { useNavigate } from "react-router-dom";
+import { json, useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Snackbar, Alert } from '@mui/material';
-
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+} from "@mui/material";
 
 const Form = () => {
   const dataContext = useContext(LoginContext);
@@ -52,15 +58,35 @@ const Form = () => {
   const [deleteIndex, setDeleteIndex] = useState(null);
   const navigate = useNavigate();
 
+  const today = new Date().toISOString().split("T")[0];
   useEffect(() => {
-    if (!email) {
-      navigate("/");
+    try {
+      fetch(
+        "https://script.google.com/macros/s/AKfycbzaoy-lue-Hu8dDFgbhRhTKst8zgUbmxUzfiQUhx1yjHJfbAQpBpjkapsdcHqGOTSn83Q/exec"
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          const projects = data.projects;
+          const activeProjects = projects.filter(function (project) {
+            return project.status === "Active";
+          });
+
+          // Extract project names from filtered array
+          const activeProjectNames = activeProjects.map(function (project) {
+            return project.projectName;
+          });
+          // console.log("Active Projects:", activeProjectNames);
+          setProjectData(activeProjectNames);
+          // const filteredProjects = data.content
+          //   .map((project) => project[0])
+          //   .filter((project) => project !== "");
+          // //   setProjectNames(filteredProjects);
+          // console.log("Project Names:", filteredProjects);
+          // setProjectData(filteredProjects);
+        });
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
-    fetch("/projects.json")
-      .then((response) => response.json())
-      .then((data) => {
-        setProjectData(data.projects);
-      });
   }, []);
 
   document.querySelectorAll('input[type="number"]').forEach(function (input) {
@@ -278,8 +304,10 @@ const Form = () => {
           <input
             type="date"
             name="selectedDate"
+            max={today}
             value={formData.selectedDate}
             onChange={handleChange}
+            
           />
         </div>
 

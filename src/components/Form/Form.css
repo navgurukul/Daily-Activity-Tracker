@@ -103,6 +103,9 @@ td {
 .delete-button:hover{
   background-color: #d32f2f;
 }
+.icon-white {
+  color: white;
+}
 /* main {
   padding: 20px;
 } */

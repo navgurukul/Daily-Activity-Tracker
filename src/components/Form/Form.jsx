@@ -3,11 +3,17 @@ import "./Form.css";
 import config from "../../../public/api";
 import { json, useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
-
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+} from "@mui/material";
 
 const Form = () => {
   const dataContext = useContext(LoginContext);
@@ -52,28 +58,35 @@ const Form = () => {
   const [deleteIndex, setDeleteIndex] = useState(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    try {
+      fetch(
+        "https://script.google.com/macros/s/AKfycbzaoy-lue-Hu8dDFgbhRhTKst8zgUbmxUzfiQUhx1yjHJfbAQpBpjkapsdcHqGOTSn83Q/exec"
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          const projects = data.projects;
+          const activeProjects = projects.filter(function (project) {
+            return project.status === "Active";
+          });
 
-
-    useEffect(() => {
-        try {
-          fetch(
-            "https://script.google.com/macros/s/AKfycbx0lT1BKg_XHx3P01BChnaROnk79NFSOVVyQLAHYwb1VqC56OsOvxIyINTu93H2NUfTOA/exec",
-           
-          )
-            .then((response) =>response.json()
-            )
-            .then((data) => {
-              console.log("Data fetched:",data.content);
-               const filteredProjects = data.content.map((project) => project[0]).filter((project) => project !== "");
-           //   setProjectNames(filteredProjects);
-              console.log("Project Names:", filteredProjects)
-              setProjectData(filteredProjects);
-            });
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
-    }, []);
-
+          // Extract project names from filtered array
+          const activeProjectNames = activeProjects.map(function (project) {
+            return project.projectName;
+          });
+          // console.log("Active Projects:", activeProjectNames);
+          setProjectData(activeProjectNames);
+          // const filteredProjects = data.content
+          //   .map((project) => project[0])
+          //   .filter((project) => project !== "");
+          // //   setProjectNames(filteredProjects);
+          // console.log("Project Names:", filteredProjects);
+          // setProjectData(filteredProjects);
+        });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }, []);
 
   document.querySelectorAll('input[type="number"]').forEach(function (input) {
     input.addEventListener("wheel", function (event) {

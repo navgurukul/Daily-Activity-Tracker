@@ -267,7 +267,6 @@ const Form = () => {
             required
           />
 
-          {error && <p style={{ color: "red" }}>{error}</p>}
         </div>
 
         <div>

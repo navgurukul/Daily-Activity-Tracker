@@ -200,7 +200,6 @@ const Leaves = () => {
         Make sure to check the leave balance before applying
       </p>
       <form onSubmit={handleSubmit}>
-        {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
         {error && <p style={{ color: "red" }}>{error}</p>}
         <div>
           <div>

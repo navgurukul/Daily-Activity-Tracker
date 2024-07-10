@@ -3,6 +3,7 @@ import "./Form.css";
 import config from "../../../public/api";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
+import SimpleSnackbar from "./Snackbar";
 
 const Form = () => {
   const dataContext = useContext(LoginContext);
@@ -38,6 +39,7 @@ const Form = () => {
   const [saved, setSaved] = useState(false);
   const [showSelect, setShowSelect] = useState(true);
   const [editIndex, setEditIndex] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [editContribution, setEditContribution] = useState({
     hours: "",
     task: "",
@@ -61,6 +63,13 @@ const Form = () => {
     });
   });
 
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -68,6 +77,7 @@ const Form = () => {
       [name]: value,
     });
   };
+
 
   const handleProjectSelect = (e) => {
     setSelectedProject(e.target.value);
@@ -146,6 +156,7 @@ const Form = () => {
       setError(
         "Achievements, Blockers, and Challenges must be at least 25 characters long."
       );
+      setSnackbarOpen(true);
 
       return;
     }
@@ -153,6 +164,7 @@ const Form = () => {
     handleLoading(true);
     setLoading(true);
     setError(""); // Clear any previous error messages
+    setSnackbarOpen(false);
     setShowSelect(true);
     const url = config.FORM_SUBMIT_URL;
     fetch(url, {
@@ -202,8 +214,10 @@ const Form = () => {
           top: "42%",
           left: "45%",
           zIndex: "100",
-        }}
+        }
+      }
       >
+  
         <div className="wheel"></div>
         <div className="hamster">
           <div className="hamster__body">
@@ -401,8 +415,15 @@ const Form = () => {
         </div>
         <button type="submit">Submit</button>
       </form>
+      <SimpleSnackbar
+    message={error}
+    open={snackbarOpen}
+    handleClose={handleSnackbarClose}
+  />
     </div>
   );
 };
 
 export default Form;
+
+

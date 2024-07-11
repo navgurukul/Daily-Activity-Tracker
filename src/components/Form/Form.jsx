@@ -420,7 +420,6 @@ const Form = () => {
 
           {selectedProject && (
             <div>
-              <h4>{selectedProject}</h4>
               <label>Total Hours Spent:</label>
               <input
                 type="number"

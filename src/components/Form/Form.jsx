@@ -104,6 +104,7 @@ const Form = () => {
   };
 
   const handleProjectSelect = (e) => {
+    setSaved(false);
     setSelectedProject(e.target.value);
     setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
   };
@@ -180,11 +181,14 @@ const Form = () => {
   const handleClose = () => {
     setOpen(false);
   };
+
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!saved)
+    if (!saved) {
       return alert("Please save the contribution before submitting the form");
-
+    }
+    setSaved(false);
     if (formData.challenges.length < 25) {
       setError(
         "Achievements, Blockers, and Challenges must be at least 25 characters long."
@@ -195,6 +199,7 @@ const Form = () => {
 
     handleLoading(true);
     setLoading(true);
+  
     setError(""); // Clear any previous error messages
     setShowSelect(true);
     const url = config.FORM_SUBMIT_URL;
@@ -307,7 +312,6 @@ const Form = () => {
             max={today}
             value={formData.selectedDate}
             onChange={handleChange}
-            
           />
         </div>
 
@@ -417,7 +421,8 @@ const Form = () => {
               </option>
             ))}
           </select>
-
+          <br />
+          <br />
           {selectedProject && (
             <div>
               <label>Total Hours Spent:</label>

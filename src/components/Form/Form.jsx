@@ -1,18 +1,29 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./Form.css";
 import config from "../../../public/api";
-import { useNavigate } from "react-router-dom";
+import { json, useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Snackbar, Alert } from '@mui/material';
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
+import LoadingSpinner  from "../Loader/LoadingSpinner";
+import { useLoader } from "../context/LoadingContext";
 
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+  Snackbar, 
+  Alert,
+} from "@mui/material";
 
 const Form = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
-
+  const {loading,setLoading}=useLoader();
   const getTodayDate = () => {
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -32,7 +43,6 @@ const Form = () => {
 
   const [projectData, setProjectData] = useState([]);
   const [selectedProject, setSelectedProject] = useState("");
-  const [loading, setLoading] = useState(false);
   const [currentContribution, setCurrentContribution] = useState({
     hours: "",
     task: "",
@@ -52,15 +62,35 @@ const Form = () => {
   const [deleteIndex, setDeleteIndex] = useState(null);
   const navigate = useNavigate();
 
+  const today = new Date().toISOString().split("T")[0];
   useEffect(() => {
-    if (!email) {
-      navigate("/");
+    try {
+      fetch(
+        "https://script.google.com/macros/s/AKfycbzaoy-lue-Hu8dDFgbhRhTKst8zgUbmxUzfiQUhx1yjHJfbAQpBpjkapsdcHqGOTSn83Q/exec"
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          const projects = data.projects;
+          const activeProjects = projects.filter(function (project) {
+            return project.status === "Active";
+          });
+
+          // Extract project names from filtered array
+          const activeProjectNames = activeProjects.map(function (project) {
+            return project.projectName;
+          });
+          // console.log("Active Projects:", activeProjectNames);
+          setProjectData(activeProjectNames);
+          // const filteredProjects = data.content
+          //   .map((project) => project[0])
+          //   .filter((project) => project !== "");
+          // //   setProjectNames(filteredProjects);
+          // console.log("Project Names:", filteredProjects);
+          // setProjectData(filteredProjects);
+        });
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
-    fetch("/projects.json")
-      .then((response) => response.json())
-      .then((data) => {
-        setProjectData(data.projects);
-      });
   }, []);
 
   document.querySelectorAll('input[type="number"]').forEach(function (input) {
@@ -209,35 +239,7 @@ const Form = () => {
 
   return (
     <div>
-      <div
-        aria-label="Orange and tan hamster running in a metal wheel"
-        role="img"
-        className="wheel-and-hamster"
-        style={{
-          position: "fixed",
-          display: loading ? "block" : "none",
-          top: "42%",
-          left: "45%",
-          zIndex: "100",
-        }}
-      >
-        <div className="wheel"></div>
-        <div className="hamster">
-          <div className="hamster__body">
-            <div className="hamster__head">
-              <div className="hamster__ear"></div>
-              <div className="hamster__eye"></div>
-              <div className="hamster__nose"></div>
-            </div>
-            <div className="hamster__limb hamster__limb--fr"></div>
-            <div className="hamster__limb hamster__limb--fl"></div>
-            <div className="hamster__limb hamster__limb--br"></div>
-            <div className="hamster__limb hamster__limb--bl"></div>
-            <div className="hamster__tail"></div>
-          </div>
-        </div>
-        <div className="spoke"></div>
-      </div>
+      <LoadingSpinner loading={loading}/>
       <h1 style={{ textAlign: "center" }}>Daily Activity Tracker </h1>
       <p style={{ textAlign: "center" }}>
         Fill out the form below to record your daily tasks.
@@ -278,8 +280,10 @@ const Form = () => {
           <input
             type="date"
             name="selectedDate"
+            max={today}
             value={formData.selectedDate}
             onChange={handleChange}
+            
           />
         </div>
 
@@ -457,3 +461,4 @@ const Form = () => {
 };
 
 export default Form;
+

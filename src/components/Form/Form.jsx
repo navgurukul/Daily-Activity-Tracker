@@ -122,26 +122,23 @@ const Form = () => {
   };
 
   const addContribution = () => {
-    setSaved(true);
-    setShowSelect(false); // Hide the project selection dropdown
-    if (
-      selectedProject &&
-      currentContribution.hours &&
-      currentContribution.task
-    ) {
-      setFormData((prevState) => ({
-        ...prevState,
-        contributions: [
-          ...prevState.contributions,
-          { project: selectedProject, ...currentContribution },
-        ],
-      }));
-      setSelectedProject(""); // Reset project selection
-      setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
-      setShowProjectForm(false); // Hide the project form
+    if (!selectedProject) {
+      alert("Please select a project before saving the contribution");
+      return;
     }
+    setFormData((prevState) => ({
+      ...prevState,
+      contributions: [
+        ...prevState.contributions,
+        { project: selectedProject, ...currentContribution },
+      ],
+    }));
+    setSaved(true); // Set saved to true when a contribution is added
+    setSelectedProject(""); // Reset project selection
+    setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
+    setShowProjectForm(false); // Hide the project form
   };
-
+  
   const handleEditContributionChange = (e) => {
     const { name, value } = e.target;
     setEditContribution({
@@ -189,18 +186,15 @@ const Form = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!saved) {
-      return alert("Please save the contribution before submitting the form");
+    if (formData.contributions.length === 0) {
+      return alert("Please add and save at least one contribution before submitting the form");
     }
-    setSaved(false);
     if (formData.challenges.length < 25) {
-      setError(
-        "Achievements, Blockers, and Challenges must be at least 25 characters long."
-      );
-
+      setError("Achievements, Blockers, and Challenges must be at least 25 characters long.");
       return;
     }
-
+  
+    setSaved(false); // Reset saved to false after submission
     handleLoading(true);
     setLoading(true);
   

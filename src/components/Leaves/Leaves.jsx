@@ -4,10 +4,13 @@ import config from "../../../public/api";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import leaveTypes from "../../../public/leaves";
+import LoadingSpinner  from "../Loader/LoadingSpinner"
+import { useLoader } from "../context/LoadingContext";
 
 const Leaves = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
+  const {loading, setLoading}=useLoader();
   const navigate = useNavigate();
 
   const getTodayDate = () => {
@@ -30,7 +33,6 @@ const Leaves = () => {
   const [halfDay, setHalfDay] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!email) {
@@ -89,8 +91,8 @@ const Leaves = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    handleLoading(true);
     setLoading(true);
+    handleLoading(true);
     if (
       !leaveData.leaveType ||
       !leaveData.reason ||
@@ -157,35 +159,7 @@ const Leaves = () => {
 
   return (
     <div>
-      <div
-        aria-label="Orange and tan hamster running in a metal wheel"
-        role="img"
-        className="wheel-and-hamster"
-        style={{
-          position: "fixed",
-          display: loading ? "block" : "none",
-          top: "42%",
-          left: "35%",
-          zIndex: "100",
-        }}
-      >
-        <div className="wheel"></div>
-        <div className="hamster">
-          <div className="hamster__body">
-            <div className="hamster__head">
-              <div className="hamster__ear"></div>
-              <div className="hamster__eye"></div>
-              <div className="hamster__nose"></div>
-            </div>
-            <div className="hamster__limb hamster__limb--fr"></div>
-            <div className="hamster__limb hamster__limb--fl"></div>
-            <div className="hamster__limb hamster__limb--br"></div>
-            <div className="hamster__limb hamster__limb--bl"></div>
-            <div className="hamster__tail"></div>
-          </div>
-        </div>
-        <div className="spoke"></div>
-      </div>
+      <LoadingSpinner loading={loading}/>
       <h1 style={{ textAlign: "center" }}>Leave Application Form</h1>
       <p style={{ textAlign: "center" }}>
         Make sure to check the leave balance before applying

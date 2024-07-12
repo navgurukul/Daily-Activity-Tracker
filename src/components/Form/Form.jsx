@@ -6,6 +6,9 @@ import { LoginContext } from "../context/LoginContext";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
+import LoadingSpinner  from "../Loader/LoadingSpinner";
+import { useLoader } from "../context/LoadingContext";
+
 import {
   Dialog,
   DialogActions,
@@ -13,12 +16,14 @@ import {
   DialogContentText,
   DialogTitle,
   Button,
+  Snackbar, 
+  Alert,
 } from "@mui/material";
 
 const Form = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
-
+  const {loading,setLoading}=useLoader();
   const getTodayDate = () => {
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -38,7 +43,6 @@ const Form = () => {
 
   const [projectData, setProjectData] = useState([]);
   const [selectedProject, setSelectedProject] = useState("");
-  const [loading, setLoading] = useState(false);
   const [currentContribution, setCurrentContribution] = useState({
     hours: "",
     task: "",
@@ -240,35 +244,7 @@ const Form = () => {
 
   return (
     <div>
-      <div
-        aria-label="Orange and tan hamster running in a metal wheel"
-        role="img"
-        className="wheel-and-hamster"
-        style={{
-          position: "fixed",
-          display: loading ? "block" : "none",
-          top: "42%",
-          left: "45%",
-          zIndex: "100",
-        }}
-      >
-        <div className="wheel"></div>
-        <div className="hamster">
-          <div className="hamster__body">
-            <div className="hamster__head">
-              <div className="hamster__ear"></div>
-              <div className="hamster__eye"></div>
-              <div className="hamster__nose"></div>
-            </div>
-            <div className="hamster__limb hamster__limb--fr"></div>
-            <div className="hamster__limb hamster__limb--fl"></div>
-            <div className="hamster__limb hamster__limb--br"></div>
-            <div className="hamster__limb hamster__limb--bl"></div>
-            <div className="hamster__tail"></div>
-          </div>
-        </div>
-        <div className="spoke"></div>
-      </div>
+      <LoadingSpinner loading={loading}/>
       <h1 style={{ textAlign: "center" }}>Daily Activity Tracker </h1>
       <p style={{ textAlign: "center" }}>
         Fill out the form below to record your daily tasks.
@@ -471,8 +447,22 @@ const Form = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={!!successMessage}
+        autoHideDuration={6000}
+        onClose={() => setSuccessMessage("")}
+      >
+        <Alert
+          onClose={() => setSuccessMessage("")}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
 
 export default Form;
+

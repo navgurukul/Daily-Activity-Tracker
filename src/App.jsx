@@ -7,7 +7,9 @@ import Navbar from "./components/Navbar/Navbar";
 import Login from "./components/Login/Login";
 import NoTabNavBar from "./components/Navbar/NoTabNavbar";
 import { LoginContext } from "./components/context/LoginContext";
-import brainImg  from  '../public/brain.png';
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import brainImg from "../public/brain.png";
+
 function App() {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
@@ -26,7 +28,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {email &&email!=="" ? <Navbar /> : <NoTabNavBar />}
+        {email && email !== "" ? <Navbar /> : <NoTabNavBar />}
 
         <br />
         <br />
@@ -53,8 +55,11 @@ function App() {
       <main>
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/form" element={<Form />} />
-          <Route path="/leaves" element={<Leaves />} />
+          <Route path="/form" element={<ProtectedRoute element={<Form />} />} />
+          <Route
+            path="/leaves"
+            element={<ProtectedRoute element={<Leaves />} />}
+          />
         </Routes>
       </main>
       {/* <footer className="App-footer">

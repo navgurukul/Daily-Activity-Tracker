@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect} from "react";
 import Form from "./components/Form/Form";
 import "./App.css";
 import { Route, Routes, Link } from "react-router-dom";
@@ -11,6 +11,18 @@ import brainImg  from  '../public/brain.png';
 function App() {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = true; // This is required for modern browsers to show the confirmation dialog
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []);
   return (
     <div className="App">
       <header className="App-header">
@@ -53,3 +65,5 @@ function App() {
 }
 
 export default App;
+
+

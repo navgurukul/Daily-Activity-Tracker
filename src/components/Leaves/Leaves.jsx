@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import leaveTypes from "../../../public/leaves";
 import SimpleSnackbar from "../Form/Snackbar";
+
 import { Troubleshoot } from "@mui/icons-material";
 
 const Leaves = () => {
@@ -296,6 +297,7 @@ const Leaves = () => {
 
         <button type="submit">Submit</button>
       </form>
+      
       <SimpleSnackbar
       message={successMessage}
       open={snackbarOpen}

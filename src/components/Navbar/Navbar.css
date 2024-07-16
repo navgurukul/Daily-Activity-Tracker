@@ -116,3 +116,35 @@
     padding: 0.5rem 0.75rem; /* Adjust padding for smaller screens */
   }
 }
+
+.left-buttons {
+  position: absolute;
+  bottom: 0px; /* Adjust as needed */
+  left: 10px; /* Adjust as needed */
+  display: flex;
+  flex-direction: row;
+  margin: 10px;
+  justify-content: space-between;
+  width:400px;
+}
+.left-bottom{
+  margin: 10px;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.btns{
+  background-color: #afc2e8;
+
+}
+.btns:hover{
+  background-color: white;
+}
+.text{
+  color:black;
+  text-decoration: none;
+}
+.text:hover {
+  text-decoration: none; /* Ensure underline is removed on hover */
+}

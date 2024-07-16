@@ -21,16 +21,20 @@ const Navbar = () => {
       navigate("/");
     }
 
+
     // Redirect to / route if "daily-tracker" is selected on initial load
   }, [selected, navigate]);
 
   useEffect(() => {
     // Redirect to / route if the user visits the site and "daily-tracker" is selected
-    const storedSelected = localStorage.getItem("selectedButton");
-    if (storedSelected === "leave-app") {
+    
+    if (selected === "leave-app") {
       navigate("/leaves");
     }
-  }, []);
+    if (selected === "comp-off") {
+      navigate("/comp_off");
+    }
+  }, [selected]);
 
   const handleClick = (button) => {
     console.log(button);
@@ -38,7 +42,7 @@ const Navbar = () => {
       localStorage.clear();
       return navigate("/");
     }
-    const newSelection = button === "" ? "daily-tracker" : "leave-app";
+    const newSelection = button === "" ? "daily-tracker" : button;
     setSelected(newSelection);
     navigate(`/${button}`); // Navigate to the selected button
   };
@@ -66,8 +70,16 @@ const Navbar = () => {
           Activity Tracker
         </li>
         <li
+        className={`nav-button ${
+          selected === "comp-off" ? "selected" : ""
+        }`}
+        onClick={() => handleClick("comp-off")}
+       >
+        Comp-off not available
+      </li>
+        <li
           className={`nav-button ${selected === "leave-app" ? "selected" : ""}`}
-          onClick={() => handleClick("leaves")}
+          onClick={() => handleClick("leave-app")}
         >
           Leave Application
         </li>

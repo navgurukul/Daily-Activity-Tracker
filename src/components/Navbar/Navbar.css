@@ -118,7 +118,7 @@
 }
 
 .left-buttons {
-  position: absolute;
+  position: fixed;
   bottom: 0px; /* Adjust as needed */
   left: 10px; /* Adjust as needed */
   display: flex;

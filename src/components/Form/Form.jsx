@@ -203,13 +203,21 @@ const Form = () => {
 
     setError(""); // Clear any previous error messages
     setShowSelect(true);
+    const submitTime = new Date();
+    const submitTimestamp = `${submitTime.getHours().toString().padStart(2, "0")}:${submitTime.getMinutes().toString().padStart(2, "0")}:${submitTime.getSeconds().toString().padStart(2, "0")}`;
+
+    const payload= {
+      ...formData,
+      timestamp: submitTimestamp,
+    };
+    // console.log(payload)
     const url = config.FORM_SUBMIT_URL;
     fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(payload),
       mode: "no-cors",
     })
       .then((response) => response.text())
@@ -232,6 +240,9 @@ const Form = () => {
         console.error("Error sending data to Google Apps Script:", error);
       });
   };
+  
+  
+
 
   const handleLoading = (load) => {
     load == true

@@ -47,25 +47,16 @@ const Navbar = () => {
       localStorage.removeItem("selectedButton");
       navigate("/");
     }
-
-
-    // Redirect to / route if "daily-tracker" is selected on initial load
-  }, [selected, navigate]);
-
-  useEffect(() => {
-    // Redirect to / route if the user visits the site and "daily-tracker" is selected
-    
-    if (selected === "leave-app") [selected, navigate];
+  }, [selected, navigate, email]);
 
   useEffect(() => {
     const storedSelected = localStorage.getItem("selectedButton");
     if (storedSelected === "leave-app") {
       navigate("/leaves");
-    }
-    if (selected === "comp-off") {
+    } else if (storedSelected === "comp-off") {
       navigate("/comp_off");
     }
-  }, [selected]);
+  }, [navigate]);
 
   const handleClick = (button) => {
     if (button === "logout") {
@@ -106,7 +97,7 @@ const Navbar = () => {
                 <ListItem button onClick={() => handleClick("leaves")}>
                   <ListItemText primary="Leave Application" />
                 </ListItem>
-                <ListItem button >
+                <ListItem button onClick={() => handleClick("comp-off")}>
                   <ListItemText primary="Comp off" />
                 </ListItem>
                 <Divider />
@@ -168,21 +159,19 @@ const Navbar = () => {
       </h1>
       <ul className="nav-buttons">
         <li
-          className={`nav-button ${
-            selected === "daily-tracker" ? "selected" : ""
-          }`}
+          className={`nav-button ${selected === "daily-tracker" ? "selected" : ""
+            }`}
           onClick={() => handleClick("")}
         >
           Activity Tracker
         </li>
         <li
-        className={`nav-button ${
-          selected === "comp-off" ? "selected" : ""
-        }`}
-        // onClick={() => handleClick("comp-off")}
-       >
-       Comp-off
-      </li>
+          className={`nav-button ${selected === "comp-off" ? "selected" : ""
+            }`}
+          // onClick={() => handleClick("comp-off")}
+        >
+          Comp-off
+        </li>
         <li
           className={`nav-button ${selected === "leave-app" ? "selected" : ""}`}
           onClick={() => handleClick("leave-app")}
@@ -200,35 +189,8 @@ const Navbar = () => {
           Logout 💀
         </li>
       </ul>
-      {!isMobile && (
-        <ul className="nav-buttons">
-          <li
-            className={`nav-button ${selected === "daily-tracker" ? "selected" : ""}`}
-            onClick={() => handleClick("")}
-          >
-            Activity Tracker
-          </li>
-          <li
-            className={`nav-button ${selected === "leave-app" ? "selected" : ""}`}
-            onClick={() => handleClick("leaves")}
-          >
-            Leave Application
-          </li>
-          <li
-            className={`nav-button ${selected === "Comp off" ? "selected" : ""}`}
-          >
-            Comp off
-          </li>
-          <li
-            className="logout nav-button"
-            onClick={() => handleClick("logout")}
-          >
-            Logout 💀
-          </li>
-        </ul>
-      )}
     </nav>
   );
-};
+}
 
 export default Navbar;

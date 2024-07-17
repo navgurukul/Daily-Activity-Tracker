@@ -6,7 +6,7 @@ import { LoginContext } from "../context/LoginContext";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
-import LoadingSpinner  from "../Loader/LoadingSpinner";
+import LoadingSpinner from "../Loader/LoadingSpinner";
 import { useLoader } from "../context/LoadingContext";
 
 import {
@@ -16,14 +16,14 @@ import {
   DialogContentText,
   DialogTitle,
   Button,
-  Snackbar, 
+  Snackbar,
   Alert,
 } from "@mui/material";
 
 const Form = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
-  const {loading,setLoading}=useLoader();
+  const { loading, setLoading } = useLoader();
   const getTodayDate = () => {
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -138,7 +138,7 @@ const Form = () => {
     setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
     setShowProjectForm(false); // Hide the project form
   };
-  
+
   const handleEditContributionChange = (e) => {
     const { name, value } = e.target;
     setEditContribution({
@@ -183,21 +183,24 @@ const Form = () => {
     setOpen(false);
   };
 
-
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.contributions.length === 0) {
-      return alert("Please add and save at least one contribution before submitting the form");
+      return alert(
+        "Please add and save at least one contribution before submitting the form"
+      );
     }
     if (formData.challenges.length < 25) {
-      setError("Achievements, Blockers, and Challenges must be at least 25 characters long.");
+      setError(
+        "Achievements, Blockers, and Challenges must be at least 25 characters long."
+      );
       return;
     }
-  
+
     setSaved(false); // Reset saved to false after submission
     handleLoading(true);
     setLoading(true);
-  
+
     setError(""); // Clear any previous error messages
     setShowSelect(true);
     const submitTime = new Date();
@@ -247,9 +250,39 @@ const Form = () => {
       : (document.getElementById("root").style.opacity = "1");
   };
 
+function getMinDate() {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+
+  const DAYS_BACK_NORMAL = 3;
+  const DAYS_BACK_EXTENDED = 5;
+
+  let daysBack;
+
+  switch (dayOfWeek) {
+    case 1: // Monday
+    case 2: // Tuesday
+    case 3: // Wednesday
+      daysBack = DAYS_BACK_EXTENDED;
+      break;
+    case 4: // Thursday
+    case 5: // Friday
+    case 6: // Saturday
+    case 0: // Sunday
+    default:
+      daysBack = DAYS_BACK_NORMAL;
+      break;
+  }
+
+  const minDate = new Date();
+  minDate.setDate(today.getDate() - daysBack);
+
+  return minDate.toISOString().split("T")[0];
+}
+
   return (
     <div>
-      <LoadingSpinner loading={loading}/>
+      <LoadingSpinner loading={loading} />
       <h1 style={{ textAlign: "center" }}>Daily Activity Tracker </h1>
       <p style={{ textAlign: "center" }}>
         Fill out the form below to record your daily tasks.
@@ -291,6 +324,7 @@ const Form = () => {
             type="date"
             name="selectedDate"
             max={today}
+            min={getMinDate()}
             value={formData.selectedDate}
             onChange={handleChange}
           />
@@ -470,4 +504,3 @@ const Form = () => {
 };
 
 export default Form;
-

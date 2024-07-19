@@ -121,24 +121,30 @@ const Form = () => {
     });
   };
 
-  const addContribution = () => {
-    if (!selectedProject) {
-      alert("Please select a project before saving the contribution");
-      return;
-    }
-    setFormData((prevState) => ({
-      ...prevState,
-      contributions: [
-        ...prevState.contributions,
-        { project: selectedProject, ...currentContribution },
-      ],
-    }));
-    setSaved(true); // Set saved to true when a contribution is added
-    setSelectedProject(""); // Reset project selection
-    setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
-    setShowProjectForm(false); // Hide the project form
-  };
 
+const addContribution = () => {
+  if (!selectedProject) {
+    alert("Please select a project before saving the contribution");
+    return;
+  }
+
+  if (!currentContribution.hours || !currentContribution.task.trim()) {
+    alert("Please fill in both the total hours spent and the task achieved");
+    return;
+  }
+
+  setFormData((prevState) => ({
+    ...prevState,
+    contributions: [
+      ...prevState.contributions,
+      { project: selectedProject, ...currentContribution },
+    ],
+  }));
+  setSaved(true); // Set saved to true when a contribution is added
+  setSelectedProject(""); // Reset project selection
+  setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
+  setShowProjectForm(false); // Hide the project form
+};
   const handleEditContributionChange = (e) => {
     const { name, value } = e.target;
     setEditContribution({

@@ -47,14 +47,16 @@ const Navbar = () => {
       localStorage.removeItem("selectedButton");
       navigate("/");
     }
-  }, [selected, navigate]);
+  }, [selected, navigate, email]);
 
   useEffect(() => {
     const storedSelected = localStorage.getItem("selectedButton");
     if (storedSelected === "leave-app") {
       navigate("/leaves");
+    } else if (storedSelected === "comp-off") {
+      navigate("/comp_off");
     }
-  }, []);
+  }, [navigate]);
 
   const handleClick = (button) => {
     if (button === "logout") {
@@ -62,7 +64,7 @@ const Navbar = () => {
       setEmail("");
       return navigate("/");
     }
-    const newSelection = button === "" ? "daily-tracker" : "leave-app";
+    const newSelection = button === "" ? "daily-tracker" : button;
     setSelected(newSelection);
     navigate(`/${button}`);
     handleDrawerClose();
@@ -95,7 +97,7 @@ const Navbar = () => {
                 <ListItem button onClick={() => handleClick("leaves")}>
                   <ListItemText primary="Leave Application" />
                 </ListItem>
-                <ListItem button >
+                <ListItem button onClick={() => handleClick("comp-off")}>
                   <ListItemText primary="Comp off" />
                 </ListItem>
                 <Divider />
@@ -155,35 +157,40 @@ const Navbar = () => {
       >
         Daily Tracker
       </h1>
-      {!isMobile && (
-        <ul className="nav-buttons">
-          <li
-            className={`nav-button ${selected === "daily-tracker" ? "selected" : ""}`}
-            onClick={() => handleClick("")}
-          >
-            Activity Tracker
-          </li>
-          <li
-            className={`nav-button ${selected === "leave-app" ? "selected" : ""}`}
-            onClick={() => handleClick("leaves")}
-          >
-            Leave Application
-          </li>
-          <li
-            className={`nav-button ${selected === "Comp off" ? "selected" : ""}`}
-          >
-            Comp off
-          </li>
-          <li
-            className="logout nav-button"
-            onClick={() => handleClick("logout")}
-          >
-            Logout 💀
-          </li>
-        </ul>
-      )}
+      <ul className="nav-buttons">
+        <li
+          className={`nav-button ${selected === "daily-tracker" ? "selected" : ""
+            }`}
+          onClick={() => handleClick("")}
+        >
+          Activity Tracker
+        </li>
+        <li
+          className={`nav-button ${selected === "comp-off" ? "selected" : ""
+            }`}
+          onClick={() => handleClick("comp-off")}
+        >
+          Comp-off
+        </li>
+        <li
+          className={`nav-button ${selected === "leave-app" ? "selected" : ""}`}
+          onClick={() => handleClick("leave-app")}
+        >
+          Leave Application
+        </li>
+        <li
+          className="logout nav-button"
+          onClick={() => {
+            localStorage.clear();
+            handleClick("logout");
+            setEmail("");
+          }}
+        >
+          Logout 💀
+        </li>
+      </ul>
     </nav>
   );
-};
+}
 
 export default Navbar;

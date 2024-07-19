@@ -8,6 +8,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import LoadingSpinner from "../Loader/LoadingSpinner";
 import { useLoader } from "../context/LoadingContext";
+// import SimpleSnackbar from "../Snackbar/Snackbar";
 
 import {
   Dialog,
@@ -321,7 +322,6 @@ function getMinDate() {
             required
           />
 
-          {error && <p style={{ color: "red" }}>{error}</p>}
         </div>
 
         <div>
@@ -493,16 +493,17 @@ function getMinDate() {
         </DialogActions>
       </Dialog>
       <Snackbar
-        open={!!successMessage}
+        open={error}
         autoHideDuration={6000}
-        onClose={() => setSuccessMessage("")}
+        onClose={() => setError("")}
       >
         <Alert
-          onClose={() => setSuccessMessage("")}
-          severity="success"
+          onClose={() => setError("")}
+          severity="error"
+          variant="filled"
           sx={{ width: "100%" }}
         >
-          {successMessage}
+          {error}
         </Alert>
       </Snackbar>
     </div>

@@ -1,24 +1,13 @@
+import "./CompOff.css";
 import React, { useState, useEffect, useContext } from "react";
-import "./Leaves.css";
 import config from "../../../public/api";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
-import leaveTypes from "../../../public/leaves";
 import LoadingSpinner  from "../Loader/LoadingSpinner"
 import { useLoader } from "../context/LoadingContext";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
-import {
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Button,
-  Snackbar,
-  Alert,
-} from "@mui/material";
-
-const Leaves = () => {
+const CompOff = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
   const {loading, setLoading}=useLoader();
@@ -34,7 +23,6 @@ const Leaves = () => {
 
   const [leaveData, setLeaveData] = useState({
     type: "leave",
-    leaveType: "",
     reason: "",
     fromDate: getTodayDate(),
     toDate: getTodayDate(),
@@ -105,7 +93,6 @@ const Leaves = () => {
     setLoading(true);
     handleLoading(true);
     if (
-      !leaveData.leaveType ||
       !leaveData.reason ||
       !leaveData.fromDate ||
       !leaveData.toDate ||
@@ -131,7 +118,8 @@ const Leaves = () => {
 
     setError(""); // Clear any previous error messages
 
-    const url = config.LEAVE_SUBMIT_URL;
+    const url =
+      "https://script.google.com/macros/s/AKfycby2defETQ9OG3cMb5F66600qOIuv6Rid1VN6i_-hZOXY8SRiiRtqIN9u0Rc7_8kaEIplQ/exec";
     fetch(url, {
       method: "POST",
       headers: {
@@ -145,7 +133,6 @@ const Leaves = () => {
         setSuccessMessage("Leave request submitted successfully!");
         setLeaveData({
           type: "leave",
-          leaveType: "",
           reason: "",
           fromDate: getTodayDate(),
           toDate: getTodayDate(),
@@ -171,12 +158,12 @@ const Leaves = () => {
   return (
     <div>
       <LoadingSpinner loading={loading}/>
-      <h1 style={{ textAlign: "center" }}>Leave Application Form</h1>
+      <h1 style={{ textAlign: "center" }}>Compensatory Leave Form </h1>
       <p style={{ textAlign: "center" }}>
-        Make sure to check the leave balance before applying
+
       </p>
       <form onSubmit={handleSubmit}>
-      
+        {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
         {error && <p style={{ color: "red" }}>{error}</p>}
         <div>
           <div>
@@ -190,24 +177,11 @@ const Leaves = () => {
               disabled
             />
           </div>
-          <label>Leave Type:</label>
-          <select
-            name="leaveType"
-            value={leaveData.leaveType}
-            onChange={handleChange}
-            required
-          >
-            <option value="">--Select Leave Type--</option>
-            {leaveTypes.map((leaveType, index) => (
-              <option key={index} value={leaveType}>
-                {leaveType}
-              </option>
-            ))}
-          </select>
+          
         </div>
 
         <div>
-          <label>Reason for Leave:</label>
+          <label>Reason for Working :</label>
           <textarea
             name="reason"
             value={leaveData.reason}
@@ -237,60 +211,38 @@ const Leaves = () => {
             required
           />
         </div>
-        <div className="tooltip">
+        {/* <div className="tooltip">
           How to use Half Day?
-          <span
+          
+        </div> */}
+
+        {/* <div
+          style={{
+            display: "flex",
+            gap: "0.5rem",
+            marginTop: "10px",
+          }}
+        >
+          <label style={{}}>Half Day:</label>
+          <div className="tooltip">
+         <VisibilityIcon/>
+         <span
             style={{
               width: "300px",
             }}
-            className="tooltiptext"
+            className="texttool"
           >
             Note: Do not change the date if you want to avail half day for the
             single day. If the date is increased by 1 and halfday is checked You
             will be availing today's leave + tomorrow's + half day.
           </span>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            gap: "0.5rem",
-            alignItems: "baseline",
-            marginTop: "10px",
-          }}
-        >
-          <label style={{ width: "25%" }}>Half Day:</label>
-          <input
-            style={{
-              width: "20px",
-            }}
-            type="checkbox"
-            name="halfDay"
-            checked={halfDay}
-            onChange={handleHalfDayChange}
-          />
-        </div>
-
+         </div>
+        </div> */}
 
         <button type="submit">Submit</button>
-        
       </form>
-      <Snackbar
-        open={successMessage}
-        autoHideDuration={6000}
-        onClose={() => setSuccessMessage("")}
-      >
-        <Alert
-          onClose={() => setSuccessMessage("")}
-          severity="success"
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {successMessage}
-        </Alert>
-      </Snackbar>
     </div>
   );
 };
 
-export default Leaves;
+export default CompOff;

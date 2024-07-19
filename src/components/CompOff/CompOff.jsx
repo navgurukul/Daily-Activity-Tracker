@@ -1,4 +1,3 @@
-import React, { useState, useEffect, useContext } from "react";
 import "./CompOff.css";
 import config from "../../../public/api";
 import { useNavigate } from "react-router-dom";

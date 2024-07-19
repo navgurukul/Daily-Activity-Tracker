@@ -168,7 +168,7 @@ const Navbar = () => {
         <li
           className={`nav-button ${selected === "comp-off" ? "selected" : ""
             }`}
-          // onClick={() => handleClick("comp-off")}
+          onClick={() => handleClick("comp-off")}
         >
           Comp-off
         </li>

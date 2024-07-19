@@ -1,4 +1,5 @@
 import "./CompOff.css";
+import React, { useState, useEffect, useContext } from "react";
 import config from "../../../public/api";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
@@ -117,7 +118,8 @@ const CompOff = () => {
 
     setError(""); // Clear any previous error messages
 
-    const url = config.LEAVE_SUBMIT_URL;
+    const url =
+      "https://script.google.com/macros/s/AKfycby2defETQ9OG3cMb5F66600qOIuv6Rid1VN6i_-hZOXY8SRiiRtqIN9u0Rc7_8kaEIplQ/exec";
     fetch(url, {
       method: "POST",
       headers: {
@@ -179,7 +181,7 @@ const CompOff = () => {
         </div>
 
         <div>
-          <label>Reason for Leave:</label>
+          <label>Reason for Working :</label>
           <textarea
             name="reason"
             value={leaveData.reason}
@@ -209,12 +211,12 @@ const CompOff = () => {
             required
           />
         </div>
-        <div className="tooltip">
+        {/* <div className="tooltip">
           How to use Half Day?
           
-        </div>
+        </div> */}
 
-        <div
+        {/* <div
           style={{
             display: "flex",
             gap: "0.5rem",
@@ -235,7 +237,7 @@ const CompOff = () => {
             will be availing today's leave + tomorrow's + half day.
           </span>
          </div>
-        </div>
+        </div> */}
 
         <button type="submit">Submit</button>
       </form>

@@ -7,6 +7,17 @@ import leaveTypes from "../../../public/leaves";
 import LoadingSpinner  from "../Loader/LoadingSpinner"
 import { useLoader } from "../context/LoadingContext";
 
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Button,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+
 const Leaves = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
@@ -165,7 +176,7 @@ const Leaves = () => {
         Make sure to check the leave balance before applying
       </p>
       <form onSubmit={handleSubmit}>
-        {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
+      
         {error && <p style={{ color: "red" }}>{error}</p>}
         <div>
           <div>
@@ -260,8 +271,24 @@ const Leaves = () => {
           />
         </div>
 
+
         <button type="submit">Submit</button>
+        
       </form>
+      <Snackbar
+        open={successMessage}
+        autoHideDuration={6000}
+        onClose={() => setSuccessMessage("")}
+      >
+        <Alert
+          onClose={() => setSuccessMessage("")}
+          severity="success"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

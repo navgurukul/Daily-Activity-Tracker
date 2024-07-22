@@ -9,7 +9,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import LoadingSpinner from "../Loader/LoadingSpinner";
 import { useLoader } from "../context/LoadingContext";
 // import SimpleSnackbar from "../Snackbar/Snackbar";
-
+import TraansitionModal from "../Modal/TraansitionModal";
 import {
   Dialog,
   DialogActions,
@@ -62,9 +62,44 @@ const Form = () => {
   const [open, setOpen] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(null);
   const navigate = useNavigate();
-
+  const [previousEntriesDone, setPreviousEntriesDone] = useState(0);
   const today = new Date().toISOString().split("T")[0];
+
   useEffect(() => {
+    const initPreviousEntries = () => {
+      const storedData = JSON.parse(
+        localStorage.getItem("previousEntriesDone")
+      );
+      const today = new Date();
+      const firstDayOfMonth = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        1
+      );
+
+      if (storedData) {
+        // Check if it's the first day of the month
+        if (
+          new Date(storedData.lastUpdated).getTime() < firstDayOfMonth.getTime()
+        ) {
+          localStorage.setItem(
+            "previousEntriesDone",
+            JSON.stringify({ count: 0, lastUpdated: today })
+          );
+          setPreviousEntriesDone(0);
+        } else {
+          setPreviousEntriesDone(storedData.count);
+        }
+      } else {
+        localStorage.setItem(
+          "previousEntriesDone",
+          JSON.stringify({ count: 0, lastUpdated: today })
+        );
+        setPreviousEntriesDone(0);
+      }
+    };
+
+    initPreviousEntries();
     try {
       fetch(
         "https://script.google.com/macros/s/AKfycbzaoy-lue-Hu8dDFgbhRhTKst8zgUbmxUzfiQUhx1yjHJfbAQpBpjkapsdcHqGOTSn83Q/exec"
@@ -122,30 +157,29 @@ const Form = () => {
     });
   };
 
+  const addContribution = () => {
+    if (!selectedProject) {
+      alert("Please select a project before saving the contribution");
+      return;
+    }
 
-const addContribution = () => {
-  if (!selectedProject) {
-    alert("Please select a project before saving the contribution");
-    return;
-  }
+    if (!currentContribution.hours || !currentContribution.task.trim()) {
+      alert("Please fill in both the total hours spent and the task achieved");
+      return;
+    }
 
-  if (!currentContribution.hours || !currentContribution.task.trim()) {
-    alert("Please fill in both the total hours spent and the task achieved");
-    return;
-  }
-
-  setFormData((prevState) => ({
-    ...prevState,
-    contributions: [
-      ...prevState.contributions,
-      { project: selectedProject, ...currentContribution },
-    ],
-  }));
-  setSaved(true); // Set saved to true when a contribution is added
-  setSelectedProject(""); // Reset project selection
-  setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
-  setShowProjectForm(false); // Hide the project form
-};
+    setFormData((prevState) => ({
+      ...prevState,
+      contributions: [
+        ...prevState.contributions,
+        { project: selectedProject, ...currentContribution },
+      ],
+    }));
+    setSaved(true); // Set saved to true when a contribution is added
+    setSelectedProject(""); // Reset project selection
+    setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
+    setShowProjectForm(false); // Hide the project form
+  };
   const handleEditContributionChange = (e) => {
     const { name, value } = e.target;
     setEditContribution({
@@ -191,6 +225,27 @@ const addContribution = () => {
   };
 
   const handleSubmit = (e) => {
+    const entry = new Date(formData.selectedDate);
+    const today = new Date();
+    if (entry.getDate() !== today.getDate()) {
+      const newCount = previousEntriesDone + 1;
+      // console.log("Date is not today", entry, today, newCount);
+      setPreviousEntriesDone(newCount);
+      localStorage.setItem(
+        "previousEntriesDone",
+        JSON.stringify({ count: newCount, lastUpdated: today })
+      );
+
+
+      if (newCount > 3 && entry.getDate() !== today.getDate()) {
+        alert(
+          "You have exceeded the limit of 3 entries for past dates in a month. Please Contact support for further assistance."
+        );
+        return;
+      }
+
+
+    }
     e.preventDefault();
     if (formData.contributions.length === 0) {
       return alert(
@@ -211,9 +266,18 @@ const addContribution = () => {
     setError(""); // Clear any previous error messages
     setShowSelect(true);
     const submitTime = new Date();
-    const submitTimestamp = `${submitTime.getHours().toString().padStart(2, "0")}:${submitTime.getMinutes().toString().padStart(2, "0")}:${submitTime.getSeconds().toString().padStart(2, "0")}`;
+    const submitTimestamp = `${submitTime
+      .getHours()
+      .toString()
+      .padStart(2, "0")}:${submitTime
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}:${submitTime
+      .getSeconds()
+      .toString()
+      .padStart(2, "0")}`;
 
-    const payload= {
+    const payload = {
       ...formData,
       timestamp: submitTimestamp,
     };
@@ -247,9 +311,6 @@ const addContribution = () => {
         console.error("Error sending data to Google Apps Script:", error);
       });
   };
-  
-  
-
 
   const handleLoading = (load) => {
     load == true
@@ -257,35 +318,35 @@ const addContribution = () => {
       : (document.getElementById("root").style.opacity = "1");
   };
 
-function getMinDate() {
-  const today = new Date();
-  const dayOfWeek = today.getDay();
+  function getMinDate() {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
 
-  const DAYS_BACK_NORMAL = 3;
-  const DAYS_BACK_EXTENDED = 5;
+    const DAYS_BACK_NORMAL = 3;
+    const DAYS_BACK_EXTENDED = 5;
 
-  let daysBack;
+    let daysBack;
 
-  switch (dayOfWeek) {
-    case 1: // Monday
-    case 2: // Tuesday
-    case 3: // Wednesday
-      daysBack = DAYS_BACK_EXTENDED;
-      break;
-    case 4: // Thursday
-    case 5: // Friday
-    case 6: // Saturday
-    case 0: // Sunday
-    default:
-      daysBack = DAYS_BACK_NORMAL;
-      break;
+    switch (dayOfWeek) {
+      case 1: // Monday
+      case 2: // Tuesday
+      case 3: // Wednesday
+        daysBack = DAYS_BACK_EXTENDED;
+        break;
+      case 4: // Thursday
+      case 5: // Friday
+      case 6: // Saturday
+      case 0: // Sunday
+      default:
+        daysBack = DAYS_BACK_NORMAL;
+        break;
+    }
+
+    const minDate = new Date();
+    minDate.setDate(today.getDate() - daysBack);
+
+    return minDate.toISOString().split("T")[0];
   }
-
-  const minDate = new Date();
-  minDate.setDate(today.getDate() - daysBack);
-
-  return minDate.toISOString().split("T")[0];
-}
 
   return (
     <div>
@@ -321,7 +382,6 @@ function getMinDate() {
             onChange={handleChange}
             required
           />
-
         </div>
 
         <div>

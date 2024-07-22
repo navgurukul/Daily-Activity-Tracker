@@ -10,7 +10,7 @@ import { LoginContext } from "./components/context/LoginContext";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import brainImg from "../public/brain.png";
 import CompOff from "./components/CompOff/CompOff";
-
+import TraansitionModal from "./components/Modal/TraansitionModal";
 function App() {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
@@ -54,11 +54,18 @@ function App() {
         </div>
       </header>
       <main>
+        {email && <TraansitionModal />}
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/form" element={<ProtectedRoute element={<Form />} />} />  
-          <Route path="/comp_off" element={<ProtectedRoute element={<CompOff />} />} />  
-          <Route path="/leaves" element={<ProtectedRoute element={<Leaves />} />} />      
+          <Route path="/form" element={<ProtectedRoute element={<Form />} />} />
+          <Route
+            path="/comp_off"
+            element={<ProtectedRoute element={<CompOff />} />}
+          />
+          <Route
+            path="/leaves"
+            element={<ProtectedRoute element={<Leaves />} />}
+          />
           <Route
             path="/leaves"
             element={<ProtectedRoute element={<Leaves />} />}

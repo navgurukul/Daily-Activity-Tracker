@@ -117,7 +117,7 @@ const CompOff = () => {
     setError(""); // Clear any previous error messages
 
     const url =
-      "https://script.google.com/macros/s/AKfycbwFbXYZ1LwqVL1qRbhX4xtV1DQnCEWHpC5QTaKK0D04fc1UEko8NFdi3Ie5TQ9fBEe6TA/exec";
+      "https://script.google.com/macros/s/AKfycbzffLW5sZwDz2b_egto-4VlVL1obaPOAoKSjze7Sa-s-85VsXuxTBWcRW10KCHQLSn8Ow/exec";
     fetch(url, {
       method: "POST",
       headers: {
@@ -128,7 +128,7 @@ const CompOff = () => {
     })
       .then((response) => response.text())
       .then((data) => {
-        setSuccessMessage("Leave request submitted successfully!");
+        setSuccessMessage("Compensatory request submitted successfully!");
         setLeaveData({
           type: "leave",
           reason: "",

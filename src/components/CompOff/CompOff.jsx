@@ -3,14 +3,14 @@ import React, { useState, useEffect, useContext } from "react";
 import config from "../../../public/api";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
-import LoadingSpinner  from "../Loader/LoadingSpinner"
+import LoadingSpinner from "../Loader/LoadingSpinner";
 import { useLoader } from "../context/LoadingContext";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 
 const CompOff = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
-  const {loading, setLoading}=useLoader();
+  const { loading, setLoading } = useLoader();
   const navigate = useNavigate();
 
   const getTodayDate = () => {
@@ -105,10 +105,8 @@ const CompOff = () => {
     }
 
     // Calculate the number of days
-    const numberOfDays = calculateNumberOfDays(
-      leaveData.fromDate,
-      leaveData.toDate,
-      halfDay
+    const numberOfDays = JSON.stringify(
+      calculateNumberOfDays(leaveData.fromDate, leaveData.toDate, halfDay)
     );
 
     const leaveDataWithDays = {
@@ -119,7 +117,7 @@ const CompOff = () => {
     setError(""); // Clear any previous error messages
 
     const url =
-      "https://script.google.com/macros/s/AKfycby2defETQ9OG3cMb5F66600qOIuv6Rid1VN6i_-hZOXY8SRiiRtqIN9u0Rc7_8kaEIplQ/exec";
+      "https://script.google.com/macros/s/AKfycbwFbXYZ1LwqVL1qRbhX4xtV1DQnCEWHpC5QTaKK0D04fc1UEko8NFdi3Ie5TQ9fBEe6TA/exec";
     fetch(url, {
       method: "POST",
       headers: {
@@ -157,11 +155,9 @@ const CompOff = () => {
 
   return (
     <div>
-      <LoadingSpinner loading={loading}/>
+      <LoadingSpinner loading={loading} />
       <h1 style={{ textAlign: "center" }}>Compensatory Leave Form </h1>
-      <p style={{ textAlign: "center" }}>
-
-      </p>
+      <p style={{ textAlign: "center" }}></p>
       <form onSubmit={handleSubmit}>
         {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
         {error && <p style={{ color: "red" }}>{error}</p>}
@@ -177,7 +173,6 @@ const CompOff = () => {
               disabled
             />
           </div>
-          
         </div>
 
         <div>

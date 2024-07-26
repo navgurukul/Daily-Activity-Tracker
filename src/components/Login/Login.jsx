@@ -11,7 +11,8 @@ function Login() {
   const navigate = useNavigate();
   const dataContext = useContext(LoginContext);
   const { email, setEmail } = dataContext;
-  const [snackbarOpen, setSnackbarOpen]=useState(false);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   const handleCallbackResponse = async (response) => {
     let jwtToken = response.credential;
@@ -19,19 +20,27 @@ function Login() {
     const userEmail = decoded?.email;
 
     if (userEmail.endsWith("@navgurukul.org")) {
-      console.log(userEmail);
-      localStorage.setItem("email", userEmail);
-      setEmail(userEmail);
-      navigate("/form");
+      const username = userEmail.split("@")[0];
+      const hasNumbers = /\d/.test(username);
+
+      if (!hasNumbers) {
+        console.log(userEmail);
+        localStorage.setItem("email", userEmail);
+        setEmail(userEmail);
+        navigate("/form");
+      } else {
+        setAlertMessage("Please use a NavGurukul email without numbers.");
+        setSnackbarOpen(true);
+      }
     } else {
-      setSnackbarOpen(true)
+      setAlertMessage("Access restricted to NavGurukul users only.");
+      setSnackbarOpen(true);
     }
   };
 
   useEffect(() => {
     google?.accounts.id.initialize({
-      client_id:
-        "34917283366-b806koktimo2pod1cjas8kn2lcpn7bse.apps.googleusercontent.com",
+      client_id: "34917283366-b806koktimo2pod1cjas8kn2lcpn7bse.apps.googleusercontent.com",
       callback: handleCallbackResponse,
     });
 
@@ -41,9 +50,11 @@ function Login() {
       size: "large",
     });
   }, []);
-  const handleCloseSnackbar=()=>{
+
+  const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
-  }
+  };
+
   return (
     <div className="container">
       <div id="login-container">
@@ -56,7 +67,7 @@ function Login() {
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{vertical:"bottom", horizontal:"left"}}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       >
         <MuiAlert
           elevation={6}
@@ -64,12 +75,11 @@ function Login() {
           onClose={handleCloseSnackbar}
           severity="warning"
         >
-          Access restricted to NavGurukul users only.
+          {alertMessage}
         </MuiAlert>
       </Snackbar>
     </div>
   );
 }
+
 export default Login;
-
-

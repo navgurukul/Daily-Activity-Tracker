@@ -111,10 +111,18 @@ const Form = () => {
             return project.status === "Active";
           });
 
+
           // Extract project names from filtered array
           const activeProjectNames = activeProjects.map(function (project) {
             return project.projectName;
           });
+          const today = new Date();
+          const dayOfWeek = today.getDay();
+
+          // Check if today is Saturday (0 = Sunday, 6 = Saturday)
+          if (dayOfWeek === 6) {
+            activeProjectNames.push("Saturday-Peer-Learning");
+          }
           // console.log("Active Projects:", activeProjectNames);
           setProjectData(activeProjectNames);
           // const filteredProjects = data.content

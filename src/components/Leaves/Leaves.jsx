@@ -169,7 +169,15 @@ const Leaves = () => {
   };
 
   return (
-    <div>
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      width: "100%",
+      height: "100%",
+      padding: "1rem",
+    }}>
       <LoadingSpinner loading={loading}/>
       <h1 style={{ textAlign: "center" }}>Leave Application Form</h1>
       <p style={{ textAlign: "center" }}>

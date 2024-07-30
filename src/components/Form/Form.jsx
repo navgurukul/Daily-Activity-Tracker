@@ -279,7 +279,7 @@ const Form = () => {
     setError(""); // Clear any previous error messages
     setShowSelect(true);
     const submitTime = new Date();
-    const submitTimestamp = `${submitTime
+    const submitTimestamp = `${submitTime.toLocaleDateString('en-GB')} ${submitTime
       .getHours()
       .toString()
       .padStart(2, "0")}:${submitTime

@@ -122,7 +122,9 @@ const Navbar = (props) => {
       <List>
         {["Activity Tracker", "Leave Application", "Comp-off Application"].map(
           (text, index) => (
-            <ListItem key={text} disablePadding>
+            <ListItem key={text} disablePadding style={{
+              marginTop: "0.5rem",
+            }}>
               <ListItemButton
                 onClick={() =>
                   handleClick(text.toLowerCase().replace(" ", "-"))
@@ -151,7 +153,9 @@ const Navbar = (props) => {
             href: "https://docs.google.com/spreadsheets/d/1i8251CwxKATAhjLgDgMcbhJ6T4KMy1EaCOAuxRV2irQ/edit?gid=1381214364#gid=1381214364",
           },
         ].map((item, index) => (
-          <ListItem key={item.text} disablePadding>
+          <ListItem key={item.text} disablePadding style={{
+            marginTop: "0.5rem",
+          }}>
             <ListItemButton component="a" href={item.href} target="_blank">
               <ListItemIcon>
                 {index % 2 === 0 ? <FeedbackIcon /> : <MenuBookIcon />}
@@ -166,13 +170,14 @@ const Navbar = (props) => {
         style={{
           position: "absolute",
           width: "100%",
-          bottom: "10px",
+          bottom: "20px",
         }}
       >
         <ListItem disablePadding>
-          <ListItemButton
+          <ListItemButton 
+          
             onClick={() => handleClick("logout")}
-            sx={{ marginTop: "auto", color: "red" }} // Style for logout button
+            sx={{ marginTop: "auto", }} // Style for logout button
           >
             <ListItemIcon>
               <LogoutIcon />

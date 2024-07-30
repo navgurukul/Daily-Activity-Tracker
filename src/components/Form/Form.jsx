@@ -66,6 +66,15 @@ const Form = () => {
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
+   let email =  localStorage.getItem("email") ?? "";
+    fetch(
+      `https://script.google.com/macros/s/AKfycbx67qSxRcWPkPdke1B3P7mRZ55BU_suXSLNYekAyvqxGkZjc7iz_xFakVUXvOzTE-Kmrw/exec?email=${email}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data, "this is the remaining attempt");
+      });
+
     const initPreviousEntries = () => {
       const storedData = JSON.parse(
         localStorage.getItem("previousEntriesDone")
@@ -110,7 +119,6 @@ const Form = () => {
           const activeProjects = projects.filter(function (project) {
             return project.status === "Active";
           });
-
 
           // Extract project names from filtered array
           const activeProjectNames = activeProjects.map(function (project) {
@@ -244,15 +252,12 @@ const Form = () => {
         JSON.stringify({ count: newCount, lastUpdated: today })
       );
 
-
       if (newCount > 3 && entry.getDate() !== today.getDate()) {
         alert(
           "You have exceeded the limit of 3 entries for past dates in a month. Please Contact support for further assistance."
         );
         return;
       }
-
-
     }
     e.preventDefault();
     if (formData.contributions.length === 0) {

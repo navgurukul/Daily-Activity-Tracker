@@ -64,6 +64,7 @@ const Form = () => {
   const navigate = useNavigate();
   const [previousEntriesDone, setPreviousEntriesDone] = useState(0);
   const today = new Date().toISOString().split("T")[0];
+  const [attempt,setAttempt]=useState(0);
 
   useEffect(() => {
    let email =  localStorage.getItem("email") ?? "";
@@ -73,8 +74,9 @@ const Form = () => {
       .then((response) => response.json())
       .then((data) => {
         console.log(data, "this is the remaining attempt");
+        setAttempt(data.attemptsLeft)
       });
-
+      
     const initPreviousEntries = () => {
       const storedData = JSON.parse(
         localStorage.getItem("previousEntriesDone")
@@ -241,20 +243,38 @@ const Form = () => {
   };
 
   const handleSubmit = (e) => {
+
     const entry = new Date(formData.selectedDate);
     const today = new Date();
     if (entry.getDate() !== today.getDate()) {
       const newCount = previousEntriesDone + 1;
       // console.log("Date is not today", entry, today, newCount);
+      let email =  localStorage.getItem("email") ?? "";
+    fetch(
+      `https://script.google.com/macros/s/AKfycbz0jA6Wj2WU2qEheLL9qcigpSAx26axJvlLF7P-ILG_evgcBZwra6u0cTNWs6-PrWTnYw/exec`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({email}),
+        mode: "no-cors",
+      }
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data, "this is the remaining attempt");
+        setAttempt(attempt-1)
+      });
       setPreviousEntriesDone(newCount);
       localStorage.setItem(
         "previousEntriesDone",
         JSON.stringify({ count: newCount, lastUpdated: today })
       );
 
-      if (newCount > 3 && entry.getDate() !== today.getDate()) {
-        alert(
-          "You have exceeded the limit of 3 entries for past dates in a month. Please Contact support for further assistance."
+      if (attempt<=0 && entry.getDate() !== today.getDate()) {
+        setError(
+          "You have exceeded the limit of 3 entries for past dates in a month"
         );
         return;
       }

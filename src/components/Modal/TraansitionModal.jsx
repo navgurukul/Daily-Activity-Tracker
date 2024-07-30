@@ -28,7 +28,7 @@ export default function TransitionModal() {
   const handleClose = () => setOpen(false);
 
   return (
-    <div>
+  
  
       <Modal
         aria-labelledby="transition-modal-title"
@@ -72,6 +72,6 @@ export default function TransitionModal() {
           </Box>
         </Fade>
       </Modal>
-    </div>
+   
   );
 }

@@ -27,7 +27,7 @@ function Login() {
         console.log(userEmail);
         localStorage.setItem("email", userEmail);
         setEmail(userEmail);
-        navigate("/form");
+        navigate("/activity-tracker");
       } else {
         setAlertMessage("Please use a NavGurukul email without numbers.");
         setSnackbarOpen(true);
@@ -56,7 +56,7 @@ function Login() {
   };
 
   return (
-    <div className="container">
+    <div className="main-container">
       <div id="login-container">
         <h2 id="learn-heading">
           Login to Fill Activity Tracker and Leaves Application{" "}

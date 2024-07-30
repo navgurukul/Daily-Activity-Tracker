@@ -28,42 +28,22 @@ function App() {
   }, []);
   return (
     <div className="App">
-      <header className="App-header">
         {email && email !== "" ? <Navbar /> : <NoTabNavBar />}
-
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <div id="img-container">
-          <img
-            src={brainImg}
-            style={{
-              height: "100px",
-            }}
-            alt=""
-          />
-          <br />
-          <p>Discipline &gt; Motivation</p>
-        </div>
-      </header>
+     <br /><br />
       <main>
         {email && <TraansitionModal />}
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="/form" element={<ProtectedRoute element={<Form />} />} />
           <Route
-            path="/comp_off"
+            path="/activity-tracker"
+            element={<ProtectedRoute element={<Form />} />}
+          />
+          <Route
+            path="/comp-off-application"
             element={<ProtectedRoute element={<CompOff />} />}
           />
           <Route
-            path="/leaves"
+            path="/leave-application"
             element={<ProtectedRoute element={<Leaves />} />}
           />
           <Route

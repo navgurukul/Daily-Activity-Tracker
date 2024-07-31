@@ -76,7 +76,7 @@ const Form = () => {
         console.log(data, "this is the remaining attempt");
         setAttempt(data.attemptsLeft)
       });
-      
+
     const initPreviousEntries = () => {
       const storedData = JSON.parse(
         localStorage.getItem("previousEntriesDone")
@@ -243,7 +243,6 @@ const Form = () => {
   };
 
   const handleSubmit = (e) => {
-
     const entry = new Date(formData.selectedDate);
     const today = new Date();
     if (entry.getDate() !== today.getDate()) {
@@ -271,7 +270,6 @@ const Form = () => {
         "previousEntriesDone",
         JSON.stringify({ count: newCount, lastUpdated: today })
       );
-
       if (attempt<=0 && entry.getDate() !== today.getDate()) {
         setError(
           "You have exceeded the limit of 3 entries for past dates in a month"

@@ -1,11 +1,11 @@
 /* Login.css */
 
-
-.container {
+.main-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 70vh;
+  margin-left: -15%;
 }
 
 #login-container {
@@ -15,9 +15,9 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
   display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 #learn-heading {
@@ -25,11 +25,6 @@
   margin-bottom: 20px;
   color: #333;
   width: 70%;
-}
-
-#signInDiv {
-  margin-left: 10%;
-  width: 60%;
 }
 
 /* Styling the Google button */
@@ -40,5 +35,4 @@
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
-  width: 60%;
 }

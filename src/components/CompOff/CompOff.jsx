@@ -156,7 +156,7 @@ const CompOff = () => {
   return (
     <div>
       <LoadingSpinner loading={loading} />
-      <h1 style={{ textAlign: "center" }}>Compensatory Leave Form </h1>
+      <h1 style={{ textAlign: "center" }}>Compensatory Request Application Form </h1>
       <p style={{ textAlign: "center" }}></p>
       <form onSubmit={handleSubmit}>
         {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}

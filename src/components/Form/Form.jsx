@@ -328,6 +328,7 @@ const Form = () => {
       .then((data) => {
         console.log("Response from Google Apps Script:", data);
         setSuccessMessage("Thanks for sharing the update!");
+        setError("Thanks for sharing the update!");
         setFormData({
           type: "contribution",
           email: email,
@@ -592,7 +593,7 @@ const Form = () => {
       >
         <Alert
           onClose={() => setError("")}
-          severity="error"
+          severity={error=="Thanks for sharing the update!"?"success":"error"}
           variant="filled"
           sx={{ width: "100%" }}
         >

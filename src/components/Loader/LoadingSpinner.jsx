@@ -2,6 +2,7 @@ import React from "react";
 import "./LoadingSpinner.css"; 
 
 const LoadingSpinner = ({ loading }) => {
+  document.body.style.opacity = loading ? 0.7 : 1;
   return (
     <div
       aria-label="Orange and tan hamster running in a metal wheel"

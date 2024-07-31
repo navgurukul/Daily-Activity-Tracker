@@ -148,3 +148,14 @@
 .text:hover {
   text-decoration: none; /* Ensure underline is removed on hover */
 }
+     .responsive-div {
+            display: none; /* Hide by default */
+        }
+
+
+
+  @media (max-width: 900px) {
+            .responsive-div {
+                display: block; /* Show if width is below 600px */
+            }
+        }

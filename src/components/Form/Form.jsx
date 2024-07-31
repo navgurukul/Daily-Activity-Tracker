@@ -243,8 +243,18 @@ const Form = () => {
   };
 
   const handleSubmit = (e) => {
+    const now = new Date();
+    const nextDay = new Date();
+    nextDay.setDate(now.getDate() + 1);
+    nextDay.setHours(7, 0, 0, 0); // Set time to 7 a.m. next day
+
+    if (now >= nextDay) {
+      setError('Submissions are only allowed before 7 a.m. the next day.');
+      return;
+    }
     const entry = new Date(formData.selectedDate);
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset today to start of the day
     if (entry.getDate() !== today.getDate()) {
       const newCount = previousEntriesDone + 1;
       // console.log("Date is not today", entry, today, newCount);

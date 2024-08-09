@@ -32,6 +32,8 @@ const Leaves = () => {
     return `${yyyy}-${mm}-${dd}`;
   };
 
+  
+
   const [leaveData, setLeaveData] = useState({
     type: "leave",
     leaveType: "",
@@ -44,12 +46,35 @@ const Leaves = () => {
   const [halfDay, setHalfDay] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [availableLeaveTypes, setAvailableLeaveTypes] = useState([]);
 
   useEffect(() => {
     if (!email) {
       navigate("/");
+    }else {
+      fetchAvailableLeaveTypes().then((types) => {
+        setAvailableLeaveTypes(types);
+      });
     }
   }, [email, navigate]);
+
+  const fetchAvailableLeaveTypes = async () => {
+    try {
+      const response = await fetch(
+        `https://script.google.com/macros/s/AKfycbw0yoyrw44TZWq1-UhTQQW3X9TQwviSaYInz_UD-r_3IAP4i4zoB_BOEOlQZa3u6a6s6w/exec?email=${email}`
+      );
+      const result = await response.json();
+  
+      // Filter leave types based on their availability (count > 0)
+      const availableTypes = Object.keys(result).filter(
+        (leaveType) => result[leaveType] > 0
+      );
+      return availableTypes;
+    } catch (error) {
+      console.error("Error fetching leave types:", error);
+      return [];
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -114,6 +139,12 @@ const Leaves = () => {
       setError("All fields are required.");
       setLoading(false);
       handleLoading(false);
+      return;
+    }
+
+    if (!availableLeaveTypes.includes(leaveData.leaveType)) {
+      setError("Selected leave type is not available.");
+      setLoading(false);
       return;
     }
 
@@ -206,7 +237,7 @@ const Leaves = () => {
             required
           >
             <option value="">--Select Leave Type--</option>
-            {leaveTypes.map((leaveType, index) => (
+              {availableLeaveTypes.map((leaveType, index) => (
               <option key={index} value={leaveType}>
                 {leaveType}
               </option>
@@ -302,3 +333,5 @@ const Leaves = () => {
 };
 
 export default Leaves;
+
+

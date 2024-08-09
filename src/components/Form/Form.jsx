@@ -76,7 +76,7 @@ const Form = () => {
         console.log(data, "this is the remaining attempt");
         setAttempt(data.attemptsLeft)
       });
-      
+
     const initPreviousEntries = () => {
       const storedData = JSON.parse(
         localStorage.getItem("previousEntriesDone")
@@ -243,9 +243,27 @@ const Form = () => {
   };
 
   const handleSubmit = (e) => {
+    const now = new Date();
+    const nextDay = new Date();
+    nextDay.setDate(now.getDate() + 1);
+    nextDay.setHours(7, 0, 0, 0); // Set time to 7 a.m. next day
 
+    if (now >= nextDay) {
+      setError('Submissions are only allowed before 7 a.m. the next day.');
+      return;
+    }
     const entry = new Date(formData.selectedDate);
     const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset today to start of the day
+
+      // Check if current time is after 12 a.m. but before 7 a.m.
+  const isAfterMidnightBefore7am = now.getHours() < 7;
+
+  if (isAfterMidnightBefore7am) {
+    // If it is after midnight but before 7 a.m., treat 'today' as the previous day
+    today.setDate(today.getDate() - 1);
+  }
+  
     if (entry.getDate() !== today.getDate()) {
       const newCount = previousEntriesDone + 1;
       // console.log("Date is not today", entry, today, newCount);
@@ -271,7 +289,6 @@ const Form = () => {
         "previousEntriesDone",
         JSON.stringify({ count: newCount, lastUpdated: today })
       );
-
       if (attempt<=0 && entry.getDate() !== today.getDate()) {
         setError(
           "You have exceeded the limit of 3 entries for past dates in a month"

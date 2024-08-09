@@ -6,7 +6,7 @@ import { LoginContext } from "../context/LoginContext";
 import LoadingSpinner from "../Loader/LoadingSpinner";
 import { useLoader } from "../context/LoadingContext";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-
+import {Snackbar,Alert} from "@mui/material";
 const CompOff = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
@@ -159,7 +159,6 @@ const CompOff = () => {
       <h1 style={{ textAlign: "center" }}>Compensatory Request Application Form </h1>
       <p style={{ textAlign: "center" }}></p>
       <form onSubmit={handleSubmit}>
-        {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
         {error && <p style={{ color: "red" }}>{error}</p>}
         <div>
           <div>
@@ -236,6 +235,20 @@ const CompOff = () => {
 
         <button type="submit">Submit</button>
       </form>
+      <Snackbar
+        open={successMessage}
+        autoHideDuration={6000}
+        onClose={() => setSuccessMessage("")}
+      >
+        <Alert
+          onClose={() => setSuccessMessage("")}
+          severity="success"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

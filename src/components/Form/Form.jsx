@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./Form.css";
-import config from "../../../public/api";
+import url from "../../../public/api";
 import { json, useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -69,7 +69,7 @@ const Form = () => {
   useEffect(() => {
    let email =  localStorage.getItem("email") ?? "";
     fetch(
-      `https://script.google.com/macros/s/AKfycbx67qSxRcWPkPdke1B3P7mRZ55BU_suXSLNYekAyvqxGkZjc7iz_xFakVUXvOzTE-Kmrw/exec?email=${email}`
+      `${url}?email=${email}&type=attempts`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -112,12 +112,11 @@ const Form = () => {
 
     initPreviousEntries();
     try {
-      fetch(
-        "https://script.google.com/macros/s/AKfycbzaoy-lue-Hu8dDFgbhRhTKst8zgUbmxUzfiQUhx1yjHJfbAQpBpjkapsdcHqGOTSn83Q/exec"
-      )
+      fetch(`${url}?email=${email}&type=projects`)
         .then((response) => response.json())
         .then((data) => {
           const projects = data.projects;
+           console.log(data, "this is the Projects");
           const activeProjects = projects.filter(function (project) {
             return project.status === "Active";
           });
@@ -268,8 +267,8 @@ const Form = () => {
       const newCount = previousEntriesDone + 1;
       // console.log("Date is not today", entry, today, newCount);
       let email =  localStorage.getItem("email") ?? "";
-    fetch(
-      `https://script.google.com/macros/s/AKfycbz0jA6Wj2WU2qEheLL9qcigpSAx26axJvlLF7P-ILG_evgcBZwra6u0cTNWs6-PrWTnYw/exec`,
+    fetch(url
+      ,
       {
         method: "POST",
         headers: {
@@ -332,7 +331,7 @@ const Form = () => {
       timestamp: submitTimestamp,
     };
     // console.log(payload)
-    const url = config.FORM_SUBMIT_URL;
+    
     fetch(url, {
       method: "POST",
       headers: {

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./Leaves.css";
-import config from "../../../public/api";
 import { useNavigate } from "react-router-dom";
+import url from "../../../public/api";
 import { LoginContext } from "../context/LoginContext";
 import leaveTypes from "../../../public/leaves";
-import LoadingSpinner  from "../Loader/LoadingSpinner"
+import LoadingSpinner from "../Loader/LoadingSpinner";
 import { useLoader } from "../context/LoadingContext";
 
 import {
@@ -21,7 +21,7 @@ import {
 const Leaves = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
-  const {loading, setLoading}=useLoader();
+  const { loading, setLoading } = useLoader();
   const navigate = useNavigate();
 
   const getTodayDate = () => {
@@ -31,8 +31,6 @@ const Leaves = () => {
     const dd = String(today.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   };
-
-  
 
   const [leaveData, setLeaveData] = useState({
     type: "leave",
@@ -46,25 +44,25 @@ const Leaves = () => {
   const [halfDay, setHalfDay] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [availableLeaveTypes, setAvailableLeaveTypes] = useState([]);
+  const [availableLeaveTypes, setAvailableLeaveTypes] = useState(leaveTypes);
 
   useEffect(() => {
     if (!email) {
       navigate("/");
-    }else {
-      fetchAvailableLeaveTypes().then((types) => {
-        setAvailableLeaveTypes(types);
-      });
+    } else {
+      // fetchAvailableLeaveTypes().then((types) => {
+      //   setAvailableLeaveTypes(types);
+      // });
     }
   }, [email, navigate]);
 
   const fetchAvailableLeaveTypes = async () => {
     try {
       const response = await fetch(
-        `https://script.google.com/macros/s/AKfycbw0yoyrw44TZWq1-UhTQQW3X9TQwviSaYInz_UD-r_3IAP4i4zoB_BOEOlQZa3u6a6s6w/exec?email=${email}`
+        `${url} ?email=${email}`
       );
       const result = await response.json();
-  
+
       // Filter leave types based on their availability (count > 0)
       const availableTypes = Object.keys(result).filter(
         (leaveType) => result[leaveType] > 0
@@ -154,15 +152,27 @@ const Leaves = () => {
       leaveData.toDate,
       halfDay
     );
-
+    const submitTime = new Date();
+    const submitTimestamp = `${submitTime.toLocaleDateString(
+      "en-GB"
+    )} ${submitTime.getHours().toString().padStart(2, "0")}:${submitTime
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")}:${submitTime
+      .getSeconds()
+      .toString()
+        .padStart(2, "0")}`;
+    
     const leaveDataWithDays = {
       ...leaveData,
       numberOfDays,
+      timestamp: submitTimestamp,
     };
 
     setError(""); // Clear any previous error messages
 
-    const url = config.LEAVE_SUBMIT_URL;
+    const url =
+      "https://script.google.com/macros/s/AKfycbwi-SZ7Gr8N-p81rnlha9RmmSd0pLmbuO7dpp1m3rClZsDtA0jw8jnHsExxKel-pMhWeQ/exec";
     fetch(url, {
       method: "POST",
       headers: {
@@ -200,22 +210,23 @@ const Leaves = () => {
   };
 
   return (
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "center",
-      width: "100%",
-      height: "100%",
-      padding: "1rem",
-    }}>
-      <LoadingSpinner loading={loading}/>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100%",
+        height: "100%",
+        padding: "1rem",
+      }}
+    >
+      <LoadingSpinner loading={loading} />
       <h1 style={{ textAlign: "center" }}>Leave Application Form</h1>
       <p style={{ textAlign: "center" }}>
         Make sure to check the leave balance before applying
       </p>
       <form onSubmit={handleSubmit}>
-      
         {error && <p style={{ color: "red" }}>{error}</p>}
         <div>
           <div>
@@ -237,7 +248,7 @@ const Leaves = () => {
             required
           >
             <option value="">--Select Leave Type--</option>
-              {availableLeaveTypes.map((leaveType, index) => (
+            {availableLeaveTypes.map((leaveType, index) => (
               <option key={index} value={leaveType}>
                 {leaveType}
               </option>
@@ -310,9 +321,7 @@ const Leaves = () => {
           />
         </div>
 
-
         <button type="submit">Submit</button>
-        
       </form>
       <Snackbar
         open={successMessage}
@@ -333,5 +342,3 @@ const Leaves = () => {
 };
 
 export default Leaves;
-
-

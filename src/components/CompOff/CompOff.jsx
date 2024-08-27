@@ -1,6 +1,5 @@
 import "./CompOff.css";
 import React, { useState, useEffect, useContext } from "react";
-import config from "../../../public/api";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import LoadingSpinner from "../Loader/LoadingSpinner";

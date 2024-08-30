@@ -54,6 +54,7 @@ const Form = () => {
   const [saved, setSaved] = useState(false);
   const [showSelect, setShowSelect] = useState(true);
   const [editIndex, setEditIndex] = useState(null);
+
   const [editContribution, setEditContribution] = useState({
     hours: "",
     task: "",
@@ -64,17 +65,15 @@ const Form = () => {
   const navigate = useNavigate();
   const [previousEntriesDone, setPreviousEntriesDone] = useState(0);
   const today = new Date().toISOString().split("T")[0];
-  const [attempt,setAttempt]=useState(0);
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-   let email =  localStorage.getItem("email") ?? "";
-    fetch(
-      `${url}?email=${email}&type=attempts`
-    )
+    let email = localStorage.getItem("email") ?? "";
+    fetch(`${url}?email=${email}&type=attempts`)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data, "this is the remaining attempt");
-        setAttempt(data.attemptsLeft)
+        setAttempt(data.attemptsLeft);
+        localStorage.setItem("attemptsLeft", data.attemptsLeft);
       });
 
     const initPreviousEntries = () => {
@@ -116,7 +115,6 @@ const Form = () => {
         .then((response) => response.json())
         .then((data) => {
           const projects = data.projects;
-           console.log(data, "this is the Projects");
           const activeProjects = projects.filter(function (project) {
             return project.status === "Active";
           });
@@ -248,47 +246,42 @@ const Form = () => {
     nextDay.setHours(7, 0, 0, 0); // Set time to 7 a.m. next day
 
     if (now >= nextDay) {
-      setError('Submissions are only allowed before 7 a.m. the next day.');
+      setError("Submissions are only allowed before 7 a.m. the next day.");
       return;
     }
     const entry = new Date(formData.selectedDate);
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Reset today to start of the day
 
-      // Check if current time is after 12 a.m. but before 7 a.m.
-  const isAfterMidnightBefore7am = now.getHours() < 7;
+    // Check if current time is after 12 a.m. but before 7 a.m.
+    const isAfterMidnightBefore7am = now.getHours() < 7;
 
-  if (isAfterMidnightBefore7am) {
-    // If it is after midnight but before 7 a.m., treat 'today' as the previous day
-    today.setDate(today.getDate() - 1);
-  }
-  
+    if (isAfterMidnightBefore7am) {
+      // If it is after midnight but before 7 a.m., treat 'today' as the previous day
+      today.setDate(today.getDate() - 1);
+    }
+
     if (entry.getDate() !== today.getDate()) {
       const newCount = previousEntriesDone + 1;
-      // console.log("Date is not today", entry, today, newCount);
-      let email =  localStorage.getItem("email") ?? "";
-    fetch(url
-      ,
-      {
+      let email = localStorage.getItem("email") ?? "";
+      fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({email}),
+        body: JSON.stringify({ email }),
         mode: "no-cors",
-      }
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data, "this is the remaining attempt");
-        setAttempt(attempt-1)
-      });
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setAttempt(attempt - 1);
+        });
       setPreviousEntriesDone(newCount);
       localStorage.setItem(
         "previousEntriesDone",
         JSON.stringify({ count: newCount, lastUpdated: today })
       );
-      if (attempt<=0 && entry.getDate() !== today.getDate()) {
+      if (attempt <= 0 && entry.getDate() !== today.getDate()) {
         setError(
           "You have exceeded the limit of 3 entries for past dates in a month"
         );
@@ -315,10 +308,9 @@ const Form = () => {
     setError(""); // Clear any previous error messages
     setShowSelect(true);
     const submitTime = new Date();
-    const submitTimestamp = `${submitTime.toLocaleDateString('en-GB')} ${submitTime
-      .getHours()
-      .toString()
-      .padStart(2, "0")}:${submitTime
+    const submitTimestamp = `${submitTime.toLocaleDateString(
+      "en-GB"
+    )} ${submitTime.getHours().toString().padStart(2, "0")}:${submitTime
       .getMinutes()
       .toString()
       .padStart(2, "0")}:${submitTime
@@ -331,7 +323,7 @@ const Form = () => {
       timestamp: submitTimestamp,
     };
     // console.log(payload)
-    
+
     fetch(url, {
       method: "POST",
       headers: {
@@ -342,7 +334,7 @@ const Form = () => {
     })
       .then((response) => response.text())
       .then((data) => {
-        console.log("Response from Google Apps Script:", data);
+        console.log("Success:", data);
         setSuccessMessage("Thanks for sharing the update!");
         setError("Thanks for sharing the update!");
         setFormData({
@@ -393,11 +385,10 @@ const Form = () => {
     }
 
     const minDate = new Date();
+    attempt == 0 ? (daysBack = 0) : (daysBack = daysBack);
     minDate.setDate(today.getDate() - daysBack);
-
     return minDate.toISOString().split("T")[0];
   }
-
   return (
     <div>
       <LoadingSpinner loading={loading} />
@@ -609,7 +600,9 @@ const Form = () => {
       >
         <Alert
           onClose={() => setError("")}
-          severity={error=="Thanks for sharing the update!"?"success":"error"}
+          severity={
+            error == "Thanks for sharing the update!" ? "success" : "error"
+          }
           variant="filled"
           sx={{ width: "100%" }}
         >

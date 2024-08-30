@@ -32,7 +32,12 @@ export default function TransitionModal() {
   const [open, setOpen] = React.useState(true);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
+  const [attempt, setAttempts] =  React.useState("0")
+  React.useEffect(() => {
+    const attempts = localStorage.getItem("attemptsLeft");
+    setAttempts(attempts)
+    console.log(attempts,"attempts")
+  },[])
   return (
     <Modal
       aria-labelledby="transition-modal-title"
@@ -66,6 +71,11 @@ export default function TransitionModal() {
             Reminder: You can only fill the tracker for past 3 days 3 times a
             month. Exceeding this limit will result in entries for past dates
             not being accepted.
+            <br />
+            <br />You have only <span style={{
+              color: attempt<=0?"red":"green"
+            }}>{attempt} </span>attempts
+            left.
           </Typography>
           <br />
           <Box display="flex" justifyContent="center">

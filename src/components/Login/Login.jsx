@@ -14,6 +14,9 @@ function Login() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
 
+  useEffect(() => {
+    localStorage.getItem("email") ? navigate("/activity-tracker") : null;
+  },[])
   const handleCallbackResponse = async (response) => {
     let jwtToken = response.credential;
     const decoded = jwtDecode(jwtToken);

@@ -23,7 +23,7 @@ const Leaves = () => {
   const { email } = dataContext;
   const { loading, setLoading } = useLoader();
   const navigate = useNavigate();
-
+const [ leaveResult, setLeaveResult ] = useState();
   const getTodayDate = () => {
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -41,40 +41,52 @@ const Leaves = () => {
     email: email,
   });
 
+  const [remainingLeaves, setRemainingLeaves] = useState();
   const [halfDay, setHalfDay] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [availableLeaveTypes, setAvailableLeaveTypes] = useState(leaveTypes);
+  const [availableLeaveTypes, setAvailableLeaveTypes] = useState();
 
   useEffect(() => {
     if (!email) {
       navigate("/");
     } else {
-      // fetchAvailableLeaveTypes().then((types) => {
-      //   setAvailableLeaveTypes(types);
-      // });
+      fetchAvailableLeaveTypes().then((types) => {
+        setAvailableLeaveTypes(types);
+      });
     }
   }, [email, navigate]);
 
+  useEffect(() => {
+    console.log("Available leave types:", availableLeaveTypes);
+  }, [availableLeaveTypes]);
+
   const fetchAvailableLeaveTypes = async () => {
     try {
-      const response = await fetch(
-        `${url} ?email=${email}`
-      );
+     const response = await fetch(`${url}?email=${email}&type=availableLeaves`);
       const result = await response.json();
+      setLeaveResult(result);
 
       // Filter leave types based on their availability (count > 0)
       const availableTypes = Object.keys(result).filter(
         (leaveType) => result[leaveType] > 0
       );
-      return availableTypes;
+      
+
+      const newResult =  Object.entries(result)
+
+      console.log("Available lqiwgdouyasdoiua:", newResult);
+      return newResult;
     } catch (error) {
       console.error("Error fetching leave types:", error);
       return [];
     }
   };
 
+
   const handleChange = (e) => {
+    setRemainingLeaves(leaveResult[e.target.value]);
+
     const { name, value } = e.target;
     setLeaveData({
       ...leaveData,
@@ -238,7 +250,18 @@ const Leaves = () => {
               disabled
             />
           </div>
-          <label>Leave Type:</label>
+          <label>
+            Leave Type: &nbsp;
+            {leaveData.leaveType ? (
+              <span>
+                You have{" "}
+                <span style={{ color: "red" }}>{remainingLeaves}</span> leaves
+                available in this category
+              </span>
+            ) : (
+              ""
+            )}
+          </label>
           <select
             name="leaveType"
             value={leaveData.leaveType}
@@ -246,11 +269,12 @@ const Leaves = () => {
             required
           >
             <option value="">--Select Leave Type--</option>
-            {availableLeaveTypes.map((leaveType, index) => (
-              <option key={index} value={leaveType}>
-                {leaveType}
-              </option>
-            ))}
+            {availableLeaveTypes &&
+              availableLeaveTypes.map((leaveType, index) => (
+                <option key={index} value={leaveType[0]}>
+                  {leaveType[0]}
+                </option>
+              ))}
           </select>
         </div>
 

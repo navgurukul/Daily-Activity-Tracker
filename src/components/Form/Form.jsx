@@ -32,7 +32,6 @@ const Form = () => {
     const dd = String(today.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   };
-
   const [formData, setFormData] = useState({
     type: "contribution",
     email: email,

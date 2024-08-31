@@ -171,8 +171,6 @@ const Leaves = () => {
 
     setError(""); // Clear any previous error messages
 
-    const url =
-      "https://script.google.com/macros/s/AKfycbwi-SZ7Gr8N-p81rnlha9RmmSd0pLmbuO7dpp1m3rClZsDtA0jw8jnHsExxKel-pMhWeQ/exec";
     fetch(url, {
       method: "POST",
       headers: {

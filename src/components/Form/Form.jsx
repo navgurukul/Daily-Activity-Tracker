@@ -161,7 +161,8 @@ const Form = () => {
 
   const handleProjectSelect = (e) => {
     setSaved(false);
-      //  setOpen(true);
+    //  setOpen(true);
+    if(e.target.value === "Ad-hoc tasks")
        setError("You can only log a maximum of 2 hours for Ad-hoc tasks");
     setSelectedProject(e.target.value);
     setCurrentContribution({ hours: "", task: "" }); // Reset current contribution

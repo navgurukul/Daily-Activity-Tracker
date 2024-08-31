@@ -45,9 +45,10 @@ const Form = () => {
   const [projectData, setProjectData] = useState([]);
   const [selectedProject, setSelectedProject] = useState("");
   const [currentContribution, setCurrentContribution] = useState({
-    hours: "",
+    hours: "0",
     task: "",
   });
+  const [maxHours, setMaxHours] = useState(12);
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -160,10 +161,25 @@ const Form = () => {
 
   const handleProjectSelect = (e) => {
     setSaved(false);
+      //  setOpen(true);
+       setError("You can only log a maximum of 2 hours for Ad-hoc tasks");
     setSelectedProject(e.target.value);
     setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
   };
 
+  useEffect(() => {
+    console.log("Selected Project:", selectedProject);
+    setMaxHours(2);
+  }, [selectedProject]);
+
+  function checkMaxValue(input) {
+    if (selectedProject === "Ad-hoc tasks") {
+      if (input.value > 2) {
+     
+        input.value = 2;
+      }
+    }
+  }
   const handleContributionChange = (e) => {
     const { name, value } = e.target;
     setCurrentContribution({
@@ -551,8 +567,10 @@ const Form = () => {
               <input
                 type="number"
                 name="hours"
+                max={maxHours}
                 value={currentContribution.hours}
                 onChange={handleContributionChange}
+                onInput={(e) => checkMaxValue(e.target)}
                 min="0"
                 required
               />

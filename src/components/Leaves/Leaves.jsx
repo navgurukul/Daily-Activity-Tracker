@@ -76,7 +76,7 @@ const [ leaveResult, setLeaveResult ] = useState();
       const newResult =  Object.entries(result)
 
       console.log("Available lqiwgdouyasdoiua:", newResult);
-      return newResult;
+      return availableTypes;
     } catch (error) {
       console.error("Error fetching leave types:", error);
       return [];
@@ -85,6 +85,7 @@ const [ leaveResult, setLeaveResult ] = useState();
 
 
   const handleChange = (e) => {
+    if(e.target.name === "leaveType")
     setRemainingLeaves(leaveResult[e.target.value]);
 
     const { name, value } = e.target;
@@ -98,41 +99,43 @@ const [ leaveResult, setLeaveResult ] = useState();
     setHalfDay(e.target.checked);
   };
 
-  const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
-    const from = new Date(fromDate);
-    const to = new Date(toDate);
+const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
+  const from = new Date(fromDate);
+  const to = new Date(toDate);
 
-    // If fromDate and toDate are the same and halfDay is checked, return 0.5
-    if (fromDate === toDate && halfDay) {
-      return 0.5;
+  let totalDays = 0;
+  let currentDate = new Date(from);
+
+  while (currentDate <= to) {
+    const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
+    const dateOfMonth = currentDate.getDate();
+    const isSecondSaturday =
+      dayOfWeek === 6 && dateOfMonth >= 8 && dateOfMonth <= 14;
+    const isFourthSaturday =
+      dayOfWeek === 6 && dateOfMonth >= 22 && dateOfMonth <= 28;
+
+    if (dayOfWeek !== 0 && !isSecondSaturday && !isFourthSaturday) {
+      totalDays++;
     }
 
-    let totalDays = 0;
-    let currentDate = new Date(from);
+    // Move to the next day
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
 
-    while (currentDate <= to) {
-      const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
-      const dateOfMonth = currentDate.getDate();
-      const isSecondSaturday =
-        dayOfWeek === 6 && dateOfMonth >= 8 && dateOfMonth <= 14;
-      const isFourthSaturday =
-        dayOfWeek === 6 && dateOfMonth >= 22 && dateOfMonth <= 28;
-
-      if (dayOfWeek !== 0 && !isSecondSaturday && !isFourthSaturday) {
-        totalDays++;
-      }
-
-      // Move to the next day
-      currentDate.setDate(currentDate.getDate() + 1);
+  // Adjust for half-day deduction
+  if (halfDay) {
+    // If the range is only one day, deduct 0.5 day
+    if (from.getTime() === to.getTime()) {
+      totalDays -= 0.5;
     }
-
-    // If half day is selected, add 0.5 to the total days if fromDate and toDate are different
-    if (halfDay && fromDate !== toDate) {
-      totalDays += 0.5;
+    // Otherwise, deduct 0.5 for the start date
+    else if (from.getTime() !== to.getTime()) {
+      totalDays -= 0.5;
     }
+  }
 
-    return totalDays;
-  };
+  return totalDays;
+};
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -271,8 +274,8 @@ const [ leaveResult, setLeaveResult ] = useState();
             <option value="">--Select Leave Type--</option>
             {availableLeaveTypes &&
               availableLeaveTypes.map((leaveType, index) => (
-                <option key={index} value={leaveType[0]}>
-                  {leaveType[0]}
+                <option key={index} value={leaveType}>
+                  {leaveType}
                 </option>
               ))}
           </select>

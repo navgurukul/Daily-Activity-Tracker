@@ -613,7 +613,7 @@ const Form = () => {
       </Dialog>
       <Snackbar
         open={error}
-        autoHideDuration={6000}
+        autoHideDuration={8000}
         onClose={() => setError("")}
       >
         <Alert

@@ -5,7 +5,8 @@ import { LoginContext } from "../context/LoginContext";
 import LoadingSpinner from "../Loader/LoadingSpinner";
 import { useLoader } from "../context/LoadingContext";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import {Snackbar,Alert} from "@mui/material";
+import { Snackbar, Alert } from "@mui/material";
+import url from "../../../public/api";
 const CompOff = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
@@ -21,7 +22,7 @@ const CompOff = () => {
   };
 
   const [leaveData, setLeaveData] = useState({
-    type: "leave",
+    type: "compOff",
     reason: "",
     fromDate: getTodayDate(),
     toDate: getTodayDate(),
@@ -115,8 +116,6 @@ const CompOff = () => {
 
     setError(""); // Clear any previous error messages
 
-    const url =
-      "https://script.google.com/macros/s/AKfycbzffLW5sZwDz2b_egto-4VlVL1obaPOAoKSjze7Sa-s-85VsXuxTBWcRW10KCHQLSn8Ow/exec";
     fetch(url, {
       method: "POST",
       headers: {

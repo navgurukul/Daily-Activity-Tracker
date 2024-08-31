@@ -51,42 +51,43 @@ const CompOff = () => {
     setHalfDay(e.target.checked);
   };
 
-  const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
-    const from = new Date(fromDate);
-    const to = new Date(toDate);
+const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
+  const from = new Date(fromDate);
+  const to = new Date(toDate);
 
-    // If fromDate and toDate are the same and halfDay is checked, return 0.5
-    if (fromDate === toDate && halfDay) {
-      return 0.5;
+  let totalDays = 0;
+  let currentDate = new Date(from);
+
+  while (currentDate <= to) {
+    const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
+    const dateOfMonth = currentDate.getDate();
+    const isSecondSaturday =
+      dayOfWeek === 6 && dateOfMonth >= 8 && dateOfMonth <= 14;
+    const isFourthSaturday =
+      dayOfWeek === 6 && dateOfMonth >= 22 && dateOfMonth <= 28;
+
+    if (dayOfWeek !== 0 && !isSecondSaturday && !isFourthSaturday) {
+      totalDays++;
     }
 
-    let totalDays = 0;
-    let currentDate = new Date(from);
+    // Move to the next day
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
 
-    while (currentDate <= to) {
-      const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
-      const dateOfMonth = currentDate.getDate();
-      const isSecondSaturday =
-        dayOfWeek === 6 && dateOfMonth >= 8 && dateOfMonth <= 14;
-      const isFourthSaturday =
-        dayOfWeek === 6 && dateOfMonth >= 22 && dateOfMonth <= 28;
-
-      if (dayOfWeek !== 0 && !isSecondSaturday && !isFourthSaturday) {
-        totalDays++;
-      }
-
-      // Move to the next day
-      currentDate.setDate(currentDate.getDate() + 1);
+  // Adjust for half-day deduction
+  if (halfDay) {
+    // If the range is only one day, deduct 0.5 day
+    if (from.getTime() === to.getTime()) {
+      totalDays -= 0.5;
     }
-
-    // If half day is selected, add 0.5 to the total days if fromDate and toDate are different
-    if (halfDay && fromDate !== toDate) {
-      totalDays += 0.5;
+    // Otherwise, deduct 0.5 for the start date
+    else if (from.getTime() !== to.getTime()) {
+      totalDays -= 0.5;
     }
+  }
 
-    return totalDays;
-  };
-
+  return totalDays;
+};
   const handleSubmit = (e) => {
     e.preventDefault();
 

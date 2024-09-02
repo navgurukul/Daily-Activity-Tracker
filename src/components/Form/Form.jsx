@@ -161,8 +161,8 @@ const Form = () => {
   const handleProjectSelect = (e) => {
     setSaved(false);
     //  setOpen(true);
-    if(e.target.value === "Ad-hoc tasks")
-       setError("You can only log a maximum of 2 hours for Ad-hoc tasks");
+    if (e.target.value === "Ad-hoc tasks")
+      setError("You can only log a maximum of 2 hours for Ad-hoc tasks");
     setSelectedProject(e.target.value);
     setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
   };
@@ -175,7 +175,7 @@ const Form = () => {
   function checkMaxValue(input) {
     if (selectedProject === "Ad-hoc tasks") {
       if (input.value > 2) {
-     
+
         input.value = 2;
       }
     }
@@ -330,9 +330,9 @@ const Form = () => {
       .getMinutes()
       .toString()
       .padStart(2, "0")}:${submitTime
-      .getSeconds()
-      .toString()
-      .padStart(2, "0")}`;
+        .getSeconds()
+        .toString()
+        .padStart(2, "0")}`;
 
     const payload = {
       ...formData,
@@ -351,7 +351,7 @@ const Form = () => {
       .then((response) => response.text())
       .then((data) => {
         console.log("Success:", data);
-        setSuccessMessage("Thanks for sharing the update!");
+        // setSuccessMessage("Thanks for sharing the update!");
         setError("Thanks for sharing the update!");
         setFormData({
           type: "contribution",
@@ -407,13 +407,13 @@ const Form = () => {
   }
   return (
     <div>
-      <LoadingSpinner loading={loading} />
+      <LoadingSpinner loading={loading} className="loader-container" />
       <h1 style={{ textAlign: "center" }}>Daily Activity Tracker </h1>
       <p style={{ textAlign: "center" }}>
         Fill out the form below to record your daily tasks.
       </p>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="from-1">
         {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
         <div>
           <label>Employee Email:</label>
@@ -517,21 +517,24 @@ const Form = () => {
                           {contribution.task}
                         </td>
                         <td>
-                          <button
-                            className="edit-button"
-                            type="button"
-                            onClick={() => handleEdit(index)}
-                          >
-                            <EditIcon className="icon-white" />
-                          </button>
-                          <button
-                            className="delete-button"
-                            type="button"
-                            onClick={() => handleDelete(index)}
-                          >
-                            <DeleteIcon className="icon-white" />
-                          </button>
+                          <div className="button-container">
+                            <button
+                              className="edit-button"
+                              type="button"
+                              onClick={() => handleEdit(index)}
+                            >
+                              <EditIcon className="icon-white" />
+                            </button>
+                            <button
+                              className="delete-button"
+                              type="button"
+                              onClick={() => handleDelete(index)}
+                            >
+                              <DeleteIcon className="icon-white" />
+                            </button>
+                          </div>
                         </td>
+
                       </>
                     )}
                   </tr>
@@ -582,13 +585,15 @@ const Form = () => {
                 onChange={handleContributionChange}
                 required
               />
-              <button type="button" onClick={addContribution}>
+              <button type="button" onClick={addContribution} className="full-width-button"
+              >
                 Save Contribution
               </button>
+
             </div>
           )}
         </div>
-        <button type="submit">Submit</button>
+        <button type="submit" className="full-width-button" >Submit</button>
       </form>
       <Dialog
         open={open}

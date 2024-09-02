@@ -208,7 +208,7 @@ const Form = () => {
     }));
     setSaved(true); // Set saved to true when a contribution is added
     setSelectedProject(""); // Reset project selection
-    setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
+    setCurrentContribution({ hours: "", task: "" });
     setShowProjectForm(false); // Hide the project form
   };
   const handleEditContributionChange = (e) => {

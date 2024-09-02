@@ -276,34 +276,6 @@ const Form = () => {
       // If it is after midnight but before 7 a.m., treat 'today' as the previous day
       today.setDate(today.getDate() - 1);
     }
-
-    if (entry.getDate() !== today.getDate()) {
-      const newCount = previousEntriesDone + 1;
-      let email = localStorage.getItem("email") ?? "";
-      fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-        mode: "no-cors",
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          setAttempt(attempt - 1);
-        });
-      setPreviousEntriesDone(newCount);
-      localStorage.setItem(
-        "previousEntriesDone",
-        JSON.stringify({ count: newCount, lastUpdated: today })
-      );
-      if (attempt <= 0 && entry.getDate() !== today.getDate()) {
-        setError(
-          "You have exceeded the limit of 3 entries for past dates in a month"
-        );
-        return;
-      }
-    }
     e.preventDefault();
     if (formData.contributions.length === 0) {
       return alert(

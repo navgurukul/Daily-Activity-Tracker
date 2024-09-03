@@ -53,7 +53,12 @@ form {
     visibility: visible;
     opacity: 1;
   }
-  
+  @media (max-width: 700px) { 
+    .form-1 {
+      width: 90%; 
+      max-width: 300px; 
+    }
+  }
   
   
   
@@ -121,5 +126,9 @@ form {
     color: green;
     text-align: center;
   }
-  
-
+  @media (max-width: 700px) { 
+    .form {
+      width: 90%; 
+      max-width: 300px; 
+    }
+  }

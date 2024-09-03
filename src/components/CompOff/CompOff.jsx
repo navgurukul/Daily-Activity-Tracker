@@ -157,7 +157,7 @@ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
       <LoadingSpinner loading={loading} />
       <h1 style={{ textAlign: "center" }}>Compensatory Request Application Form </h1>
       <p style={{ textAlign: "center" }}></p>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="form-1">
         {error && <p style={{ color: "red" }}>{error}</p>}
         <div>
           <div>

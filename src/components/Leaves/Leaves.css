@@ -4,6 +4,7 @@ form {
   border: 1px solid #ccc;
   border-radius: 8px;
   background-color: #f9f9f9;
+ 
 }
 
 
@@ -51,15 +52,6 @@ form {
   visibility: visible;
   opacity: 1;
 }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -121,7 +113,12 @@ form h1 {
 }
 
 
-
+@media (max-width: 700px) { 
+  .form-1 {
+    width: 90%; 
+    max-width: 300px; 
+  }
+} 
 
 
 

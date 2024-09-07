@@ -63,7 +63,7 @@ const [ leaveResult, setLeaveResult ] = useState();
 
   const fetchAvailableLeaveTypes = async () => {
     try {
-     const response = await fetch(`${url}?email=${email}&type=availableLeaves`);
+     const response = await fetch(`${url}?email=${email}&type=availableLeaves`)
       const result = await response.json();
       setLeaveResult(result);
 
@@ -182,6 +182,7 @@ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
       ...leaveData,
       numberOfDays,
       timestamp: submitTimestamp,
+      //  managerEmail: "alpanachavan20@navgurukul.org"
     };
 
     setError(""); // Clear any previous error messages
@@ -225,13 +226,16 @@ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
   return (
     <div
       style={{
+  
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
         width: "100%",
         height: "100%",
-        padding: "1rem",
+        // padding: "1rem",
+        
+        
       }}
     >
       <LoadingSpinner loading={loading} />
@@ -239,7 +243,7 @@ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
       <p style={{ textAlign: "center" }}>
         Make sure to check the leave balance before applying
       </p>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="form-1">
         {error && <p style={{ color: "red" }}>{error}</p>}
         <div>
           <div>

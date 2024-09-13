@@ -66,7 +66,8 @@ const Form = () => {
   const [previousEntriesDone, setPreviousEntriesDone] = useState(0);
   const today = new Date().toISOString().split("T")[0];
   const [attempt, setAttempt] = useState(0);
-
+  const [isDateDisabled, setIsDateDisabled] = useState(true);
+  
   useEffect(() => {
     let email = localStorage.getItem("email") ?? "";
     fetch(`${url}?email=${email}&type=attempts`)
@@ -74,6 +75,7 @@ const Form = () => {
       .then((data) => {
         setAttempt(data.attemptsLeft);
         localStorage.setItem("attemptsLeft", data.attemptsLeft);
+        setIsDateDisabled(false)
       });
 
     const initPreviousEntries = () => {
@@ -419,6 +421,7 @@ const Form = () => {
             type="date"
             name="selectedDate"
             max={today}
+            disabled={isDateDisabled}
             min={getMinDate()}
             value={formData.selectedDate}
             onChange={handleChange}
@@ -506,7 +509,6 @@ const Form = () => {
                             </button>
                           </div>
                         </td>
-
                       </>
                     )}
                   </tr>
@@ -557,15 +559,19 @@ const Form = () => {
                 onChange={handleContributionChange}
                 required
               />
-              <button type="button" onClick={addContribution} className="full-width-button"
+              <button
+                type="button"
+                onClick={addContribution}
+                className="full-width-button"
               >
                 Save Contribution
               </button>
-
             </div>
           )}
         </div>
-        <button type="submit" className="full-width-button" >Submit</button>
+        <button type="submit" className="full-width-button">
+          Submit
+        </button>
       </form>
       <Dialog
         open={open}

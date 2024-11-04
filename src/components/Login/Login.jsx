@@ -22,7 +22,7 @@ function Login() {
     const decoded = jwtDecode(jwtToken);
     const userEmail = decoded?.email;
 
-    if (userEmail.endsWith("@navgurukul.org")) {
+    if (userEmail.endsWith("@navgurukul.org") || userEmail.endsWith("@thesama.in")) {
       const username = userEmail.split("@")[0];
       const hasNumbers = /\d/.test(username);
 

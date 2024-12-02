@@ -67,6 +67,9 @@ const CompOff = () => {
     const from = new Date(fromDate);
     const to = new Date(toDate);
 
+
+
+
     let totalDays = 0;
     let currentDate = new Date(from);
 
@@ -78,7 +81,7 @@ const CompOff = () => {
       const isFourthSaturday =
         dayOfWeek === 6 && dateOfMonth >= 22 && dateOfMonth <= 28;
 
-      if (dayOfWeek !== 0 && !isSecondSaturday && !isFourthSaturday) {
+      if (dayOfWeek === 0 || isSecondSaturday || isFourthSaturday) {
         totalDays++;
       }
 
@@ -92,6 +95,7 @@ const CompOff = () => {
         totalDays -= 0.5;
       }
     }
+    
 
     return totalDays;
   };
@@ -103,7 +107,7 @@ const CompOff = () => {
     handleLoading(true);
     if (
       !leaveData.reason ||
-      !leaveData.fromDate ||
+      !leaveData.fromDate || 
       !leaveData.toDate ||
       !leaveData.email
     ) {
@@ -116,6 +120,7 @@ const CompOff = () => {
     const numberOfDays = JSON.stringify(
       calculateNumberOfDays(leaveData.fromDate, leaveData.toDate, halfDay)
     );
+    
 
     const leaveDataWithDays = {
       ...leaveData,
@@ -146,6 +151,7 @@ const CompOff = () => {
         setLoading(false);
         handleLoading(false);
         setTimeout(() => setSuccessMessage(""), 4000);
+        setTimeout(()=>{window.location.reload()}, 1000)
       })
       .catch((error) => {
         console.error("Error sending data to Google Apps Script:", error);

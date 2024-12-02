@@ -28,7 +28,7 @@ const CompOff = () => {
     reason: "",
     fromDate: getTodayDate(),
     toDate: getTodayDate(),
-    email: email,
+    email: "",
   });
 
   const [halfDay, setHalfDay] = useState(false);
@@ -140,7 +140,7 @@ const CompOff = () => {
           reason: "",
           fromDate: getTodayDate(),
           toDate: getTodayDate(),
-          email: email,
+          email: "",
         });
         setHalfDay(false);
         setLoading(false);
@@ -191,7 +191,6 @@ const CompOff = () => {
               value={leaveData.email}
               onChange={handleChange}
               required
-              disabled
             />
           </div>
         </div>

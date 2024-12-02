@@ -4,6 +4,8 @@ import url from "../../../public/api";
 import { json, useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import DeleteIcon from "@mui/icons-material/Delete";
+
+import CircularProgress from "@mui/material/CircularProgress";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import LoadingSpinner from "../Loader/LoadingSpinner";
@@ -67,15 +69,18 @@ const Form = () => {
   const today = new Date().toISOString().split("T")[0];
   const [attempt, setAttempt] = useState(0);
   const [isDateDisabled, setIsDateDisabled] = useState(true);
+  const [ attemptLoading, setAttemptLoading ] = useState(true);
   
   useEffect(() => {
     let email = localStorage.getItem("email") ?? "";
+    setAttemptLoading(true)
     fetch(`${url}?email=${email}&type=attempts`)
       .then((response) => response.json())
       .then((data) => {
         setAttempt(data.attemptsLeft);
         localStorage.setItem("attemptsLeft", data.attemptsLeft);
         setIsDateDisabled(false)
+        setAttemptLoading(false)
       });
 
     const initPreviousEntries = () => {
@@ -382,9 +387,18 @@ const Form = () => {
   return (
     <div>
       <LoadingSpinner loading={loading} className="loader-container" />
-      <h1 style={{ textAlign: "center" }}>Daily Activity Tracker </h1>
+      <h1 style={{ textAlign: "center" }}>Daily Employee's Activity Tracker </h1>
       <p style={{ textAlign: "center" }}>
-        Fill out the form below to record your daily tasks.
+        {attemptLoading ? (
+          <CircularProgress />
+        ) : (
+          <div className="heading">
+            <p>
+              Note: You have only <span id="green-button">{attempt}</span> attempts
+              left to fill for previous days
+            </p>
+          </div>
+        )}
       </p>
 
       <form onSubmit={handleSubmit} className="from-1">

@@ -31,7 +31,6 @@ function App() {
         {email && email !== "" ? <Navbar /> : <NoTabNavBar />}
      <br /><br />
       <main>
-        {email && <TraansitionModal />}
         <Routes>
           <Route path="/" element={<Login />} />
           <Route

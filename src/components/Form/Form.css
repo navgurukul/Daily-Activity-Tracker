@@ -110,6 +110,9 @@ td {
   gap: 10px; 
 }
 
+#green-button {
+ color: #4CAF50;
+}
 .delete-button {
   background-color: #8f0a00;
   color: white;

@@ -7,11 +7,13 @@ import { useLoader } from "../context/LoadingContext";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { Snackbar, Alert } from "@mui/material";
 import url from "../../../public/api";
+
 const CompOff = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
   const { loading, setLoading } = useLoader();
   const navigate = useNavigate();
+  const [showAuthError, setShowAuthError] = useState(false);
 
   const getTodayDate = () => {
     const today = new Date();
@@ -33,9 +35,18 @@ const CompOff = () => {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  // Check for authentication and email
   useEffect(() => {
     if (!email) {
       navigate("/");
+      return;
+    }
+
+    if (sessionStorage.getItem("isAuth") !== "true") {
+      setShowAuthError(true);
+      setTimeout(() => {
+        navigate("/activity-tracker");
+      }, 2000);
     }
   }, [email, navigate]);
 
@@ -51,43 +62,40 @@ const CompOff = () => {
     setHalfDay(e.target.checked);
   };
 
-const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
-  const from = new Date(fromDate);
-  const to = new Date(toDate);
+  // Your existing calculateNumberOfDays function
+  const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
+    const from = new Date(fromDate);
+    const to = new Date(toDate);
 
-  let totalDays = 0;
-  let currentDate = new Date(from);
+    let totalDays = 0;
+    let currentDate = new Date(from);
 
-  while (currentDate <= to) {
-    const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
-    const dateOfMonth = currentDate.getDate();
-    const isSecondSaturday =
-      dayOfWeek === 6 && dateOfMonth >= 8 && dateOfMonth <= 14;
-    const isFourthSaturday =
-      dayOfWeek === 6 && dateOfMonth >= 22 && dateOfMonth <= 28;
+    while (currentDate <= to) {
+      const dayOfWeek = currentDate.getDay();
+      const dateOfMonth = currentDate.getDate();
+      const isSecondSaturday =
+        dayOfWeek === 6 && dateOfMonth >= 8 && dateOfMonth <= 14;
+      const isFourthSaturday =
+        dayOfWeek === 6 && dateOfMonth >= 22 && dateOfMonth <= 28;
 
-    if (dayOfWeek !== 0 && !isSecondSaturday && !isFourthSaturday) {
-      totalDays++;
+      if (dayOfWeek !== 0 && !isSecondSaturday && !isFourthSaturday) {
+        totalDays++;
+      }
+
+      currentDate.setDate(currentDate.getDate() + 1);
     }
 
-    // Move to the next day
-    currentDate.setDate(currentDate.getDate() + 1);
-  }
-
-  // Adjust for half-day deduction
-  if (halfDay) {
-    // If the range is only one day, deduct 0.5 day
-    if (from.getTime() === to.getTime()) {
-      totalDays -= 0.5;
+    if (halfDay) {
+      if (from.getTime() === to.getTime()) {
+        totalDays -= 0.5;
+      } else if (from.getTime() !== to.getTime()) {
+        totalDays -= 0.5;
+      }
     }
-    // Otherwise, deduct 0.5 for the start date
-    else if (from.getTime() !== to.getTime()) {
-      totalDays -= 0.5;
-    }
-  }
 
-  return totalDays;
-};
+    return totalDays;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -105,7 +113,6 @@ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
       return;
     }
 
-    // Calculate the number of days
     const numberOfDays = JSON.stringify(
       calculateNumberOfDays(leaveData.fromDate, leaveData.toDate, halfDay)
     );
@@ -115,7 +122,7 @@ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
       numberOfDays,
     };
 
-    setError(""); // Clear any previous error messages
+    setError("");
 
     fetch(url, {
       method: "POST",
@@ -138,7 +145,7 @@ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
         setHalfDay(false);
         setLoading(false);
         handleLoading(false);
-        setTimeout(() => setSuccessMessage(""), 4000); // Clear message after 4 seconds
+        setTimeout(() => setSuccessMessage(""), 4000);
       })
       .catch((error) => {
         console.error("Error sending data to Google Apps Script:", error);
@@ -152,10 +159,26 @@ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
     document.getElementById("root").style.opacity = load ? "0.8" : "1";
   };
 
+  if (sessionStorage.getItem("isAuth") !== "true") {
+    return (
+      <Snackbar
+        open={showAuthError}
+        autoHideDuration={2000}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert severity="error" variant="filled" sx={{ width: "100%" }}>
+          You are not authorized to access this page
+        </Alert>
+      </Snackbar>
+    );
+  }
+
   return (
     <div>
       <LoadingSpinner loading={loading} />
-      <h1 style={{ textAlign: "center" }}>Compensatory Request Application Form </h1>
+      <h1 style={{ textAlign: "center" }}>
+        Compensatory Request Application Form
+      </h1>
       <p style={{ textAlign: "center" }}></p>
       <form onSubmit={handleSubmit} className="form-1">
         {error && <p style={{ color: "red" }}>{error}</p>}
@@ -174,7 +197,7 @@ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
         </div>
 
         <div>
-          <label>Reason for Working :</label>
+          <label>Reason for Working:</label>
           <textarea
             name="reason"
             value={leaveData.reason}
@@ -204,36 +227,10 @@ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
             required
           />
         </div>
-        {/* <div className="tooltip">
-          How to use Half Day?
-          
-        </div> */}
-
-        {/* <div
-          style={{
-            display: "flex",
-            gap: "0.5rem",
-            marginTop: "10px",
-          }}
-        >
-          <label style={{}}>Half Day:</label>
-          <div className="tooltip">
-         <VisibilityIcon/>
-         <span
-            style={{
-              width: "300px",
-            }}
-            className="texttool"
-          >
-            Note: Do not change the date if you want to avail half day for the
-            single day. If the date is increased by 1 and halfday is checked You
-            will be availing today's leave + tomorrow's + half day.
-          </span>
-         </div>
-        </div> */}
 
         <button type="submit">Submit</button>
       </form>
+
       <Snackbar
         open={successMessage}
         autoHideDuration={6000}

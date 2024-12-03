@@ -141,7 +141,7 @@ const CompOff = () => {
       .then((data) => {
         setSuccessMessage("Compensatory request submitted successfully!");
         setLeaveData({
-          type: "leave",
+          type: "compOff",
           reason: "",
           fromDate: getTodayDate(),
           toDate: getTodayDate(),

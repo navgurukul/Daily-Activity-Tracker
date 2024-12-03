@@ -1,4 +1,4 @@
-import React, { useContext, useEffect} from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Form from "./components/Form/Form";
 import "./App.css";
 import { Route, Routes, Link } from "react-router-dom";
@@ -11,25 +11,47 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import brainImg from "../public/brain.png";
 import CompOff from "./components/CompOff/CompOff";
 import TraansitionModal from "./components/Modal/TraansitionModal";
+
 function App() {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
+  const [feedbackData, setFeedbackData] = useState(null);
+
   useEffect(() => {
     const handleBeforeUnload = (event) => {
       event.preventDefault();
-      event.returnValue = true; // This is required for modern browsers to show the confirmation dialog
+      event.returnValue = true;
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
+
+  useEffect(() => {
+    const fetchFeedbackData = async () => {
+      try {
+        const response = await fetch(
+          "https://script.google.com/macros/s/AKfycbyD6c544p-aVISBAlLUKlkEJRbXuV8tzpwv_YEUP3wKu7cSiKynMaTpqY3c6TqTQYtcOw/exec?type=getProjectFeedbackForm"
+        );
+        const data = await response.json();
+        console.log("Feedback data:", data);
+        setFeedbackData(data);
+      } catch (error) {
+        console.error("Error fetching feedback data:", error);
+      }
+    };
+
+    fetchFeedbackData();
+  }, []);
+
   return (
     <div className="App">
-        {email && email !== "" ? <Navbar /> : <NoTabNavBar />}
-     <br /><br />
+      {email && email !== "" ? <Navbar /> : <NoTabNavBar />}
+      <br />
+      <br />
       <main>
         <Routes>
           <Route path="/" element={<Login />} />
@@ -51,13 +73,11 @@ function App() {
           />
         </Routes>
       </main>
-      {/* <footer className="App-footer">
-        <p>&copy; 2024 @Samyarth.org. All rights reserved.</p>
-      </footer> */}
+      {feedbackData && feedbackData.length > 0 && (
+        <TraansitionModal feedbackData={feedbackData} />
+      )}
     </div>
   );
 }
 
 export default App;
-
-

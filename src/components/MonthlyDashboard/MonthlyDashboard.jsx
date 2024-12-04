@@ -22,18 +22,38 @@ const MonthlyDashboard = () => {
   const [error, setError] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
 
-  const getDaysInMonth = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
+const getDaysInMonth = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    return Array.from({ length: daysInMonth }, (_, i) => {
-      const date = new Date(year, month, i + 1);
-      return date.toISOString().split("T")[0];
-    });
-    };
     
+
+  // Get only current month's days
+  const currentMonthDays = Array.from({ length: daysInMonth }, (_, i) => {
+      const date = new Date(year, month, i + 1);
+      console.log(date);
+      return (
+        date.getFullYear() +
+        "-" +
+        String(date.getMonth() + 1).padStart(2, "0") +
+        "-" +
+        String(date.getDate()).padStart(2, "0")
+      );
+  });
+
+  return currentMonthDays;
+}; 
+    console.log(getDaysInMonth());
     let email = localStorage.getItem("email") ?? "";
+
+    const getMonthAndYear = () => {
+      const now = new Date();
+      return now.toLocaleString("default", { month: "long", year: "numeric" });
+    };
+
+    
+  const currentMonthYear = getMonthAndYear();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -84,9 +104,15 @@ const MonthlyDashboard = () => {
 
   return (
     <Paper className="dashboard-container">
-      <Typography variant="h5" className="dashboard-title">
-        Monthly Activity Dashboard
-      </Typography>
+      {/* Add this new header section */}
+      <div className="dashboard-header">
+        <Typography variant="h4" className="month-title">
+          {currentMonthYear}
+        </Typography>
+        <Typography variant="h5" className="dashboard-title">
+          Monthly Activity Dashboard
+        </Typography>
+      </div>
 
       <div className="calendar-grid">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (

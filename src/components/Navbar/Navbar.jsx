@@ -185,14 +185,10 @@ const Navbar = (props) => {
           { text: "Leave Application", icon: <ParkIcon /> },
           {
             text: "Comp-off Application",
-            icon:
-           isAuthorizedEmail() ? (
-                <LockOpenIcon />
-              ) : (
-                <LockIcon />
-              ),
+            icon: isAuthorizedEmail() ? <LockOpenIcon /> : <LockIcon />,
             disabled: !isAuthorizedEmail(),
           },
+          { text: "Monthly Activity-Dashboard", icon: <AssessmentIcon /> }
         ].map((item, index) => (
           <ListItem
             key={item.text}

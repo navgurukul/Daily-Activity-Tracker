@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import brainImg from "../public/brain.png";
 import CompOff from "./components/CompOff/CompOff";
 import TraansitionModal from "./components/Modal/TraansitionModal";
+import MonthlyDashboard from "./components/MonthlyDashboard/MonthlyDashboard";
 
 function App() {
   const dataContext = useContext(LoginContext);
@@ -70,6 +71,10 @@ function App() {
           <Route
             path="/leaves"
             element={<ProtectedRoute element={<Leaves />} />}
+          />
+          <Route
+            path="/monthly-activity-dashboard"
+            element={<ProtectedRoute element={<MonthlyDashboard />} />}
           />
         </Routes>
       </main>

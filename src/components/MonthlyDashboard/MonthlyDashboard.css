@@ -71,7 +71,8 @@
 
 .hours-chip {
   background-color: #e8eaf6 !important;
-  color: #3949ab !important;
+  color: #4CAF50
+ !important;
   font-weight: 600 !important;
 }
 
@@ -88,7 +89,8 @@
 }
 
 .project-name {
-  color: #3949ab;
+  color: #4CAF50
+;
   font-weight: 500;
   display: block;
   white-space: nowrap;
@@ -125,14 +127,16 @@
 }
 
 .project-title {
-  color: black !important;
+  color: #4CAF50
+ !important;
   margin-bottom: 8px !important;
 }
 
 .time-chip {
   margin-bottom: 12px !important;
   background-color: #e8eaf6 !important;
-  color: #3949ab !important;
+  color: #4CAF50
+ !important;
   font-weight: 600 !important;
 }
 

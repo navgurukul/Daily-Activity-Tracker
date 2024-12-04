@@ -38,13 +38,14 @@ import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 
 const drawerWidth = 240;
-const AUTHORIZED_EMAIL = "amruta@navgurukul.org";
+const AUTHORIZED_EMAILS = [
+  "amruta@navgurukul.org",
+  "shivansh@navgurukul.org",
+  "arunesh@navgurukul.org",
+];
 
 const Navbar = (props) => {
   const { window } = props;
-  const [selected, setSelected] = useState(
-    localStorage.getItem("selectedButton") || "daily-tracker"
-  );
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -53,16 +54,15 @@ const Navbar = (props) => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const dataContext = useContext(LoginContext);
   const { email, setEmail } = dataContext;
 
-  // const isAuthenticated = () => {
-  //   return sessionStorage.getItem("isAuth") === "true";
-  // };
-
   const isAuthorizedEmail = () => {
-    return localStorage.getItem("email") === AUTHORIZED_EMAIL;
+    const userEmail = localStorage.getItem("email");
+    return AUTHORIZED_EMAILS.includes(userEmail);
   };
 
   useEffect(() => {
@@ -107,11 +107,15 @@ const Navbar = (props) => {
       if (isAuthorizedEmail()) {
         sessionStorage.setItem("isAuth", "true");
         handlePasswordDialogClose();
-       navigate("comp-off-application")
+        navigate("comp-off-application");
         setError("");
+        setSnackbarSeverity("success");
+        setSnackbarMessage("Successfully authenticated!");
         setSnackbarOpen(true);
       } else {
         setError("You are not authorized to access this feature");
+        setSnackbarSeverity("error");
+        setSnackbarMessage("You are not authorized to access this feature");
         setSnackbarOpen(true);
       }
     } else {
@@ -119,30 +123,8 @@ const Navbar = (props) => {
     }
   };
 
-  useEffect(() => {
-    if (email) {
-      localStorage.setItem("selectedButton", selected);
-      if (selected === "daily-tracker") {
-        navigate("/activity-tracker");
-      }
-    } else {
-      localStorage.removeItem("selectedButton");
-      navigate("/");
-    }
-  }, [selected, navigate, email]);
-
-  useEffect(() => {
-    const storedSelected = localStorage.getItem("selectedButton");
-    if (storedSelected === "leave-app") {
-      navigate("/leaves");
-    } else if (storedSelected === "comp-off-application" && isAuthorizedEmail()) {
-      navigate("/comp-off-application");
-    }
-  }, [navigate]);
-
   const handleClick = (button) => {
-    console.log("Handleclick", button
-    )
+    console.log("Handleclick", button);
     if (button === "logout") {
       localStorage.clear();
       sessionStorage.clear();
@@ -151,12 +133,17 @@ const Navbar = (props) => {
     }
 
     if (button === "comp-off-application") {
+      if (!isAuthorizedEmail()) {
+        setSnackbarSeverity("info");
+        setSnackbarMessage(
+          "Comp-off requests need to be approved by Amruta. Please reach out to amruta@navgurukul.org before raising a request."
+        );
+        setSnackbarOpen(true);
+        return;
+      }
       handlePasswordDialogOpen();
       return;
     }
-
-    const newSelection = button === "" ? "daily-tracker" : button;
-    setSelected(newSelection);
 
     navigate(`/${button}`);
     handleDrawerClose();
@@ -186,9 +173,9 @@ const Navbar = (props) => {
           {
             text: "Comp-off Application",
             icon: isAuthorizedEmail() ? <LockOpenIcon /> : <LockIcon />,
-            disabled: !isAuthorizedEmail(),
+            // disabled: !isAuthorizedEmail(),
           },
-          { text: "Monthly Activity-Dashboard", icon: <AssessmentIcon /> }
+          { text: "Monthly Activity-Dashboard", icon: <AssessmentIcon /> },
         ].map((item, index) => (
           <ListItem
             key={item.text}
@@ -199,7 +186,7 @@ const Navbar = (props) => {
               onClick={() =>
                 handleClick(item.text.toLowerCase().replace(" ", "-"))
               }
-              disabled={item.disabled}
+              // disabled={item.disabled}
               sx={{
                 opacity: item.disabled ? 0.5 : 1,
                 "&.Mui-disabled": {
@@ -335,7 +322,6 @@ const Navbar = (props) => {
         </Drawer>
       </Box>
 
-      {/* Password Dialog */}
       <Dialog open={openPasswordDialog} onClose={handlePasswordDialogClose}>
         <DialogTitle>Enter Password</DialogTitle>
         <DialogContent>
@@ -376,18 +362,18 @@ const Navbar = (props) => {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar for messages */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       >
         <Alert
           onClose={() => setSnackbarOpen(false)}
-          severity={error ? "error" : "success"}
+          severity={snackbarSeverity}
+          
         >
-          {error || "Successfully authenticated!"}
+          {snackbarMessage}
         </Alert>
       </Snackbar>
     </Box>

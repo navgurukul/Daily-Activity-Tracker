@@ -151,7 +151,6 @@ const CompOff = () => {
         setLoading(false);
         handleLoading(false);
         setTimeout(() => setSuccessMessage(""), 4000);
-        setTimeout(()=>{window.location.reload()}, 1000)
       })
       .catch((error) => {
         console.error("Error sending data to Google Apps Script:", error);

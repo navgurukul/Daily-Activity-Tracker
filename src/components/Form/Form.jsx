@@ -476,9 +476,16 @@ const Form = () => {
                             onChange={handleEditContributionChange}
                           />
                         </td>
-                        <td>
+                        <td style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center"
+                          ,flexDirection:"column"
+                        }}
+                        >
                           <button
                             type="button"
+
                             className="save-button"
                             onClick={() => handleSaveEdit(index)}
                           >
@@ -505,7 +512,10 @@ const Form = () => {
                         >
                           {contribution.task}
                         </td>
-                        <td>
+                          <td style={{
+                            display: "flex",
+                            justifyContent: "center"
+                        }}>
                           <div className="button-container">
                             <button
                               className="edit-button"

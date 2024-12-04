@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -10,13 +11,12 @@ form {
   align-items: center;
   gap: 15px;
   background-color: #f9f9f9;
-  border:3px solid #21a1f1;
+  border: 3px solid #21a1f1;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 300px;
   margin: auto;
-  
 }
 
 form > div {
@@ -36,7 +36,9 @@ textarea {
   resize: vertical;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   width: calc(100% - 20px);
   padding: 10px;
   margin: 5px 0;
@@ -72,7 +74,8 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
@@ -80,8 +83,8 @@ th, td {
 
 td {
   max-width: 300px;
-  word-wrap: break-word; 
-  white-space: normal; 
+  word-wrap: break-word;
+  white-space: normal;
 }
 
 .App-header {
@@ -94,24 +97,23 @@ td {
   margin: 0;
 }
 
-.delete-button, .save-button {
+.delete-button,
+.save-button {
   background-color: #8f0a00;
   color: white;
   border: none;
   padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
- 
- 
 }
 .button-container {
   display: flex;
-  flex-direction: column; 
-  gap: 10px; 
+  flex-direction: column;
+  gap: 10px;
 }
 
 #green-button {
- color: #4CAF50;
+  color: #4caf50;
 }
 .delete-button {
   background-color: #8f0a00;
@@ -120,11 +122,12 @@ td {
   padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
-  width: 100px; 
+  width: 100px;
 }
-.delete-button, .edit-button {
-  width: 130px; 
-  padding:  5px;
+.delete-button,
+.edit-button {
+  width: 130px;
+  padding: 5px;
   border-radius: 4px;
   border: none;
   cursor: pointer;
@@ -132,16 +135,17 @@ td {
   height: 30px;
 }
 
-.edit-button, .save-button{
-  background-color: #4CAF50;
+.edit-button,
+.save-button {
+  background-color: #4caf50;
   margin-bottom: 10px;
-  
-  width: 100px; 
-  height:20px;
-  width: 130px; 
-  padding:  7px;
+
+  width: 100px;
+  height: 20px;
+  width: 130px;
+  padding: 7px;
 }
-.delete-button:hover{
+.delete-button:hover {
   background-color: #d32f2f;
 }
 .icon-white {
@@ -153,7 +157,7 @@ td {
   box-sizing: border-box;
 }
 
-@media (max-width: 700px) { 
+@media (max-width: 700px) {
   .full-width-button {
     width: 100%;
     max-width: 100%;
@@ -161,16 +165,23 @@ td {
   }
 }
 
-@media (max-width: 600px) { 
-  .delete-button, .edit-button {
-    width: 100%; 
-    max-width: 100%; 
-    box-sizing: border-box; 
+@media (max-width: 600px) {
+  .delete-button,
+  .edit-button {
+    width: 100%;
+
+    max-width: 100%;
+    box-sizing: border-box;
   }
+  .save-button, .edit-button {
+    height: 35px;
+    box-sizing: border-box;
+  }
+
 }
-@media (max-width: 700px) { 
+@media (max-width: 700px) {
   .from-1 {
-    width: 90%; 
-    max-width: 300px; 
+    width: 90%;
+    max-width: 300px;
   }
 }

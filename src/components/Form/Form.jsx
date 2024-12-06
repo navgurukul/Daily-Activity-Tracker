@@ -37,7 +37,7 @@ const Form = () => {
   const [formData, setFormData] = useState({
     type: "contribution",
     email: email,
-    challenges: "",
+    challenges: " ",
     description: "",
     contributions: [],
     selectedDate: getTodayDate(),
@@ -289,12 +289,12 @@ const Form = () => {
         "Please add and save at least one contribution before submitting the form"
       );
     }
-    if (formData.challenges.length < 25) {
-      setError(
-        "Achievements, Blockers, and Challenges must be at least 25 characters long."
-      );
-      return;
-    }
+    // if (formData.challenges.length < 25) {
+    //   setError(
+    //     "Achievements, Blockers, and Challenges must be at least 25 characters long."
+    //   );
+    //   return;
+    // }
 
     setSaved(false); 
     handleLoading(true);
@@ -416,7 +416,7 @@ const Form = () => {
           />
         </div>
 
-        <div>
+        {/* <div>
           <label>
             Please Mention Any Blockers or Challenges You Are Facing (Minimum 25
             characters):
@@ -427,7 +427,7 @@ const Form = () => {
             onChange={handleChange}
             required
           />
-        </div>
+        </div> */}
 
         <div>
           <label>Select the date for which you want to update the form:</label>

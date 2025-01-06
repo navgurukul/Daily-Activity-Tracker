@@ -63,7 +63,9 @@ const [ leaveResult, setLeaveResult ] = useState();
 
   const fetchAvailableLeaveTypes = async () => {
     try {
-     const response = await fetch(`${url}?email=${email}&type=availableLeaves`)
+     const response = await fetch(
+       `https://script.google.com/macros/s/AKfycbw2moPm7WT228KDLOITbPsO3NW4M1kuHYVh_lyNszNf7she2soqS1KrpIIOMZaM3mvMQA/exec?email=${email}&type=availableLeaves`
+     );
       const result = await response.json();
       setLeaveResult(result);
 

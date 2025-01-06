@@ -63,43 +63,83 @@ const CompOff = () => {
   };
 
   // Your existing calculateNumberOfDays function
-  const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
-    const from = new Date(fromDate);
-    const to = new Date(toDate);
+// const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
+//   const from = new Date(fromDate);
+//   const to = new Date(toDate);
+//   let totalDays = 0;
+//   let currentDate = new Date(from);
 
+//   // Count each eligible day
+//   while (currentDate <= to) {
+//     const dayOfWeek = currentDate.getDay();
+//     const dateOfMonth = currentDate.getDate();
+//     const isSecondSaturday =
+//       dayOfWeek === 6 && dateOfMonth >= 8 && dateOfMonth <= 14;
+//     const isFourthSaturday =
+//       dayOfWeek === 6 && dateOfMonth >= 22 && dateOfMonth <= 28;
 
+//     // Only count Sundays and specified Saturdays
+//     if (dayOfWeek === 0 || isSecondSaturday || isFourthSaturday) {
+//       totalDays += 1;
+//     }
 
+//     currentDate.setDate(currentDate.getDate() + 1);
+//   }
 
-    let totalDays = 0;
-    let currentDate = new Date(from);
+//   // Handle half day cases
+//   if (halfDay) {
+//     if (from.getTime() === to.getTime()) {
+//       // Single day selection with half day
+//       totalDays = 0.5;
+//     } else if (totalDays === 2) {
+//       // Two day selection with half day
+//       totalDays = 1.5;
+//     }
+//   }
 
-    while (currentDate <= to) {
-      const dayOfWeek = currentDate.getDay();
-      const dateOfMonth = currentDate.getDate();
-      const isSecondSaturday =
-        dayOfWeek === 6 && dateOfMonth >= 8 && dateOfMonth <= 14;
-      const isFourthSaturday =
-        dayOfWeek === 6 && dateOfMonth >= 22 && dateOfMonth <= 28;
+//   // Cap at maximum 2 days
+//   return Math.min(totalDays, 2);
+  // };
+  
+ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
+   const from = new Date(fromDate);
+   const to = new Date(toDate);
 
-      if (dayOfWeek === 0 || isSecondSaturday || isFourthSaturday) {
-        totalDays++;
-      }
+   // Helper function to check if a date is weekend
+   const isWeekend = (date) => {
+     const day = date.getDay();
+     return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+   };
 
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
+   // If neither date is a weekend, return 0
+   if (!isWeekend(from) && !isWeekend(to)) {
+     return 0;
+   }
 
-    if (halfDay) {
-      if (from.getTime() === to.getTime()) {
-        totalDays -= 0.5;
-      } else if (from.getTime() !== to.getTime()) {
-        totalDays -= 0.5;
-      }
-    }
-    
+   let totalDays = 0;
+   let currentDate = new Date(from);
 
-    return totalDays;
-  };
+   // Count weekend days
+   while (currentDate <= to) {
+     if (isWeekend(currentDate)) {
+       totalDays += 1;
+     }
+     currentDate.setDate(currentDate.getDate() + 1);
+   }
 
+   // Handle half day cases
+   if (halfDay) {
+     if (from.getTime() === to.getTime()) {
+       // Same day with half day
+       return isWeekend(from) ? 0.5 : 0;
+     } else if (totalDays === 2) {
+       // Two weekend days with half day
+       return 1.5;
+     }
+   }
+
+   return totalDays;
+ };
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -229,6 +269,39 @@ const CompOff = () => {
             value={leaveData.toDate}
             onChange={handleChange}
             required
+          />
+        </div>
+        <div className="tooltip">
+          How to use Half Day?
+          <span
+            style={{
+              width: "300px",
+            }}
+            className="tooltiptext"
+          >
+            Note: Do not change the date if you want to avail half day for the
+            single day. If the date is increased by 1 and halfday is checked You
+            will be availing today's leave + tomorrow's + half day.
+          </span>
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            gap: "0.5rem",
+            alignItems: "baseline",
+            marginTop: "10px",
+          }}
+        >
+          <label style={{ width: "25%" }}>Half Day:</label>
+          <input
+            style={{
+              width: "20px",
+            }}
+            type="checkbox"
+            name="halfDay"
+            checked={halfDay}
+            onChange={handleHalfDayChange}
           />
         </div>
 

@@ -156,7 +156,7 @@ const Leaves = () => {
   const fetchAvailableLeaveTypes = async () => {
     try {
       const response = await fetch(
-        `https://script.google.com/macros/s/AKfycbxJkYEaxQPZaYGvMpX9hUKDaR9nSJHIOx63s-30gxNh4rljPEpHPr6GNHzegcaP4NPg3w/exec?email=${email}&type=availableLeaves`
+        `https://script.google.com/macros/s/AKfycbxGFKyRf3vJkpMnn9P0W83vuVqyQd5ThZ5wWCoGFJ-saxdioN16l5m6f197RiGUPr-Grw/exec?email=${email}&type=availableLeaves`
       );
       const result = await response.json();
       setLeaveResult(result.data.leaves);

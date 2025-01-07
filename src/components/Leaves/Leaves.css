@@ -1,124 +1,122 @@
-form {
-  width: 95%;
-  margin: 0 auto;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
- 
+/* Leaves.css */
+/* Base styles for better form aesthetics */
+
+.MuiContainer-root {
+  padding-bottom: 2rem;
 }
 
-
-
-.tooltip {
-  position: relative;
-  display: inline-block;
+/* Enhanced input styling */
+.MuiOutlinedInput-root {
+  font-size: 1rem;
 }
 
-.tooltip .tooltiptext {
-  visibility: hidden;
-  width: 120px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 0;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 10%;
-  margin-left: -60px;
-  opacity: 0;
-  transition: opacity 0.3s;
-
+.MuiOutlinedInput-input {
+  padding: 0 !important;
 }
 
-.tooltip .tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left:10%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #555 transparent transparent transparent;
+/* Ensure uniform height for all inputs */
+.MuiInputBase-root {
+  height: 56px !important;
 }
 
-.tooltiptext {
-  display: flex;
-  
-  width: 300px;
-}
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
+/* Exception for multiline textarea */
+.MuiInputBase-multiline {
+  height: auto !important;
 }
 
-
-
-form h1 {
-  font-size: 24px;
-  text-align: center;
+/* Uniform styling for select input */
+.MuiSelect-select {
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
-form div {
-  margin-bottom: 15px;
+/* Date input alignment */
+input[type="date"] {
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
-form label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-form input[type="text"],
-form input[type="email"],
-form input[type="date"],
-form select,
-form textarea {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-form textarea {
-  height: 100px;
-}
-
-form button {
-  width: 100%;
-  padding: 10px 15px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
+/* Date input specific styles */
+input[type="date"] {
+  font-family: inherit;
+  color: inherit;
   cursor: pointer;
-  font-size: 16px;
 }
 
-form button:hover {
-  background-color: #45a049;
+/* Table styles */
+.MuiTableContainer-root {
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-form p {
-  color: red;
-  font-weight: bold;
-  text-align: center;
+.MuiTableCell-head {
+  background-color: #f8fafc;
 }
 
-form h1 {
-  color: green;
-  text-align: center;
+/* Custom scrollbar */
+.MuiTableContainer-root::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
 }
 
+.MuiTableContainer-root::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
 
-@media (max-width: 700px) { 
-  .form-1 {
-    width: 90%; 
-    max-width: 300px; 
+.MuiTableContainer-root::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.MuiTableContainer-root::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .MuiContainer-root {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
   }
-} 
 
+  .MuiTableCell-root {
+    padding: 12px 8px;
+  }
+}
 
+/* Animation for form submission */
+@keyframes submitPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 
+.submit-animation {
+  animation: submitPulse 0.3s ease-in-out;
+}
+
+/* Print styles */
+@media print {
+  .MuiContainer-root {
+    padding: 0;
+  }
+
+  .MuiButton-root,
+  .MuiIconButton-root {
+    display: none !important;
+  }
+
+  .MuiPaper-root {
+    box-shadow: none !important;
+    border: 1px solid #eee;
+  }
+}

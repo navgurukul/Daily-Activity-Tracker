@@ -101,45 +101,35 @@ const CompOff = () => {
 //   return Math.min(totalDays, 2);
   // };
   
- const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
-   const from = new Date(fromDate);
-   const to = new Date(toDate);
+const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
+  const from = new Date(fromDate);
+  const to = new Date(toDate);
 
-   // Helper function to check if a date is weekend
-   const isWeekend = (date) => {
-     const day = date.getDay();
-     return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
-   };
+  // Helper function to check if a date is weekend
+  const isWeekend = (date) => {
+    const day = date.getDay();
+    return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+  };
 
-   // If neither date is a weekend, return 0
-   if (!isWeekend(from) && !isWeekend(to)) {
-     return 0;
-   }
+  // If same day
+  if (from.getTime() === to.getTime()) {
+    return 1;
+  }
 
-   let totalDays = 0;
-   let currentDate = new Date(from);
+  // Calculate the difference in days
+  const diffTime = Math.abs(to - from);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Adding 1 to include both start and end dates
 
-   // Count weekend days
-   while (currentDate <= to) {
-     if (isWeekend(currentDate)) {
-       totalDays += 1;
-     }
-     currentDate.setDate(currentDate.getDate() + 1);
-   }
+  // Handle half day case
+  if (halfDay) {
+    // If consecutive days (difference is 1 day)
+    if (diffDays === 2) {
+      return 1.5;
+    }
+  }
 
-   // Handle half day cases
-   if (halfDay) {
-     if (from.getTime() === to.getTime()) {
-       // Same day with half day
-       return isWeekend(from) ? 0.5 : 0;
-     } else if (totalDays === 2) {
-       // Two weekend days with half day
-       return 1.5;
-     }
-   }
-
-   return totalDays;
- };
+  return diffDays;
+};
   const handleSubmit = (e) => {
     e.preventDefault();
 

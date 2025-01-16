@@ -159,14 +159,17 @@ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
 
     setError("");
 
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(leaveDataWithDays),
-      mode: "no-cors",
-    })
+    fetch(
+      "https://script.google.com/macros/s/AKfycbw8_FJNtP7duzyAvXqJwyPI-zpzNSY8fpkH4osGbdUGlMGbGZahsPFSeAF9NlsJtnwx/exec",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(leaveDataWithDays),
+        mode: "no-cors",
+      }
+    )
       .then((response) => response.text())
       .then((data) => {
         setSuccessMessage("Compensatory request submitted successfully!");

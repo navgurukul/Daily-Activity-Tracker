@@ -42,6 +42,8 @@ const AUTHORIZED_EMAILS = [
   "amruta@navgurukul.org",
   "shivansh@navgurukul.org",
   "arunesh@navgurukul.org",
+  "activitytracker@samyarth.org"
+
 ];
 
 const Navbar = (props) => {

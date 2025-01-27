@@ -175,7 +175,7 @@ const Form = () => {
   };
 
   useEffect(() => {
-    console.log("Selected Project:", selectedProject);
+    // console.log("Selected Project:", selectedProject);
     setMaxHours(2);
   }, [selectedProject]);
 
@@ -329,7 +329,7 @@ const Form = () => {
     })
       .then((response) => response.text())
       .then((data) => {
-        console.log("Success:", data);
+        // console.log("Success:", data);
         // setSuccessMessage("Thanks for sharing the update!");
         setError("Thanks for sharing the update!");
         setFormData({
@@ -378,7 +378,7 @@ const Form = () => {
         daysBack = DAYS_BACK_NORMAL;
         break;
     }
-    console.log("Days Back:", currentHour);
+    // console.log("Days Back:", currentHour);
 
     const minDate = new Date();
     attempt == 0 ? (daysBack = 0) : (daysBack = daysBack);

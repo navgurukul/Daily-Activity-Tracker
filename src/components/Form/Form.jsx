@@ -69,18 +69,18 @@ const Form = () => {
   const today = new Date().toISOString().split("T")[0];
   const [attempt, setAttempt] = useState(0);
   const [isDateDisabled, setIsDateDisabled] = useState(true);
-  const [ attemptLoading, setAttemptLoading ] = useState(true);
-  
+  const [attemptLoading, setAttemptLoading] = useState(true);
+
   useEffect(() => {
     let email = localStorage.getItem("email") ?? "";
-    setAttemptLoading(true)
+    setAttemptLoading(true);
     fetch(`${url}?email=${email}&type=attempts`)
       .then((response) => response.json())
       .then((data) => {
         setAttempt(data.attemptsLeft);
         localStorage.setItem("attemptsLeft", data.attemptsLeft);
-        setIsDateDisabled(false)
-        setAttemptLoading(false)
+        setIsDateDisabled(false);
+        setAttemptLoading(false);
       });
 
     const initPreviousEntries = () => {
@@ -182,7 +182,6 @@ const Form = () => {
   function checkMaxValue(input) {
     if (selectedProject === "Ad-hoc tasks") {
       if (input.value > 2) {
-
         input.value = 2;
       }
     }
@@ -296,7 +295,7 @@ const Form = () => {
     //   return;
     // }
 
-    setSaved(false); 
+    setSaved(false);
     handleLoading(true);
     setLoading(true);
 
@@ -309,9 +308,9 @@ const Form = () => {
       .getMinutes()
       .toString()
       .padStart(2, "0")}:${submitTime
-        .getSeconds()
-        .toString()
-        .padStart(2, "0")}`;
+      .getSeconds()
+      .toString()
+      .padStart(2, "0")}`;
 
     const payload = {
       ...formData,
@@ -362,44 +361,49 @@ const Form = () => {
     const DAYS_BACK_NORMAL = 3;
     const DAYS_BACK_EXTENDED = 5;
 
-    let daysBack;
- const currentHour = today.getHours();
-    switch (dayOfWeek) {
-      case 1: // Monday
-      case 2: // Tuesday
-      case 3: // Wednesday
-        daysBack = DAYS_BACK_EXTENDED;
-        break;
-      case 4: // Thursday
-      case 5: // Friday
-      case 6: // Saturday
-      case 0: // Sunday
-      default:
-        daysBack = DAYS_BACK_NORMAL;
-        break;
+    const currentHour = today.getHours();
+    let daysBack = currentHour < 8 ? 1 : 0;
+    if (attempt > 0) {
+      switch (dayOfWeek) {
+        case 1: // Monday
+        case 2: // Tuesday
+        case 3: // Wednesday
+          daysBack = DAYS_BACK_EXTENDED;
+          break;
+        case 4: // Thursday
+        case 5: // Friday
+        case 6: // Saturday
+        case 0: // Sunday
+        default:
+          daysBack = DAYS_BACK_NORMAL;
+          break;
+      }
     }
-    // console.log("Days Back:", currentHour);
+   console.log ("Current hour:", currentHour);
 
     const minDate = new Date();
-    attempt == 0 ? (daysBack = 0) : (daysBack = daysBack);
-    daysBack = currentHour < 8 ? 1 : 0;
+
+    attempt == 0 && currentHour > 8  ? (daysBack = 0) : (daysBack = daysBack);
+
+    console.log("Days Back:", daysBack);
     minDate.setDate(today.getDate() - daysBack);
     return minDate.toISOString().split("T")[0];
   }
 
-  
   return (
     <div>
       <LoadingSpinner loading={loading} className="loader-container" />
-      <h1 style={{ textAlign: "center" }}>Daily Employee's Activity Tracker </h1>
+      <h1 style={{ textAlign: "center" }}>
+        Daily Employee's Activity Tracker{" "}
+      </h1>
       <p style={{ textAlign: "center" }}>
         {attemptLoading ? (
           <CircularProgress />
         ) : (
           <div className="heading">
             <p>
-              Note: You have only <span id="green-button">{attempt}</span> attempts
-              left to fill for previous days
+              Note: You have only <span id="green-button">{attempt}</span>{" "}
+              attempts left to fill for previous days
             </p>
           </div>
         )}
@@ -480,16 +484,16 @@ const Form = () => {
                             onChange={handleEditContributionChange}
                           />
                         </td>
-                        <td style={{
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center"
-                          ,flexDirection:"column"
-                        }}
+                        <td
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flexDirection: "column",
+                          }}
                         >
                           <button
                             type="button"
-
                             className="save-button"
                             onClick={() => handleSaveEdit(index)}
                           >
@@ -516,10 +520,12 @@ const Form = () => {
                         >
                           {contribution.task}
                         </td>
-                          <td style={{
+                        <td
+                          style={{
                             display: "flex",
-                            justifyContent: "center"
-                        }}>
+                            justifyContent: "center",
+                          }}
+                        >
                           <div className="button-container">
                             <button
                               className="edit-button"

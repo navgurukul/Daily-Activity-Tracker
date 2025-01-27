@@ -363,7 +363,7 @@ const Form = () => {
     const DAYS_BACK_EXTENDED = 5;
 
     let daysBack;
-
+ const currentHour = today.getHours();
     switch (dayOfWeek) {
       case 1: // Monday
       case 2: // Tuesday
@@ -378,12 +378,16 @@ const Form = () => {
         daysBack = DAYS_BACK_NORMAL;
         break;
     }
+    console.log("Days Back:", currentHour);
 
     const minDate = new Date();
     attempt == 0 ? (daysBack = 0) : (daysBack = daysBack);
+    daysBack = currentHour < 8 ? 1 : 0;
     minDate.setDate(today.getDate() - daysBack);
     return minDate.toISOString().split("T")[0];
   }
+
+  
   return (
     <div>
       <LoadingSpinner loading={loading} className="loader-container" />

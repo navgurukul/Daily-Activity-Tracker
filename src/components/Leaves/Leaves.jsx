@@ -156,7 +156,7 @@ const Leaves = () => {
   const fetchAvailableLeaveTypes = async () => {
     try {
       const response = await fetch(
-        `https://script.google.com/macros/s/AKfycbxGFKyRf3vJkpMnn9P0W83vuVqyQd5ThZ5wWCoGFJ-saxdioN16l5m6f197RiGUPr-Grw/exec?email=${email}&type=availableLeaves`
+        `https://script.google.com/macros/s/AKfycbzmz4nGQCtVhyEBknRzuP_qEC5nBhDCpDizLdMn4gTC0xsTuXlV_rXSF9yoQgEONpJ87w/exec?email=${email}&type=availableLeaves`
       );
       const result = await response.json();
       setLeaveResult(result.data.leaves);
@@ -255,7 +255,7 @@ const Leaves = () => {
 
     try {
       await fetch(
-        "https://script.google.com/macros/s/AKfycbwzrRQNUr5SgZRBm0kh9EJa8j82LPH-Jtbxzgh10SQcnor88bl0M0auOkO2ZJzUNd-WYg/exec",
+        "https://script.google.com/macros/s/AKfycbxQZqR250EftGC0bjLqcZ0k_8iu8B2kDvQVm1lpxgO4slXfgyfod3UcgKFwAxO6l7Bu/exec",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

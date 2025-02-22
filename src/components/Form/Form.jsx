@@ -383,9 +383,7 @@ const Form = () => {
 
     const minDate = new Date();
 
-    attempt == 0 && currentHour > 8  ? (daysBack = 0) : (daysBack = daysBack);
-
-    console.log("Days Back:", daysBack);
+    attempt == 0 && minDate.getHours() > 7?(daysBack = 0) : (daysBack = daysBack);
     minDate.setDate(today.getDate() - daysBack);
     return minDate.toISOString().split("T")[0];
   }

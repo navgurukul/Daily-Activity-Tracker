@@ -39,12 +39,13 @@ function App() {
         );
         const data = await response.json();
         console.log("Feedback data:", data);
-        setFeedbackData(data);
+        // setFeedbackData(data);
       } catch (error) {
         console.error("Error fetching feedback data:", error);
       }
     };
 
+    
     fetchFeedbackData();
   }, []);
 

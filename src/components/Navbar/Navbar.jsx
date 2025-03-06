@@ -36,6 +36,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
+import SupportIcon from '@mui/icons-material/Support';
 
 const drawerWidth = 240;
 const AUTHORIZED_EMAILS = [
@@ -213,6 +214,10 @@ const Navbar = (props) => {
             text: "Tracker Reports",
             href: "https://docs.google.com/spreadsheets/d/1i8251CwxKATAhjLgDgMcbhJ6T4KMy1EaCOAuxRV2irQ/edit?gid=1381214364#gid=1381214364",
           },
+          {
+            text: "Support",
+            href: "https://docs.google.com/forms/d/e/1FAIpQLScRduzs5MEtojOnVix2rvdJGlPcUAtLqelP5aM_mC5fCcBFfA/viewform"
+          },
         ].map((item, index) => (
           <ListItem
             key={item.text}
@@ -220,9 +225,13 @@ const Navbar = (props) => {
             style={{ marginTop: "0.5rem" }}
           >
             <ListItemButton component="a" href={item.href} target="_blank">
-              <ListItemIcon>
-                {index % 2 === 0 ? <FeedbackIcon /> : <MenuBookIcon />}
-              </ListItemIcon>
+
+              {
+                index === 2 ? <ListItemIcon><SupportIcon /></ListItemIcon> :    
+                <ListItemIcon>
+                  {index % 2 === 0 ? <FeedbackIcon /> : <MenuBookIcon />}
+                </ListItemIcon>
+              }
               <ListItemText primary={item.text} />
             </ListItemButton>
           </ListItem>
@@ -373,7 +382,7 @@ const Navbar = (props) => {
         <Alert
           onClose={() => setSnackbarOpen(false)}
           severity={snackbarSeverity}
-          
+
         >
           {snackbarMessage}
         </Alert>

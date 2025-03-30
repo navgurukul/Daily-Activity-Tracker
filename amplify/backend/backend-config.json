@@ -1,0 +1,63 @@
+{
+  "api": {
+    "employeeRecords": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "dailyactivitytracker903c1550"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
+    }
+  },
+  "function": {
+    "dailyactivitytracker903c1550": {
+      "build": true,
+      "dependsOn": [
+        {
+          "attributeEnvMap": {
+            "Arn": "TABLE_ARN",
+            "Name": "TABLE_NAME"
+          },
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "storage",
+          "resourceName": "hrmsEmployeesRecords"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_dailyactivitytracker903c1550_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "dailyactivitytracker903c1550"
+        }
+      ]
+    },
+    "AMPLIFY_function_dailyactivitytracker903c1550_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "dailyactivitytracker903c1550"
+        }
+      ]
+    }
+  },
+  "storage": {
+    "hrmsEmployeesRecords": {
+      "providerPlugin": "awscloudformation",
+      "service": "DynamoDB"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "paths": {
+    "/employees/{projectName}": {
+      "name": "/employees/{projectName}",
+      "lambdaFunction": "dailyactivitytracker903c1550",
+      "permissions": {
+        "setting": "open"
+      }
+    }
+  }
+}

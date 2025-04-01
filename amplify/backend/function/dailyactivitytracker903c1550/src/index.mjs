@@ -22,6 +22,7 @@ export const handler = async (event) => {
       // const getParams = {
       //   TableName: TABLE_NAME,
       // };
+      console.log("I am insdie index.js")
       const getParams = {
         TableName: TABLE_NAME,
         FilterExpression: "#stageAttr = :stageValue",

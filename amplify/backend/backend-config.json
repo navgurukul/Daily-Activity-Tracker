@@ -34,6 +34,11 @@
       ],
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
+    },
+    "employeesActivityTrackersLogs": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
     }
   },
   "parameters": {
@@ -50,6 +55,22 @@
         {
           "category": "function",
           "resourceName": "dailyactivitytracker903c1550"
+        }
+      ]
+    },
+    "AMPLIFY_function_employeesActivityTrackersLogs_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employeesActivityTrackersLogs"
+        }
+      ]
+    },
+    "AMPLIFY_function_employeesActivityTrackersLogs_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employeesActivityTrackersLogs"
         }
       ]
     }

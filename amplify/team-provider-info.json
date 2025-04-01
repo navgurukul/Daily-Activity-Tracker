@@ -15,7 +15,11 @@
       "function": {
         "dailyactivitytracker903c1550": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/dailyactivitytracker903c1550-41686b6a584a396e6259-build.zip"
+          "s3Key": "amplify-builds/dailyactivitytracker903c1550-5536664155794d474877-build.zip"
+        },
+        "employeesActivityTrackersLogs": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/employeesActivityTrackersLogs-7a613849756279537a71-build.zip"
         }
       },
       "storage": {

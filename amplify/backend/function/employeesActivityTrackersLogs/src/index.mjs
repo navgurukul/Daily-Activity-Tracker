@@ -25,9 +25,35 @@ export const handler = async (event) => {
         }
         
         if (event.httpMethod === "POST") {
-            const { email, projectName, totalHoursSpent, workDescription } = JSON.parse(event.body);
-            if (!email || !projectName || !totalHoursSpent || !workDescription) {
+            const { email, projectName, totalHoursSpent, workDescription, entryDate } = JSON.parse(event.body);
+            if (!email || !projectName || !totalHoursSpent || !workDescription || !entryDate) {
                 return { statusCode: 400, body: JSON.stringify({ message: "All fields are required." }) };
+            }
+            
+            const entryDateObj = new Date(entryDate);
+            const allowedDate = new Date();
+            allowedDate.setDate(allowedDate.getDate() - 3);
+            
+            if (entryDateObj < allowedDate || entryDateObj > now) {
+                return { statusCode: 400, body: JSON.stringify({ message: "You can only add logs for the last three days, including today." }) };
+            }
+            
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split("T")[0];
+            const checkParams = {
+                TableName: "employeeDailyActivityLogs",
+                FilterExpression: "email = :email AND entryDate >= :monthStart AND entryDate < :today",
+                ExpressionAttributeValues: {
+                    ":email": email,
+                    ":monthStart": monthStart,
+                    ":today": today,
+                },
+            };
+            
+            const pastEntries = await docClient.send(new ScanCommand(checkParams));
+            const backdatedEntries = pastEntries.Items.length;
+            
+            if (entryDate !== today && backdatedEntries >= 2) {
+                return { statusCode: 400, body: JSON.stringify({ message: "You can only add backdated entries up to twice per month." }) };
             }
             
             const scanParams = {
@@ -36,13 +62,13 @@ export const handler = async (event) => {
                 ExpressionAttributeValues: {
                     ":email": email,
                     ":projectName": projectName,
-                    ":entryDate": today,
+                    ":entryDate": entryDate,
                 },
             };
             
             const existingEntries = await docClient.send(new ScanCommand(scanParams));
             if (existingEntries.Items.length > 0) {
-                return { statusCode: 400, body: JSON.stringify({ message: "Entry already exists for today." }) };
+                return { statusCode: 400, body: JSON.stringify({ message: "Entry already exists for this date." }) };
             }
             
             const entryId = Date.now() * 1000 + Math.floor(Math.random() * 1000);
@@ -51,7 +77,7 @@ export const handler = async (event) => {
                 Item: {
                     Id: entryId.toString(),
                     email,
-                    entryDate: today,
+                    entryDate,
                     projectName,
                     totalHoursSpent,
                     workDescription,

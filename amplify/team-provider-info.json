@@ -19,7 +19,7 @@
         },
         "employeesActivityTrackersLogs": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/employeesActivityTrackersLogs-4353307a6937486f6662-build.zip"
+          "s3Key": "amplify-builds/employeesActivityTrackersLogs-2f7962542f614f456841-build.zip"
         }
       },
       "storage": {

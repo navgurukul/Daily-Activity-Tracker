@@ -14,6 +14,13 @@ export type AmplifyDependentResourcesAttributes = {
       "Name": "string",
       "Region": "string"
     },
+    "employeeSheetRecords": {
+      "Arn": "string",
+      "LambdaExecutionRole": "string",
+      "LambdaExecutionRoleArn": "string",
+      "Name": "string",
+      "Region": "string"
+    },
     "employeesActivityTrackersLogs": {
       "Arn": "string",
       "LambdaExecutionRole": "string",

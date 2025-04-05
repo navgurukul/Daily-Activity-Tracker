@@ -91,6 +91,11 @@ export const handler = async (event) => {
 
         if (event.httpMethod === "GET") {
             const email = event.pathParameters?.email;
+            const query = event.queryStringParameters || {};
+            const specificDate = query.date; // format: "YYYY-MM-DD"
+            const month = query.month;
+            const year = query.year;
+        
             const scanParams = {
                 TableName: "employeeDailyActivityLogs",
                 FilterExpression: email ? "email = :email AND stage = :stage" : "stage = :stage",
@@ -99,9 +104,26 @@ export const handler = async (event) => {
                     ...(email && { ":email": email })
                 },
             };
+        
             const { Items } = await docClient.send(new ScanCommand(scanParams));
-            
-            const formattedResponse = Items.reduce((acc, item) => {
+        
+            const filteredItems = Items.filter(item => {
+                if (specificDate) {
+                    return item.entryDate === specificDate;
+                }
+        
+                if (month && year) {
+                    const date = new Date(item.entryDate);
+                    return (
+                        date.getUTCFullYear() === parseInt(year) &&
+                        (date.getUTCMonth() + 1) === parseInt(month)
+                    );
+                }
+        
+                return true; // No date/month/year filtering
+            });
+        
+            const formattedResponse = filteredItems.reduce((acc, item) => {
                 if (!acc[item.email]) {
                     acc[item.email] = [];
                 }
@@ -115,9 +137,13 @@ export const handler = async (event) => {
                 });
                 return acc;
             }, {});
-
-            return { statusCode: 200, body: JSON.stringify(formattedResponse) };
+        
+            return {
+                statusCode: 200,
+                body: JSON.stringify(formattedResponse),
+            };
         }
+        
 
         if (event.httpMethod === "PUT") {
             const { Id, projectName, totalHoursSpent, workDescription } = JSON.parse(event.body);

@@ -35,6 +35,11 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
+    "employeeAuthentication": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "employeeSheetRecords": {
       "build": true,
       "providerPlugin": "awscloudformation",
@@ -60,6 +65,22 @@
         {
           "category": "function",
           "resourceName": "dailyactivitytracker903c1550"
+        }
+      ]
+    },
+    "AMPLIFY_function_employeeAuthentication_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employeeAuthentication"
+        }
+      ]
+    },
+    "AMPLIFY_function_employeeAuthentication_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employeeAuthentication"
         }
       ]
     },

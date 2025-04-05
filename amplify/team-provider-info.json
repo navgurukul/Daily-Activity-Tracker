@@ -23,7 +23,11 @@
         },
         "employeeSheetRecords": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/employeeSheetRecords-7a644f5177694670666d-build.zip"
+          "s3Key": "amplify-builds/employeeSheetRecords-665653327375372b5078-build.zip"
+        },
+        "employeeAuthentication": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/employeeAuthentication-572b5457394e33357738-build.zip"
         }
       },
       "storage": {

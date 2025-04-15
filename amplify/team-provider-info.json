@@ -15,19 +15,31 @@
       "function": {
         "dailyactivitytracker903c1550": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/dailyactivitytracker903c1550-5536664155794d474877-build.zip"
+          "s3Key": "amplify-builds/dailyactivitytracker903c1550-416653772b766370674c-build.zip"
         },
         "employeesActivityTrackersLogs": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/employeesActivityTrackersLogs-2f7962542f614f456841-build.zip"
+          "s3Key": "amplify-builds/employeesActivityTrackersLogs-6e7555342f594d744a7a-build.zip"
         },
         "employeeSheetRecords": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/employeeSheetRecords-665653327375372b5078-build.zip"
+          "s3Key": "amplify-builds/employeeSheetRecords-507976416b4138715a54-build.zip"
         },
         "employeeAuthentication": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
           "s3Key": "amplify-builds/employeeAuthentication-572b5457394e33357738-build.zip"
+        },
+        "slackNotification": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/slackNotification-4f346d4d4d6435655462-build.zip"
+        },
+        "applyLeave": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/applyLeave-38597a5a706873534b30-build.zip"
+        },
+        "getLeaveRecords": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/getLeaveRecords-4576754e4c6230546c45-build.zip"
         }
       },
       "storage": {

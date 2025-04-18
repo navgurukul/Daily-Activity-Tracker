@@ -298,7 +298,13 @@ export const handler = async (event) => {
     const result = await client.send(scanCommand);
 
     let totalUsed = result.Items?.reduce((sum, item) => {
-      return sum + parseFloat(item.leaveDuration?.N || "0");
+      const status = item.status?.S?.toLowerCase();
+      const isRejected = status === "rejected";
+    
+      if (!isRejected) {
+        return sum + parseFloat(item.leaveDuration?.N || "0");
+      }
+      return sum;
     }, 0) || 0;
 
     const thisRequestDuration = calculateLeaveDuration(body.startDate, body.endDate, body.durationType);

@@ -7,7 +7,8 @@ import {
 
 const client = new DynamoDBClient({ region: "ap-south-1" });
 const TABLE_NAME = "hrmsLeaveRequests";
-const ALLOWED_STATUS = ["pending", "active", "inprogress", "done", "onhold"];
+const ALLOWED_STATUS = ["pending"];
+const Allowed_Status_Half_Day = ["first-half", "second-half"];
 const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 
 const generateUniqueId = async () => {
@@ -84,7 +85,7 @@ export const handler = async (event) => {
     "durationType",
     "endDate",
     "leaveType",
-    "reasonForLeave",
+    "halfDayStatus",
     "startDate",
     "status",
     "userEmail",
@@ -98,6 +99,27 @@ export const handler = async (event) => {
       body: JSON.stringify({ message: `Missing fields: ${missingFields.join(", ")}` }),
     };
   }
+  const optionalReasonTypes = ["casual", "festival", "wellness"];
+  const leaveType = body.leaveType?.toLowerCase().trim();
+
+  // Check if the leaveType contains any of the optional types as a word
+  const isOptionalReasonType = optionalReasonTypes.some((type) =>
+    leaveType.includes(type)
+  );
+
+  if (!isOptionalReasonType) {
+    const reason = body.reasonForLeave?.trim();
+    if (!reason || reason.length < 25) {
+      return {
+        statusCode: 400,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify({
+          message: `reasonForLeave is required and must be at least 25 characters for leave type "${body.leaveType}"`,
+        }),
+      };
+    }
+  }
+
 
   const allowedDurationTypes = ["Half-Day", "Full-Day"];
   if (!allowedDurationTypes.includes(body.durationType)) {
@@ -152,11 +174,21 @@ export const handler = async (event) => {
   }
 
   const status = body.status.toLowerCase();
+  // status [pending]
   if (!ALLOWED_STATUS.includes(status)) {
     return {
       statusCode: 400,
       headers: { "Access-Control-Allow-Origin": "*" },
       body: JSON.stringify({ message: `Invalid status. Allowed: ${ALLOWED_STATUS.join(", ")}` }),
+    };
+  }
+  // half day status [first half Or second half]
+  const halfDayStatus = body.halfDayStatus.toLowerCase();
+  if (!Allowed_Status_Half_Day.includes(halfDayStatus)) {
+    return {
+      statusCode: 400,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ message: `Invalid status. Allowed: ${Allowed_Status_Half_Day.join(", ")}` }),
     };
   }
 
@@ -227,7 +259,7 @@ export const handler = async (event) => {
   }
   
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  // 
+  // checking which employment types have how many leaves alloted
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   let maxLeaveAllowed = null;
   try {
@@ -328,7 +360,8 @@ export const handler = async (event) => {
       endDate: { S: body.endDate },
       leaveDuration: { N: leaveDuration.toString() },
       leaveType: { S: body.leaveType },
-      reasonForLeave: { S: body.reasonForLeave },
+      halfDayStatus: { S: body.halfDayStatus },
+      reasonForLeave: { S: body.reasonForLeave || "" },
       startDate: { S: body.startDate },
       status: { S: status },
       userEmail: { S: body.userEmail },

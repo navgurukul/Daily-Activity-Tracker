@@ -53,14 +53,14 @@ function App() {
 
   return (
     <div className="App">
-      {/* {email && email !== "" ? <Navbar /> : <NoTabNavBar />} */}
-      {<Navbar />}
+      {email && email !== "" ? <Navbar /> : <NoTabNavBar />}
+      {/* {<Navbar />} */}
       <br />
       <br />
       <main>
         <Routes>
-          {/* <Route path="/" element={<Login />} /> */}
-          <Route path="/" element={<Form />} />
+          <Route path="/" element={<Login />} />
+          {/* <Route path="/" element={<Form />} /> */}
           <Route
             path="/activity-tracker"
             // element={<ProtectedRoute element={<Form />} />}

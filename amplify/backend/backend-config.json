@@ -15,7 +15,42 @@
       "service": "API Gateway"
     }
   },
+  "auth": {
+    "dailyactivitytracker02cba61c": {
+      "customAuth": false,
+      "dependsOn": [],
+      "frontendAuthConfig": {
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [
+          "SMS"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyCharacters": [],
+          "passwordPolicyMinLength": 8
+        },
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "socialProviders": [
+          "GOOGLE"
+        ],
+        "usernameAttributes": [
+          "EMAIL"
+        ],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito"
+    }
+  },
   "function": {
+    "applyLeave": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "dailyactivitytracker903c1550": {
       "build": true,
       "dependsOn": [
@@ -35,13 +70,54 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
+    "employeeAuthentication": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "employeeSheetRecords": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "employeesActivityTrackersLogs": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "employmentLeavePolicy": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "getLeaveRecords": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "slackNotification": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     }
   },
   "parameters": {
+    "AMPLIFY_function_applyLeave_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "applyLeave"
+        }
+      ]
+    },
+    "AMPLIFY_function_applyLeave_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "applyLeave"
+        }
+      ]
+    },
     "AMPLIFY_function_dailyactivitytracker903c1550_deploymentBucketName": {
       "usedBy": [
         {
@@ -58,6 +134,38 @@
         }
       ]
     },
+    "AMPLIFY_function_employeeAuthentication_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employeeAuthentication"
+        }
+      ]
+    },
+    "AMPLIFY_function_employeeAuthentication_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employeeAuthentication"
+        }
+      ]
+    },
+    "AMPLIFY_function_employeeSheetRecords_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employeeSheetRecords"
+        }
+      ]
+    },
+    "AMPLIFY_function_employeeSheetRecords_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employeeSheetRecords"
+        }
+      ]
+    },
     "AMPLIFY_function_employeesActivityTrackersLogs_deploymentBucketName": {
       "usedBy": [
         {
@@ -71,6 +179,54 @@
         {
           "category": "function",
           "resourceName": "employeesActivityTrackersLogs"
+        }
+      ]
+    },
+    "AMPLIFY_function_employmentLeavePolicy_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employmentLeavePolicy"
+        }
+      ]
+    },
+    "AMPLIFY_function_employmentLeavePolicy_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employmentLeavePolicy"
+        }
+      ]
+    },
+    "AMPLIFY_function_getLeaveRecords_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "getLeaveRecords"
+        }
+      ]
+    },
+    "AMPLIFY_function_getLeaveRecords_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "getLeaveRecords"
+        }
+      ]
+    },
+    "AMPLIFY_function_slackNotification_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "slackNotification"
+        }
+      ]
+    },
+    "AMPLIFY_function_slackNotification_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "slackNotification"
         }
       ]
     }

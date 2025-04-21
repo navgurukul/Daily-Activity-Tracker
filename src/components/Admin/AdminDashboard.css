@@ -1,0 +1,59 @@
+.admin-dashboard {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f4f4f4;
+  margin-left: 3%;
+}
+
+/* Admin Navigation Bar */
+.admin-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #2c3e50;
+  color: white;
+  padding: 15px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.admin-navbar h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.admin-nav-links {
+  display: flex;
+  gap: 15px;
+}
+
+.admin-nav-links button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 10px;
+  transition: 0.3s;
+  border-bottom: 2px solid transparent;
+}
+
+.admin-nav-links button:hover,
+.admin-nav-links button.active {
+  border-bottom: 2px solid #1abc9c;
+}
+
+/* Content Section */
+.content {
+  flex-grow: 1;
+  padding: 20px;
+}
+
+.not-admin {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 18px;
+  color: rgb(185, 64, 64);
+}

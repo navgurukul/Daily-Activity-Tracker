@@ -1,0 +1,147 @@
+.admin-container {
+  /* margin-left: 50px; */
+  padding: 20px;
+  background-color: #F4F4F4;
+  /* min-height: 100vh; */
+  overflow-x: auto;
+}
+.admin-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+/* Form Section */
+.form-container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+}
+.form-container h2 {
+  margin-bottom: 15px;
+}
+.form-fields {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.input-field {
+  /* flex: 1; */
+  width: calc(25% - 10px);
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+.add-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 97.5%;
+}
+.add-btn:hover {
+  background-color: #45A049;
+}
+/* Table Section */
+.table-container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+.table-container h2 {
+  margin-bottom: 15px;
+}
+.table-wrapper {
+  overflow-x: auto;
+}
+table {
+  width: 99.5%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+th {
+  background-color: #F0F0F0;
+}
+.active-status {
+  color: green;
+  font-weight: bold;
+}
+.inactive-status {
+  color: red;
+  font-weight: bold;
+}
+.no-projects {
+  text-align: center;
+  color: gray;
+  padding: 10px;
+}
+
+.editBtn {
+  /* background-color: #45AF50; */
+  background-color: #f1f0f0;
+}
+
+.editBtn:hover {
+  /* background-color: #3E9B43; */
+  background-color: #bbb;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  width: 600px;
+  border-radius: 8px;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.close-button {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 24px;
+  border: none;
+  /* background: transparent; */
+  cursor: pointer;
+  background-color: #4CAF50;
+}
+
+.close-button:hover {
+  background-color: #45A049;
+}
+
+.toast-message {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  z-index: 9999;
+}

@@ -12,6 +12,8 @@ import brainImg from "../public/brain.png";
 import CompOff from "./components/CompOff/CompOff";
 import TraansitionModal from "./components/Modal/TraansitionModal";
 import MonthlyDashboard from "./components/MonthlyDashboard/MonthlyDashboard";
+import AdminDashboard from "./components/Admin/AdminDashboard";
+import LeaveHistory from "./components/LeaveHistory/LeaveHistory";
 
 function App() {
   const dataContext = useContext(LoginContext);
@@ -77,6 +79,8 @@ function App() {
             path="/monthly-activity-dashboard"
             element={<ProtectedRoute element={<MonthlyDashboard />} />}
           />
+          <Route path="/admin" element={<ProtectedRoute element={<AdminDashboard />} />} />
+          <Route path="/leave-history" element={<ProtectedRoute element={<LeaveHistory />} />} />
         </Routes>
       </main>
       {feedbackData && feedbackData.length > 0 && (

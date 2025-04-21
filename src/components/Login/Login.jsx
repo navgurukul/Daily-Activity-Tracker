@@ -19,8 +19,12 @@ function Login() {
   },[])
   const handleCallbackResponse = async (response) => {
     let jwtToken = response.credential;
+    console.log("Encoded JWT ID token: " + jwtToken);
+    
     const decoded = jwtDecode(jwtToken);
+    console.log("Decoded Token:", decoded);
     const userEmail = decoded?.email;
+    console.log("User Email:", userEmail);
 
     if (userEmail.endsWith("@navgurukul.org") || userEmail.endsWith("@thesama.in") || userEmail.endsWith("@samyarth.org") ){
       const username = userEmail.split("@")[0];

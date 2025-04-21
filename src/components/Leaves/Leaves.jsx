@@ -138,6 +138,36 @@ const Leaves = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [availableLeaveTypes, setAvailableLeaveTypes] = useState();
 
+  const [leavesData, setLeavesData] = useState([]);
+  const [allLeaves, setAllLeaves] = useState({});
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch(
+        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy"
+      );
+      const data = await response.json();
+      console.log("Data:", data);
+      if (data.success) {
+        setAllLeaves(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching leave data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (allLeaves[email]) {
+      setLeavesData(allLeaves[email].leaveRecords);
+    } else {
+      setLeavesData([]);
+    }
+  }, [email, allLeaves]);
+
   function getTodayDate() {
     const today = new Date();
     return today.toISOString().split("T")[0];
@@ -153,21 +183,34 @@ const Leaves = () => {
     }
   }, [email, navigate]);
 
+  // const fetchAvailableLeaveTypes = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       `https://script.google.com/macros/s/AKfycbzmz4nGQCtVhyEBknRzuP_qEC5nBhDCpDizLdMn4gTC0xsTuXlV_rXSF9yoQgEONpJ87w/exec?email=${email}&type=availableLeaves`
+  //     );
+  //     const result = await response.json();
+  //     setLeaveResult(result.data.leaves);
+
+  //     const availableTypes = Object.keys(result.data.leaves).filter(
+  //       (key) =>
+  //         typeof result.data.leaves[key] === "object" &&
+  //         result.data.leaves[key].balance > 0
+  //     );
+
+  //     return availableTypes;
+  //   } catch (error) {
+  //     console.error("Error fetching leave types:", error);
+  //     return [];
+  //   }
+  // };
+
   const fetchAvailableLeaveTypes = async () => {
     try {
       const response = await fetch(
-        `https://script.google.com/macros/s/AKfycbzmz4nGQCtVhyEBknRzuP_qEC5nBhDCpDizLdMn4gTC0xsTuXlV_rXSF9yoQgEONpJ87w/exec?email=${email}&type=availableLeaves`
+        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=leaveTypes`
       );
       const result = await response.json();
-      setLeaveResult(result.data.leaves);
-
-      const availableTypes = Object.keys(result.data.leaves).filter(
-        (key) =>
-          typeof result.data.leaves[key] === "object" &&
-          result.data.leaves[key].balance > 0
-      );
-
-      return availableTypes;
+      setLeaveResult(result.leaveTypes);
     } catch (error) {
       console.error("Error fetching leave types:", error);
       return [];
@@ -375,7 +418,7 @@ const Leaves = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {Object.entries(leaveResult).map(([type, data]) => {
+                  {/* {Object.entries(leaveResult).map(([type, data]) => {
                     if (
                       typeof data === "object" &&
                       data.balance !== undefined
@@ -389,7 +432,22 @@ const Leaves = () => {
                       );
                     }
                     return null;
-                  })}
+                  })} */}
+                  {leavesData.length > 0 ? (
+                    leavesData.map((leave, index) => (
+                      <tr key={index}>
+                        <td>{leave.leaveType}</td>
+                        <td>{leave.leaveLeft}</td>
+                        <td>{leave.usedLeaves}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="3" style={{ textAlign: "center" }}>
+                        No data available for this email
+                      </td>
+                    </tr>
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -430,7 +488,8 @@ const Leaves = () => {
                   label="Leave Type"
                 >
                   <MenuItem value="">--Select Leave Type--</MenuItem>
-                  {availableLeaveTypes?.map((leaveType, index) => (
+                  {/* {availableLeaveTypes?.map((leaveType, index) => ( */}
+                  {leaveResult?.map((leaveType, index) => (
                     <MenuItem key={index} value={leaveType}>
                       {leaveType}
                     </MenuItem>

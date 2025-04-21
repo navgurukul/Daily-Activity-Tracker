@@ -11,9 +11,12 @@ const AdminDashboard = () => {
     "admin@example.com",
     "manager@company.com",
     "puran@navgurukul.org",
+    "amruta@navgurukul.org",
+    "ujjwal@navgurukul.org",
   ];
 
-  const userEmail = localStorage.getItem("email");
+  // const userEmail = localStorage.getItem("email");
+  const userEmail = "amruta@navgurukul.org" || "puran@navgurukul.org" || "ujjwal@navgurukul.org" || "amitkumar@navgurukul.org";
 
   // Check if the user is an admin
   const isAdmin = adminEmails.includes(userEmail);

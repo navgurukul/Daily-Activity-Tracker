@@ -63,26 +63,37 @@ function App() {
           <Route path="/" element={<Form />} />
           <Route
             path="/activity-tracker"
-            element={<ProtectedRoute element={<Form />} />}
+            // element={<ProtectedRoute element={<Form />} />}
+            element={<Form />}
           />
           <Route
             path="/comp-off-application"
-            element={<ProtectedRoute element={<CompOff />} />}
+            // element={<ProtectedRoute element={<CompOff />} />}
+            element={<CompOff />}
           />
           <Route
             path="/leave-application"
-            element={<ProtectedRoute element={<Leaves />} />}
+            // element={<ProtectedRoute element={<Leaves />} />}
+            element={<Leaves />}
           />
           <Route
             path="/leaves"
-            element={<ProtectedRoute element={<Leaves />} />}
+            // element={<ProtectedRoute element={<Leaves />} />}
+            element={<Leaves />}
           />
           <Route
             path="/monthly-activity-dashboard"
-            element={<ProtectedRoute element={<MonthlyDashboard />} />}
+            // element={<ProtectedRoute element={<MonthlyDashboard />} />}
+            element={<MonthlyDashboard />}
           />
-          <Route path="/admin" element={<ProtectedRoute element={<AdminDashboard />} />} />
-          <Route path="/leave-history" element={<ProtectedRoute element={<LeaveHistory />} />} />
+          <Route path="/admin" 
+          // element={<ProtectedRoute element={<AdminDashboard />} />} 
+          element={<AdminDashboard />}
+          />
+          <Route path="/leave-history" 
+          // element={<ProtectedRoute element={<LeaveHistory />} />} 
+          element={<LeaveHistory />}
+          />
         </Routes>
       </main>
       {feedbackData && feedbackData.length > 0 && (

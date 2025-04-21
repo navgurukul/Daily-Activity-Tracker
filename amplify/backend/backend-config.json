@@ -51,6 +51,11 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
+    "applyLeave": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "dailyactivitytracker903c1550": {
       "build": true,
       "dependsOn": [
@@ -67,6 +72,16 @@
           "resourceName": "hrmsEmployeesRecords"
         }
       ],
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "employeeAuthentication": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "employeeSheetRecords": {
+      "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
@@ -118,6 +133,22 @@
         }
       ]
     },
+    "AMPLIFY_function_applyLeave_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "applyLeave"
+        }
+      ]
+    },
+    "AMPLIFY_function_applyLeave_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "applyLeave"
+        }
+      ]
+    },
     "AMPLIFY_function_dailyactivitytracker903c1550_deploymentBucketName": {
       "usedBy": [
         {
@@ -131,6 +162,38 @@
         {
           "category": "function",
           "resourceName": "dailyactivitytracker903c1550"
+        }
+      ]
+    },
+    "AMPLIFY_function_employeeAuthentication_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employeeAuthentication"
+        }
+      ]
+    },
+    "AMPLIFY_function_employeeAuthentication_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employeeAuthentication"
+        }
+      ]
+    },
+    "AMPLIFY_function_employeeSheetRecords_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employeeSheetRecords"
+        }
+      ]
+    },
+    "AMPLIFY_function_employeeSheetRecords_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employeeSheetRecords"
         }
       ]
     },

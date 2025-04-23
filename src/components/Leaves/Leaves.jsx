@@ -125,12 +125,14 @@ const Leaves = () => {
   const [leaveResult, setLeaveResult] = useState();
   const [isAccordionOpen, setIsAccordionOpen] = useState(true);
   const [leaveData, setLeaveData] = useState({
-    type: "leave",
-    leaveType: "",
-    reason: "",
-    fromDate: getTodayDate(),
-    toDate: getTodayDate(),
-    email: email,
+    "endDate": "",
+    "durationType": "Full-Day",
+    "halfDayStatus": "",
+    "leaveType": "",
+    "reasonForLeave": "",
+    "startDate": "",
+    "status": "pending",
+    "userEmail": email,
   });
   const [remainingLeaves, setRemainingLeaves] = useState();
   const [halfDay, setHalfDay] = useState(false);
@@ -218,14 +220,13 @@ const Leaves = () => {
   };
 
   const handleChange = (e) => {
-    if (e.target.name === "leaveType")
-      setRemainingLeaves(leaveResult[e.target.value]?.balance || 0);
-
+    setError("");
     const { name, value } = e.target;
-    setLeaveData({
-      ...leaveData,
+    setLeaveData((prevData) => ({
+      ...prevData,
       [name]: value,
-    });
+    }));
+    console.log("Leave Data:", leaveData);
   };
 
   const handleHalfDayChange = (e) => {
@@ -261,74 +262,71 @@ const Leaves = () => {
   };
 
   const handleSubmit = async (e) => {
+    console.log("submit button clicked");
+    console.log("Leave Data:", leaveData);
     e.preventDefault();
     setLoading(true);
 
     if (
       !leaveData.leaveType ||
-      !leaveData.reason ||
-      !leaveData.fromDate ||
-      !leaveData.toDate ||
-      !leaveData.email
+      !leaveData.reasonForLeave ||
+      !leaveData.startDate ||
+      !leaveData.endDate ||
+      !leaveData.userEmail
     ) {
       setError("All fields are required.");
       setLoading(false);
       return;
     }
 
-    if (!availableLeaveTypes.includes(leaveData.leaveType)) {
-      setError("Selected leave type is not available.");
-      setLoading(false);
-      return;
-    }
+    // if (!availableLeaveTypes.includes(leaveData.leaveType)) {
+    //   setError("Selected leave type is not available.");
+    //   setLoading(false);
+    //   return;
+    // }
 
-    const numberOfDays = calculateNumberOfDays(
-      leaveData.fromDate,
-      leaveData.toDate,
-      halfDay
-    );
+    // const numberOfDays = calculateNumberOfDays(
+    //   leaveData.fromDate,
+    //   leaveData.toDate,
+    //   halfDay
+    // );
 
-    const submitTime = new Date();
-    const submitTimestamp = `${submitTime.toLocaleDateString("en-GB")} ${String(
-      submitTime.getHours()
-    ).padStart(2, "0")}:${String(submitTime.getMinutes()).padStart(
-      2,
-      "0"
-    )}:${String(submitTime.getSeconds()).padStart(2, "0")}`;
+    // const submitTime = new Date();
+    // const submitTimestamp = `${submitTime.toLocaleDateString("en-GB")} ${String(
+    //   submitTime.getHours()
+    // ).padStart(2, "0")}:${String(submitTime.getMinutes()).padStart(
+    //   2,
+    //   "0"
+    // )}:${String(submitTime.getSeconds()).padStart(2, "0")}`;
+    
 
     try {
       await fetch(
-        "https://script.google.com/macros/s/AKfycbxQZqR250EftGC0bjLqcZ0k_8iu8B2kDvQVm1lpxgO4slXfgyfod3UcgKFwAxO6l7Bu/exec",
+        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...leaveData,
-            numberOfDays,
-            timestamp: submitTimestamp,
-          }),
+          body: JSON.stringify(leaveData),
           mode: "no-cors",
         }
       );
-
+      console.log("Leave request submitted successfully!");
+      setLoading(false);
+      setError("");
       setSuccessMessage("Leave request submitted successfully!");
       setLeaveData({
-        type: "leave",
+        endDate: "",
+        durationType: "Full-Day",
+        halfDayStatus: "",
         leaveType: "",
-        reason: "",
-        fromDate: getTodayDate(),
-        toDate: getTodayDate(),
-        email: email,
-      });
-      setHalfDay(false);
-      setTimeout(() => setSuccessMessage(""), 4000);
+        reasonForLeave: "",
+        startDate: "",
+        status: "pending",
+        userEmail: email,
+      });;
     } catch (error) {
       console.error("Error submitting leave request:", error);
       setError("Error submitting leave request.");
-    } finally {
-      
-     await fetchAvailableLeaveTypes();
-      setLoading(false);
     }
   };
 
@@ -457,19 +455,18 @@ const Leaves = () => {
 
       <StyledPaper>
         <form onSubmit={handleSubmit}>
-          {error && (
+          {/* {error && (
             <Alert severity="error" sx={{ mb: 3 }}>
               {error}
             </Alert>
-          )}
-
+          )} */}
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <StyledFormControl>
                 <TextField
                   label="Employee Email"
                   name="email"
-                  value={leaveData.email}
+                  value={leaveData.userEmail}
                   onChange={handleChange}
                   disabled
                   fullWidth
@@ -495,7 +492,7 @@ const Leaves = () => {
                     </MenuItem>
                   ))}
                 </Select>
-                {leaveData.leaveType && (
+                {/* {leaveData.leaveType && (
                   <Typography
                     variant="caption"
                     sx={{
@@ -508,7 +505,7 @@ const Leaves = () => {
                   >
                     You have {remainingLeaves} leaves available in this category
                   </Typography>
-                )}
+                )} */}
               </StyledFormControl>
             </Grid>
 
@@ -516,8 +513,8 @@ const Leaves = () => {
               <StyledFormControl>
                 <TextField
                   label="Reason for Leave"
-                  name="reason"
-                  value={leaveData.reason}
+                  name="reasonForLeave"
+                  value={leaveData.reasonForLeave}
                   onChange={handleChange}
                   required
                   multiline
@@ -535,10 +532,10 @@ const Leaves = () => {
             <Grid item xs={12} md={6}>
               <StyledFormControl>
                 <TextField
-                  label="From Date"
+                  label="Start Date"
                   type="date"
-                  name="fromDate"
-                  value={leaveData.fromDate}
+                  name="startDate"
+                  value={leaveData.startDate}
                   onChange={handleChange}
                   required
                   InputLabelProps={{ shrink: true }}
@@ -558,14 +555,14 @@ const Leaves = () => {
             <Grid item xs={12} md={6}>
               <StyledFormControl>
                 <TextField
-                  label="To Date"
+                  label="End Date"
                   type="date"
-                  name="toDate"
-                  value={leaveData.toDate}
+                  name="endDate"
+                  value={leaveData.endDate}
                   onChange={handleChange}
-                  required
-                  InputLabelProps={{ shrink: true }}
-                  sx={{
+                    required
+                    InputLabelProps={{ shrink: true }}
+                    sx={{
                     "& .MuiInputBase-root": {
                       display: "flex",
                       alignItems: "center",
@@ -573,36 +570,35 @@ const Leaves = () => {
                     "& .MuiInputBase-input": {
                       height: "24px",
                     },
-                  }}
-                />
-              </StyledFormControl>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Box display="flex" alignItems="center" gap={1}>
-                <Tooltip
-                  title="Do not change the date if you want to avail half day for the single day. If the date is increased by 1 and halfday is checked You will be availing today's leave + tomorrow's + half day."
-                  arrow
-                >
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={halfDay}
-                        onChange={handleHalfDayChange}
-                        name="halfDay"
-                        sx={{
-                          color: "#94a3b8",
-                          "&.Mui-checked": {
-                            color: "#2563eb",
-                          },
-                        }}
-                      />
-                    }
-                    label="Half Day"
+                    }}
                   />
-                </Tooltip>
-              </Box>
-            </Grid>
+                  </StyledFormControl>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <StyledFormControl>
+                  <InputLabel>Half Day Status</InputLabel>
+                  <Select
+                    name="halfDayStatus"
+                    value={leaveData.halfDayStatus}
+                    onChange={handleChange}
+                    label="Half Day Status"
+                  >
+                    <MenuItem value="first-half">First Half</MenuItem>
+                    <MenuItem value="second-half">Second Half</MenuItem>
+                  </Select>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                    mt: 1,
+                    display: "block",
+                    color: "#6b7280",
+                    fontSize: "0.875rem",
+                    }}
+                  >
+                    Select it for availing half day
+                  </Typography>
+                  </StyledFormControl>
+                </Grid>
 
             <Grid item xs={12}>
               <Button

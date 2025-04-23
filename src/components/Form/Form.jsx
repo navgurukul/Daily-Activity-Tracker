@@ -26,6 +26,7 @@ import {
 const Form = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
+  const userName = localStorage.getItem("name");
   const { loading, setLoading } = useLoader();
   const getTodayDate = () => {
     const today = new Date();
@@ -132,7 +133,7 @@ const Form = () => {
         .then((response) => response.json())
         .then((data) => {
           console.log("Fetched data:", data.data);
-          
+
           const projects = data.data.map((project) => {
             return {
               projectName: project.projectName,
@@ -140,7 +141,7 @@ const Form = () => {
             };
           });
           // console.log("Projects:", projects);
-          
+
           // const activeProjects = projects.filter(function (project) {
           //   return project.status === "Active";
           // });
@@ -408,7 +409,6 @@ const Form = () => {
     //   entryDate: formData.selectedDate,
     // };
 
-
     // const newEntry = {
     //   entries: [
     //     {
@@ -424,7 +424,6 @@ const Form = () => {
     //   ],
     // };
 
-
     const newEntry = {
       entries: formData.contributions.map((c) => ({
         email: userEmail,
@@ -435,7 +434,7 @@ const Form = () => {
       })),
     };
     console.log("New Entry:", newEntry);
-    
+
     // Save to localStorage for dashboard view
     const newLog = {
       date: newEntry.entryDate,
@@ -443,7 +442,6 @@ const Form = () => {
       hours: newEntry.totalHoursSpent,
       description: newEntry.workDescription,
     };
-    
 
     const existingLogs = JSON.parse(localStorage.getItem("dailyLogs")) || [];
     localStorage.setItem(
@@ -464,11 +462,11 @@ const Form = () => {
           },
           body: JSON.stringify(
             newEntry
-          //   {
-          //   email: userEmail,
-          //   entry: newEntry,
-          // }
-        ),
+            //   {
+            //   email: userEmail,
+            //   entry: newEntry,
+            // }
+          ),
         }
       );
       const result = await response.json();
@@ -484,9 +482,7 @@ const Form = () => {
 
     setFormData({ ...initialFormData });
     console.log("Form Data after submission:", formData);
-    
   };
-
 
   const handleLoading = (load) => {
     load == true
@@ -519,11 +515,13 @@ const Form = () => {
           break;
       }
     }
-   console.log ("Current hour:", currentHour);
+    console.log("Current hour:", currentHour);
 
     const minDate = new Date();
 
-    attempt == 0 && minDate.getHours() > 7?(daysBack = 0) : (daysBack = daysBack);
+    attempt == 0 && minDate.getHours() > 7
+      ? (daysBack = 0)
+      : (daysBack = daysBack);
     minDate.setDate(today.getDate() - daysBack);
     return minDate.toISOString().split("T")[0];
   }
@@ -531,19 +529,32 @@ const Form = () => {
   return (
     <div>
       <LoadingSpinner loading={loading} className="loader-container" />
-      <h1 style={{ textAlign: "center" }}>
-        Daily Employee's Activity Tracker{" "}
-      </h1>
+
+      <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
+        <h3 style={{ fontSize: "32px", fontWeight: "bold", color: "#000" }}>
+          Welcome Back, <span style={{ color: "#2E7D32" }}>{userName}</span>
+        </h3>
+        <h1
+          style={{
+            fontSize: "18px",
+            fontWeight: "500",
+            color: "#000",
+            marginTop: "0.5rem",
+          }}
+        >
+          Daily Employee's Activity Tracker
+        </h1>
+      </div>
       <p style={{ textAlign: "center" }}>
         {/* {attemptLoading ? (
           <CircularProgress />
         ) : ( */}
-          <div className="heading">
-            <p>
-              Note: You have only <span id="green-button">{attempt}</span>{" "}
-              attempts left to fill for previous days
-            </p>
-          </div>
+        {/* <div className="heading">
+          <p>
+            Note: You have only <span id="green-button">{attempt}</span>{" "}
+            attempts left to fill for previous days
+          </p>
+        </div> */}
         {/* )} */}
       </p>
 

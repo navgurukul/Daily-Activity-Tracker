@@ -24,7 +24,7 @@ function Login() {
     const decoded = jwtDecode(jwtToken);
     console.log("Decoded Token:", decoded);
     const userEmail = decoded?.email;
-    console.log("User Email:", userEmail);
+    const userName = decoded?.name;
 
     if (userEmail.endsWith("@navgurukul.org") || userEmail.endsWith("@thesama.in") || userEmail.endsWith("@samyarth.org") ){
       const username = userEmail.split("@")[0];
@@ -33,6 +33,7 @@ function Login() {
       if (!hasNumbers) {
         console.log(userEmail);
         localStorage.setItem("email", userEmail);
+        localStorage.setItem("name", userName);
         setEmail(userEmail);
         navigate("/activity-tracker");
       } else {

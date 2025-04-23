@@ -472,16 +472,28 @@ const Form = () => {
       const result = await response.json();
       console.log("Response from backend:", result);
 
+      // Check if the response has results and the first result's status is "success"
+      const entryStatus = result?.results?.[0]?.status;
+
+      console.log(entryStatus,"entryStatus")
+
+      if (entryStatus !== "success") {
+        throw new Error(
+          result?.results?.[0]?.message || "Entry was skipped or not saved."
+        );
+        setTimeout(() => setSuccessMessage(results?.results?.[0]?.message), 3000);
+      }
       if (!response.ok) {
         throw new Error(result.message || "Failed to save entry");
       }
       console.log("Entry successfully sent to backend");
+
+      // Clear the form
+      setFormData({ ...initialFormData });
+      console.log("Form Data after submission:", formData);
     } catch (error) {
       console.error("Error posting entry:", error);
     }
-
-    setFormData({ ...initialFormData });
-    console.log("Form Data after submission:", formData);
   };
 
   const handleLoading = (load) => {
@@ -529,7 +541,6 @@ const Form = () => {
   return (
     <div>
       <LoadingSpinner loading={loading} className="loader-container" />
-
       <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
         <h3 style={{ fontSize: "32px", fontWeight: "bold", color: "#000" }}>
           Welcome Back, <span style={{ color: "#2E7D32" }}>{userName}</span>
@@ -591,7 +602,7 @@ const Form = () => {
           <input
             type="date"
             name="selectedDate"
-            // max={today}
+            max={today}
             // disabled={isDateDisabled}
             // min={getMinDate()}
             value={formData.selectedDate}

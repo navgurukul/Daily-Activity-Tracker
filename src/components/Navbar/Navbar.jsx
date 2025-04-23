@@ -171,6 +171,7 @@ const Navbar = (props) => {
       <Divider />
       <List>
         {[
+          { text: "Admin", icon: <AssessmentIcon /> },
           { text: "Activity Tracker", icon: <AssessmentIcon /> },
           { text: "Leave Application", icon: <ParkIcon /> },
           {
@@ -179,6 +180,7 @@ const Navbar = (props) => {
             // disabled: !isAuthorizedEmail(),
           },
           { text: "Monthly Activity-Dashboard", icon: <AssessmentIcon /> },
+          { text: "Leave History", icon: <AssessmentIcon /> },
         ].map((item, index) => (
           <ListItem
             key={item.text}
@@ -216,7 +218,7 @@ const Navbar = (props) => {
           },
           {
             text: "Support",
-            href: "https://docs.google.com/forms/d/e/1FAIpQLScRduzs5MEtojOnVix2rvdJGlPcUAtLqelP5aM_mC5fCcBFfA/viewform"
+            href: "https://docs.google.com/forms/d/e/1FAIpQLScRduzs5MEtojOnVix2rvdJGlPcUAtLqelP5aM_mC5fCcBFfA/viewform",
           },
         ].map((item, index) => (
           <ListItem
@@ -225,13 +227,15 @@ const Navbar = (props) => {
             style={{ marginTop: "0.5rem" }}
           >
             <ListItemButton component="a" href={item.href} target="_blank">
-
-              {
-                index === 2 ? <ListItemIcon><SupportIcon /></ListItemIcon> :    
+              {index === 2 ? (
+                <ListItemIcon>
+                  <SupportIcon />
+                </ListItemIcon>
+              ) : (
                 <ListItemIcon>
                   {index % 2 === 0 ? <FeedbackIcon /> : <MenuBookIcon />}
                 </ListItemIcon>
-              }
+              )}
               <ListItemText primary={item.text} />
             </ListItemButton>
           </ListItem>
@@ -240,8 +244,9 @@ const Navbar = (props) => {
       <Divider />
       <List
         style={{
-          position: "absolute",
+          // position: "absolute",
           width: "100%",
+          top: "0px",
           bottom: "20px",
         }}
       >

@@ -19,8 +19,12 @@ function Login() {
   },[])
   const handleCallbackResponse = async (response) => {
     let jwtToken = response.credential;
+    console.log("Encoded JWT ID token: " + jwtToken);
+    
     const decoded = jwtDecode(jwtToken);
+    console.log("Decoded Token:", decoded);
     const userEmail = decoded?.email;
+    const userName = decoded?.name;
 
     if (userEmail.endsWith("@navgurukul.org") || userEmail.endsWith("@thesama.in") || userEmail.endsWith("@samyarth.org") ){
       const username = userEmail.split("@")[0];
@@ -29,6 +33,7 @@ function Login() {
       if (!hasNumbers) {
         console.log(userEmail);
         localStorage.setItem("email", userEmail);
+        localStorage.setItem("name", userName);
         setEmail(userEmail);
         navigate("/activity-tracker");
       } else {

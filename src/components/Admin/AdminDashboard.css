@@ -1,0 +1,66 @@
+.admin-dashboard {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f9fafb;
+  margin-left: 3%;
+}
+
+/* Admin Navigation Bar */
+.admin-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #2c3e50; /* dark navy */
+  color: #ffffff;
+  padding: 15px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* subtle shadow for depth */
+}
+
+.admin-navbar h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* Nav Links */
+.admin-nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.admin-nav-links button {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 10px 12px;
+  transition: 0.3s;
+  border-bottom: 2px solid transparent;
+  font-weight: 500;
+}
+
+.admin-nav-links button:hover,
+.admin-nav-links button.active {
+  border-bottom: 2px solid #00b894; /* teal accent */
+  color: #00b894;
+}
+
+/* Content Section */
+.content {
+  flex-grow: 1;
+  padding: 25px;
+  color: #2d3436; /* dark gray for main text */
+}
+
+/* Not Admin Message */
+.not-admin {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 18px;
+  color: #e74c3c; /* stronger red for better alert */
+}

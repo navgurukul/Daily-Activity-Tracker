@@ -1,0 +1,87 @@
+.admin-container {
+  margin-left: 50px;
+  padding: 20px;
+  background-color: #F4F4F4;
+  /* min-height: 100vh; */
+  overflow-x: auto;
+}
+.admin-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+/* Form Section */
+.form-container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+}
+.form-container h2 {
+  margin-bottom: 15px;
+}
+.form-fields {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.input-field {
+  /* flex: 1; */
+  width: calc(25% - 10px);
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+.add-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 97.5%;
+}
+.add-btn:hover {
+  background-color: #45A049;
+}
+/* Table Section */
+.table-container {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+.table-container h2 {
+  margin-bottom: 15px;
+}
+.table-wrapper {
+  overflow-x: auto;
+}
+table {
+  width: 99.5%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+th {
+  background-color: #F0F0F0;
+}
+.active-status {
+  color: green;
+  font-weight: bold;
+}
+.inactive-status {
+  color: red;
+  font-weight: bold;
+}
+.no-projects {
+  text-align: center;
+  color: gray;
+  padding: 10px;
+}

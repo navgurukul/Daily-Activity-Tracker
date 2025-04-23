@@ -12,22 +12,37 @@
       "AmplifyAppId": "d1rulaq4j5h0pt"
     },
     "categories": {
+      "auth": {
+        "dailyactivitytracker02cba61c": {}
+      },
       "function": {
+        "applyLeave": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/applyLeave-38597a5a706873534b30-build.zip"
+        },
         "dailyactivitytracker903c1550": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
           "s3Key": "amplify-builds/dailyactivitytracker903c1550-416653772b766370674c-build.zip"
         },
-        "employeesActivityTrackersLogs": {
+        "employeeAuthentication": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/employeesActivityTrackersLogs-6e7555342f594d744a7a-build.zip"
+          "s3Key": "amplify-builds/employeeAuthentication-572b5457394e33357738-build.zip"
         },
         "employeeSheetRecords": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
           "s3Key": "amplify-builds/employeeSheetRecords-444f624d67396f316c77-build.zip"
         },
-        "employeeAuthentication": {
+        "employeesActivityTrackersLogs": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/employeeAuthentication-572b5457394e33357738-build.zip"
+          "s3Key": "amplify-builds/employeesActivityTrackersLogs-6e7555342f594d744a7a-build.zip"
+        },
+        "employmentLeavePolicy": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/employeeSheetRecords-444f624d67396f316c77-build.zip"
+        },
+        "getLeaveRecords": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/getLeaveRecords-5a5649794f7477447a30-build.zip"
         },
         "slackNotification": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",

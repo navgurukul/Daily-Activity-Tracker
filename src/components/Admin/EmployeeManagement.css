@@ -1,0 +1,97 @@
+.employee-management {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.employee-management h2 {
+  margin-bottom: 15px;
+}
+
+.employee-management table {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: Arial, sans-serif;
+}
+
+.employee-management th,
+.employee-management td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.employee-management th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+.form-wrapper {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 20px;
+  margin-bottom: 20px;
+}
+
+.form-wrapper input,
+.form-wrapper select {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input[type="date"] {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+}
+
+input[type="date"]::before {
+  content: attr(placeholder);
+  color: #999;
+}
+input[type="date"]:focus::before {
+  content: none;
+}
+
+.add-button {
+  padding: 8px 16px;
+  background-color: #4caf50;
+  color: white;
+  font-weight: bold;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+.add-button:hover {
+  background-color: #388e3c;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f0f0f0;
+}

@@ -55,31 +55,76 @@ const getDaysInMonth = () => {
     
   const currentMonthYear = getMonthAndYear();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          `https://script.google.com/macros/s/AKfycbxV0c61-cL4FkMXj4p3Ctlqo2tIbIJ2stndBo3YUmsSPh7wUbpDn22k2axRF8uT_j9pug/exec?email=${email}&&type=getEmployeeData`
-        );
-        const data = await response.json();
-        setEmployeeData(data);
-        setLoading(false);
-      } catch (err) {
-        setError("Failed to fetch data");
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
+  // useEffect(() => {
+    // const fetchData = async () => {
+    //   try {
+    //     // const response = await fetch(
+    //     //   `https://script.google.com/macros/s/AKfycbxV0c61-cL4FkMXj4p3Ctlqo2tIbIJ2stndBo3YUmsSPh7wUbpDn22k2axRF8uT_j9pug/exec?email=${email}&&type=getEmployeeData`
+    //     // );
+    //     const response = await fetch(
+    //       "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs"
+    //     );
+    //     console.log("response from backend", response);
+        
+    //     const data = await response.json();
+    //     console.log("data from backend", data);
+        
+    //     // setEmployeeData(data);
+    //     setLoading(false);
+    //   } catch (err) {
+    //     setError("Failed to fetch data");
+    //     setLoading(false);
+    //   }
+    // };
+    
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const email = localStorage.getItem("email"); // Logged-in user's email
+
+          const response = await fetch(
+            "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs"
+          );
+          const data = await response.json();
+
+          const userData = data[email] || []; // Get only logged-in user's data
+
+          setEmployeeData(userData);
+          setLoading(false);
+          // const formatted = formatData(userData);
+          // setFormattedData(formatted);
+        } catch (error) {
+          setError("Failed to fetch data");
+          setLoading(false);
+          // console.error("Error fetching data:", error);
+        }
+      };
+
+      fetchData();
+    }, []);
+
+  //   fetchData();
+  // }, []);
 
   const getDataForDate = (date) => {
     if (!employeeData) return { activities: [], leaves: [] };
+    console.log("employeeData", employeeData);
+    console.log("date", date);
 
-    const activities =
-      employeeData.activities?.filter(
-        (activity) => activity["Activity Date"] === date
-      ) || [];
-
+    // const activities =
+    //   employeeData.activities?.filter(
+    //     (activity) => activity["Activity Date"] === date
+    //   ) || [];
+    
+    // const activities =
+    //   employeeData.activities?.filter(
+    //     (activity) => activity["Activity Date"] === date
+    //   ) || [];
+    const activities = (
+      employeeData?.filter((activity) => activity.entryDate === date) || []
+    ).map((activity) => activity);
+      console.log("activities", activities);
+      
     const leaves =
       employeeData.leaves?.filter((leave) => {
         const fromDate = leave["From date"];
@@ -177,7 +222,8 @@ const DayCell = ({ date, activities = [], leaves = [], onSelect }) => {
     new Date().toISOString().split("T")[0];
 
   const totalHours = activities.reduce(
-    (sum, act) => sum + (act["Time Spent"] || 0),
+    // (sum, act) => sum + (act["Time Spent"] || 0),
+    (sum, act) => sum + (act["totalHoursSpent"] || 0),
     0
   );
   const hasData = activities.length > 0 || leaves.length > 0;
@@ -217,7 +263,8 @@ const DayCell = ({ date, activities = [], leaves = [], onSelect }) => {
           {activities.slice(0, maxDisplayItems).map((activity, idx) => (
             <div key={idx} className="activity-preview-item">
               <Typography variant="caption" className="project-name">
-                {activity["Project Name"]}
+                {/* {activity["Project Name"]} */}
+                {activity["projectName"]}
               </Typography>
             </div>
           ))}
@@ -265,7 +312,8 @@ const DayDetailsDialog = ({ selectedDay, onClose }) => {
           <Typography variant="subtitle1">
             Total Hours:{" "}
             {selectedDay.activities.reduce(
-              (sum, act) => sum + (act["Time Spent"] || 0),
+              // (sum, act) => sum + (act["Time Spent"] || 0),
+              (sum, act) => sum + (act["totalHoursSpent"] || 0),
               0
             )}
             {selectedDay.leaves.length > 0 &&
@@ -313,14 +361,17 @@ const DayDetailsDialog = ({ selectedDay, onClose }) => {
                 <Card key={index} className="activity-detail-card">
                   <CardContent>
                     <Typography variant="h6" className="project-title">
-                      {activity["Project Name"]}
+                      {/* {activity["Project Name"]} */}
+                      {activity["projectName"]}
                     </Typography>
                     <Chip
-                      label={`${activity["Time Spent"]}h`}
+                      // label={`${activity["Time Spent"]}h`}
+                      label={`${activity["totalHoursSpent"]}h`}
                       className="time-chip"
                     />
                     <Typography className="task-description">
-                      {activity["Task of project"]}
+                      {/* {activity["Task of project"]} */}
+                      {activity["workDescription"]}
                     </Typography>
                   </CardContent>
                 </Card>

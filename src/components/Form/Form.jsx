@@ -26,6 +26,7 @@ import {
 const Form = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
+  const userName = localStorage.getItem("name");
   const { loading, setLoading } = useLoader();
   const getTodayDate = () => {
     const today = new Date();
@@ -34,14 +35,21 @@ const Form = () => {
     const dd = String(today.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   };
-  const [formData, setFormData] = useState({
-    type: "contribution",
+  // const [formData, setFormData] = useState({
+  //   type: "contribution",
+  //   email: email,
+  //   challenges: " ",
+  //   description: "",
+  //   contributions: [],
+  //   selectedDate: getTodayDate(),
+  // });
+
+  const initialFormData = {
     email: email,
-    challenges: " ",
-    description: "",
+    selectedDate: dataContext.selectedDate || getTodayDate(),
     contributions: [],
-    selectedDate: getTodayDate(),
-  });
+  };
+  const [formData, setFormData] = useState(initialFormData);
 
   const [projectData, setProjectData] = useState([]);
   const [selectedProject, setSelectedProject] = useState("");
@@ -118,16 +126,28 @@ const Form = () => {
 
     initPreviousEntries();
     try {
-      fetch(`${url}?email=${email}&type=projects`)
+      // fetch(`${url}?email=${email}&type=projects`)
+      fetch(
+        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees`
+      )
         .then((response) => response.json())
         .then((data) => {
-          const projects = data.projects;
-          const activeProjects = projects.filter(function (project) {
-            return project.status === "Active";
+          console.log("Fetched data:", data.data);
+
+          const projects = data.data.map((project) => {
+            return {
+              projectName: project.projectName,
+              status: project.status,
+            };
           });
+          // console.log("Projects:", projects);
+
+          // const activeProjects = projects.filter(function (project) {
+          //   return project.status === "Active";
+          // });
 
           // Extract project names from filtered array
-          const activeProjectNames = activeProjects.map(function (project) {
+          const activeProjectNames = projects.map(function (project) {
             return project.projectName;
           });
           const today = new Date();
@@ -261,91 +281,219 @@ const Form = () => {
     setOpen(false);
   };
 
-  const handleSubmit = (e) => {
-    const now = new Date();
-    const nextDay = new Date();
-    nextDay.setDate(now.getDate() + 1);
-    nextDay.setHours(7, 0, 0, 0); // Set time to 7 a.m. next day
+  // const handleSubmit = (e) => {
+  //   const now = new Date();
+  //   const nextDay = new Date();
+  //   nextDay.setDate(now.getDate() + 1);
+  //   nextDay.setHours(7, 0, 0, 0); // Set time to 7 a.m. next day
 
-    if (now >= nextDay) {
-      setError("Submissions are only allowed before 7 a.m. the next day.");
-      return;
-    }
-    const entry = new Date(formData.selectedDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset today to start of the day
+  //   if (now >= nextDay) {
+  //     setError("Submissions are only allowed before 7 a.m. the next day.");
+  //     return;
+  //   }
+  //   const entry = new Date(formData.selectedDate);
+  //   const today = new Date();
+  //   today.setHours(0, 0, 0, 0); // Reset today to start of the day
 
-    // Check if current time is after 12 a.m. but before 7 a.m.
-    const isAfterMidnightBefore7am = now.getHours() < 7;
+  //   // Check if current time is after 12 a.m. but before 7 a.m.
+  //   const isAfterMidnightBefore7am = now.getHours() < 7;
 
-    if (isAfterMidnightBefore7am) {
-      // If it is after midnight but before 7 a.m., treat 'today' as the previous day
-      today.setDate(today.getDate() - 1);
-    }
+  //   if (isAfterMidnightBefore7am) {
+  //     // If it is after midnight but before 7 a.m., treat 'today' as the previous day
+  //     today.setDate(today.getDate() - 1);
+  //   }
+  //   e.preventDefault();
+  //   if (formData.contributions.length === 0) {
+  //     return alert(
+  //       "Please add and save at least one contribution before submitting the form"
+  //     );
+  //   }
+  //   // if (formData.challenges.length < 25) {
+  //   //   setError(
+  //   //     "Achievements, Blockers, and Challenges must be at least 25 characters long."
+  //   //   );
+  //   //   return;
+  //   // }
+
+  //   setSaved(false);
+  //   handleLoading(true);
+  //   setLoading(true);
+
+  //   setError(""); // Clear any previous error messages
+  //   setShowSelect(true);
+  //   const submitTime = new Date();
+  //   const submitTimestamp = `${submitTime.toLocaleDateString(
+  //     "en-GB"
+  //   )} ${submitTime.getHours().toString().padStart(2, "0")}:${submitTime
+  //     .getMinutes()
+  //     .toString()
+  //     .padStart(2, "0")}:${submitTime
+  //     .getSeconds()
+  //     .toString()
+  //     .padStart(2, "0")}`;
+
+  //   const payload = {
+  //     ...formData,
+  //     timestamp: submitTimestamp,
+  //   };
+  //   // console.log(payload)
+
+  //   fetch(url, {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify(payload),
+  //     mode: "no-cors",
+  //   })
+  //     .then((response) => response.text())
+  //     .then((data) => {
+  //       // console.log("Success:", data);
+  //       // setSuccessMessage("Thanks for sharing the update!");
+  //       setError("Thanks for sharing the update!");
+  //       setFormData({
+  //         type: "contribution",
+  //         email: email,
+  //         challenges: "",
+  //         description: "",
+  //         contributions: [],
+  //         selectedDate: getTodayDate(),
+  //       });
+  //       setLoading(false);
+  //       handleLoading(false);
+  //       setTimeout(() => setSuccessMessage(""), 3000); // Clear message after 3 seconds
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error sending data to Google Apps Script:", error);
+  //     });
+  // };
+
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+
+  //   const newLog = {
+  //     date: formData.selectedDate,
+  //     project: formData.contributions.map((c) => c.project).join(", "),
+  //     hours: formData.contributions.reduce(
+  //       (sum, c) => sum + Number(c.hours),
+  //       0
+  //     ),
+  //     description: formData.contributions.map((c) => c.task).join("; "),
+  //   };
+
+  //   // Retrieve existing logs or initialize an empty array
+  //   const existingLogs = JSON.parse(localStorage.getItem("dailyLogs")) || [];
+
+  //   // Add new log and update localStorage
+  //   localStorage.setItem(
+  //     "dailyLogs",
+  //     JSON.stringify([...existingLogs, newLog])
+  //   );
+
+  //   setFormData({ ...initialFormData }); // Reset form after submission
+  // };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.contributions.length === 0) {
-      return alert(
-        "Please add and save at least one contribution before submitting the form"
-      );
-    }
-    // if (formData.challenges.length < 25) {
-    //   setError(
-    //     "Achievements, Blockers, and Challenges must be at least 25 characters long."
-    //   );
-    //   return;
-    // }
 
-    setSaved(false);
-    handleLoading(true);
-    setLoading(true);
+    const userEmail = localStorage.getItem("email");
 
-    setError(""); // Clear any previous error messages
-    setShowSelect(true);
-    const submitTime = new Date();
-    const submitTimestamp = `${submitTime.toLocaleDateString(
-      "en-GB"
-    )} ${submitTime.getHours().toString().padStart(2, "0")}:${submitTime
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")}:${submitTime
-      .getSeconds()
-      .toString()
-      .padStart(2, "0")}`;
+    // const newEntry = {
+    //   email: userEmail,
+    //   projectName: formData.contributions.map((c) => c.project).join(", "),
+    //   totalHoursSpent: formData.contributions.reduce(
+    //     (sum, c) => sum + Number(c.hours),
+    //     0
+    //   ),
+    //   workDescription: formData.contributions.map((c) => c.task).join("; "),
+    //   entryDate: formData.selectedDate,
+    // };
 
-    const payload = {
-      ...formData,
-      timestamp: submitTimestamp,
+    // const newEntry = {
+    //   entries: [
+    //     {
+    //       email: userEmail,
+    //       projectName: formData.contributions.map((c) => c.project).join(", "),
+    //       totalHoursSpent: formData.contributions.reduce(
+    //         (sum, c) => sum + Number(c.hours),
+    //         0
+    //       ),
+    //       workDescription: formData.contributions.map((c) => c.task).join("; "),
+    //       entryDate: formData.selectedDate,
+    //     },
+    //   ],
+    // };
+
+    const newEntry = {
+      entries: formData.contributions.map((c) => ({
+        email: userEmail,
+        projectName: c.project,
+        totalHoursSpent: Number(c.hours),
+        workDescription: c.task,
+        entryDate: formData.selectedDate,
+      })),
     };
-    // console.log(payload)
+    console.log("New Entry:", newEntry);
 
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-      mode: "no-cors",
-    })
-      .then((response) => response.text())
-      .then((data) => {
-        // console.log("Success:", data);
-        // setSuccessMessage("Thanks for sharing the update!");
-        setError("Thanks for sharing the update!");
-        setFormData({
-          type: "contribution",
-          email: email,
-          challenges: "",
-          description: "",
-          contributions: [],
-          selectedDate: getTodayDate(),
-        });
-        setLoading(false);
-        handleLoading(false);
-        setTimeout(() => setSuccessMessage(""), 3000); // Clear message after 3 seconds
-      })
-      .catch((error) => {
-        console.error("Error sending data to Google Apps Script:", error);
-      });
+    // Save to localStorage for dashboard view
+    const newLog = {
+      date: newEntry.entryDate,
+      project: newEntry.projectName,
+      hours: newEntry.totalHoursSpent,
+      description: newEntry.workDescription,
+    };
+
+    const existingLogs = JSON.parse(localStorage.getItem("dailyLogs")) || [];
+    localStorage.setItem(
+      "dailyLogs",
+      JSON.stringify([...existingLogs, newLog])
+    );
+    console.log("Existing Logs:", existingLogs);
+
+    // Send to API
+    try {
+      console.log("Ready to send to backend", newEntry);
+      const response = await fetch(
+        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(
+            newEntry
+            //   {
+            //   email: userEmail,
+            //   entry: newEntry,
+            // }
+          ),
+        }
+      );
+      const result = await response.json();
+      console.log("Response from backend:", result);
+
+      // Check if the response has results and the first result's status is "success"
+      const entryStatus = result?.results?.[0]?.status;
+
+      console.log(entryStatus,"entryStatus")
+
+      if (entryStatus !== "success") {
+        throw new Error(
+          result?.results?.[0]?.message || "Entry was skipped or not saved."
+        );
+        setTimeout(() => setSuccessMessage(results?.results?.[0]?.message), 3000);
+      }
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to save entry");
+      }
+      console.log("Entry successfully sent to backend");
+
+      // Clear the form
+      setFormData({ ...initialFormData });
+      console.log("Form Data after submission:", formData);
+    } catch (error) {
+      console.error("Error posting entry:", error);
+    }
   };
 
   const handleLoading = (load) => {
@@ -379,11 +527,13 @@ const Form = () => {
           break;
       }
     }
-   console.log ("Current hour:", currentHour);
+    console.log("Current hour:", currentHour);
 
     const minDate = new Date();
 
-    attempt == 0 && minDate.getHours() > 7?(daysBack = 0) : (daysBack = daysBack);
+    attempt == 0 && minDate.getHours() > 7
+      ? (daysBack = 0)
+      : (daysBack = daysBack);
     minDate.setDate(today.getDate() - daysBack);
     return minDate.toISOString().split("T")[0];
   }
@@ -391,20 +541,32 @@ const Form = () => {
   return (
     <div>
       <LoadingSpinner loading={loading} className="loader-container" />
-      <h1 style={{ textAlign: "center" }}>
-        Daily Employee's Activity Tracker{" "}
-      </h1>
+      <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
+        <h3 style={{ fontSize: "32px", fontWeight: "bold", color: "#000" }}>
+          Welcome Back, <span style={{ color: "#2E7D32" }}>{userName}</span>
+        </h3>
+        <h1
+          style={{
+            fontSize: "18px",
+            fontWeight: "500",
+            color: "#000",
+            marginTop: "0.5rem",
+          }}
+        >
+          Daily Employee's Activity Tracker
+        </h1>
+      </div>
       <p style={{ textAlign: "center" }}>
-        {attemptLoading ? (
+        {/* {attemptLoading ? (
           <CircularProgress />
-        ) : (
-          <div className="heading">
-            <p>
-              Note: You have only <span id="green-button">{attempt}</span>{" "}
-              attempts left to fill for previous days
-            </p>
-          </div>
-        )}
+        ) : ( */}
+        {/* <div className="heading">
+          <p>
+            Note: You have only <span id="green-button">{attempt}</span>{" "}
+            attempts left to fill for previous days
+          </p>
+        </div> */}
+        {/* )} */}
       </p>
 
       <form onSubmit={handleSubmit} className="from-1">
@@ -441,8 +603,8 @@ const Form = () => {
             type="date"
             name="selectedDate"
             max={today}
-            disabled={isDateDisabled}
-            min={getMinDate()}
+            // disabled={isDateDisabled}
+            // min={getMinDate()}
             value={formData.selectedDate}
             onChange={handleChange}
           />

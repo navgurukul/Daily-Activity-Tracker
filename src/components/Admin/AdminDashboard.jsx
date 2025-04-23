@@ -21,7 +21,7 @@ const AdminDashboard = () => {
   // Check if the user is an admin
   const isAdmin = adminEmails.includes(userEmail);
 
-  const [activeSection, setActiveSection] = useState("employee");
+  const [activeSection, setActiveSection] = useState("project");
 
   return (
     <div className="admin-dashboard">

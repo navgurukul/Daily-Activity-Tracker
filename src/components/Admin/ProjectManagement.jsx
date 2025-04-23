@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./ProjectManagement.css";
 
+import { handleBeforeUnload } from "../../utils/beforeUnloadHandler";
+
 const API_URL =
   "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees";
 
@@ -77,6 +79,8 @@ const ProjectManagement = () => {
           projectBudget: "",
           Id: "",
         });
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        window.location.reload();
       })
       .catch((error) => console.error("Error adding project:", error));
   };
@@ -118,6 +122,8 @@ const ProjectManagement = () => {
         });
         setIsEditMode(false);
         setEditingIndex(null);
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        window.location.reload();
       })
       .catch((err) => console.error("Error updating project:", err));
   };

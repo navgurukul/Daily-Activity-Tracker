@@ -14,6 +14,7 @@ import TraansitionModal from "./components/Modal/TraansitionModal";
 import MonthlyDashboard from "./components/MonthlyDashboard/MonthlyDashboard";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import LeaveHistory from "./components/LeaveHistory/LeaveHistory";
+import {handleBeforeUnload} from "./utils/beforeUnloadHandler";
 
 function App() {
   const dataContext = useContext(LoginContext);
@@ -21,10 +22,10 @@ function App() {
   const [feedbackData, setFeedbackData] = useState(null);
 
   useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      event.preventDefault();
-      event.returnValue = true;
-    };
+    // const handleBeforeUnload = (event) => {
+    //   event.preventDefault();
+    //   event.returnValue = true;
+    // };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
 

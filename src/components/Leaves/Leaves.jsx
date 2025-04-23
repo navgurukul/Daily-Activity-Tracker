@@ -411,8 +411,10 @@ const Leaves = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 600 }}>Leave Type</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Alloted</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Balance</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Booked</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Pending</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -435,8 +437,10 @@ const Leaves = () => {
                     leavesData.map((leave, index) => (
                       <tr key={index}>
                         <td>{leave.leaveType}</td>
+                        <td>{leave.totalLeavesAlloted}</td>
                         <td>{leave.leaveLeft}</td>
                         <td>{leave.usedLeaves}</td>
+                        <td>{leave.pendingLeaves}</td>
                       </tr>
                     ))
                   ) : (

@@ -15,6 +15,36 @@
       "service": "API Gateway"
     }
   },
+  "auth": {
+    "dailyactivitytracker02cba61c": {
+      "customAuth": false,
+      "dependsOn": [],
+      "frontendAuthConfig": {
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [
+          "SMS"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyCharacters": [],
+          "passwordPolicyMinLength": 8
+        },
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "socialProviders": [
+          "GOOGLE"
+        ],
+        "usernameAttributes": [
+          "EMAIL"
+        ],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "providerPlugin": "awscloudformation",
+      "service": "Cognito"
+    }
+  },
   "function": {
     "applyLeave": {
       "build": true,
@@ -51,6 +81,11 @@
       "service": "Lambda"
     },
     "employeesActivityTrackersLogs": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
+    "employmentLeavePolicy": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
@@ -144,6 +179,22 @@
         {
           "category": "function",
           "resourceName": "employeesActivityTrackersLogs"
+        }
+      ]
+    },
+    "AMPLIFY_function_employmentLeavePolicy_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employmentLeavePolicy"
+        }
+      ]
+    },
+    "AMPLIFY_function_employmentLeavePolicy_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "employmentLeavePolicy"
         }
       ]
     },

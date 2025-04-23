@@ -1,5 +1,3 @@
-// // handler/getLeavePolicy.mjs
-
 // import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 // import { ScanCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
@@ -44,7 +42,7 @@
 //   const userEmploymentTypeMap = {};
 //   data?.data?.forEach((user) => {
 //     const email = user["Team ID"];
-//     const empType = user["Employment Type"] || "Full Time Employee"; // fallback
+//     const empType = user["Employment Type"] || "Full Time Employee";
 //     userEmploymentTypeMap[email] = empType;
 //   });
 
@@ -59,8 +57,31 @@
 //       fetchUserEmploymentTypes()
 //     ]);
 
+//     const requestedTeamId = event?.queryStringParameters?.TeamID?.trim() || null;
+//     console.log("Received TeamID query param:", requestedTeamId);
+
 //     const groupedByUser = {};
 
+//     // Step 1: Initialize all users with leave types
+//     for (const user in userEmploymentTypes) {
+//       const empType = userEmploymentTypes[user];
+//       const leavesForEmpType = leaveAllocations[empType] || {};
+
+//       groupedByUser[user] = {};
+
+//       for (const leaveType in leavesForEmpType) {
+//         const totalLeavesAllotted = leavesForEmpType[leaveType];
+//         groupedByUser[user][leaveType] = {
+//           leaveType,
+//           usedLeaves: 0,
+//           pendingLeaves: 0,
+//           totalLeavesAllotted,
+//           leaveLeft: totalLeavesAllotted,
+//         };
+//       }
+//     }
+
+//     // Step 2: Add used and pending leave data
 //     for (const item of leaveData) {
 //       const user = item.userEmail;
 //       const leaveType = item.leaveType;
@@ -68,7 +89,7 @@
 //       const leaveDuration = Number(item.leaveDuration) || 0;
 
 //       const empType = userEmploymentTypes[user] || "Full Time Employee";
-//       const totalLeavesAllotted = (leaveAllocations?.[empType]?.[leaveType] ?? 0);
+//       const totalLeavesAllotted = leaveAllocations?.[empType]?.[leaveType] ?? 0;
 
 //       if (!groupedByUser[user]) {
 //         groupedByUser[user] = {};
@@ -76,7 +97,6 @@
 
 //       if (!groupedByUser[user][leaveType]) {
 //         groupedByUser[user][leaveType] = {
-//           id: item.Id,
 //           leaveType,
 //           usedLeaves: 0,
 //           pendingLeaves: 0,
@@ -92,7 +112,7 @@
 //       }
 //     }
 
-//     // Final adjustment for leaveLeft
+//     // Step 3: Calculate leaveLeft
 //     for (const user in groupedByUser) {
 //       for (const leaveType in groupedByUser[user]) {
 //         const record = groupedByUser[user][leaveType];
@@ -100,20 +120,40 @@
 //       }
 //     }
 
+//     // Step 4: Prepare final output
 //     const finalOutput = {};
 //     for (const user in groupedByUser) {
-//       finalOutput[user] = Object.values(groupedByUser[user]);
+//       if (!requestedTeamId || user === requestedTeamId) {
+//         finalOutput[user] = {
+//           check: requestedTeamId,
+//           leaveRecords: Object.values(groupedByUser[user])
+//         };
+//       }
 //     }
 
 //     return {
 //       statusCode: 200,
-//       body: JSON.stringify({ success: true, data: finalOutput }),
+//       headers: {
+//         "Access-Control-Allow-Origin": "*",
+//         "Access-Control-Allow-Methods": "GET, OPTIONS",
+//         "Access-Control-Allow-Headers": "Content-Type",
+//       },
+//       body: JSON.stringify({
+//         success: true,
+//         data: finalOutput
+//       }),
 //     };
 //   } catch (error) {
 //     console.error("Error occurred:", error);
 //     return {
 //       statusCode: 500,
-//       body: JSON.stringify({ success: false, message: error.message }),
+//       headers: {
+//         "Access-Control-Allow-Origin": "*"
+//       },
+//       body: JSON.stringify({
+//         success: false,
+//         message: error.message
+//       }),
 //     };
 //   }
 // }
@@ -137,7 +177,7 @@ export async function fetchLeaveRequests() {
   return result.Items || [];
 }
 
-// Fetch leave allocations for all employment types
+// Fetch leave allocations for all employment types (excluding compensatory)
 export async function fetchLeaveAllocations() {
   const res = await fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=leaveallocations");
   const data = await res.json();
@@ -165,34 +205,60 @@ export async function fetchUserEmploymentTypes() {
   const userEmploymentTypeMap = {};
   data?.data?.forEach((user) => {
     const email = user["Team ID"];
-    const empType = user["Employment Type"] || "Full Time Employee"; // fallback
+    const empType = user["Employment Type"] || "Full Time Employee";
     userEmploymentTypeMap[email] = empType;
   });
 
   return userEmploymentTypeMap;
 }
 
+// Fetch compensatory leave count per user
+export async function fetchCompensatoryLeaveCounts() {
+  const params = {
+    TableName: "hrmsCompensatoryAlloted",
+  };
+  const command = new ScanCommand(params);
+  const result = await docClient.send(command);
+
+  const counts = {};
+  result.Items?.forEach((item) => {
+    const email = item.userEmail;
+    const duration = Number(item.leaveDuration) || 0;
+    if (!counts[email]) counts[email] = 0;
+    counts[email] += duration;
+  });
+
+  return counts;
+}
+
 export async function handler(event, context) {
   try {
-    const [leaveData, leaveAllocations, userEmploymentTypes] = await Promise.all([
+    const [leaveData, leaveAllocations, userEmploymentTypes, compensatoryLeaveCounts] = await Promise.all([
       fetchLeaveRequests(),
       fetchLeaveAllocations(),
-      fetchUserEmploymentTypes()
+      fetchUserEmploymentTypes(),
+      fetchCompensatoryLeaveCounts(),
     ]);
+
+    const requestedTeamId = event?.queryStringParameters?.TeamID?.trim() || null;
+    console.log("Received TeamID query param:", requestedTeamId);
 
     const groupedByUser = {};
 
-    // Step 1: Initialize all users with all leave types
+    // Step 1: Initialize all users with leave types
     for (const user in userEmploymentTypes) {
-      const empType = userEmploymentTypes[user] || "Full Time Employee";
+      const empType = userEmploymentTypes[user];
       const leavesForEmpType = leaveAllocations[empType] || {};
 
       groupedByUser[user] = {};
 
       for (const leaveType in leavesForEmpType) {
-        const totalLeavesAllotted = leavesForEmpType[leaveType];
+        const isCompensatory = leaveType.toLowerCase().includes("compensatory");
+        const totalLeavesAllotted = isCompensatory
+          ? compensatoryLeaveCounts[user] || 0
+          : leavesForEmpType[leaveType];
+
         groupedByUser[user][leaveType] = {
-          id: null,
           leaveType,
           usedLeaves: 0,
           pendingLeaves: 0,
@@ -200,9 +266,24 @@ export async function handler(event, context) {
           leaveLeft: totalLeavesAllotted,
         };
       }
+
+      // Handle compensatory leave separately if not in leaveAllocations
+      const compensatoryKeys = ["Compensatory", "Compensatory Leave"];
+      for (const key of compensatoryKeys) {
+        if (!groupedByUser[user][key]) {
+          const total = compensatoryLeaveCounts[user] || 0;
+          groupedByUser[user][key] = {
+            leaveType: key,
+            usedLeaves: 0,
+            pendingLeaves: 0,
+            totalLeavesAllotted: total,
+            leaveLeft: total,
+          };
+        }
+      }
     }
 
-    // Step 2: Process existing leave requests
+    // Step 2: Add used and pending leave data
     for (const item of leaveData) {
       const user = item.userEmail;
       const leaveType = item.leaveType;
@@ -210,16 +291,17 @@ export async function handler(event, context) {
       const leaveDuration = Number(item.leaveDuration) || 0;
 
       const empType = userEmploymentTypes[user] || "Full Time Employee";
-      const totalLeavesAllotted = (leaveAllocations?.[empType]?.[leaveType] ?? 0);
+      const isCompensatory = leaveType.toLowerCase().includes("compensatory");
+      const totalLeavesAllotted = isCompensatory
+        ? compensatoryLeaveCounts[user] || 0
+        : leaveAllocations?.[empType]?.[leaveType] ?? 0;
 
-      // Make sure user and leaveType are initialized
       if (!groupedByUser[user]) {
         groupedByUser[user] = {};
       }
 
       if (!groupedByUser[user][leaveType]) {
         groupedByUser[user][leaveType] = {
-          id: item.Id,
           leaveType,
           usedLeaves: 0,
           pendingLeaves: 0,
@@ -235,7 +317,7 @@ export async function handler(event, context) {
       }
     }
 
-    // Step 3: Final adjustment for leaveLeft
+    // Step 3: Calculate leaveLeft
     for (const user in groupedByUser) {
       for (const leaveType in groupedByUser[user]) {
         const record = groupedByUser[user][leaveType];
@@ -243,21 +325,40 @@ export async function handler(event, context) {
       }
     }
 
-    // Step 4: Format final output
+    // Step 4: Prepare final output
     const finalOutput = {};
     for (const user in groupedByUser) {
-      finalOutput[user] = Object.values(groupedByUser[user]);
+      if (!requestedTeamId || user === requestedTeamId) {
+        finalOutput[user] = {
+          check: requestedTeamId,
+          leaveRecords: Object.values(groupedByUser[user])
+        };
+      }
     }
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ success: true, data: finalOutput }),
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+      body: JSON.stringify({
+        success: true,
+        data: finalOutput
+      }),
     };
   } catch (error) {
     console.error("Error occurred:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ success: false, message: error.message }),
+      headers: {
+        "Access-Control-Allow-Origin": "*"
+      },
+      body: JSON.stringify({
+        success: false,
+        message: error.message
+      }),
     };
   }
 }

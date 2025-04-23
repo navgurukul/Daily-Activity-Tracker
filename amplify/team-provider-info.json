@@ -23,7 +23,7 @@
         },
         "employeeSheetRecords": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/employeeSheetRecords-507976416b4138715a54-build.zip"
+          "s3Key": "amplify-builds/employeeSheetRecords-444f624d67396f316c77-build.zip"
         },
         "employeeAuthentication": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
@@ -39,7 +39,11 @@
         },
         "getLeaveRecords": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/getLeaveRecords-4576754e4c6230546c45-build.zip"
+          "s3Key": "amplify-builds/getLeaveRecords-5a5649794f7477447a30-build.zip"
+        },
+        "employmentLeavePolicy": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/employmentLeavePolicy-723373676c6d5353624e-build.zip"
         }
       },
       "storage": {
@@ -47,6 +51,9 @@
       },
       "api": {
         "employeeRecords": {}
+      },
+      "auth": {
+        "dailyactivitytracker02cba61c": {}
       }
     }
   }

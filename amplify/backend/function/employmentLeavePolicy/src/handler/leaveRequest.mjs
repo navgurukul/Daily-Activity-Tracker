@@ -58,7 +58,7 @@ const generateDatesInRange = (start, end) => {
 
 export const handler = async (event) => {
   console.log("EVENT:", JSON.stringify(event));
-
+  const stage = event.requestContext.stage;
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
@@ -262,11 +262,101 @@ export const handler = async (event) => {
   // checking which employment types have how many leaves alloted
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   let maxLeaveAllowed = null;
-  try {
+  // try {
+  //   const res = await fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=leaveallocations");
+  //   const allocations = await res.json();
+
+  //   const currentYear = new Date().getFullYear();
+  //   const employmentData = allocations.data.find(
+  //     (e) => e["Employment Type"] === employmentType
+  //   );
+
+  //   const allocatedLeaveStr = employmentData?.[body.leaveType];
+  //   if (!allocatedLeaveStr || allocatedLeaveStr === "N/A") {
+  //     maxLeaveAllowed = 0;
+  //   } else {
+  //     maxLeaveAllowed = parseFloat(allocatedLeaveStr);
+  //   }
+
+  //   // Sum existing leave durations for this type and this year
+  //   const scanCommand = new ScanCommand({
+  //     TableName: TABLE_NAME,
+  //     FilterExpression:
+  //       "#email = :email AND #type = :type AND begins_with(#start, :year)",
+  //     ExpressionAttributeNames: {
+  //       "#email": "userEmail",
+  //       "#type": "leaveType",
+  //       "#start": "startDate",
+  //     },
+  //     ExpressionAttributeValues: {
+  //       ":email": { S: body.userEmail },
+  //       ":type": { S: body.leaveType },
+  //       ":year": { S: `${currentYear}-` },
+  //     },
+  //   });
+
+  //   const result = await client.send(scanCommand);
+
+  //   let totalUsed = result.Items?.reduce((sum, item) => {
+  //     const status = item.status?.S?.toLowerCase();
+  //     const isRejected = status === "rejected";
+    
+  //     if (!isRejected) {
+  //       return sum + parseFloat(item.leaveDuration?.N || "0");
+  //     }
+  //     return sum;
+  //   }, 0) || 0;
+
+  //   const thisRequestDuration = calculateLeaveDuration(body.startDate, body.endDate, body.durationType);
+
+  //   if (totalUsed + thisRequestDuration > maxLeaveAllowed) {
+  //     return {
+  //       statusCode: 400,
+  //       headers: { "Access-Control-Allow-Origin": "*" },
+  //       body: JSON.stringify({
+  //         message: `You have exceeded your annual quota for ${body.leaveType}. Allocated: ${maxLeaveAllowed}, Used: ${totalUsed}`,
+  //       }),
+  //     };
+  //   }
+  // } 
+
+//   // >>>>>>>>>>>>>>>>>>>>>>>>>test>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+//   let maxLeaveAllowed = null;
+try {
+  const currentYear = new Date().getFullYear();
+
+  // Special case for "compensentary" leave
+  if (
+    body.leaveType.toLowerCase() === "compensatory" ||
+    body.leaveType.toLowerCase() === "compensatory leave"
+  ) {
+    // Query the hrmsCompensatoryAlloted table
+    const compScanCommand = new ScanCommand({
+      TableName: "hrmsCompensatoryAlloted",
+      FilterExpression:
+        "#email = :email AND #status = :status",
+      ExpressionAttributeNames: {
+        "#email": "userEmail",
+        "#status": "status",
+      },
+      ExpressionAttributeValues: {
+        ":email": { S: body.userEmail },
+        ":status": { S: "pending" },
+      },
+    });
+
+    const compResult = await client.send(compScanCommand);
+
+    // Sum all pending compensatory leave durations
+    maxLeaveAllowed = compResult.Items?.reduce((sum, item) => {
+      return sum + parseFloat(item.leaveDuration?.N || "0");
+    }, 0) || 0;
+  }
+   else {
+    // For all other leave types, continue with API fetch
     const res = await fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=leaveallocations");
     const allocations = await res.json();
 
-    const currentYear = new Date().getFullYear();
     const employmentData = allocations.data.find(
       (e) => e["Employment Type"] === employmentType
     );
@@ -277,48 +367,52 @@ export const handler = async (event) => {
     } else {
       maxLeaveAllowed = parseFloat(allocatedLeaveStr);
     }
+  }
 
-    // Sum existing leave durations for this type and this year
-    const scanCommand = new ScanCommand({
-      TableName: TABLE_NAME,
-      FilterExpression:
-        "#email = :email AND #type = :type AND begins_with(#start, :year)",
-      ExpressionAttributeNames: {
-        "#email": "userEmail",
-        "#type": "leaveType",
-        "#start": "startDate",
-      },
-      ExpressionAttributeValues: {
-        ":email": { S: body.userEmail },
-        ":type": { S: body.leaveType },
-        ":year": { S: `${currentYear}-` },
-      },
-    });
+  // Fetch all previously taken leaves for this year and type
+  const scanCommand = new ScanCommand({
+    TableName: TABLE_NAME,
+    FilterExpression:
+      "#email = :email AND #type = :type AND begins_with(#start, :year)",
+    ExpressionAttributeNames: {
+      "#email": "userEmail",
+      "#type": "leaveType",
+      "#start": "startDate",
+    },
+    ExpressionAttributeValues: {
+      ":email": { S: body.userEmail },
+      ":type": { S: body.leaveType },
+      ":year": { S: `${currentYear}-` },
+    },
+  });
 
-    const result = await client.send(scanCommand);
+  const result = await client.send(scanCommand);
 
-    let totalUsed = result.Items?.reduce((sum, item) => {
-      const status = item.status?.S?.toLowerCase();
-      const isRejected = status === "rejected";
-    
-      if (!isRejected) {
-        return sum + parseFloat(item.leaveDuration?.N || "0");
-      }
-      return sum;
-    }, 0) || 0;
+  let totalUsed = result.Items?.reduce((sum, item) => {
+    const status = item.status?.S?.toLowerCase();
+    const isRejected = status === "rejected";
 
-    const thisRequestDuration = calculateLeaveDuration(body.startDate, body.endDate, body.durationType);
-
-    if (totalUsed + thisRequestDuration > maxLeaveAllowed) {
-      return {
-        statusCode: 400,
-        headers: { "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify({
-          message: `You have exceeded your annual quota for ${body.leaveType}. Allocated: ${maxLeaveAllowed}, Used: ${totalUsed}`,
-        }),
-      };
+    if (!isRejected) {
+      return sum + parseFloat(item.leaveDuration?.N || "0");
     }
-  } catch (err) {
+    return sum;
+  }, 0) || 0;
+
+  const thisRequestDuration = calculateLeaveDuration(body.startDate, body.endDate, body.durationType);
+
+  if (totalUsed + thisRequestDuration > maxLeaveAllowed) {
+    return {
+      statusCode: 400,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({
+        message: `You have exceeded your annual quota for ${body.leaveType}. Allocated: ${maxLeaveAllowed}, Used: ${totalUsed}`,
+      }),
+    };
+  }
+}
+
+//   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<test>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  catch (err) {
     console.error("Leave allocation fetch error:", err);
   }
 
@@ -371,6 +465,7 @@ export const handler = async (event) => {
       startDate: { S: body.startDate },
       status: { S: status },
       userEmail: { S: body.userEmail },
+      stage:{S:stage}
     },
   });
 

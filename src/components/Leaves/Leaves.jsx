@@ -226,6 +226,10 @@ const Leaves = () => {
       ...prevData,
       [name]: value,
     }));
+    setRemainingLeaves(
+      allLeaves[email]?.leaveRecords?.find((leave) => leave.leaveType === value)
+        ?.leaveLeft
+    );
     console.log("Leave Data:", leaveData);
   };
 
@@ -437,7 +441,7 @@ const Leaves = () => {
                     leavesData.map((leave, index) => (
                       <tr key={index}>
                         <td>{leave.leaveType}</td>
-                        <td>{leave.totalLeavesAlloted}</td>
+                        <td>{leave.totalLeavesAllotted}</td>
                         <td>{leave.leaveLeft}</td>
                         <td>{leave.usedLeaves}</td>
                         <td>{leave.pendingLeaves}</td>
@@ -496,7 +500,7 @@ const Leaves = () => {
                     </MenuItem>
                   ))}
                 </Select>
-                {/* {leaveData.leaveType && (
+                {leaveData.leaveType && (
                   <Typography
                     variant="caption"
                     sx={{
@@ -509,7 +513,7 @@ const Leaves = () => {
                   >
                     You have {remainingLeaves} leaves available in this category
                   </Typography>
-                )} */}
+                )}
               </StyledFormControl>
             </Grid>
 

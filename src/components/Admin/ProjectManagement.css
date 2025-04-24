@@ -145,3 +145,17 @@ th {
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   z-index: 9999;
 }
+
+.deleteBtn {
+  margin-left: 8px;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.deleteBtn:hover {
+  background-color: #cc0000;
+}

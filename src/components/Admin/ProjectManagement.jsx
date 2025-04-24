@@ -55,7 +55,69 @@ const ProjectManagement = () => {
   }, []);
 
   // Handle adding a new project
+  // const handleAddProject = () => {
+  //   fetch(API_URL, {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify(data),
+  //   })
+  //     .then((response) => response.json())
+  //     .then((newProject) => {
+  //       // console.log("New project added:", newProject);
+  //       setProjects([...projects, newProject]);
+  //       setFeedbackMessage(newProject.message);
+  //       setData({
+  //         projectName: "",
+  //         channelName: "",
+  //         channelId: "",
+  //         projectMasterEmail: "",
+  //         clientName: "",
+  //         projectStatus: "active",
+  //         priorities: "",
+  //         projectBudget: "",
+  //         Id: "",
+  //       });
+  //       window.removeEventListener("beforeunload", handleBeforeUnload);
+  //       window.location.reload();
+  //     })
+  //     .catch((error) => console.error("Error adding project:", error));
+  // };
+
   const handleAddProject = () => {
+    // Pre-validation
+    if (!data.projectName) {
+      setFeedbackMessage("Please fill in the project name.");
+      return;
+    }
+    if (!data.channelName) {
+      setFeedbackMessage("Please fill in the channel name.");
+      return;
+    }
+    if (!data.channelId) {
+      setFeedbackMessage("Please fill in the channel ID.");
+      return;
+    }
+    if (!data.projectMasterEmail) {
+      setFeedbackMessage("Please fill in the project master email.");
+      return;
+    }
+    if (!data.priorities) {
+      setFeedbackMessage("Please select a priority.");
+      return;
+    }
+    if (!data.projectBudget) {
+      setFeedbackMessage("Please fill in the project budget.");
+      return;
+    }
+    if (!data.projectStatus) {
+      setFeedbackMessage("Please select a project status.");
+      return;
+    }
+    // Clear feedback if all good
+    setFeedbackMessage("");
+    // Make the API call
     fetch(API_URL, {
       method: "POST",
       headers: {
@@ -65,9 +127,7 @@ const ProjectManagement = () => {
     })
       .then((response) => response.json())
       .then((newProject) => {
-        // console.log("New project added:", newProject);
         setProjects([...projects, newProject]);
-        setFeedbackMessage(newProject.message);
         setData({
           projectName: "",
           channelName: "",
@@ -135,7 +195,6 @@ const ProjectManagement = () => {
     }
   }, [feedbackMessage]);
 
-
   return (
     <div className="admin-container">
       <h1 className="admin-title">Admin - Project Tracker</h1>
@@ -188,6 +247,7 @@ const ProjectManagement = () => {
             <option value="" disabled selected>
               Select Priority
             </option>
+            <option value="P0">P0-Very High</option>
             <option value="P1">P1-High</option>
             <option value="P2">P2-Moderate</option>
             <option value="P3">P3-Low</option>
@@ -213,7 +273,6 @@ const ProjectManagement = () => {
             </option>
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
-            <option value="Pending">Pending</option>
           </select>
         </div>
         <button className="add-btn" onClick={handleAddProject}>
@@ -333,6 +392,7 @@ const ProjectManagement = () => {
                 <option value="" disabled selected>
                   Select Priority
                 </option>
+                <option value="P0">P0-Very High</option>
                 <option value="P1">P1-High</option>
                 <option value="P2">P2-Moderate</option>
                 <option value="P3">P3-Low</option>
@@ -358,7 +418,6 @@ const ProjectManagement = () => {
                 </option>
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
-                <option value="Pending">Pending</option>
               </select>
             </div>
             <button className="add-btn" onClick={handleUpdateProject}>

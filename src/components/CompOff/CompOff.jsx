@@ -36,19 +36,19 @@ const CompOff = () => {
   const [successMessage, setSuccessMessage] = useState("");
 
   // Check for authentication and email
-  useEffect(() => {
-    if (!email) {
-      navigate("/");
-      return;
-    }
+  // useEffect(() => {
+  //   if (!email) {
+  //     navigate("/");
+  //     return;
+  //   }
 
-    if (sessionStorage.getItem("isAuth") !== "true") {
-      setShowAuthError(true);
-      setTimeout(() => {
-        navigate("/activity-tracker");
-      }, 2000);
-    }
-  }, [email, navigate]);
+  //   if (sessionStorage.getItem("isAuth") !== "true") {
+  //     setShowAuthError(true);
+  //     setTimeout(() => {
+  //       navigate("/activity-tracker");
+  //     }, 2000);
+  //   }
+  // }, [email, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -197,19 +197,19 @@ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
     document.getElementById("root").style.opacity = load ? "0.8" : "1";
   };
 
-  if (sessionStorage.getItem("isAuth") !== "true") {
-    return (
-      <Snackbar
-        open={showAuthError}
-        autoHideDuration={2000}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert severity="error" variant="filled" sx={{ width: "100%" }}>
-          You are not authorized to access this page
-        </Alert>
-      </Snackbar>
-    );
-  }
+  // if (sessionStorage.getItem("isAuth") !== "true") {
+  //   return (
+  //     <Snackbar
+  //       open={showAuthError}
+  //       autoHideDuration={2000}
+  //       anchorOrigin={{ vertical: "top", horizontal: "center" }}
+  //     >
+  //       <Alert severity="error" variant="filled" sx={{ width: "100%" }}>
+  //         You are not authorized to access this page
+  //       </Alert>
+  //     </Snackbar>
+  //   );
+  // }
 
   return (
     <div>
@@ -264,7 +264,21 @@ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
             required
           />
         </div>
-        <div className="tooltip">
+        <div>
+          <label>Half Day Status:</label>
+          <select
+            name="halfDayStatus"
+            value={leaveData.halfDayStatus}
+            onChange={handleChange}
+          >
+            <option value="">
+              Select Half Day Status
+            </option>
+            <option value="first-half">First Half</option>
+            <option value="second-half">Second Half</option>
+          </select>
+        </div>
+        {/* <div className="tooltip">
           How to use Half Day?
           <span
             style={{
@@ -296,10 +310,24 @@ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
             checked={halfDay}
             onChange={handleHalfDayChange}
           />
+        </div> */}
+        <div>
+          <div>
+            <label>Comp Off Raised By:</label>
+            <input
+              type="text"
+              name="raisedBy"
+              value={email}
+              onChange={handleChange}
+              disabled
+              required
+            />
+          </div>
         </div>
 
         <button type="submit">Submit</button>
       </form>
+
 
       <Snackbar
         open={successMessage}

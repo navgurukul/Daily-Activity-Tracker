@@ -38,7 +38,7 @@
         },
         "employmentLeavePolicy": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/employeeSheetRecords-444f624d67396f316c77-build.zip"
+          "s3Key": "amplify-builds/employmentLeavePolicy-723373676c6d5353624e-build.zip"
         },
         "getLeaveRecords": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
@@ -47,18 +47,6 @@
         "slackNotification": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
           "s3Key": "amplify-builds/slackNotification-4f346d4d4d6435655462-build.zip"
-        },
-        "applyLeave": {
-          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/applyLeave-38597a5a706873534b30-build.zip"
-        },
-        "getLeaveRecords": {
-          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/getLeaveRecords-5a5649794f7477447a30-build.zip"
-        },
-        "employmentLeavePolicy": {
-          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/employmentLeavePolicy-723373676c6d5353624e-build.zip"
         }
       },
       "storage": {
@@ -66,9 +54,6 @@
       },
       "api": {
         "employeeRecords": {}
-      },
-      "auth": {
-        "dailyactivitytracker02cba61c": {}
       }
     }
   }

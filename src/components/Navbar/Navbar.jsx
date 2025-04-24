@@ -105,26 +105,26 @@ const Navbar = (props) => {
     setError("");
   };
 
-  const handlePasswordSubmit = () => {
-    if (password === "Think4Big$123") {
-      if (isAuthorizedEmail()) {
-        sessionStorage.setItem("isAuth", "true");
-        handlePasswordDialogClose();
-        navigate("comp-off-application");
-        setError("");
-        setSnackbarSeverity("success");
-        setSnackbarMessage("Successfully authenticated!");
-        setSnackbarOpen(true);
-      } else {
-        setError("You are not authorized to access this feature");
-        setSnackbarSeverity("error");
-        setSnackbarMessage("You are not authorized to access this feature");
-        setSnackbarOpen(true);
-      }
-    } else {
-      setError("Incorrect password");
-    }
-  };
+  // const handlePasswordSubmit = () => {
+  //   if (password === "Think4Big$123") {
+  //     if (isAuthorizedEmail()) {
+  //       sessionStorage.setItem("isAuth", "true");
+  //       handlePasswordDialogClose();
+  //       navigate("comp-off-application");
+  //       setError("");
+  //       setSnackbarSeverity("success");
+  //       setSnackbarMessage("Successfully authenticated!");
+  //       setSnackbarOpen(true);
+  //     } else {
+  //       setError("You are not authorized to access this feature");
+  //       setSnackbarSeverity("error");
+  //       setSnackbarMessage("You are not authorized to access this feature");
+  //       setSnackbarOpen(true);
+  //     }
+  //   } else {
+  //     setError("Incorrect password");
+  //   }
+  // };
 
   const handleClick = (button) => {
     console.log("Handleclick", button);
@@ -135,18 +135,18 @@ const Navbar = (props) => {
       return navigate("/");
     }
 
-    if (button === "comp-off-application") {
-      if (!isAuthorizedEmail()) {
-        setSnackbarSeverity("info");
-        setSnackbarMessage(
-          "Comp-off requests need to be approved by Amruta. Please reach out to amruta@navgurukul.org before raising a request."
-        );
-        setSnackbarOpen(true);
-        return;
-      }
-      handlePasswordDialogOpen();
-      return;
-    }
+    // if (button === "comp-off-application") {
+    //   if (!isAuthorizedEmail()) {
+    //     setSnackbarSeverity("info");
+    //     setSnackbarMessage(
+    //       "Comp-off requests need to be approved by Amruta. Please reach out to amruta@navgurukul.org before raising a request."
+    //     );
+    //     setSnackbarOpen(true);
+    //     return;
+    //   }
+    //   handlePasswordDialogOpen();
+    //   return;
+    // }
 
     navigate(`/${button}`);
     handleDrawerClose();
@@ -176,7 +176,7 @@ const Navbar = (props) => {
           { text: "Leave Application", icon: <ParkIcon /> },
           {
             text: "Comp-off Application",
-            icon: isAuthorizedEmail() ? <LockOpenIcon /> : <LockIcon />,
+            icon: <LockOpenIcon />,
             // disabled: !isAuthorizedEmail(),
           },
           { text: "Monthly Activity-Dashboard", icon: <AssessmentIcon /> },
@@ -365,16 +365,16 @@ const Navbar = (props) => {
                 </InputAdornment>
               ),
             }}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                handlePasswordSubmit();
-              }
-            }}
+            // onKeyPress={(e) => {
+            //   if (e.key === "Enter") {
+            //     handlePasswordSubmit();
+            //   }
+            // }}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handlePasswordDialogClose}>Cancel</Button>
-          <Button onClick={handlePasswordSubmit}>Submit</Button>
+          <Button>Submit</Button>
         </DialogActions>
       </Dialog>
 

@@ -4,28 +4,29 @@ import EmployeeManagement from "./EmployeeManagement";
 import ProjectManagement from "./ProjectManagement";
 import LeaveManagement from "./LeaveManagement";
 import "./AdminDashboard.css";
+import Payroll from "./Payroll";
 
 const AdminDashboard = () => {
-  const adminEmails = [
-    "amitkumar@navgurukul.org",
-    "admin@example.com",
-    "manager@company.com",
-    "puran@navgurukul.org",
-    "amruta@navgurukul.org",
-    "ujjwal@navgurukul.org",
-  ];
+  // const adminEmails = [
+  //   "amitkumar@navgurukul.org",
+  //   "admin@example.com",
+  //   "manager@company.com",
+  //   "puran@navgurukul.org",
+  //   "amruta@navgurukul.org",
+  //   "ujjwal@navgurukul.org",
+  // ];
 
-  const userEmail = localStorage.getItem("email");
+  // const userEmail = localStorage.getItem("email");
   // const userEmail = "amruta@navgurukul.org" || "puran@navgurukul.org" || "ujjwal@navgurukul.org" || "amitkumar@navgurukul.org";
 
   // Check if the user is an admin
-  const isAdmin = adminEmails.includes(userEmail);
+  // const isAdmin = adminEmails.includes(userEmail);
 
   const [activeSection, setActiveSection] = useState("project");
 
   return (
     <div className="admin-dashboard">
-      {isAdmin ? (
+      {/* {isAdmin ? ( */}
         <>
           <div className="admin-navbar">
             <h2>Admin Panel</h2>
@@ -54,6 +55,12 @@ const AdminDashboard = () => {
               >
                 Leave Management
               </button>
+              <button
+                className={activeSection === "payroll" ? "active" : ""}
+                onClick={() => setActiveSection("payroll")}
+              >
+                Payroll
+              </button>
             </div>
           </div>
 
@@ -62,14 +69,15 @@ const AdminDashboard = () => {
             {activeSection === "employee" && <EmployeeManagement />}
             {activeSection === "project" && <ProjectManagement />}
             {activeSection === "leave" && <LeaveManagement />}
+            {activeSection === "payroll" && <Payroll />}
           </div>
         </>
-      ) : (
+      {/* ) : (
         <div className="not-admin">
           <h2>Access Denied</h2>
           <p>You are not an admin, so you cannot access this section.</p>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

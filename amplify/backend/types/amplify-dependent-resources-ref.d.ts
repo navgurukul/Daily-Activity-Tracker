@@ -69,6 +69,13 @@ export type AmplifyDependentResourcesAttributes = {
       "Name": "string",
       "Region": "string"
     },
+    "payableDaysOfMonth": {
+      "Arn": "string",
+      "LambdaExecutionRole": "string",
+      "LambdaExecutionRoleArn": "string",
+      "Name": "string",
+      "Region": "string"
+    },
     "slackNotification": {
       "Arn": "string",
       "LambdaExecutionRole": "string",

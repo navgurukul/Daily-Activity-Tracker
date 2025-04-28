@@ -128,7 +128,7 @@ const formatMessage = (projectName, logs, projectManagerEmail) => {
 
   message += `\n━━━━━━━━━━━━━━━━━━━━━━━\n`;
   message += `📌 cc: ${cc}`;
-
+  console.log(message,'>>>>>>>>>>>>>>>>>>>>>>>>');
   return message.trim();
 };
 

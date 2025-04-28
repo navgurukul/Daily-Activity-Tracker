@@ -95,6 +95,11 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
+    "payableDaysOfMonth": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "slackNotification": {
       "build": true,
       "providerPlugin": "awscloudformation",
@@ -211,6 +216,22 @@
         {
           "category": "function",
           "resourceName": "getLeaveRecords"
+        }
+      ]
+    },
+    "AMPLIFY_function_payableDaysOfMonth_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "payableDaysOfMonth"
+        }
+      ]
+    },
+    "AMPLIFY_function_payableDaysOfMonth_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "payableDaysOfMonth"
         }
       ]
     },

@@ -82,12 +82,9 @@ export const handler = async (event) => {
   const body = JSON.parse(event.body || "{}");
 
   const requiredFields = [
-    "durationType",
     "endDate",
     "leaveType",
-    "halfDayStatus",
     "startDate",
-    "status",
     "userEmail",
   ];
 
@@ -118,17 +115,18 @@ export const handler = async (event) => {
         }),
       };
     }
-  }
-
-
-  const allowedDurationTypes = ["Half-Day", "Full-Day"];
-  if (!allowedDurationTypes.includes(body.durationType)) {
+  } 
+ 
+  if (body.halfDayStatus && (!body.durationType || body.durationType.toLowerCase() !== "half-day")) {
     return {
       statusCode: 400,
       headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({ message: `Invalid durationType. Allowed values: ${allowedDurationTypes.join(", ")}` }),
+      body: JSON.stringify({
+        message: `durationType is required and must be 'Half-Day' when halfDayStatus is true`,
+      }),
     };
   }
+  
 
   const isApproverEmailValid = body.approverEmail ? emailRegex.test(body.approverEmail) : true;
   const isUserEmailValid = emailRegex.test(body.userEmail);
@@ -173,25 +171,18 @@ export const handler = async (event) => {
     };
   }
 
-  const status = body.status.toLowerCase();
-  // status [pending]
-  if (!ALLOWED_STATUS.includes(status)) {
-    return {
-      statusCode: 400,
-      headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({ message: `Invalid status. Allowed: ${ALLOWED_STATUS.join(", ")}` }),
-    };
-  }
   // half day status [first half Or second half]
-  const halfDayStatus = body.halfDayStatus.toLowerCase();
-  if (!Allowed_Status_Half_Day.includes(halfDayStatus)) {
-    return {
-      statusCode: 400,
-      headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({ message: `Invalid status. Allowed: ${Allowed_Status_Half_Day.join(", ")}` }),
-    };
+  if(body.durationType){
+    if(body.durationType.toLowerCase() === "half-day"){
+      if(!body.halfDayStatus){
+        return {
+          statusCode: 400,
+          headers: { "Access-Control-Allow-Origin": "*" },
+          body: JSON.stringify({ message: `halfDayStatus is required` }),
+        };
+      }
+    }
   }
-
 
   // ✅ Check leaveType from API now (not DynamoDB)
   try {
@@ -258,78 +249,13 @@ export const handler = async (event) => {
     }
   }
   
-  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  // checking which employment types have how many leaves alloted
-  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   let maxLeaveAllowed = null;
-  // try {
-  //   const res = await fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=leaveallocations");
-  //   const allocations = await res.json();
-
-  //   const currentYear = new Date().getFullYear();
-  //   const employmentData = allocations.data.find(
-  //     (e) => e["Employment Type"] === employmentType
-  //   );
-
-  //   const allocatedLeaveStr = employmentData?.[body.leaveType];
-  //   if (!allocatedLeaveStr || allocatedLeaveStr === "N/A") {
-  //     maxLeaveAllowed = 0;
-  //   } else {
-  //     maxLeaveAllowed = parseFloat(allocatedLeaveStr);
-  //   }
-
-  //   // Sum existing leave durations for this type and this year
-  //   const scanCommand = new ScanCommand({
-  //     TableName: TABLE_NAME,
-  //     FilterExpression:
-  //       "#email = :email AND #type = :type AND begins_with(#start, :year)",
-  //     ExpressionAttributeNames: {
-  //       "#email": "userEmail",
-  //       "#type": "leaveType",
-  //       "#start": "startDate",
-  //     },
-  //     ExpressionAttributeValues: {
-  //       ":email": { S: body.userEmail },
-  //       ":type": { S: body.leaveType },
-  //       ":year": { S: `${currentYear}-` },
-  //     },
-  //   });
-
-  //   const result = await client.send(scanCommand);
-
-  //   let totalUsed = result.Items?.reduce((sum, item) => {
-  //     const status = item.status?.S?.toLowerCase();
-  //     const isRejected = status === "rejected";
-    
-  //     if (!isRejected) {
-  //       return sum + parseFloat(item.leaveDuration?.N || "0");
-  //     }
-  //     return sum;
-  //   }, 0) || 0;
-
-  //   const thisRequestDuration = calculateLeaveDuration(body.startDate, body.endDate, body.durationType);
-
-  //   if (totalUsed + thisRequestDuration > maxLeaveAllowed) {
-  //     return {
-  //       statusCode: 400,
-  //       headers: { "Access-Control-Allow-Origin": "*" },
-  //       body: JSON.stringify({
-  //         message: `You have exceeded your annual quota for ${body.leaveType}. Allocated: ${maxLeaveAllowed}, Used: ${totalUsed}`,
-  //       }),
-  //     };
-  //   }
-  // } 
-
-//   // >>>>>>>>>>>>>>>>>>>>>>>>>test>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-//   let maxLeaveAllowed = null;
 try {
   const currentYear = new Date().getFullYear();
 
   // Special case for "compensentary" leave
-  if (
-    body.leaveType.toLowerCase() === "compensatory" ||
-    body.leaveType.toLowerCase() === "compensatory leave"
-  ) {
+  // if (  
+  if(body.leaveType.toLowerCase().trim().split(" ").includes("compensentory")){
     // Query the hrmsCompensatoryAlloted table
     const compScanCommand = new ScanCommand({
       TableName: "hrmsCompensatoryAlloted",
@@ -398,7 +324,7 @@ try {
     return sum;
   }, 0) || 0;
 
-  const thisRequestDuration = calculateLeaveDuration(body.startDate, body.endDate, body.durationType);
+  const thisRequestDuration = calculateLeaveDuration(body.startDate, body.endDate,(body.durationType||"Full-Day"));
 
   if (totalUsed + thisRequestDuration > maxLeaveAllowed) {
     return {
@@ -410,13 +336,9 @@ try {
     };
   }
 }
-
-//   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<test>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   catch (err) {
     console.error("Leave allocation fetch error:", err);
   }
-
-  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
   const allDates = generateDatesInRange(start, end);
 
@@ -447,7 +369,7 @@ try {
     }
   }
 
-  const leaveDuration = calculateLeaveDuration(body.startDate, body.endDate, body.durationType);
+  const leaveDuration = calculateLeaveDuration(body.startDate, body.endDate, ( body.durationType||"Full-Day"));
   const uniqueId = await generateUniqueId();
 
   const command = new PutItemCommand({
@@ -456,14 +378,14 @@ try {
       Id: { S: uniqueId },
       approvalDate: { S: "" },
       approverEmail: { S: "" },
-      durationType: { S: body.durationType },
+      durationType: { S: body.durationType || "Full-Day"},
       endDate: { S: body.endDate },
       leaveDuration: { N: leaveDuration.toString() },
       leaveType: { S: body.leaveType },
-      halfDayStatus: { S: body.halfDayStatus },
+      halfDayStatus: { S: body.halfDayStatus || ""},
       reasonForLeave: { S: body.reasonForLeave || "" },
       startDate: { S: body.startDate },
-      status: { S: status },
+      status: { S: "pending" },
       userEmail: { S: body.userEmail },
       stage:{S:stage}
     },

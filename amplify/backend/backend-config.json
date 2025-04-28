@@ -51,11 +51,6 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
-    "applyLeave": {
-      "build": true,
-      "providerPlugin": "awscloudformation",
-      "service": "Lambda"
-    },
     "dailyactivitytracker903c1550": {
       "build": true,
       "dependsOn": [
@@ -85,16 +80,6 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
-    "employeeAuthentication": {
-      "build": true,
-      "providerPlugin": "awscloudformation",
-      "service": "Lambda"
-    },
-    "employeeSheetRecords": {
-      "build": true,
-      "providerPlugin": "awscloudformation",
-      "service": "Lambda"
-    },
     "employeesActivityTrackersLogs": {
       "build": true,
       "providerPlugin": "awscloudformation",
@@ -110,6 +95,11 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
+    "payableDaysOfMonth": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "slackNotification": {
       "build": true,
       "providerPlugin": "awscloudformation",
@@ -117,22 +107,6 @@
     }
   },
   "parameters": {
-    "AMPLIFY_function_applyLeave_deploymentBucketName": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "applyLeave"
-        }
-      ]
-    },
-    "AMPLIFY_function_applyLeave_s3Key": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "applyLeave"
-        }
-      ]
-    },
     "AMPLIFY_function_applyLeave_deploymentBucketName": {
       "usedBy": [
         {
@@ -162,38 +136,6 @@
         {
           "category": "function",
           "resourceName": "dailyactivitytracker903c1550"
-        }
-      ]
-    },
-    "AMPLIFY_function_employeeAuthentication_deploymentBucketName": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "employeeAuthentication"
-        }
-      ]
-    },
-    "AMPLIFY_function_employeeAuthentication_s3Key": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "employeeAuthentication"
-        }
-      ]
-    },
-    "AMPLIFY_function_employeeSheetRecords_deploymentBucketName": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "employeeSheetRecords"
-        }
-      ]
-    },
-    "AMPLIFY_function_employeeSheetRecords_s3Key": {
-      "usedBy": [
-        {
-          "category": "function",
-          "resourceName": "employeeSheetRecords"
         }
       ]
     },
@@ -274,6 +216,22 @@
         {
           "category": "function",
           "resourceName": "getLeaveRecords"
+        }
+      ]
+    },
+    "AMPLIFY_function_payableDaysOfMonth_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "payableDaysOfMonth"
+        }
+      ]
+    },
+    "AMPLIFY_function_payableDaysOfMonth_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "payableDaysOfMonth"
         }
       ]
     },

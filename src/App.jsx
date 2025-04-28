@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import Form from "./components/Form/Form";
 import "./App.css";
-import { Route, Routes, Link } from "react-router-dom";
+import { Route, Routes, Link, Navigate } from "react-router-dom";
 import Leaves from "./components/Leaves/Leaves";
 import Navbar from "./components/Navbar/Navbar";
 import Login from "./components/Login/Login";
@@ -18,7 +18,7 @@ import {handleBeforeUnload} from "./utils/beforeUnloadHandler";
 
 function App() {
   const dataContext = useContext(LoginContext);
-  const { email } = dataContext;
+  const { email, isAdmin } = dataContext;
   const [feedbackData, setFeedbackData] = useState(null);
 
   useEffect(() => {
@@ -87,13 +87,24 @@ function App() {
             // element={<ProtectedRoute element={<MonthlyDashboard />} />}
             element={<MonthlyDashboard />}
           />
-          <Route path="/admin" 
+          {/* <Route path="/admin" 
           // element={<ProtectedRoute element={<AdminDashboard />} />} 
           element={<AdminDashboard />}
+          /> */}
+          <Route
+            path="/admin"
+            element={
+              isAdmin ? (
+                <AdminDashboard />
+              ) : (
+                <Navigate to="/unauthorized" replace />
+              )
+            }
           />
-          <Route path="/leave-history" 
-          // element={<ProtectedRoute element={<LeaveHistory />} />} 
-          element={<LeaveHistory />}
+          <Route
+            path="/leave-history"
+            // element={<ProtectedRoute element={<LeaveHistory />} />}
+            element={<LeaveHistory />}
           />
         </Routes>
       </main>

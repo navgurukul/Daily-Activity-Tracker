@@ -502,39 +502,50 @@ const Form = () => {
       : (document.getElementById("root").style.opacity = "1");
   };
 
+  // function getMinDate() {
+  //   const today = new Date();
+  //   const dayOfWeek = today.getDay();
+
+  //   const DAYS_BACK_NORMAL = 3;
+  //   const DAYS_BACK_EXTENDED = 5;
+
+  //   const currentHour = today.getHours();
+  //   let daysBack = currentHour < 8 ? 1 : 0;
+  //   if (attempt > 0) {
+  //     switch (dayOfWeek) {
+  //       case 1: // Monday
+  //       case 2: // Tuesday
+  //       case 3: // Wednesday
+  //         daysBack = DAYS_BACK_EXTENDED;
+  //         break;
+  //       case 4: // Thursday
+  //       case 5: // Friday
+  //       case 6: // Saturday
+  //       case 0: // Sunday
+  //       default:
+  //         daysBack = DAYS_BACK_NORMAL;
+  //         break;
+  //     }
+  //   }
+  //   console.log("Current hour:", currentHour);
+
+  //   const minDate = new Date();
+
+  //   attempt == 0 && minDate.getHours() > 7
+  //     ? (daysBack = 0)
+  //     : (daysBack = daysBack);
+  //   minDate.setDate(today.getDate() - daysBack);
+  //   return minDate.toISOString().split("T")[0];
+  // }
+
   function getMinDate() {
     const today = new Date();
-    const dayOfWeek = today.getDay();
-
-    const DAYS_BACK_NORMAL = 3;
-    const DAYS_BACK_EXTENDED = 5;
-
-    const currentHour = today.getHours();
-    let daysBack = currentHour < 8 ? 1 : 0;
-    if (attempt > 0) {
-      switch (dayOfWeek) {
-        case 1: // Monday
-        case 2: // Tuesday
-        case 3: // Wednesday
-          daysBack = DAYS_BACK_EXTENDED;
-          break;
-        case 4: // Thursday
-        case 5: // Friday
-        case 6: // Saturday
-        case 0: // Sunday
-        default:
-          daysBack = DAYS_BACK_NORMAL;
-          break;
-      }
-    }
-    console.log("Current hour:", currentHour);
-
     const minDate = new Date();
 
-    attempt == 0 && minDate.getHours() > 7
-      ? (daysBack = 0)
-      : (daysBack = daysBack);
-    minDate.setDate(today.getDate() - daysBack);
+    // Subtract 3 days from today
+    minDate.setDate(today.getDate() - 3);
+
+    // Format as yyyy-mm-dd
     return minDate.toISOString().split("T")[0];
   }
 
@@ -604,7 +615,7 @@ const Form = () => {
             name="selectedDate"
             max={today}
             // disabled={isDateDisabled}
-            // min={getMinDate()}
+            min={getMinDate()}
             value={formData.selectedDate}
             onChange={handleChange}
           />

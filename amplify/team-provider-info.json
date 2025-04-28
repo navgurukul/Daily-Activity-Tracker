@@ -42,7 +42,7 @@
         },
         "getLeaveRecords": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/getLeaveRecords-5a5649794f7477447a30-build.zip"
+          "s3Key": "amplify-builds/getLeaveRecords-45663464747456665a31-build.zip"
         },
         "slackNotification": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",

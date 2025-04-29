@@ -253,7 +253,7 @@ const LeaveManagement = () => {
                   email,
                   leaveType: record.leaveType,
                   pendingLeaves: record.pendingLeaves,
-                  raisedDate: new Date().toLocaleDateString(), // Placeholder
+                  raisedDate: new Date().toLocaleDateString(),
                 });
               }
             });
@@ -264,11 +264,117 @@ const LeaveManagement = () => {
       .catch((err) => console.error("Failed to fetch data", err));
   }, []);
 
-  const handleApprove = (email, leaveType) => {
-    console.log(`Approving leave for ${email} - ${leaveType}`);
-    alert(`Leave approved for ${email} (${leaveType})`);
-    // TODO: Call API to update backend
-  };
+// const handleApprove = async (email, leaveId) => {
+//   try {
+//     // Step 1: Fetch the current leave records for the given email
+//     console.log(`Fetching leave records for email: ${email}`);
+//     const response = await fetch(
+//       `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?employeeEmail=${email}`,
+//       {
+//         method: "GET",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
+//     const result = await response.json();
+
+//     console.log("API Response:", result);
+
+//     // Step 2: Check if the email exists in the response data
+//     if (result[email]) {
+//       console.log(`Found leave records for ${email}`);
+
+//       // Step 3: Find the leave to approve
+//       const leaveToApprove = result[email].pending.find(
+//         (leave) => leave.Id === leaveId,
+//       );
+
+//       if (leaveToApprove) {
+//         console.log("Leave found, proceeding to approve.");
+
+//         // Step 4: Send the approval request for that leave
+//         const approveResponse = await fetch(
+//           "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records",
+//           {
+//             method: "PUT",
+//             headers: {
+//               "Content-Type": "application/json",
+//               "Authorization": `Bearer ${localStorage.getItem("jwtToken")}`,
+//             },
+//             body: JSON.stringify({
+//               Id: leaveToApprove.Id,
+//               status: "approved",
+//             }),
+//           }
+//         );
+
+//         const approveResult = await approveResponse.json();
+//         console.log("Approval API Response:", approveResult);
+
+//         if (approveResult.success) {
+//           alert(`Leave approved for ${email} (${leaveToApprove.leaveType})`);
+//           // Optionally, update UI after successful approval
+//           setPendingLeaves((prev) =>
+//             prev.filter(
+//               (leave) =>
+//                 leave.email !== email || leave.leaveId !== leaveToApprove.Id
+//             )
+//           );
+//         } else {
+//           alert("Approval failed. Please try again.");
+//           console.error("Approval Error:", approveResult);
+//         }
+//       } else {
+//         alert("Leave not found or already approved.");
+//         console.log(`Leave not found with ID: ${leaveId}`);
+//       }
+//     } else {
+//       alert("User not found.");
+//       console.log(`No leave records found for ${email}`);
+//     }
+//   } catch (error) {
+//     alert("Something went wrong.");
+//     console.error("Fetch error:", error);
+//   }
+// };
+
+const handleApprove = async (email, leaveId) => {
+  try {
+    const approveResponse = await fetch(
+      "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("jwtToken"),
+        },
+        body: JSON.stringify({
+          Id: leaveId,
+          approvalEmail: localStorage.getItem("userEmail"), // assuming this is stored
+          status: "approved",
+        }),
+      }
+    );
+
+    const approveResult = await approveResponse.json();
+    console.log("Approval API Response:", approveResult);
+
+    if (approveResult.success) {
+      alert(`Leave approved for ${email}`);
+      // Update UI to remove the approved leave
+      setPendingLeaves((prev) =>
+        prev.filter((leave) => leave.email !== email || leave.Id !== leaveId)
+      );
+    } else {
+      alert("Approval failed. Please try again.");
+      console.error("Approval Error:", approveResult);
+    }
+  } catch (error) {
+    alert("Something went wrong.");
+    console.error("Fetch error:", error);
+  }
+};
 
   const getFilteredLeaveRecords = () => {
     if (!allEmail || !selectedMonth) return [];
@@ -325,6 +431,7 @@ const LeaveManagement = () => {
               </thead>
               <tbody>
                 {pendingLeaves.map((leave, index) => (
+                  console.log("Leave object:", leave),
                   <tr key={index}>
                     <td>{leave.email}</td>
                     <td>{leave.leaveType}</td>
@@ -334,7 +441,7 @@ const LeaveManagement = () => {
                       <button
                         className="approve-button"
                         onClick={() =>
-                          handleApprove(leave.email, leave.leaveType)
+                          handleApprove(leave.email, leave.Id)
                         }
                       >
                         Approve
@@ -356,7 +463,6 @@ const LeaveManagement = () => {
             value={selectedEmail}
             onChange={(event, newValue) => setSelectedEmail(newValue)}
             renderInput={(params) => (
-              // <TextField {...params} label="Search Email" variant="outlined" />
               <TextField
                 {...params}
                 label="Search Email"
@@ -365,7 +471,6 @@ const LeaveManagement = () => {
                 margin="normal"
               />
             )}
-            // sx={{ width: 900, marginBottom: 2 }}
           />
 
           {selectedEmail && leaveData[selectedEmail] && (

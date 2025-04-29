@@ -14,9 +14,10 @@ import {
   Box,
 } from "@mui/material";
 import { LoginContext } from "../context/LoginContext";
+import "./LeaveHistory.css";
 
 const LeaveHistory = () => {
-  const [tabIndex, setTabIndex] = useState(0); // Start with the first tab (Approved Leaves)
+  const [tabIndex, setTabIndex] = useState(0);
   const [leaveData, setLeaveData] = useState({
     approved: [],
     pending: [],
@@ -55,7 +56,7 @@ const LeaveHistory = () => {
   const renderTableRow = (leave, index) => (
     <TableRow key={index}>
       <TableCell>{leave.leaveType}</TableCell>
-      <TableCell>{leave.status}</TableCell>
+      {/* <TableCell>{leave.status}</TableCell> */}
       <TableCell>{leave.startDate}</TableCell>
       <TableCell>{leave.endDate}</TableCell>
       <TableCell>{leave.leaveDuration} days</TableCell>
@@ -64,12 +65,12 @@ const LeaveHistory = () => {
   );
 
   const renderLeaveCategory = (leaves) => (
-    <TableContainer component={Paper}>
+    <TableContainer component={Paper} style={{ overflow: "hidden" }}>
       <Table>
         <TableHead>
           <TableRow>
             <TableCell>Leave Type</TableCell>
-            <TableCell>Status</TableCell>
+            {/* <TableCell>Status</TableCell> */}
             <TableCell>Start Date</TableCell>
             <TableCell>End Date</TableCell>
             <TableCell>Duration</TableCell>
@@ -90,19 +91,39 @@ const LeaveHistory = () => {
   return (
     <div style={{ marginLeft: "50px", padding: "20px" }}>
       {/* Tab navigation for approved, pending, rejected categories */}
-      <Tabs value={tabIndex} onChange={handleTabChange} aria-label="Leave Tabs">
+      {/* <Tabs value={tabIndex} onChange={handleTabChange} aria-label="Leave Tabs">
         <Tab label="Approved Leaves" />
         <Tab label="Pending Leaves" />
         <Tab label="Rejected Leaves" />
-      </Tabs>
+      </Tabs> */}
+      <div className="tabs">
+        <button
+          className={`tab-button ${tabIndex === 0 ? "active-tab" : ""}`}
+          onClick={() => setTabIndex(0)}
+        >
+          Approved Leaves
+        </button>
+        <button
+          className={`tab-button ${tabIndex === 1 ? "active-tab" : ""}`}
+          onClick={() => setTabIndex(1)}
+        >
+          Pending Leaves
+        </button>
+        <button
+          className={`tab-button ${tabIndex === 2 ? "active-tab" : ""}`}
+          onClick={() => setTabIndex(2)}
+        >
+          Rejected Leaves
+        </button>
+      </div>
 
       {/* Tab panels to show leave records */}
       <Box sx={{ marginTop: "20px" }}>
         {tabIndex === 0 && (
           <div>
-            <Typography variant="h6" color="primary" gutterBottom>
+            {/* <Typography variant="h6" color="primary" gutterBottom>
               Approved Leaves
-            </Typography>
+            </Typography> */}
             {leaveData.approved.length > 0 ? (
               renderLeaveCategory(leaveData.approved)
             ) : (
@@ -114,13 +135,13 @@ const LeaveHistory = () => {
         )}
         {tabIndex === 1 && (
           <div>
-            <Typography
+            {/* <Typography
               variant="h6"
               color="primary"
               gutterBottom
             >
               Pending Leaves
-            </Typography>
+            </Typography> */}
             {leaveData.pending.length > 0 ? (
               renderLeaveCategory(leaveData.pending)
             ) : (
@@ -132,9 +153,9 @@ const LeaveHistory = () => {
         )}
         {tabIndex === 2 && (
           <div>
-            <Typography variant="h6" color="primary" gutterBottom>
+            {/* <Typography variant="h6" color="primary" gutterBottom>
               Rejected Leaves
-            </Typography>
+            </Typography> */}
             {leaveData.rejected.length > 0 ? (
               renderLeaveCategory(leaveData.rejected)
             ) : (

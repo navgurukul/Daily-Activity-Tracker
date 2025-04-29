@@ -26,6 +26,8 @@ function Login() {
     const userEmail = decoded?.email;
     const userName = decoded?.name;
 
+    localStorage.setItem("jwtToken", jwtToken);
+
     if (userEmail.endsWith("@navgurukul.org") || userEmail.endsWith("@thesama.in") || userEmail.endsWith("@samyarth.org") ){
       const username = userEmail.split("@")[0];
       const hasNumbers = /\d/.test(username);

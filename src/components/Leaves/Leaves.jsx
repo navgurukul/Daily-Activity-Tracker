@@ -705,31 +705,6 @@ const Leaves = () => {
                 </StyledFormControl>
               </Grid>
             )}
-            <Grid item xs={12} md={6}>
-              <StyledFormControl>
-                <InputLabel>Half Day Status</InputLabel>
-                <Select
-                  name="halfDayStatus"
-                  value={leaveData.halfDayStatus}
-                  onChange={handleChange}
-                  label="Half Day Status"
-                >
-                  <MenuItem value="first-half">First Half</MenuItem>
-                  <MenuItem value="second-half">Second Half</MenuItem>
-                </Select>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    mt: 1,
-                    display: "block",
-                    color: "#6b7280",
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  Select it for availing half day
-                </Typography>
-              </StyledFormControl>
-            </Grid>
 
             <Grid item xs={12}>
               <Button

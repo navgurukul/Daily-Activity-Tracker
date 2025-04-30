@@ -462,10 +462,6 @@ const Form = () => {
           },
           body: JSON.stringify(
             newEntry
-            //   {
-            //   email: userEmail,
-            //   entry: newEntry,
-            // }
           ),
         }
       );
@@ -588,6 +584,18 @@ const Form = () => {
             type="email"
             name="email"
             value={formData.email}
+            onChange={handleChange}
+            required
+            disabled
+            color="red"
+          />
+        </div>
+        <div>
+          <label>Employee Name:</label>
+          <input
+            type="text"
+            name="name"
+            value={userName}
             onChange={handleChange}
             required
             disabled

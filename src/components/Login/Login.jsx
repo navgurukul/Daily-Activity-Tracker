@@ -20,7 +20,7 @@ function Login() {
   const handleCallbackResponse = async (response) => {
     let jwtToken = response.credential;
     console.log("Encoded JWT ID token: " + jwtToken);
-    
+    sessionStorage.setItem("bearerToken", jwtToken);
     const decoded = jwtDecode(jwtToken);
     console.log("Decoded Token:", decoded);
     const userEmail = decoded?.email;

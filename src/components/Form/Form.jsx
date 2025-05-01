@@ -465,6 +465,13 @@ const Form = () => {
           ),
         }
       );
+      console.log("Response of Post API:", response);
+      if (!response.ok) {
+        throw new Error("Failed to save entry");
+      }
+      setSuccessMessage("Entry successfully saved!");
+      setTimeout(() => setSuccessMessage(""), 3000); // Clear message after 3 seconds
+
       const result = await response.json();
       console.log("Response from backend:", result);
 

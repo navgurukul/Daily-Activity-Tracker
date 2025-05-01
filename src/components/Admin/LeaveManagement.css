@@ -1,6 +1,6 @@
 .leave-container {
-  max-width: 1000px;
-  margin: 40px auto;
+  max-width: 1200px;
+  margin: 10px auto;
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -74,4 +74,17 @@ table th {
 label {
   font-weight: bold;
   margin-right: 10px;
+}
+
+.filter-btn{
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.filter-btn:hover{
+  background-color: #138496;
 }

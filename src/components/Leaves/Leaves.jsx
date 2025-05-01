@@ -535,9 +535,13 @@ const Leaves = () => {
             </Grid>
 
             {leaveData.leaveType &&
-              !["Casual Leave", "Wellness Leave", "Festival Leave", "Compensatory Leave"].includes(
-                leaveData.leaveType
-              ) && (
+              ![
+                "Casual Leave",
+                "Wellness Leave",
+                "Festival Leave",
+                "Compensatory Leave",
+              ].includes(leaveData.leaveType) &&
+              leaveData.reasonForLeave?.length < 25 && (
                 <Grid item xs={12}>
                   <Typography
                     variant="body2"
@@ -548,7 +552,7 @@ const Leaves = () => {
                       mt: -2,
                       mb: 2,
                       ml: 1,
-                      textAlign: "left"
+                      textAlign: "left",
                     }}
                   >
                     Please provide a reason with at least 25 characters.

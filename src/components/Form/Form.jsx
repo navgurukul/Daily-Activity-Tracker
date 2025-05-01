@@ -173,13 +173,37 @@ const Form = () => {
     });
   });
 
-  const handleChange = (e) => {
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setFormData({
+  //     ...formData,
+  //     [name]: value,
+  //   });
+  // };
+
+   function isInvalidDate(dateStr) {
+     const date = new Date(dateStr);
+     const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+     const dateNum = date.getDate();
+     const week = Math.floor((dateNum - 1) / 7) + 1;
+
+     // Disable Sunday or 2nd/4th Saturday
+     return day === 0 || (day === 6 && (week === 2 || week === 4));
+   }
+
+  function handleChange(e) {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+
+    if (isInvalidDate(value)) {
+      alert("This date is not allowed");
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
-  };
+    }));
+  }
 
   const handleProjectSelect = (e) => {
     setSaved(false);
@@ -326,8 +350,6 @@ const Form = () => {
         throw new Error("Failed to save entry");
       }
       showSnackbar("Entry successfully saved!", "success");
-      // setSuccessMessage("Entry successfully saved!");
-      // setTimeout(() => setSuccessMessage(""), 3000); // Clear message after 3 seconds
 
       const result = await response.json();
       console.log("Response from backend:", result);
@@ -380,16 +402,82 @@ const Form = () => {
       : (document.getElementById("root").style.opacity = "1");
   };
 
+  // function getMinDate() {
+  //   const today = new Date();
+  //   const minDate = new Date();
+  //   minDate.setDate(today.getDate() - 3);
+  //   return minDate.toISOString().split("T")[0];
+  // }
+
   function getMinDate() {
     const today = new Date();
-    const minDate = new Date();
+    const validDates = [];
 
-    // Subtract 3 days from today
-    minDate.setDate(today.getDate() - 3);
+    // Check the last 3 days
+    for (let i = 1; i <= 3; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const day = date.getDay(); // 0 = Sunday, 6 = Saturday
 
-    // Format as yyyy-mm-dd
-    return minDate.toISOString().split("T")[0];
+      // Skip Sundays
+      if (day === 0) continue;
+
+      // Skip 2nd and 4th Saturdays
+      if (day === 6) {
+        const dateNum = date.getDate();
+        const month = date.getMonth();
+        const year = date.getFullYear();
+
+        // Get all Saturdays of the month
+        let saturdayCount = 0;
+        for (let d = 1; d <= 31; d++) {
+          const tempDate = new Date(year, month, d);
+          if (tempDate.getMonth() !== month) break;
+          if (tempDate.getDay() === 6) {
+            saturdayCount++;
+            if (d === dateNum && (saturdayCount === 2 || saturdayCount === 4)) {
+              continue; // skip 2nd or 4th Saturday
+            }
+          }
+        }
+      }
+
+      validDates.push(date);
+    }
+
+    // Return the earliest valid date
+    if (validDates.length > 0) {
+      return validDates[validDates.length - 1].toISOString().split("T")[0];
+    } else {
+      return today.toISOString().split("T")[0]; // fallback
+    }
   }
+
+  // Mock today's date to be 12th of the current month
+  // const mockToday = new Date();
+  // mockToday.setDate(5);
+  // const today = mockToday.toISOString().split("T")[0];
+
+  // function getMinDate() {
+  //   const minDate = new Date(mockToday);
+  //   minDate.setDate(mockToday.getDate() - 2);
+
+  //   // now calculate excluding weekends (Sundays + 2nd & 4th Saturday)
+  //   let daysCounted = 0;
+  //   while (daysCounted < 3) {
+  //     minDate.setDate(minDate.getDate() - 1);
+  //     const day = minDate.getDay(); // 0 = Sunday, 6 = Saturday
+  //     const date = minDate.getDate();
+  //     const week = Math.floor((date - 1) / 7) + 1;
+
+  //     if (day === 0 || (day === 6 && (week === 2 || week === 4))) {
+  //       continue; // skip weekend
+  //     }
+  //     daysCounted++;
+  //   }
+
+  //   return minDate.toISOString().split("T")[0];
+  // }
 
   return (
     <div>
@@ -409,20 +497,6 @@ const Form = () => {
           Daily Employee's Activity Tracker
         </h1>
       </div>
-      {/* <div
-        style={{ textAlign: "right", marginRight: "30px", marginTop: "10px" }}
-      >
-        {attemptLoading ? (
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <LoadingSpinner loading={true} />
-          </div>
-        ) : (
-          <p style={{ fontWeight: "bold", fontSize: "14px" }}>
-            Backdated entries left: {attempt}
-          </p>
-        )}
-      </div> */}
-
       <form onSubmit={handleSubmit} className="from-1">
         {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
         <div>
@@ -449,20 +523,6 @@ const Form = () => {
             color="red"
           />
         </div>
-
-        {/* <div>
-          <label>
-            Please Mention Any Blockers or Challenges You Are Facing (Minimum 25
-            characters):
-          </label>
-          <textarea
-            name="challenges"
-            value={formData.challenges}
-            onChange={handleChange}
-            required
-          />
-        </div> */}
-
         <div>
           <label>Select the date for which you want to update the form:</label>
           <input
@@ -660,22 +720,6 @@ const Form = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      {/* <Snackbar
-        open={error}
-        autoHideDuration={8000}
-        onClose={() => setError("")}
-      >
-        <Alert
-          onClose={() => setError("")}
-          severity={
-            error == "Thanks for sharing the update!" ? "success" : "error"
-          }
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {error}
-        </Alert>
-      </Snackbar> */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={4000}

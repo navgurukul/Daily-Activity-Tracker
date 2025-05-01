@@ -159,3 +159,20 @@ th {
 .deleteBtn:hover {
   background-color: #cc0000;
 }
+
+
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filters input, .filters select {
+  width: auto;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 200px;
+  font-size: 14px;
+}

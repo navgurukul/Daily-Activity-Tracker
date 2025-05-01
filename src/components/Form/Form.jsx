@@ -10,7 +10,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import LoadingSpinner from "../Loader/LoadingSpinner";
 import { useLoader } from "../context/LoadingContext";
-// import SimpleSnackbar from "../Snackbar/Snackbar";
 import TraansitionModal from "../Modal/TraansitionModal";
 import {
   Dialog,
@@ -35,14 +34,6 @@ const Form = () => {
     const dd = String(today.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   };
-  // const [formData, setFormData] = useState({
-  //   type: "contribution",
-  //   email: email,
-  //   challenges: " ",
-  //   description: "",
-  //   contributions: [],
-  //   selectedDate: getTodayDate(),
-  // });
 
   const initialFormData = {
     email: email,
@@ -78,6 +69,21 @@ const Form = () => {
   const [attempt, setAttempt] = useState(0);
   const [isDateDisabled, setIsDateDisabled] = useState(true);
   const [attemptLoading, setAttemptLoading] = useState(true);
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // 'success', 'error', 'warning', 'info'
+
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") return;
+    setSnackbarOpen(false);
+  };
 
   useEffect(() => {
     let email = localStorage.getItem("email") ?? "";
@@ -126,7 +132,6 @@ const Form = () => {
 
     initPreviousEntries();
     try {
-      // fetch(`${url}?email=${email}&type=projects`)
       fetch(
         `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees`
       )
@@ -140,11 +145,6 @@ const Form = () => {
               status: project.status,
             };
           });
-          // console.log("Projects:", projects);
-
-          // const activeProjects = projects.filter(function (project) {
-          //   return project.status === "Active";
-          // });
 
           // Extract project names from filtered array
           const activeProjectNames = projects.map(function (project) {
@@ -159,12 +159,6 @@ const Form = () => {
           }
           // console.log("Active Projects:", activeProjectNames);
           setProjectData(activeProjectNames);
-          // const filteredProjects = data.content
-          //   .map((project) => project[0])
-          //   .filter((project) => project !== "");
-          // //   setProjectNames(filteredProjects);
-          // console.log("Project Names:", filteredProjects);
-          // setProjectData(filteredProjects);
         });
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -281,148 +275,10 @@ const Form = () => {
     setOpen(false);
   };
 
-  // const handleSubmit = (e) => {
-  //   const now = new Date();
-  //   const nextDay = new Date();
-  //   nextDay.setDate(now.getDate() + 1);
-  //   nextDay.setHours(7, 0, 0, 0); // Set time to 7 a.m. next day
-
-  //   if (now >= nextDay) {
-  //     setError("Submissions are only allowed before 7 a.m. the next day.");
-  //     return;
-  //   }
-  //   const entry = new Date(formData.selectedDate);
-  //   const today = new Date();
-  //   today.setHours(0, 0, 0, 0); // Reset today to start of the day
-
-  //   // Check if current time is after 12 a.m. but before 7 a.m.
-  //   const isAfterMidnightBefore7am = now.getHours() < 7;
-
-  //   if (isAfterMidnightBefore7am) {
-  //     // If it is after midnight but before 7 a.m., treat 'today' as the previous day
-  //     today.setDate(today.getDate() - 1);
-  //   }
-  //   e.preventDefault();
-  //   if (formData.contributions.length === 0) {
-  //     return alert(
-  //       "Please add and save at least one contribution before submitting the form"
-  //     );
-  //   }
-  //   // if (formData.challenges.length < 25) {
-  //   //   setError(
-  //   //     "Achievements, Blockers, and Challenges must be at least 25 characters long."
-  //   //   );
-  //   //   return;
-  //   // }
-
-  //   setSaved(false);
-  //   handleLoading(true);
-  //   setLoading(true);
-
-  //   setError(""); // Clear any previous error messages
-  //   setShowSelect(true);
-  //   const submitTime = new Date();
-  //   const submitTimestamp = `${submitTime.toLocaleDateString(
-  //     "en-GB"
-  //   )} ${submitTime.getHours().toString().padStart(2, "0")}:${submitTime
-  //     .getMinutes()
-  //     .toString()
-  //     .padStart(2, "0")}:${submitTime
-  //     .getSeconds()
-  //     .toString()
-  //     .padStart(2, "0")}`;
-
-  //   const payload = {
-  //     ...formData,
-  //     timestamp: submitTimestamp,
-  //   };
-  //   // console.log(payload)
-
-  //   fetch(url, {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify(payload),
-  //     mode: "no-cors",
-  //   })
-  //     .then((response) => response.text())
-  //     .then((data) => {
-  //       // console.log("Success:", data);
-  //       // setSuccessMessage("Thanks for sharing the update!");
-  //       setError("Thanks for sharing the update!");
-  //       setFormData({
-  //         type: "contribution",
-  //         email: email,
-  //         challenges: "",
-  //         description: "",
-  //         contributions: [],
-  //         selectedDate: getTodayDate(),
-  //       });
-  //       setLoading(false);
-  //       handleLoading(false);
-  //       setTimeout(() => setSuccessMessage(""), 3000); // Clear message after 3 seconds
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error sending data to Google Apps Script:", error);
-  //     });
-  // };
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-
-  //   const newLog = {
-  //     date: formData.selectedDate,
-  //     project: formData.contributions.map((c) => c.project).join(", "),
-  //     hours: formData.contributions.reduce(
-  //       (sum, c) => sum + Number(c.hours),
-  //       0
-  //     ),
-  //     description: formData.contributions.map((c) => c.task).join("; "),
-  //   };
-
-  //   // Retrieve existing logs or initialize an empty array
-  //   const existingLogs = JSON.parse(localStorage.getItem("dailyLogs")) || [];
-
-  //   // Add new log and update localStorage
-  //   localStorage.setItem(
-  //     "dailyLogs",
-  //     JSON.stringify([...existingLogs, newLog])
-  //   );
-
-  //   setFormData({ ...initialFormData }); // Reset form after submission
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const userEmail = localStorage.getItem("email");
-
-    // const newEntry = {
-    //   email: userEmail,
-    //   projectName: formData.contributions.map((c) => c.project).join(", "),
-    //   totalHoursSpent: formData.contributions.reduce(
-    //     (sum, c) => sum + Number(c.hours),
-    //     0
-    //   ),
-    //   workDescription: formData.contributions.map((c) => c.task).join("; "),
-    //   entryDate: formData.selectedDate,
-    // };
-
-    // const newEntry = {
-    //   entries: [
-    //     {
-    //       email: userEmail,
-    //       projectName: formData.contributions.map((c) => c.project).join(", "),
-    //       totalHoursSpent: formData.contributions.reduce(
-    //         (sum, c) => sum + Number(c.hours),
-    //         0
-    //       ),
-    //       workDescription: formData.contributions.map((c) => c.task).join("; "),
-    //       entryDate: formData.selectedDate,
-    //     },
-    //   ],
-    // };
 
     const newEntry = {
       entries: formData.contributions.map((c) => ({
@@ -460,17 +316,16 @@ const Form = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(
-            newEntry
-          ),
+          body: JSON.stringify(newEntry),
         }
       );
       console.log("Response of Post API:", response);
       if (!response.ok) {
         throw new Error("Failed to save entry");
       }
-      setSuccessMessage("Entry successfully saved!");
-      setTimeout(() => setSuccessMessage(""), 3000); // Clear message after 3 seconds
+      showSnackbar("Entry successfully saved!", "success");
+      // setSuccessMessage("Entry successfully saved!");
+      // setTimeout(() => setSuccessMessage(""), 3000); // Clear message after 3 seconds
 
       const result = await response.json();
       console.log("Response from backend:", result);
@@ -478,13 +333,30 @@ const Form = () => {
       // Check if the response has results and the first result's status is "success"
       const entryStatus = result?.results?.[0]?.status;
 
-      console.log(entryStatus,"entryStatus")
+      console.log(entryStatus, "entryStatus");
 
-      if (entryStatus !== "success") {
+      if (entryStatus !== "success" && entryStatus !== "updated") {
         throw new Error(
           result?.results?.[0]?.message || "Entry was skipped or not saved."
         );
-        setTimeout(() => setSuccessMessage(results?.results?.[0]?.message), 3000);
+      }
+
+      if (result?.backdatedLeft?.[userEmail] !== undefined) {
+        const backdatedLeft = result.backdatedLeft[userEmail];
+        showSnackbar(
+          `Entry successfully processed! Backdated entries left: ${backdatedLeft}`,
+          "info"
+        );
+      }
+
+      if (entryStatus === "updated") {
+        showSnackbar("Entry successfully updated!", "info");
+      }
+
+      // Update backdated entries left if available in the response
+      if (result?.backdatedLeft?.[userEmail] !== undefined) {
+        setAttempt(result.backdatedLeft[userEmail]);
+        localStorage.setItem("attemptsLeft", result.backdatedLeft[userEmail]);
       }
       if (!response.ok) {
         throw new Error(result.message || "Failed to save entry");
@@ -496,6 +368,7 @@ const Form = () => {
       console.log("Form Data after submission:", formData);
     } catch (error) {
       console.error("Error posting entry:", error);
+      showSnackbar(error.message || "Failed to save entry", "error");
     }
   };
 
@@ -504,42 +377,6 @@ const Form = () => {
       ? (document.getElementById("root").style.opacity = "0.8")
       : (document.getElementById("root").style.opacity = "1");
   };
-
-  // function getMinDate() {
-  //   const today = new Date();
-  //   const dayOfWeek = today.getDay();
-
-  //   const DAYS_BACK_NORMAL = 3;
-  //   const DAYS_BACK_EXTENDED = 5;
-
-  //   const currentHour = today.getHours();
-  //   let daysBack = currentHour < 8 ? 1 : 0;
-  //   if (attempt > 0) {
-  //     switch (dayOfWeek) {
-  //       case 1: // Monday
-  //       case 2: // Tuesday
-  //       case 3: // Wednesday
-  //         daysBack = DAYS_BACK_EXTENDED;
-  //         break;
-  //       case 4: // Thursday
-  //       case 5: // Friday
-  //       case 6: // Saturday
-  //       case 0: // Sunday
-  //       default:
-  //         daysBack = DAYS_BACK_NORMAL;
-  //         break;
-  //     }
-  //   }
-  //   console.log("Current hour:", currentHour);
-
-  //   const minDate = new Date();
-
-  //   attempt == 0 && minDate.getHours() > 7
-  //     ? (daysBack = 0)
-  //     : (daysBack = daysBack);
-  //   minDate.setDate(today.getDate() - daysBack);
-  //   return minDate.toISOString().split("T")[0];
-  // }
 
   function getMinDate() {
     const today = new Date();
@@ -570,18 +407,19 @@ const Form = () => {
           Daily Employee's Activity Tracker
         </h1>
       </div>
-      <p style={{ textAlign: "center" }}>
-        {/* {attemptLoading ? (
-          <CircularProgress />
-        ) : ( */}
-        {/* <div className="heading">
-          <p>
-            Note: You have only <span id="green-button">{attempt}</span>{" "}
-            attempts left to fill for previous days
+      {/* <div
+        style={{ textAlign: "right", marginRight: "30px", marginTop: "10px" }}
+      >
+        {attemptLoading ? (
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <LoadingSpinner loading={true} />
+          </div>
+        ) : (
+          <p style={{ fontWeight: "bold", fontSize: "14px" }}>
+            Backdated entries left: {attempt}
           </p>
-        </div> */}
-        {/* )} */}
-      </p>
+        )}
+      </div> */}
 
       <form onSubmit={handleSubmit} className="from-1">
         {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
@@ -814,7 +652,7 @@ const Form = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Snackbar
+      {/* <Snackbar
         open={error}
         autoHideDuration={8000}
         onClose={() => setError("")}
@@ -828,6 +666,20 @@ const Form = () => {
           sx={{ width: "100%" }}
         >
           {error}
+        </Alert>
+      </Snackbar> */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarMessage}
         </Alert>
       </Snackbar>
     </div>

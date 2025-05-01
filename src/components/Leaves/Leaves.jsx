@@ -137,7 +137,7 @@ const Leaves = () => {
   });
   const [remainingLeaves, setRemainingLeaves] = useState();
   const [halfDay, setHalfDay] = useState(false);
-  const [error, setError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [availableLeaveTypes, setAvailableLeaveTypes] = useState();
 
@@ -200,7 +200,7 @@ const Leaves = () => {
   };
 
   const handleChange = (e) => {
-    setError("");
+    setErrorMessage("");
     const { name, value } = e.target;
     setLeaveData((prevData) => ({
       ...prevData,
@@ -245,59 +245,6 @@ const Leaves = () => {
     return totalDays;
   };
 
-  // const handleSubmit = async (e) => {
-  //   console.log("submit button clicked");
-  //   console.log("Leave Data:", leaveData);
-  //   e.preventDefault();
-  //   setLoading(true);
-
-  //   if (
-  //     !leaveData.leaveType ||
-  //     !leaveData.reasonForLeave ||
-  //     !leaveData.startDate ||
-  //     !leaveData.endDate ||
-  //     !leaveData.userEmail
-  //   ) {
-  //     setError("All fields are required.");
-  //     setLoading(false);
-  //     return;
-  //   }
-
-  //   const payload = {...leaveData };
-  //   if (payload.durationType !== "half-day") {
-  //     delete payload.halfDayStatus;
-  //   }
-
-  //   try {
-  //     const response = await fetch(
-  //       "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy",
-  //       {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify(leaveData),
-  //       }
-  //     );
-  //     console.log("Response after post:", response);
-  //     console.log("Leave request submitted successfully!");
-  //     setLoading(false);
-  //     setError("");
-  //     setSuccessMessage("Leave request submitted successfully!");
-  //     setLeaveData({
-  //       endDate: getTodayDate(),
-  //       durationType: "",
-  //       halfDayStatus: "",
-  //       leaveType: "",
-  //       reasonForLeave: "",
-  //       startDate: getTodayDate(),
-  //       status: "pending",
-  //       userEmail: email,
-  //     });;
-  //   } catch (error) {
-  //     console.error("Error submitting leave request:", error);
-  //     setError("Error submitting leave request.");
-  //   }
-  // };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -310,7 +257,7 @@ const Leaves = () => {
       !leaveData.endDate ||
       !leaveData.userEmail
     ) {
-      setError("All fields are required.");
+      setErrorMessage("All fields are required.");
       setLoading(false);
       return;
     }
@@ -326,7 +273,6 @@ const Leaves = () => {
     if (payload.durationType !== "half-day") {
       delete payload.halfDayStatus;
     }
-  
     try {
       const response = await fetch(
         "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy",
@@ -336,13 +282,16 @@ const Leaves = () => {
           body: JSON.stringify(payload),
         }
       );
-  
+    
       if (!response.ok) {
-        throw new Error("Something went wrong.");
+        const errorData = await response.json();
+        setErrorMessage(errorData.message || "Something went wrong.");
+        setLoading(false);
+        return;
       }
-  
+    
       setLoading(false);
-      setError("");
+      setErrorMessage(""); // Clear error message
       setSuccessMessage("Leave request submitted successfully!");
       setLeaveData({
         endDate: getTodayDate(),
@@ -356,7 +305,7 @@ const Leaves = () => {
       });
     } catch (error) {
       console.error("Error submitting leave request:", error);
-      setError("Error submitting leave request.");
+      setErrorMessage("Error submitting leave request.");
       setLoading(false);
     }
   };
@@ -732,6 +681,23 @@ const Leaves = () => {
           </Grid>
         </form>
       </StyledPaper>
+
+      {errorMessage && (
+        <Snackbar
+          open={Boolean(errorMessage)}
+          autoHideDuration={6000}
+          onClose={() => setErrorMessage("")}
+        >
+          <Alert
+            onClose={() => setErrorMessage("")}
+            severity="error"
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            {errorMessage}
+          </Alert>
+        </Snackbar>
+      )}
 
       <Snackbar
         open={Boolean(successMessage)}

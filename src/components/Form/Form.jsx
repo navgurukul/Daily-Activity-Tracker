@@ -142,14 +142,16 @@ const Form = () => {
           const projects = data.data.map((project) => {
             return {
               projectName: project.projectName,
-              status: project.status,
+              status: project.projectStatus,
             };
           });
 
-          // Extract project names from filtered array
-          const activeProjectNames = projects.map(function (project) {
-            return project.projectName;
-          });
+          const activeProjectNames = projects
+            .map(
+              (project) => project.status === "Active" && project.projectName
+            )
+            .filter(Boolean);
+
           const today = new Date();
           const dayOfWeek = today.getDay();
 
@@ -588,11 +590,17 @@ const Form = () => {
           <label>Select a project in which you contributed:</label>
           <select value={selectedProject} onChange={handleProjectSelect}>
             <option value="">--Select a project--</option>
-            {projectData.map((project, index) => (
-              <option key={index} value={project}>
-                {project}
-              </option>
-            ))}
+            {projectData.map(
+              (project, index) => (
+                console.log("Project:", project),
+                console.log("Project:", project?.projectStatus),
+                (
+                  <option key={index} value={project}>
+                    {project}
+                  </option>
+                )
+              )
+            )}
           </select>
           <br />
           <br />

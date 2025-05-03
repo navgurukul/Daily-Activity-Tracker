@@ -51,6 +51,11 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda"
     },
+    "approveRequests": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "dailyactivitytracker903c1550": {
       "build": true,
       "dependsOn": [
@@ -120,6 +125,22 @@
         {
           "category": "function",
           "resourceName": "applyLeave"
+        }
+      ]
+    },
+    "AMPLIFY_function_approveRequests_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "approveRequests"
+        }
+      ]
+    },
+    "AMPLIFY_function_approveRequests_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "approveRequests"
         }
       ]
     },

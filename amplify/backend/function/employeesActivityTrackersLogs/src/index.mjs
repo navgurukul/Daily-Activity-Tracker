@@ -1,3 +1,6 @@
+
+//>>>>>>>>>>>>OLD ONE OLD ONE >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
@@ -10,9 +13,10 @@ import {
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
+// const stage = event.requestContext.stage;
 
 // Allowed CORS Origins
-const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:5500'];
+const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:5500', "https://amplify-backend-activitytracker.d1bx7f0aurfjs9.amplifyapp.com/"];
 
 function buildResponse(statusCode, body, origin) {
   return {
@@ -34,7 +38,7 @@ const isSecondOrFourthSaturday = (date) => {
 };
 
 export const handler = async (event) => {
-  const origin = event.headers.origin || event.headers.Origin;
+  const origin = event.headers.origin || event.headers.Origin || event.headers.ORIGIN;
 
   if (event.httpMethod === 'OPTIONS') {
     return buildResponse(200, { message: 'CORS preflight successful' }, origin);
@@ -88,7 +92,12 @@ export const handler = async (event) => {
         };
         const result = await docClient.send(new ScanCommand(scanParams));
         const backdated = result.Items.filter(item => item.entryDate !== today);
-        emailBackdatedCount[email] = backdated.length;
+        // emailBackdatedCount[email] = backdated.length;
+        emailBackdatedCount[email] = new Set(
+          backdated
+            .filter(item => item.entryDate !== today)
+            .map(item => item.entryDate)
+        );
       }
     
       for (const entry of entries) {
@@ -102,7 +111,7 @@ export const handler = async (event) => {
     
         const entryDateObj = new Date(entryDate);
         const allowedDate = new Date(now);
-        allowedDate.setDate(now.getDate() - 3); // Last 3 days only
+        allowedDate.setDate(now.getDate() - 4); // Last 3 days only
     
         if (entryDateObj < allowedDate || entryDateObj > now) {
           results.push({
@@ -123,21 +132,49 @@ export const handler = async (event) => {
             ":entryDate": entryDate,
           },
         };
+        // const existing = await docClient.send(new ScanCommand(checkParams));
+        // if (existing.Items.length > 0) {
+        //   results.push({ entry, status: "skipped", reason: "Duplicate entry for same project and date." });
+        //   continue;
+        // }
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         const existing = await docClient.send(new ScanCommand(checkParams));
         if (existing.Items.length > 0) {
-          results.push({ entry, status: "skipped", reason: "Duplicate entry for same project and date." });
+          const existingItem = existing.Items[0];
+
+          const updateParams = {
+            TableName: "employeeDailyActivityLogs",
+            Key: {
+              Id: existingItem.Id,
+            },
+            UpdateExpression: "set totalHoursSpent = :hrs, workDescription = :desc, updatedAt = :updatedAt",
+            ExpressionAttributeValues: {
+              ":hrs": totalHoursSpent,
+              ":desc": workDescription,
+              ":updatedAt": new Date().toISOString(),
+            },
+          };
+
+          await docClient.send(new UpdateCommand(updateParams));
+          results.push({ entry, status: "updated" });
           continue;
         }
-    
-        // Backdated logic (not today)
+
+        // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
         if (entryDate !== today) {
-          if (emailBackdatedCount[email] >= 2) {
-            results.push({ entry, status: "failed", reason: "Only 2 backdated entries allowed per month." });
-            continue;
+          if (!emailBackdatedCount[email]) emailBackdatedCount[email] = new Set();
+        
+          // If this backdated date is already counted, skip adding again
+          if (!emailBackdatedCount[email].has(entryDate)) {
+            if (emailBackdatedCount[email].size >= 3) {
+              results.push({ entry, status: "failed", reason: "Only 3 unique backdated days allowed per month." });
+              continue;
+            }
+            emailBackdatedCount[email].add(entryDate); // Count this unique backdated date
           }
-          emailBackdatedCount[email]++; // Increment count after passing check
         }
-    
+        
         // All good - insert entry
         const entryId = Date.now() * 1000 + Math.floor(Math.random() * 1000);
         const putParams = {
@@ -155,13 +192,19 @@ export const handler = async (event) => {
         };
         console.log("Inserting item:", JSON.stringify(putParams, null, 2));
         await docClient.send(new PutCommand(putParams));
+
         results.push({ entry, status: "success" });
+
       }
-    
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ message: "Entries processed.", results }),
-      };
+      const backdatedLeft = {};
+        for (const email of uniqueEmails) {
+          backdatedLeft[email] = 3 - (emailBackdatedCount[email]?.size || 0);
+        }
+
+        // ✅ Final response
+        return buildResponse(200, { message: "Entries processed.", results, backdatedLeft }, origin);
+
+
     }
     
 
@@ -184,20 +227,6 @@ export const handler = async (event) => {
       };
 
       const { Items } = await docClient.send(new ScanCommand(scanParams));
-
-      // const filteredItems = Items.filter(item => {
-      //   if (specificDate) return item.entryDate === specificDate;
-
-      //   if (month && year) {
-      //     const date = new Date(item.entryDate);
-      //     return (
-      //       date.getUTCFullYear() === parseInt(year) &&
-      //       date.getUTCMonth() + 1 === parseInt(month)
-      //     );
-      //   }
-
-      //   return true;
-      // });
       const filteredItems = Items.filter(item => {
         const entryDate = new Date(item.entryDate);
         const matchDateRange = query.dateStart && query.dateEnd

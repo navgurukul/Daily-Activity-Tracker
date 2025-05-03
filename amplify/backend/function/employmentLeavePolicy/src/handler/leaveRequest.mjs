@@ -371,6 +371,7 @@ try {
 
   const leaveDuration = calculateLeaveDuration(body.startDate, body.endDate, ( body.durationType||"Full-Day"));
   const uniqueId = await generateUniqueId();
+  const leaveApplyDate = new Date().toISOString();
 
   const command = new PutItemCommand({
     TableName: TABLE_NAME,
@@ -387,7 +388,8 @@ try {
       startDate: { S: body.startDate },
       status: { S: "pending" },
       userEmail: { S: body.userEmail },
-      stage:{S:stage}
+      stage:{S:stage},
+      leaveApplyDate: { S: leaveApplyDate || "" }
     },
   });
 

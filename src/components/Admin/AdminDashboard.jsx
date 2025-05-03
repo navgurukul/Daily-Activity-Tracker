@@ -59,7 +59,7 @@ const AdminDashboard = () => {
                 className={activeSection === "payroll" ? "active" : ""}
                 onClick={() => setActiveSection("payroll")}
               >
-                Payroll
+                Payable Days Overview
               </button>
             </div>
           </div>

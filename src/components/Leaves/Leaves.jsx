@@ -120,23 +120,24 @@ const StyledFormControl = styled(FormControl)(({ theme }) => ({
 const Leaves = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
+  const userName = localStorage.getItem("name");
   const { loading, setLoading } = useLoader();
   const navigate = useNavigate();
   const [leaveResult, setLeaveResult] = useState();
   const [isAccordionOpen, setIsAccordionOpen] = useState(true);
   const [leaveData, setLeaveData] = useState({
-    "endDate": "",
-    "durationType": "Full-Day",
-    "halfDayStatus": "",
     "leaveType": "",
     "reasonForLeave": "",
-    "startDate": "",
-    "status": "pending",
+    "startDate": getTodayDate(),
+    "endDate": getTodayDate(),
     "userEmail": email,
+    "durationType": "",
+    "halfDayStatus": "",
+    "status": "pending",  
   });
   const [remainingLeaves, setRemainingLeaves] = useState();
   const [halfDay, setHalfDay] = useState(false);
-  const [error, setError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [availableLeaveTypes, setAvailableLeaveTypes] = useState();
 
@@ -185,27 +186,6 @@ const Leaves = () => {
     }
   }, [email, navigate]);
 
-  // const fetchAvailableLeaveTypes = async () => {
-  //   try {
-  //     const response = await fetch(
-  //       `https://script.google.com/macros/s/AKfycbzmz4nGQCtVhyEBknRzuP_qEC5nBhDCpDizLdMn4gTC0xsTuXlV_rXSF9yoQgEONpJ87w/exec?email=${email}&type=availableLeaves`
-  //     );
-  //     const result = await response.json();
-  //     setLeaveResult(result.data.leaves);
-
-  //     const availableTypes = Object.keys(result.data.leaves).filter(
-  //       (key) =>
-  //         typeof result.data.leaves[key] === "object" &&
-  //         result.data.leaves[key].balance > 0
-  //     );
-
-  //     return availableTypes;
-  //   } catch (error) {
-  //     console.error("Error fetching leave types:", error);
-  //     return [];
-  //   }
-  // };
-
   const fetchAvailableLeaveTypes = async () => {
     try {
       const response = await fetch(
@@ -220,7 +200,7 @@ const Leaves = () => {
   };
 
   const handleChange = (e) => {
-    setError("");
+    setErrorMessage("");
     const { name, value } = e.target;
     setLeaveData((prevData) => ({
       ...prevData,
@@ -266,11 +246,10 @@ const Leaves = () => {
   };
 
   const handleSubmit = async (e) => {
-    console.log("submit button clicked");
-    console.log("Leave Data:", leaveData);
     e.preventDefault();
     setLoading(true);
-
+  
+    // Check for missing fields
     if (
       !leaveData.leaveType ||
       !leaveData.reasonForLeave ||
@@ -278,62 +257,59 @@ const Leaves = () => {
       !leaveData.endDate ||
       !leaveData.userEmail
     ) {
-      setError("All fields are required.");
+      setErrorMessage("All fields are required.");
       setLoading(false);
       return;
     }
-
-    // if (!availableLeaveTypes.includes(leaveData.leaveType)) {
-    //   setError("Selected leave type is not available.");
+  
+    // Validate reasonForLeave character length
+    // if (leaveData.reasonForLeave.trim().length < 25) {
+    //   setError("Reason for leave must be at least 25 characters long.");
     //   setLoading(false);
     //   return;
     // }
-
-    // const numberOfDays = calculateNumberOfDays(
-    //   leaveData.fromDate,
-    //   leaveData.toDate,
-    //   halfDay
-    // );
-
-    // const submitTime = new Date();
-    // const submitTimestamp = `${submitTime.toLocaleDateString("en-GB")} ${String(
-    //   submitTime.getHours()
-    // ).padStart(2, "0")}:${String(submitTime.getMinutes()).padStart(
-    //   2,
-    //   "0"
-    // )}:${String(submitTime.getSeconds()).padStart(2, "0")}`;
-    
-
+  
+    const payload = { ...leaveData };
+    if (payload.durationType !== "half-day") {
+      delete payload.halfDayStatus;
+    }
     try {
-      await fetch(
+      const response = await fetch(
         "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(leaveData),
-          mode: "no-cors",
+          body: JSON.stringify(payload),
         }
       );
-      console.log("Leave request submitted successfully!");
+    
+      if (!response.ok) {
+        const errorData = await response.json();
+        setErrorMessage(errorData.message || "Something went wrong.");
+        setLoading(false);
+        return;
+      }
+    
       setLoading(false);
-      setError("");
+      setErrorMessage(""); // Clear error message
       setSuccessMessage("Leave request submitted successfully!");
       setLeaveData({
-        endDate: "",
-        durationType: "Full-Day",
+        endDate: getTodayDate(),
+        durationType: "",
         halfDayStatus: "",
         leaveType: "",
         reasonForLeave: "",
-        startDate: "",
+        startDate: getTodayDate(),
         status: "pending",
         userEmail: email,
-      });;
+      });
     } catch (error) {
       console.error("Error submitting leave request:", error);
-      setError("Error submitting leave request.");
+      setErrorMessage("Error submitting leave request.");
+      setLoading(false);
     }
   };
-
+  
   return (
     <StyledContainer>
       {loading && (
@@ -422,21 +398,6 @@ const Leaves = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {/* {Object.entries(leaveResult).map(([type, data]) => {
-                    if (
-                      typeof data === "object" &&
-                      data.balance !== undefined
-                    ) {
-                      return (
-                        <TableRow key={type}>
-                          <TableCell>{type}</TableCell>
-                          <TableCell>{data.balance}</TableCell>
-                          <TableCell>{data.booked}</TableCell>
-                        </TableRow>
-                      );
-                    }
-                    return null;
-                  })} */}
                   {leavesData.length > 0 ? (
                     leavesData.map((leave, index) => (
                       <tr key={index}>
@@ -463,11 +424,6 @@ const Leaves = () => {
 
       <StyledPaper>
         <form onSubmit={handleSubmit}>
-          {/* {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
-            </Alert>
-          )} */}
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <StyledFormControl>
@@ -475,6 +431,18 @@ const Leaves = () => {
                   label="Employee Email"
                   name="email"
                   value={leaveData.userEmail}
+                  onChange={handleChange}
+                  disabled
+                  fullWidth
+                />
+              </StyledFormControl>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <StyledFormControl>
+                <TextField
+                  label="Employee Name"
+                  name="name"
+                  value={userName}
                   onChange={handleChange}
                   disabled
                   fullWidth
@@ -493,12 +461,41 @@ const Leaves = () => {
                   label="Leave Type"
                 >
                   <MenuItem value="">--Select Leave Type--</MenuItem>
-                  {/* {availableLeaveTypes?.map((leaveType, index) => ( */}
-                  {leaveResult?.map((leaveType, index) => (
-                    <MenuItem key={index} value={leaveType}>
-                      {leaveType}
-                    </MenuItem>
-                  ))}
+                  {Array.isArray(leaveResult) &&
+                    leaveResult.map((leaveType, index) => (
+                      <MenuItem key={index} value={leaveType}>
+                        {leaveType}
+                      </MenuItem>
+                    ))}
+
+                  {/* Only show Casual Leave, Wellness Leave, Festival Leave
+                  and Comp-off, if Comp-Off balance > 0 */}
+                  {/* {Array.isArray(leaveResult) &&
+                    leaveResult.map((leaveType, index) => {
+                      if (
+                        leaveType === "Compensatory Leave" &&
+                        allLeaves[email]?.leaveRecords?.find(
+                          (leave) => leave.leaveType === leaveType
+                        )?.leaveLeft > 0
+                      ) {
+                        return (
+                          <MenuItem key={index} value={leaveType}>
+                            {leaveType}
+                          </MenuItem>
+                        );
+                      } else if (
+                        leaveType === "Casual Leave" ||
+                        leaveType === "Wellness Leave" ||
+                        leaveType === "Festival Leave"
+                      ) {
+                        return (
+                          <MenuItem key={index} value={leaveType}>
+                            {leaveType}
+                          </MenuItem>
+                        );
+                      }
+                      return null;
+                    })} */}
                 </Select>
                 {leaveData.leaveType && (
                   <Typography
@@ -537,6 +534,31 @@ const Leaves = () => {
               </StyledFormControl>
             </Grid>
 
+            {leaveData.leaveType &&
+              ![
+                "Casual Leave",
+                "Wellness Leave",
+                "Festival Leave",
+                "Compensatory Leave",
+              ].includes(leaveData.leaveType) &&
+              leaveData.reasonForLeave?.length < 25 && (
+                <Grid item xs={12}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "#ef4444",
+                      fontSize: "0.875rem",
+                      fontWeight: 500,
+                      mt: -2,
+                      mb: 2,
+                      ml: 1,
+                      textAlign: "left",
+                    }}
+                  >
+                    Please provide a reason with at least 25 characters.
+                  </Typography>
+                </Grid>
+              )}
             <Grid item xs={12} md={6}>
               <StyledFormControl>
                 <TextField
@@ -568,9 +590,9 @@ const Leaves = () => {
                   name="endDate"
                   value={leaveData.endDate}
                   onChange={handleChange}
-                    required
-                    InputLabelProps={{ shrink: true }}
-                    sx={{
+                  required
+                  InputLabelProps={{ shrink: true }}
+                  sx={{
                     "& .MuiInputBase-root": {
                       display: "flex",
                       alignItems: "center",
@@ -578,12 +600,40 @@ const Leaves = () => {
                     "& .MuiInputBase-input": {
                       height: "24px",
                     },
-                    }}
-                  />
-                  </StyledFormControl>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <StyledFormControl>
+                  }}
+                />
+              </StyledFormControl>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <StyledFormControl>
+                <InputLabel>Duration Type</InputLabel>
+                <Select
+                  name="durationType"
+                  value={leaveData.durationType}
+                  onChange={handleChange}
+                  required
+                  label="Duration Type"
+                >
+                  <MenuItem value="full-day">Full Day</MenuItem>
+                  <MenuItem value="half-day">Half Day</MenuItem>
+                </Select>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    mt: 1,
+                    display: "block",
+                    color: "#6b7280",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  Select the duration of your leave
+                </Typography>
+              </StyledFormControl>
+            </Grid>
+
+            {leaveData.durationType === "half-day" && (
+              <Grid item xs={12} md={6}>
+                <StyledFormControl>
                   <InputLabel>Half Day Status</InputLabel>
                   <Select
                     name="halfDayStatus"
@@ -597,16 +647,17 @@ const Leaves = () => {
                   <Typography
                     variant="caption"
                     sx={{
-                    mt: 1,
-                    display: "block",
-                    color: "#6b7280",
-                    fontSize: "0.875rem",
+                      mt: 1,
+                      display: "block",
+                      color: "#6b7280",
+                      fontSize: "0.875rem",
                     }}
                   >
                     Select it for availing half day
                   </Typography>
-                  </StyledFormControl>
-                </Grid>
+                </StyledFormControl>
+              </Grid>
+            )}
 
             <Grid item xs={12}>
               <Button
@@ -634,6 +685,23 @@ const Leaves = () => {
           </Grid>
         </form>
       </StyledPaper>
+
+      {errorMessage && (
+        <Snackbar
+          open={Boolean(errorMessage)}
+          autoHideDuration={6000}
+          onClose={() => setErrorMessage("")}
+        >
+          <Alert
+            onClose={() => setErrorMessage("")}
+            severity="error"
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            {errorMessage}
+          </Alert>
+        </Snackbar>
+      )}
 
       <Snackbar
         open={Boolean(successMessage)}

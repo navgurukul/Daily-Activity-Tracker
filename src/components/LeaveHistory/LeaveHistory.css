@@ -19,3 +19,30 @@
 .leave-table th {
   background-color: #f0f0f0;
 }
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  background-color: #f3f3f3;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.tab-button:hover {
+  background-color: #e0e0e0;
+}
+
+.active-tab {
+  background-color: #2e7d32;
+  color: white;
+  border-color: #2e7d32;
+}

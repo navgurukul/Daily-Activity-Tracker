@@ -34,24 +34,6 @@ function App() {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchFeedbackData = async () => {
-      try {
-        const response = await fetch(
-          "https://script.google.com/macros/s/AKfycbyD6c544p-aVISBAlLUKlkEJRbXuV8tzpwv_YEUP3wKu7cSiKynMaTpqY3c6TqTQYtcOw/exec?type=getProjectFeedbackForm"
-        );
-        const data = await response.json();
-        console.log("Feedback data:", data);
-        // setFeedbackData(data);
-      } catch (error) {
-        console.error("Error fetching feedback data:", error);
-      }
-    };
-
-    
-    fetchFeedbackData();
-  }, []);
-
   return (
     <div className="App">
       {email && email !== "" ? <Navbar /> : <NoTabNavBar />}

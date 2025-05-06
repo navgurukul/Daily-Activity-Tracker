@@ -22,20 +22,6 @@ function isWeekOff(date) {
   const isFourthSaturday = day === 6 && dateNum >= 22 && dateNum <= 28;
   return day === 0 || isSecondSaturday || isFourthSaturday;
 }
-// holidays are 26th Jan, 15th Aug, 2nd Oct, and 31st Dec
-function getNgProvidedHolidays(year, month) {
-  const holidays = [
-    new Date(`${year}-01-26`), // Republic Day
-    new Date(`${year}-08-15`), // Independence Day
-    new Date(`${year}-10-02`), // Gandhi Jayanti
-    new Date(`${year}-12-31`)  // Year End Holiday
-  ];
-
-  return holidays
-    .filter(date => date.getFullYear() === year && date.getMonth() === month)
-    .map(date => date.toISOString().split('T')[0]); // format to YYYY-MM-DD
-}
-
 
 async function fetchAllEmployees() {
   try {

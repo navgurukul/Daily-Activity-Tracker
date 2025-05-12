@@ -47,7 +47,7 @@ const LeaveManagement = () => {
   const handleApprove = async (leaveId) => {
     try {
       const approveResponse = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records",
+        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy",
         {
           method: "PUT",
           headers: {
@@ -62,9 +62,14 @@ const LeaveManagement = () => {
         }
       );
 
+      if (!approveResponse.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+
       const approveResult = await approveResponse.json();
 
-      if (approveResult.success) {
+      if (approveResponse.ok) {
         alert(`Leave approved for ${email}`);
         const approvedLeave = pendingLeaves.find((leave) => leave.Id === leaveId);
         setPendingLeaves((prev) => prev.filter((leave) => leave.Id !== leaveId));

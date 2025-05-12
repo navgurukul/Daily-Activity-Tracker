@@ -14,7 +14,7 @@ export const handler = async (event) => {
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
   };
 
   if (event.httpMethod === "OPTIONS") {
@@ -48,15 +48,16 @@ export const handler = async (event) => {
 
     // Checking if the user is trying to raise leave for themselves
     const { leaveIsRaisingFrom,userEmail } = JSON.parse(event.body);
-    if (email.toLowerCase() != leaveIsRaisingFrom.toLowerCase() || email.toLowerCase() === userEmail.toLowerCase()) {
-      return {
-        statusCode: 403,
-        headers,
-        body: JSON.stringify({
-          message: "You cannot raise leave for yourself. Please consult with your reporting manager or admin.",
-        }),
-      };
-    }
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>@@@@@@
+    // if (email.toLowerCase() != leaveIsRaisingFrom.toLowerCase() || email.toLowerCase() === userEmail.toLowerCase()) {
+    //   return {
+    //     statusCode: 403,
+    //     headers,
+    //     body: JSON.stringify({
+    //       message: "You cannot raise leave for yourself. Please consult with your reporting manager or admin.",
+    //     }),
+    //   };
+    // }
 
   } catch (error) {
     return {
@@ -216,15 +217,36 @@ export const handler = async (event) => {
       }
 
       const managerEmail = user["Reporting maanger email ID"];
+
       if (!managerEmail || managerEmail.toLowerCase() !== leaveIsRaisingFrom.toLowerCase()) {
-        return {
-          statusCode: 403,
-          headers,
-          body: JSON.stringify({
-            message: "Only the reporting manager can raise this compensatory leave request.",
-          }),
-        };
+        // Check fallback in hrmsAccessControler table
+        const accessCheck = await docClient.send(
+          new ScanCommand({
+            TableName: "hrmsAccessControler",
+            FilterExpression: "#email = :emailVal AND #role = :roleVal",
+            ExpressionAttributeNames: {
+              "#email": "email",
+              "#role": "role"
+            },
+            ExpressionAttributeValues: {
+              ":emailVal": leaveIsRaisingFrom.toLowerCase(),
+              ":roleVal": "admin"
+            }
+          })
+        );
+      
+        if (!accessCheck.Items || accessCheck.Items.length === 0) {
+          return {
+            statusCode: 403,
+            headers,
+            body: JSON.stringify({
+              message: "Only the reporting manager or an admin can raise this compensatory leave request.",
+            }),
+          };
+        }
       }
+
+
     }
 
     const generateUniqueId = async () => {

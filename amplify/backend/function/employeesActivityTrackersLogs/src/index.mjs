@@ -1,6 +1,7 @@
 // index.mjs
 import { handleGet } from "./handlers/getHandler.mjs";
 import { handlePost } from "./handlers/postHandler.mjs";
+import { handlePut } from "./handlers/putHandler.mjs"; // 👈 
 import { buildResponse } from "./utils/responseBuilder.mjs";
 
 export const handler = async (event) => {
@@ -26,6 +27,11 @@ export const handler = async (event) => {
 
     if (event.httpMethod === "POST") {
       return await handlePost(event, stage, origin);
+    }
+    
+    if (event.httpMethod === "PUT") {
+      const result = await handlePut(event, stage, origin);
+      return buildResponse(result.statusCode, JSON.parse(result.body), origin);
     }
 
     return buildResponse(405, { message: "Method Not Allowed" }, origin);

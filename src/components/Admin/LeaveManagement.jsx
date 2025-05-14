@@ -2,6 +2,9 @@ import React, { useEffect, useState, useContext } from "react";
 import "./LeaveManagement.css";
 import { LoginContext } from "../context/LoginContext";
 
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
+
 const LeaveManagement = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
@@ -263,7 +266,7 @@ const LeaveManagement = () => {
       {selectedTab === "balance" && (
         <div>
           <div style={{ marginBottom: "15px", display: "flex", gap: "10px", alignItems: "center" }}>
-            <select
+            {/* <select
               value={searchEmail}
               onChange={(e) => setSearchEmail(e.target.value)}
               style={{ padding: "8px", width: "300px", fontSize: "14px" }}
@@ -274,8 +277,24 @@ const LeaveManagement = () => {
                   {email}
                 </option>
               ))}
-            </select>
-            <button className="filter-btn" onClick={fetchLeaveBalance} disabled={loadingBalance || !searchEmail}>
+            </select> */}
+            <Autocomplete
+              options={allEmails}
+              value={searchEmail}
+              onChange={(event, newValue) => {
+                setSearchEmail(newValue || "");
+              }}
+              renderInput={(params) => (
+                <TextField {...params} label="Select Email" size="small" />
+              )}
+              freeSolo
+              sx={{ minWidth: 300 }}
+            />
+            <button
+              className="filter-btn"
+              onClick={fetchLeaveBalance}
+              disabled={loadingBalance || !searchEmail}
+            >
               {loadingBalance ? "Loading..." : "View Balance"}
             </button>
           </div>
@@ -311,8 +330,9 @@ const LeaveManagement = () => {
 
       {selectedTab === "history" && (
         <div>
-          <div style={{ marginBottom: "15px", display: "flex", gap: "10px", alignItems: "center" }}>
-            <select
+          <div 
+          style={{ marginBottom: "15px", display: "flex", gap: "10px", alignItems: "center" }}>
+           {/* <select
               value={searchEmail}
               onChange={(e) => setSearchEmail(e.target.value)}
               style={{ padding: "8px", width: "300px", fontSize: "14px" }}
@@ -323,7 +343,24 @@ const LeaveManagement = () => {
                   {email}
                 </option>
               ))}
-            </select>
+            </select> */}
+            <Autocomplete
+              options={allEmails}
+              value={searchEmail}
+              onChange={(event, newValue) => {
+                setSearchEmail(newValue || "");
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select Email"
+                  size="small"
+                  sx={{ fontSize: "14px" }}
+                />
+              )}
+              freeSolo
+              sx={{ minWidth: 300 }}
+            />
           </div>
 
           {filteredLeaveHistory.length === 0 ? (

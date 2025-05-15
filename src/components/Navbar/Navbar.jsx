@@ -38,6 +38,8 @@ import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import SupportIcon from '@mui/icons-material/Support';
 
+import RoleUpdateForm from "./RoleUpdateForm";
+
 const drawerWidth = 240;
 // const AUTHORIZED_EMAILS = [
 //   "amruta@navgurukul.org",
@@ -252,6 +254,33 @@ const Navbar = (props) => {
         ))}
       </List> */}
       <Divider />
+      <List>
+        <ListItem disablePadding>
+          <ListItemButton sx={{ marginTop: "auto" }}
+            onClick={() => handleClick("role-update")}
+          >
+            <ListItemIcon>
+              <LockIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary={
+                <span>
+                  Access Control {" "}
+                  {/* <strong>
+                    {localStorage
+                          .getItem("role")
+                          .charAt(0)
+                          .toUpperCase() +
+                        localStorage.getItem("role").slice(1)
+                      }
+                  </strong> */}
+                </span>
+              }
+            />
+          </ListItemButton>
+        </ListItem>
+      </List>
+      <Divider />
       <List
         style={{
           position: "absolute",
@@ -397,7 +426,6 @@ const Navbar = (props) => {
         <Alert
           onClose={() => setSnackbarOpen(false)}
           severity={snackbarSeverity}
-
         >
           {snackbarMessage}
         </Alert>

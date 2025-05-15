@@ -4,6 +4,8 @@ import {
   GetItemCommand,
   ScanCommand,
 } from "@aws-sdk/client-dynamodb";
+import AWS from 'aws-sdk'; // if using ES Modules
+const docClient = new AWS.DynamoDB.DocumentClient();
 
 const client = new DynamoDBClient({ region: "ap-south-1" });
 const TABLE_NAME = "hrmsLeaveRequests";
@@ -37,7 +39,6 @@ const isValidDate = (dateStr) => {
     date.getUTCDate() === day
   );
 };
-
 
 const calculateLeaveDuration = (startDate, endDate, durationType) => {
   const start = new Date(startDate);
@@ -210,6 +211,7 @@ export const handler = async (event) => {
 
   const start = new Date(body.startDate);
   const end = new Date(body.endDate);
+
   if (start > end) {
     return {
       statusCode: 400,
@@ -217,6 +219,90 @@ export const handler = async (event) => {
       body: JSON.stringify({ message: "Invalid date range: startDate cannot be after endDate" }),
     };
   }
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+const today = new Date();
+const startDate = new Date(body.startDate);
+
+// Check if the startDate is in the past
+const isStartDateInPast = startDate < today;
+
+// Check today's values
+const currentDay = today.getDate();
+const currentMonth = today.getMonth(); // 0-indexed
+const thisYear = today.getFullYear();
+
+// Rule 1: After 25th, no backdated leave at all
+if (currentDay > 25 && isStartDateInPast) {
+  return {
+    statusCode: 400,
+    headers: { "Access-Control-Allow-Origin": "*" },
+    body: JSON.stringify({
+      message: `Backdated leave not allowed after the 25th of the month.`,
+    }),
+  };
+}
+
+// Rule 2: If startDate is before 26th of previous month → disallow
+const previousMonth = new Date(thisYear, currentMonth - 1, 26); // 26th of previous month
+if (isStartDateInPast && startDate < previousMonth) {
+  return {
+    statusCode: 400,
+    headers: { "Access-Control-Allow-Origin": "*" },
+    body: JSON.stringify({
+      message: `Backdated leave before 26th of last month is not allowed.`,
+    }),
+  };
+}
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+// 
+// Parse values from input
+const email = body.email;
+const beginingDate = new Date(body.startDate);  // Expected: new Date("2024-05-10")
+const endingDate = new Date(body.endDate);      // Expected: new Date("2024-05-12")
+
+// Collect all leave dates in the range
+const leaveDates = [];
+for (let d = new Date(beginingDate); d <= endingDate; d.setDate(d.getDate() + 1)) {
+  leaveDates.push(new Date(d).toISOString().split('T')[0]); 
+  // Example output: ["2024-05-10", "2024-05-11", "2024-05-12"]
+}
+
+// Query the DynamoDB table for conflicting activity logs
+const params = {
+  TableName: 'employeeDailyActivityLogs',
+  IndexName: 'email-entryDate-index', // Ensure this GSI is created in DynamoDB
+  KeyConditionExpression: '#email = :email AND #entryDate BETWEEN :beginingDate AND :endingDate',
+  ExpressionAttributeNames: {
+    '#email': 'email',       // Attribute name in your table
+    '#entryDate': 'entryDate'
+  },
+  ExpressionAttributeValues: {
+    ':email': body.userEmail,               // Expected: "ujjwal@navgurukul.org"
+    ':beginingDate': body.startDate,        // Expected: "2024-05-10"
+    ':endingDate': body.endDate             // Expected: "2024-05-12"
+  }
+};
+
+const result = await docClient.query(params).promise();
+
+// Check if any entries already exist for the requested dates
+if (result.Items && result.Items.length > 0) {
+  const conflictingDates = result.Items.map(item => item.entryDate);
+  return {
+    statusCode: 400,
+    body: JSON.stringify({
+      message: `Leave cannot be applied. Log(s) already exist for date(s): ${conflictingDates.join(', ')}`
+    })
+  };
+}
+
+
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // validating Leaves dates can not be overlapped
   const scanExistingLeaves = new ScanCommand({
@@ -255,7 +341,7 @@ try {
 
   // Special case for "compensentary" leave
   // if (  
-  if(body.leaveType.toLowerCase().trim().split(" ").includes("compensentory")){
+  if(body.leaveType.toLowerCase().trim().split(" ").includes("Compensatory")){
     // Query the hrmsCompensatoryAlloted table
     const compScanCommand = new ScanCommand({
       TableName: "hrmsCompensatoryAlloted",

@@ -62,7 +62,7 @@ const MonthlyDashboard = () => {
           activityRes.json(),
           leaveRes.json(),
         ]);
-        const userActivities = activityData[email] || [];
+        const userActivities = activityData.data[email] || [];
         const userLeaves = leaveData[email] || [];
         setEmployeeData({
           activities: userActivities,

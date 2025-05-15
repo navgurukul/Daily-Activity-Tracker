@@ -33,11 +33,29 @@ function Login() {
       const hasNumbers = /\d/.test(username);
 
       if (!hasNumbers) {
-        console.log(userEmail);
-        localStorage.setItem("email", userEmail);
-        localStorage.setItem("name", userName);
-        setEmail(userEmail);
-        navigate("/activity-tracker");
+        // console.log(userEmail);
+        // localStorage.setItem("email", userEmail);
+        // localStorage.setItem("name", userName);
+        // setEmail(userEmail);
+        // navigate("/activity-tracker");
+
+        try {
+          const apiUrl = `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?email=${userEmail}`;
+          const res = await fetch(apiUrl);
+          const data = await res.json();
+
+          const role = data?.items?.[0]?.role || "user";
+          localStorage.setItem("email", userEmail);
+          localStorage.setItem("name", userName);
+          localStorage.setItem("role", role);
+          setEmail(userEmail);
+
+          navigate("/activity-tracker");
+        } catch (error) {
+          console.error("Error fetching role data:", error);
+          setAlertMessage("Login failed due to server error.");
+          setSnackbarOpen(true);
+        }
       } else {
         setAlertMessage("Please use a NavGurukul email without numbers.");
         setSnackbarOpen(true);

@@ -16,6 +16,8 @@ import AdminDashboard from "./components/Admin/AdminDashboard";
 import LeaveHistory from "./components/LeaveHistory/LeaveHistory";
 import {handleBeforeUnload} from "./utils/beforeUnloadHandler";
 
+import RoleUpdateForm from "./components/Navbar/RoleUpdateForm";
+
 function App() {
   const dataContext = useContext(LoginContext);
   const { email, isAdmin } = dataContext;
@@ -87,6 +89,10 @@ function App() {
             path="/leave-history"
             // element={<ProtectedRoute element={<LeaveHistory />} />}
             element={<LeaveHistory />}
+          />
+          <Route
+            path="/role-update"
+            element={<RoleUpdateForm />}
           />
         </Routes>
       </main>

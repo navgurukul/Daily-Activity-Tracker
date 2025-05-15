@@ -446,24 +446,24 @@ function DailyLogs() {
   const [logs, setLogs] = useState([]);
   const [projectName, setProjectName] = useState("");
   const [email, setEmail] = useState("");
-  const [dateStart, setDateStart] = useState("");
-  const [dateEnd, setDateEnd] = useState("");
+  const [month, setMonth] = useState("");
+  const [year, setYear] = useState("");
 
-  const [allEmails, setAllEmails] = useState([]); // <-- New state
+
+  const [allEmails, setAllEmails] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
 
   const [emailsList, setEmailsList] = useState([]);
   const [projectList, setProjectList] = useState([]);
 
   useEffect(() => {
     fetchLogs();
-    fetchAllEmails(); // <-- Fetch employee emails on load
   }, []);
 
   useEffect(() => {
     debouncedFilter();
-  }, [projectName, email]);
+  }, [projectName, email, month, year]);
 
   const fetchLogs = async (url = "") => {
     try {
@@ -473,7 +473,7 @@ function DailyLogs() {
       );
       const data = await response.json();
 
-      const formattedLogs = Object.entries(data).flatMap(([email, logs]) =>
+      const formattedLogs = Object.entries(data.data).flatMap(([email, logs]) =>
         logs.map((log) => ({
           email,
           date: log.entryDate,
@@ -487,7 +487,7 @@ function DailyLogs() {
       setLogs(formattedLogs);
 
       // Extract unique emails and set to emailsList
-      const uniqueEmails = [...new Set(Object.keys(data))];
+      const uniqueEmails = [...new Set(Object.keys(data.data))];
       setEmailsList(uniqueEmails);
 
       // Extract unique project names
@@ -499,30 +499,18 @@ function DailyLogs() {
     }
   };
 
-  const fetchAllEmails = async () => {
-    try {
-      const response = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/allEmployeeEmails" // <-- change this to your correct API if different
-      );
-      const data = await response.json();
-      setAllEmails(data); // Assuming it's an array of emails like ['a@abc.com', 'b@abc.com']
-    } catch (error) {
-      console.error("Failed to fetch employee emails:", error);
-    }
-  };
-
   const handleFilter = () => {
     let baseUrl =
       "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs";
     let url = baseUrl;
     const params = new URLSearchParams();
 
-    if (email) url += `/${email}/`;
+    if (email) url += `/${email}`;
     if (projectName) params.append("projectName", projectName);
-    if (dateStart && dateEnd) {
-      params.append("dateStart", dateStart);
-      params.append("dateEnd", dateEnd);
-    }
+    if (month && year) {
+      params.append("month", month);
+      params.append("year", year);
+    }    
 
     if (params.toString()) {
       url += "?" + params.toString();
@@ -534,8 +522,8 @@ function DailyLogs() {
   const debouncedFilter = useCallback(debounce(handleFilter, 500), [
     projectName,
     email,
-    dateStart,
-    dateEnd,
+    month,
+    year,
   ]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -559,12 +547,6 @@ function DailyLogs() {
           justifyContent: "center",
         }}
       >
-        {/* <TextField
-          label="Project Name"
-          value={projectName}
-          onChange={(e) => setProjectName(e.target.value)}
-          size="small"
-        /> */}
         <Autocomplete
           options={projectList}
           value={projectName}
@@ -589,31 +571,48 @@ function DailyLogs() {
           freeSolo
           sx={{ minWidth: 200 }}
         />
+        <TextField
+          label="Month"
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+          select
+          size="small"
+          sx={{ minWidth: 120 }}
+          SelectProps={{ native: true }}
+        >
+          <option value="" disabled></option>
+          {[...Array(12)].map((_, i) => (
+            <option key={i + 1} value={String(i + 1).padStart(2, "0")}>
+              {String(i + 1).padStart(2, "0")}
+            </option>
+          ))}
+        </TextField>
 
         <TextField
-          type="date"
-          label="Start Date"
-          value={dateStart}
-          onChange={(e) => setDateStart(e.target.value)}
+          label="Year"
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          select
           size="small"
-          InputLabelProps={{ shrink: true }}
-        />
-        <TextField
-          type="date"
-          label="End Date"
-          value={dateEnd}
-          onChange={(e) => setDateEnd(e.target.value)}
-          size="small"
-          InputLabelProps={{ shrink: true }}
-        />
-        <Button
+          sx={{ minWidth: 120 }}
+          SelectProps={{ native: true }}
+        >
+          <option value="" disabled></option>
+          {[2023, 2024, 2025, 2026].map((yr) => (
+            <option key={yr} value={yr}>
+              {yr}
+            </option>
+          ))}
+        </TextField>
+
+        {/* <Button
           variant="contained"
           color="primary"
           onClick={handleFilter}
           sx={{ whiteSpace: "nowrap" }}
         >
           Apply Date Filter
-        </Button>
+        </Button> */}
       </Box>
 
       {logs.length > 0 ? (

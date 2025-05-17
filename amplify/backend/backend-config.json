@@ -46,6 +46,11 @@
     }
   },
   "function": {
+    "accessControl": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    },
     "applyLeave": {
       "build": true,
       "providerPlugin": "awscloudformation",
@@ -112,6 +117,22 @@
     }
   },
   "parameters": {
+    "AMPLIFY_function_accessControl_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "accessControl"
+        }
+      ]
+    },
+    "AMPLIFY_function_accessControl_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "accessControl"
+        }
+      ]
+    },
     "AMPLIFY_function_applyLeave_deploymentBucketName": {
       "usedBy": [
         {

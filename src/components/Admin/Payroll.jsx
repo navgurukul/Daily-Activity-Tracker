@@ -39,7 +39,7 @@ const Payroll = () => {
     )
       .then((response) => response.json())
       .then((data) => {
-        setPayrollData(data);
+        setPayrollData(data.data);
         setLoading(false);
       })
       .catch((error) => {
@@ -129,8 +129,14 @@ const Payroll = () => {
       </Box>
 
       {/* Table Layout */}
-      <TableContainer component={Paper} sx={{ maxWidth: '100%', overflow: 'hidden' }}>
-        <Table sx={{ minWidth: 650, tableLayout: 'auto' }} aria-label="employee payroll table">
+      <TableContainer
+        component={Paper}
+        sx={{ maxWidth: "100%", overflow: "hidden" }}
+      >
+        <Table
+          sx={{ minWidth: 650, tableLayout: "auto" }}
+          aria-label="employee payroll table"
+        >
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
@@ -145,7 +151,9 @@ const Payroll = () => {
             {visibleData.map((person, index) => (
               <TableRow
                 key={index}
-                sx={{ "&:hover": { backgroundColor: "#f4f4f4", cursor: "pointer" } }}
+                sx={{
+                  "&:hover": { backgroundColor: "#f4f4f4", cursor: "pointer" },
+                }}
                 onClick={() => handleClickOpen(person)}
               >
                 <TableCell>{person.name}</TableCell>
@@ -170,19 +178,69 @@ const Payroll = () => {
         />
       </Box>
 
-      {/* Popup Dialog */}
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>User Details</DialogTitle>
-        <DialogContent>
-          {selectedPerson && (
-            <Box sx={{ overflow: "hidden" }}>
-              {Object.entries(selectedPerson).map(([key, value]) => (
-                <DialogContentText key={key} sx={{ mb: 1 }} width={400}>
-                  <b>{key}:</b> {value}
-                </DialogContentText>
-              ))}
-            </Box>
-          )}
+      {/* Detail Dialog */}
+      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
+        <DialogTitle>{selectedPerson?.name}'s Payroll Details</DialogTitle>
+        <DialogContent dividers>
+          <DialogContentText>
+            <strong>Email:</strong> {selectedPerson?.email} <br />
+            <strong>Team:</strong> {selectedPerson?.teamName} <br />
+            <strong>Total Hours:</strong> {selectedPerson?.totalHours} <br />
+            <strong>Total Working Days:</strong>{" "}
+            {selectedPerson?.totalWorkingDays} <br />
+            <strong>Paid Leaves:</strong> {selectedPerson?.paidLeaves} <br />
+            <strong>Total Comp-Off Leave Taken:</strong>{" "}
+            {selectedPerson?.totalCompOffLeaveTaken} <br />
+            <strong>Week Off Days:</strong> {selectedPerson?.weekOffDays} <br />
+            <strong>Number of Work on Weekend Days:</strong>{" "}
+            {selectedPerson?.numOfWorkOnWeekendDays} <br />
+            <strong>Total Payable Days:</strong>{" "}
+            {selectedPerson?.totalPayableDays} <br />
+            <strong>LWP:</strong> {selectedPerson?.LWP} <br />
+            <br />
+            <strong>Cycle 1:</strong>
+            <ul>
+              <li>Total Hours: {selectedPerson?.cycle1?.totalHours}</li>
+              <li>
+                Total Working Days: {selectedPerson?.cycle1?.totalWorkingDays}
+              </li>
+              <li>Paid Leaves: {selectedPerson?.cycle1?.paidLeaves}</li>
+              <li>
+                Comp-Off Leave Taken:{" "}
+                {selectedPerson?.cycle1?.totalCompOffLeaveTaken}
+              </li>
+              <li>Week Off Days: {selectedPerson?.cycle1?.weekOffDays}</li>
+              <li>
+                Worked on Weekend:{" "}
+                {selectedPerson?.cycle1?.numOfWorkOnWeekendDays}
+              </li>
+              <li>
+                Total Payable Days: {selectedPerson?.cycle1?.totalPayableDays}
+              </li>
+              <li>LWP: {selectedPerson?.cycle1?.LWP}</li>
+            </ul>
+            <strong>Cycle 2:</strong>
+            <ul>
+              <li>Total Hours: {selectedPerson?.cycle2?.totalHours}</li>
+              <li>
+                Total Working Days: {selectedPerson?.cycle2?.totalWorkingDays}
+              </li>
+              <li>Paid Leaves: {selectedPerson?.cycle2?.paidLeaves}</li>
+              <li>
+                Comp-Off Leave Taken:{" "}
+                {selectedPerson?.cycle2?.totalCompOffLeaveTaken}
+              </li>
+              <li>Week Off Days: {selectedPerson?.cycle2?.weekOffDays}</li>
+              <li>
+                Worked on Weekend:{" "}
+                {selectedPerson?.cycle2?.numOfWorkOnWeekendDays}
+              </li>
+              <li>
+                Total Payable Days: {selectedPerson?.cycle2?.totalPayableDays}
+              </li>
+              <li>LWP: {selectedPerson?.cycle2?.LWP}</li>
+            </ul>
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Close</Button>

@@ -181,23 +181,23 @@ const Form = () => {
   //   });
   // };
 
-   function isInvalidDate(dateStr) {
-     const date = new Date(dateStr);
-     const day = date.getDay(); // 0 = Sunday, 6 = Saturday
-     const dateNum = date.getDate();
-     const week = Math.floor((dateNum - 1) / 7) + 1;
+  //  function isInvalidDate(dateStr) {
+  //    const date = new Date(dateStr);
+  //    const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+  //    const dateNum = date.getDate();
+  //    const week = Math.floor((dateNum - 1) / 7) + 1;
 
-     // Disable Sunday or 2nd/4th Saturday
-     return day === 0 || (day === 6 && (week === 2 || week === 4));
-   }
+  //    // Disable Sunday or 2nd/4th Saturday
+  //    return day === 0 || (day === 6 && (week === 2 || week === 4));
+  //  }
 
   function handleChange(e) {
     const { name, value } = e.target;
 
-    if (isInvalidDate(value)) {
-      alert("This date is not allowed");
-      return;
-    }
+    // if (isInvalidDate(value)) {
+    //   alert("This date is not allowed");
+    //   return;
+    // }
 
     setFormData((prev) => ({
       ...prev,

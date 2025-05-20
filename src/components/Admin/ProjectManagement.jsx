@@ -225,14 +225,14 @@ const ProjectManagement = () => {
           />
           <input
             type="text"
-            placeholder="Channel Name"
+            placeholder="Slack Channel Name"
             className="input-field"
             value={data.channelName}
             onChange={(e) => setData({ ...data, channelName: e.target.value })}
           />
           <input
             type="text"
-            placeholder="Channel ID"
+            placeholder="Slack Channel ID"
             className="input-field"
             value={data.channelId}
             onChange={(e) => setData({ ...data, channelId: e.target.value })}
@@ -317,6 +317,9 @@ const ProjectManagement = () => {
             value={filters.priorities}
             onChange={handleFilterChange}
           >
+            <option value="" disabled selected>
+              Select Priority
+            </option>
             <option value="">All</option>
             <option value="P0">P0</option>
             <option value="P1">P1</option>
@@ -329,6 +332,9 @@ const ProjectManagement = () => {
             value={filters.projectStatus}
             onChange={handleFilterChange}
           >
+            <option value="" disabled selected>
+              Select Status
+            </option>
             <option value="">All</option>
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
@@ -397,7 +403,7 @@ const ProjectManagement = () => {
               />
               <input
                 type="text"
-                placeholder="Channel Name"
+                placeholder="Slack Channel Name"
                 className="input-field"
                 value={editData.channelName}
                 onChange={(e) =>
@@ -406,7 +412,7 @@ const ProjectManagement = () => {
               />
               <input
                 type="text"
-                placeholder="Channel ID"
+                placeholder="Slack Channel ID"
                 className="input-field"
                 value={editData.channelId}
                 onChange={(e) =>

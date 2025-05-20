@@ -15,26 +15,15 @@ import {
   DialogTitle,
   DialogContent,
 } from "@mui/material";
+import axios from "axios";
 import "./RoleUpdateForm.css";
-
-// Dummy email list
-const dummyEmails = [
-  "amit@navgurukul.org",
-  "ujjwal@navgurukul.org",
-  "neha@navgurukul.org",
-  "rahul@navgurukul.org",
-  "sumit@navgurukul.org",
-  "pooja@navgurukul.org",
-  "amitkumar@navgurukul.org",
-  "abc@navgurukul.org",
-  "def@navgurukul.org"
-];
 
 const RoleUpdateForm = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [email, setEmail] = useState("");
+  const [teamIds, setTeamIds] = useState([]);
   const [selectedRole, setSelectedRole] = useState("admin");
 
   const [filterEmail, setFilterEmail] = useState("");
@@ -93,6 +82,29 @@ const RoleUpdateForm = () => {
     setCurrentPage(1);
   }, [users]);
 
+  useEffect(() => {
+    const fetchEmails = async () => {
+      try {
+        const response = await axios.get(
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+        );
+        const teamIDs = Array.from(
+          new Set(
+            response.data?.data
+              ?.map((entry) => entry["Team ID"])
+              ?.filter((id) => !!id) // Remove falsy/null/undefined
+          )
+        );
+        setTeamIds(teamIDs);
+      } catch (error) {
+        console.error("Error fetching emails:", error);
+        setSnackbarMessage("Failed to fetch emails");
+      }
+    };
+
+    fetchEmails();
+  }, []);
+
   const handleAssignRole = async (e) => {
     e.preventDefault();
     if (!email) {
@@ -100,7 +112,7 @@ const RoleUpdateForm = () => {
       setSnackbarSeverity("warning");
       setSnackbarOpen(true);
       return;
-    }    
+    }
 
     const payload = {
       email,
@@ -126,6 +138,7 @@ const RoleUpdateForm = () => {
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
         setFilterEmail("");
+        setEmail("");
         setFilterRole("");
       } else {
         const data = await res.json();
@@ -191,7 +204,7 @@ const RoleUpdateForm = () => {
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
-  };  
+  };
 
   const handleClearFilters = () => {
     setFilterEmail("");
@@ -243,7 +256,7 @@ const RoleUpdateForm = () => {
                 label="Filter by Email"
               >
                 <MenuItem value="">All</MenuItem>
-                {[...new Set(users.map((u) => u.email))].map((email, i) => (
+                {teamIds.map((email, i) => (
                   <MenuItem key={i} value={email}>
                     {email}
                   </MenuItem>
@@ -403,9 +416,9 @@ const RoleUpdateForm = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 label="Select Email"
               >
-                {dummyEmails.map((dummyEmail, i) => (
-                  <MenuItem key={i} value={dummyEmail}>
-                    {dummyEmail}
+                {teamIds.map((id) => (
+                  <MenuItem key={id} value={id}>
+                    {id}
                   </MenuItem>
                 ))}
               </Select>

@@ -26,6 +26,8 @@ const Form = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
   const userName = localStorage.getItem("name");
+  const userDepartment = localStorage.getItem("department");
+  // const userDepartment = "Residential Program";
   const { loading, setLoading } = useLoader();
   const getTodayDate = () => {
     const today = new Date();
@@ -39,6 +41,8 @@ const Form = () => {
     email: email,
     selectedDate: dataContext.selectedDate || getTodayDate(),
     contributions: [],
+    blockers: "",
+    campus: "",
   };
   const [formData, setFormData] = useState(initialFormData);
 
@@ -251,6 +255,8 @@ const Form = () => {
         ...prevState.contributions,
         { project: selectedProject, ...currentContribution },
       ],
+      blockers: formData.blockers,
+      campus: formData.campus,
     }));
     setSaved(true); // Set saved to true when a contribution is added
     setSelectedProject(""); // Reset project selection
@@ -305,6 +311,7 @@ const Form = () => {
     e.preventDefault();
 
     const userEmail = localStorage.getItem("email");
+    const department = localStorage.getItem("department");
 
     const newEntry = {
       entries: formData.contributions.map((c) => ({
@@ -313,6 +320,10 @@ const Form = () => {
         totalHoursSpent: Number(c.hours),
         workDescription: c.task,
         entryDate: formData.selectedDate,
+        ...(department === "Residential Program" && {
+          blockers: formData.blockers,
+          campus: formData.campus,
+        }),
       })),
     };
     console.log("New Entry:", newEntry);
@@ -347,7 +358,7 @@ const Form = () => {
       );
       console.log("Response of Post API:", response);
       if (!response.ok) {
-        throw new Error("Failed to save entry");
+        throw new Error(result.message || "Failed to save entry");
       }
       showSnackbar("Entry successfully saved!", "success");
 
@@ -371,20 +382,14 @@ const Form = () => {
           `Entry successfully processed! Backdated entries left: ${backdatedLeft}`,
           "info"
         );
+        setAttempt(backdatedLeft);
+        localStorage.setItem("attemptsLeft", backdatedLeft);
       }
 
       if (entryStatus === "updated") {
         showSnackbar("Entry successfully updated!", "info");
       }
 
-      // Update backdated entries left if available in the response
-      if (result?.backdatedLeft?.[userEmail] !== undefined) {
-        setAttempt(result.backdatedLeft[userEmail]);
-        localStorage.setItem("attemptsLeft", result.backdatedLeft[userEmail]);
-      }
-      if (!response.ok) {
-        throw new Error(result.message || "Failed to save entry");
-      }
       console.log("Entry successfully sent to backend");
 
       // Clear the form
@@ -524,6 +529,35 @@ const Form = () => {
           />
         </div>
         <div>
+          <label>Employee Department:</label>
+          <input
+            type="text"
+            name="department"
+            value={userDepartment}
+            onChange={handleChange}
+            required
+            disabled
+            color="red"
+          />
+        </div>
+        {userDepartment === "Residential Program" && (
+          <div>
+            <label>
+              Please Mention Any Blockers or Challenges You Are Facing (Minimum
+              25 characters):
+            </label>
+            <textarea
+              name="blockers"
+              value={formData.blockers}
+              // value={blockers}
+              // onChange={(e) => setBlockers(e.target.value)}
+              onChange={handleChange}
+              minLength={25}
+              required
+            />
+          </div>
+        )}
+        <div>
           <label>Select the date for which you want to update the form:</label>
           <input
             type="date"
@@ -535,6 +569,34 @@ const Form = () => {
             onChange={handleChange}
           />
         </div>
+
+        {userDepartment === "Residential Program" && (
+          <div>
+            <label>Please select your campus :</label>
+            <select
+              name="campus"
+              // value={campus}
+              value={formData.campus}
+              // onChange={(e) => setCampus(e.target.value)}
+              onChange={handleChange}
+              required
+            >
+              <option value="">--Select a campus--</option>
+              <option value="Bangalore">Bangalore</option>
+              <option value="Sarjapur">Sarjapur</option>
+              <option value="Kishanganj">Kishanganj</option>
+              <option value="Raipur">Raipur</option>
+              <option value="Dantewada">Dantewada</option>
+              <option value="Jashpur">Jashpur</option>
+              <option value="Pune">Pune</option>
+              <option value="Udaipur">Udaipur</option>
+              <option value="Dharamshala">Dharamshala</option>
+              <option value="Himachal">Himachal</option>
+              <option value="Team channels">Team channels</option>
+              <option value="support-team-updates">Support Team Updates</option>
+            </select>
+          </div>
+        )}
 
         {formData.contributions.length > 0 && (
           <div>
@@ -648,6 +710,7 @@ const Form = () => {
         )}
         <div>
           <label>Select a project in which you contributed:</label>
+          {userDepartment !== "Residential Program" ? (
           <select value={selectedProject} onChange={handleProjectSelect}>
             <option value="">--Select a project--</option>
             {projectData.map(
@@ -662,6 +725,17 @@ const Form = () => {
               )
             )}
           </select>
+          ) : (
+            <select>
+              <option value="">--Select a project--</option>
+              <option>Finance Management</option>
+              <option>Ad-hoc tasks</option>
+              <option>Team channels</option>
+              <option>Support Team Updates</option>
+              <option>Residential Program</option>
+              <option>Saturday-Peer-Learning</option>
+            </select>
+          )}
           <br />
           <br />
           {selectedProject && (

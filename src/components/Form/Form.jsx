@@ -711,22 +711,22 @@ const Form = () => {
         <div>
           <label>Select a project in which you contributed:</label>
           {userDepartment !== "Residential Program" ? (
-          <select value={selectedProject} onChange={handleProjectSelect}>
-            <option value="">--Select a project--</option>
-            {projectData.map(
-              (project, index) => (
-                console.log("Project:", project),
-                console.log("Project:", project?.projectStatus),
-                (
-                  <option key={index} value={project}>
-                    {project}
-                  </option>
+            <select value={selectedProject} onChange={handleProjectSelect}>
+              <option value="">--Select a project--</option>
+              {projectData.map(
+                (project, index) => (
+                  console.log("Project:", project),
+                  console.log("Project:", project?.projectStatus),
+                  (
+                    <option key={index} value={project}>
+                      {project}
+                    </option>
+                  )
                 )
-              )
-            )}
-          </select>
+              )}
+            </select>
           ) : (
-            <select>
+            <select value={selectedProject} onChange={handleProjectSelect}>
               <option value="">--Select a project--</option>
               <option>Finance Management</option>
               <option>Ad-hoc tasks</option>

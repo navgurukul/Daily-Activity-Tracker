@@ -8,6 +8,7 @@ const API_URL =
 
 const ProjectManagement = () => {
   const [data, setData] = useState({
+    department: "",
     projectName: "",
     channelName: "",
     channelId: "",
@@ -19,6 +20,7 @@ const ProjectManagement = () => {
     Id: "",
   });
   const [editData, setEditData] = useState({
+    department: "",
     projectName: "",
     channelName: "",
     channelId: "",
@@ -45,6 +47,28 @@ const ProjectManagement = () => {
 
   const [filteredProjects, setFilteredProjects] = useState(projects);
 
+  const [departments, setDepartments] = useState([]);
+  const [selectedDept, setSelectedDept] = useState("");
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await fetch(
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+        );
+        const data = await res.json();
+        if (data.success) {
+          const allDepartments = data.data.map((item) => item.Department);
+          const uniqueDepartments = [...new Set(allDepartments)];
+          setDepartments(uniqueDepartments);
+        }
+      } catch (err) {
+        console.error("Error fetching departments:", err);
+      }
+    };
+    fetchDepartments();
+  }, []);
+  
   useEffect(() => {
     const filtered = projects.filter((project) => {
       return (
@@ -143,6 +167,7 @@ const ProjectManagement = () => {
       .then((newProject) => {
         setProjects([...projects, newProject]);
         setData({
+          department: selectedDept,
           projectName: "",
           channelName: "",
           channelId: "",
@@ -183,6 +208,7 @@ const ProjectManagement = () => {
         setProjects(updatedProjects);
         setFeedbackMessage(updatedProject.message);
         setEditData({
+          department: selectedDept,
           projectName: "",
           channelName: "",
           channelId: "",
@@ -216,6 +242,23 @@ const ProjectManagement = () => {
       <div className="form-container">
         <h2>Add New Project</h2>
         <div className="form-fields">
+          <select
+            className="input-field"
+            value={selectedDept}
+            onChange={(e) => {
+              setData({ ...data, department: e.target.value });
+              setSelectedDept(e.target.value);
+            }}
+          >
+            <option value="" disabled>
+              Select Department
+            </option>
+            {departments.map((dept, idx) => (
+              <option key={idx} value={dept}>
+                {dept}
+              </option>
+            ))}
+          </select>
           <input
             type="text"
             placeholder="Project Name"
@@ -223,20 +266,26 @@ const ProjectManagement = () => {
             value={data.projectName}
             onChange={(e) => setData({ ...data, projectName: e.target.value })}
           />
-          <input
-            type="text"
-            placeholder="Channel Name"
-            className="input-field"
-            value={data.channelName}
-            onChange={(e) => setData({ ...data, channelName: e.target.value })}
-          />
-          <input
-            type="text"
-            placeholder="Channel ID"
-            className="input-field"
-            value={data.channelId}
-            onChange={(e) => setData({ ...data, channelId: e.target.value })}
-          />
+          {selectedDept !== "Residential Program" && (
+            <>
+            <input
+              type="text"
+              placeholder="Slack Channel Name"
+              className="input-field"
+              value={data.channelName}
+              onChange={(e) =>
+                setData({ ...data, channelName: e.target.value })
+              }
+            />
+            <input
+              type="text"
+              placeholder="Slack Channel ID"
+              className="input-field"
+              value={data.channelId}
+              onChange={(e) => setData({ ...data, channelId: e.target.value })}
+            />
+            </>
+          )}
           <input
             type="text"
             placeholder="PM Email"
@@ -317,6 +366,9 @@ const ProjectManagement = () => {
             value={filters.priorities}
             onChange={handleFilterChange}
           >
+            <option value="" disabled selected>
+              Select Priority
+            </option>
             <option value="">All</option>
             <option value="P0">P0</option>
             <option value="P1">P1</option>
@@ -329,6 +381,9 @@ const ProjectManagement = () => {
             value={filters.projectStatus}
             onChange={handleFilterChange}
           >
+            <option value="" disabled selected>
+              Select Status
+            </option>
             <option value="">All</option>
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
@@ -338,6 +393,7 @@ const ProjectManagement = () => {
           <table>
             <thead>
               <tr>
+                <th>Department Name</th>
                 <th>Project Name</th>
                 <th>Channel Name</th>
                 <th>Channel ID</th>
@@ -352,6 +408,7 @@ const ProjectManagement = () => {
             <tbody>
               {filteredProjects.map((project, index) => (
                 <tr key={index}>
+                  <td>{project.department}</td>
                   <td>{project.projectName}</td>
                   <td>{project.channelName}</td>
                   <td>{project.channelId}</td>
@@ -397,7 +454,7 @@ const ProjectManagement = () => {
               />
               <input
                 type="text"
-                placeholder="Channel Name"
+                placeholder="Slack Channel Name"
                 className="input-field"
                 value={editData.channelName}
                 onChange={(e) =>
@@ -406,7 +463,7 @@ const ProjectManagement = () => {
               />
               <input
                 type="text"
-                placeholder="Channel ID"
+                placeholder="Slack Channel ID"
                 className="input-field"
                 value={editData.channelId}
                 onChange={(e) =>

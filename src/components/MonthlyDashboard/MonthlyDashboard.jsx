@@ -15,6 +15,8 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import "./MonthlyDashboard.css";
+import CycleSummary from "./CycleSummary";
+
 const MonthlyDashboard = () => {
   const [employeeData, setEmployeeData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,7 +30,7 @@ const MonthlyDashboard = () => {
     // Get only current month's days
     const currentMonthDays = Array.from({ length: daysInMonth }, (_, i) => {
       const date = new Date(year, month, i + 1);
-      console.log(date);
+      // console.log(date);
       return (
         date.getFullYear() +
         "-" +
@@ -39,7 +41,7 @@ const MonthlyDashboard = () => {
     });
     return currentMonthDays;
   };
-  console.log(getDaysInMonth());
+  // console.log(getDaysInMonth());
   let email = localStorage.getItem("email") ?? "";
   const getMonthAndYear = () => {
     const now = new Date();
@@ -107,14 +109,29 @@ const MonthlyDashboard = () => {
   }
   return (
     <Paper className="dashboard-container">
-      <div className="dashboard-header">
-        <Typography variant="h4" className="month-title">
-          {currentMonthYear}
-        </Typography>
-        <Typography variant="h5" className="dashboard-title">
-          Monthly Activity Dashboard
-        </Typography>
+      <div
+        className="dashboard-header-container"
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "0 16px",
+          marginBottom: 24,
+        }}
+      >
+        <div className="dashboard-header">
+          <Typography variant="h5" sx={{ fontWeight: "bold", mb: 0.5 }}>
+            {currentMonthYear}
+          </Typography>
+          <Typography variant="h6" sx={{ color: "text.secondary" }}>
+            Monthly Activity Dashboard
+          </Typography>
+        </div>
+        <div style={{ minWidth: 320 }}>
+          <CycleSummary />
+        </div>
       </div>
+
       <div className="calendar-grid">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <div key={day} className="weekday-header">

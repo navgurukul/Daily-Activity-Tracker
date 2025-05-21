@@ -29,7 +29,8 @@
 }
 .input-field {
   /* flex: 1; */
-  width: calc(25% - 10px);
+  /* width: calc(25% - 10px); */
+  width: 32.99%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;

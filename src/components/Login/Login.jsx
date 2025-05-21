@@ -1,6 +1,6 @@
 /* global google */
 import { useState, useEffect, useContext } from "react";
-import {jwtDecode} from "jwt-decode"; // Ensure you have this package installed
+import {jwtDecode} from "jwt-decode";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
@@ -33,21 +33,30 @@ function Login() {
       const hasNumbers = /\d/.test(username);
 
       if (!hasNumbers) {
-        // console.log(userEmail);
-        // localStorage.setItem("email", userEmail);
-        // localStorage.setItem("name", userName);
-        // setEmail(userEmail);
-        // navigate("/activity-tracker");
-
         try {
-          const apiUrl = `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?email=${userEmail}`;
-          const res = await fetch(apiUrl);
+          // Step 1: Get role
+          const roleUrl = `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?email=${userEmail}`;
+          const res = await fetch(roleUrl);
           const data = await res.json();
-
           const role = data?.items?.[0]?.role || "user";
+
+          // Step 2: Get Department info from employeeSheetRecords
+          const deptRes = await fetch(
+            "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+          );
+          const deptData = await deptRes.json();
+
+          const userRecord = deptData?.data?.find(
+            (entry) =>
+              entry["Team ID"]?.toLowerCase() === userEmail.toLowerCase()
+          );
+          const department = userRecord?.Department || "Not Available";
+
+          // Step 3: Save in localStorage and navigate
           localStorage.setItem("email", userEmail);
           localStorage.setItem("name", userName);
           localStorage.setItem("role", role);
+          localStorage.setItem("department", department);
           setEmail(userEmail);
 
           navigate("/activity-tracker");

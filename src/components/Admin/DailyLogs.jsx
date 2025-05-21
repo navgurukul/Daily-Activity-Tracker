@@ -519,6 +519,15 @@ function DailyLogs() {
     fetchLogs(url);
   };
 
+  const clearFilters = () => {
+    setProjectName("");
+    setEmail("");
+    setMonth("");
+    setYear("");
+    setCurrentPage(1);
+    fetchLogs();
+  };
+
   const debouncedFilter = useCallback(debounce(handleFilter, 500), [
     projectName,
     email,
@@ -605,6 +614,14 @@ function DailyLogs() {
           ))}
         </TextField>
 
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={clearFilters}
+          sx={{ whiteSpace: "nowrap" }}
+        >
+          Clear Filters
+        </Button>
         {/* <Button
           variant="contained"
           color="primary"

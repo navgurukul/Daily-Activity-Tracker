@@ -50,7 +50,7 @@
         },
         "payableDaysOfMonth": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/payableDaysOfMonth-684949496a3668796c76-build.zip"
+          "s3Key": "amplify-builds/payableDaysOfMonth-465258546c7a53644942-build.zip"
         },
         "approveRequests": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",

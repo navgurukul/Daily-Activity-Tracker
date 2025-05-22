@@ -78,6 +78,24 @@ const Form = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // 'success', 'error', 'warning', 'info'
 
+  const [campuses, setCampuses] = useState([]);
+
+  useEffect(() => {
+    const fetchCampuses = async () => {
+      try {
+        const res = await fetch(
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/campuses"
+        );
+        const data = await res.json();
+        const parsedBody = JSON.parse(data.body);
+        setCampuses(parsedBody.data);
+      } catch (error) {
+        console.error("Failed to fetch campuses:", error);
+      }
+    };
+    fetchCampuses();
+  }, []);
+
   const showSnackbar = (message, severity = "success") => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
@@ -575,25 +593,16 @@ const Form = () => {
             <label>Please select your campus :</label>
             <select
               name="campus"
-              // value={campus}
               value={formData.campus}
-              // onChange={(e) => setCampus(e.target.value)}
               onChange={handleChange}
               required
             >
               <option value="">--Select a campus--</option>
-              <option value="Bangalore">Bangalore</option>
-              <option value="Sarjapur">Sarjapur</option>
-              <option value="Kishanganj">Kishanganj</option>
-              <option value="Raipur">Raipur</option>
-              <option value="Dantewada">Dantewada</option>
-              <option value="Jashpur">Jashpur</option>
-              <option value="Pune">Pune</option>
-              <option value="Udaipur">Udaipur</option>
-              <option value="Dharamshala">Dharamshala</option>
-              <option value="Himachal">Himachal</option>
-              <option value="Team channels">Team channels</option>
-              <option value="support-team-updates">Support Team Updates</option>
+              {campuses.map((c, index) => (
+                <option key={index} value={c.campus}>
+                  {c.campus}
+                </option>
+              ))}
             </select>
           </div>
         )}

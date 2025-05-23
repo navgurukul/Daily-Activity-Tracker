@@ -330,6 +330,7 @@ const Form = () => {
 
     const userEmail = localStorage.getItem("email");
     const department = localStorage.getItem("department");
+    // const department = "Residential Program";
 
     const newEntry = {
       entries: formData.contributions.map((c) => ({
@@ -341,6 +342,7 @@ const Form = () => {
         ...(department === "Residential Program" && {
           blockers: formData.blockers,
           campus: formData.campus,
+          department: department,
         }),
       })),
     };

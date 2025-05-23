@@ -37,8 +37,11 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import SupportIcon from '@mui/icons-material/Support';
-
-import RoleUpdateForm from "./RoleUpdateForm";
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import ApprovalIcon from "@mui/icons-material/Approval";
+import WysiwygIcon from "@mui/icons-material/Wysiwyg";
 
 const drawerWidth = 240;
 // const AUTHORIZED_EMAILS = [
@@ -182,16 +185,19 @@ const Navbar = (props) => {
       <Divider />
       <List>
         {[
-          ...(isAdmin ? [{ text: "Admin", icon: <ParkIcon /> }] : []),
+          ...(isAdmin
+            ? [{ text: "Admin", icon: <AdminPanelSettingsIcon /> }]
+            : []),
+          { text: "Project Management", icon: <MenuBookIcon /> },
           // { text: "Admin", icon: <ParkIcon /> },
-          { text: "Activity Tracker", icon: <MenuBookIcon /> },
-          { text: "Leave Application", icon: <PostAddIcon /> },
+          { text: "Activity Tracker", icon: <PostAddIcon /> },
+          { text: "Leave Application", icon: <ApprovalIcon /> },
           {
             text: "Comp-off Application",
-            icon: <LockOpenIcon />,
+            icon: <WysiwygIcon />,
             // disabled: !isAuthorizedEmail(),
           },
-          { text: "Monthly Activity-Dashboard", icon: <AssessmentIcon /> },
+          { text: "Monthly Activity-Dashboard", icon: <DashboardIcon /> },
           { text: "Leave History", icon: <SupportIcon /> },
         ].map((item, index) => (
           <ListItem
@@ -256,16 +262,17 @@ const Navbar = (props) => {
       <Divider />
       <List>
         <ListItem disablePadding>
-          <ListItemButton sx={{ marginTop: "auto" }}
+          <ListItemButton
+            sx={{ marginTop: "auto" }}
             onClick={() => handleClick("role-update")}
           >
             <ListItemIcon>
-              <LockIcon />
+              <ManageAccountsIcon />
             </ListItemIcon>
             <ListItemText
               primary={
                 <span>
-                  Access Control {" "}
+                  Access Control{" "}
                   {/* <strong>
                     {localStorage
                           .getItem("role")
@@ -286,7 +293,7 @@ const Navbar = (props) => {
           position: "absolute",
           width: "100%",
           // top: "0px",
-          bottom: "20px",
+          // bottom: "20px",
         }}
       >
         <ListItem disablePadding>

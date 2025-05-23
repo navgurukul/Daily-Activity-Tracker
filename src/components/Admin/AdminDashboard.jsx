@@ -22,7 +22,7 @@ const AdminDashboard = () => {
   // Check if the user is an admin
   // const isAdmin = adminEmails.includes(userEmail);
 
-  const [activeSection, setActiveSection] = useState("project");
+  const [activeSection, setActiveSection] = useState("dailyLogs");
 
   return (
     <div className="admin-dashboard">
@@ -43,12 +43,12 @@ const AdminDashboard = () => {
               >
                 Employee Management
               </button>
-              <button
+              {/* <button
                 className={activeSection === "project" ? "active" : ""}
                 onClick={() => setActiveSection("project")}
               >
                 Project Management
-              </button>
+              </button> */}
               <button
                 className={activeSection === "leave" ? "active" : ""}
                 onClick={() => setActiveSection("leave")}

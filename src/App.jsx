@@ -17,6 +17,7 @@ import LeaveHistory from "./components/LeaveHistory/LeaveHistory";
 import {handleBeforeUnload} from "./utils/beforeUnloadHandler";
 
 import RoleUpdateForm from "./components/Navbar/RoleUpdateForm";
+import ProjectManagement from "./components/Admin/ProjectManagement";
 
 function App() {
   const dataContext = useContext(LoginContext);
@@ -93,6 +94,16 @@ function App() {
           <Route
             path="/role-update"
             element={<RoleUpdateForm />}
+          />
+          <Route
+            path="/project-management"
+            element={
+              isAdmin ? (
+                <ProjectManagement />
+              ) : (
+                <Navigate to="/unauthorized" replace />
+              )
+            }
           />
         </Routes>
       </main>

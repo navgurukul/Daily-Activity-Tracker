@@ -34,18 +34,39 @@ const Payroll = () => {
   const [sortOrder, setSortOrder] = useState("asc");
 
   useEffect(() => {
-    fetch(
-      "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation"
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        setPayrollData(data.data);
+    const fetchPayrollData = async () => {
+      const token = localStorage.getItem("jwtToken");
+
+      if (!token) {
+        console.error("JWT token not found in local storage.");
         setLoading(false);
-      })
-      .catch((error) => {
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch payroll data");
+        }
+
+        const result = await response.json();
+        setPayrollData(result.data);
+      } catch (error) {
         console.error("Error fetching payroll data:", error);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchPayrollData();
   }, []);
 
   const handleClickOpen = (person) => {

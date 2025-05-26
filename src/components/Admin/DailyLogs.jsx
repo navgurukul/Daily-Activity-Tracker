@@ -1,226 +1,3 @@
-// import { useState, useEffect } from "react";
-// import "./DailyLogs.css";
-
-// function DailyLogs() {
-//   const [logs, setLogs] = useState([]);
-
-//   useEffect(() => {
-//     async function fetchLogs() {
-//       try {
-//         const response = await fetch(
-//           "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs"
-//         );
-//         const data = await response.json();
-
-//         // Flatten the data into a single array with email included
-//         const formattedLogs = Object.entries(data).flatMap(([email, logs]) =>
-//           logs.map((log) => ({
-//             email,
-//             date: log.entryDate,
-//             project: log.projectName,
-//             hours: log.totalHoursSpent,
-//             description: log.workDescription,
-//             updatedAt: log.updatedAt,
-//           }))
-//         );
-
-//         setLogs(formattedLogs);
-//       } catch (error) {
-//         console.error("Failed to fetch logs:", error);
-//       }
-//     }
-
-//     fetchLogs();
-//   }, []);
-
-//   return (
-//     <div className="daily-logs-container">
-//       <h2>Daily Logs</h2>
-//       {logs.length > 0 ? (
-//         <table className="logs-table">
-//           <thead>
-//             <tr>
-//               <th>Email</th>
-//               <th>Date</th>
-//               <th>Project</th>
-//               <th>Hours</th>
-//               <th>Description</th>
-//               <th>Updated At</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {logs.map((log, index) => (
-//               <tr key={index}>
-//                 <td>{log.email}</td>
-//                 <td>{log.date}</td>
-//                 <td>{log.project}</td>
-//                 <td>{log.hours}</td>
-//                 <td>{log.description}</td>
-//                 <td>{new Date(log.updatedAt).toLocaleString()}</td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       ) : (
-//         <p className="no-logs">No logs available</p>
-//       )}
-//     </div>
-//   );
-// }
-
-// export default DailyLogs;
-
-
-
-
-// import { useState, useEffect } from "react";
-// import "./DailyLogs.css";
-
-// function DailyLogs() {
-//   const [logs, setLogs] = useState([]);
-//   const [projectName, setProjectName] = useState("");
-//   const [email, setEmail] = useState("");
-//   const [dateStart, setDateStart] = useState("");
-//   const [dateEnd, setDateEnd] = useState("");
-
-//   useEffect(() => {
-//     fetchLogs();
-//   }, []);
-
-//   const fetchLogs = async (
-//     url = ""
-//   ) => {
-//     try {
-//       const response = await fetch(
-//         url ||
-//           "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs"
-//       );
-//       const data = await response.json();
-
-//       const formattedLogs = Object.entries(data).flatMap(([email, logs]) =>
-//         logs.map((log) => ({
-//           email,
-//           date: log.entryDate,
-//           project: log.projectName,
-//           hours: log.totalHoursSpent,
-//           description: log.workDescription,
-//           updatedAt: log.updatedAt,
-//         }))
-//       );
-
-//       setLogs(formattedLogs);
-//     } catch (error) {
-//       console.error("Failed to fetch logs:", error);
-//     }
-//   };
-
-//   // const handleFilter = () => {
-//   //   let url =
-//   //     "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs";
-
-//   //   if (email && dateStart && dateEnd) {
-//   //     url = `${url}/${email}/?dateStart=${dateStart}&dateEnd=${dateEnd}`;
-//   //   } else if (email) {
-//   //     url = `${url}/${email}/`;
-//   //   } else if (dateStart && dateEnd) {
-//   //     url = `${url}/?dateStart=${dateStart}&dateEnd=${dateEnd}`;
-//   //   } else if (projectName) {
-//   //     url = `${url}?projectName=${projectName}`;
-//   //   }
-//   //   fetchLogs(url);
-//   // };
-
-//   const handleFilter = () => {
-//     let baseUrl =
-//       "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs";
-//     let url = baseUrl;
-//     const params = new URLSearchParams();
-//     // Case: email present
-//     if (email) {
-//       url += `/${email}/`;
-//     }
-//     // Add query params if available
-//     if (projectName) {
-//       params.append("projectName", projectName);
-//     }
-//     if (dateStart && dateEnd) {
-//       params.append("dateStart", dateStart);
-//       params.append("dateEnd", dateEnd);
-//     }
-//     // If we have any query parameters, append them
-//     if (params.toString()) {
-//       url += "?" + params.toString();
-//     }
-//     fetchLogs(url);
-//   };
-  
-//   return (
-//     <div className="daily-logs-container">
-//       <h2>Daily Logs</h2>
-//       <div className="filters">
-//         <input
-//           type="text"
-//           placeholder="Project Name"
-//           value={projectName}
-//           onChange={(e) => setProjectName(e.target.value)}
-//         />
-//         <input
-//           type="email"
-//           placeholder="Employee Email"
-//           value={email}
-//           onChange={(e) => setEmail(e.target.value)}
-//         />
-//         <input
-//           type="date"
-//           value={dateStart}
-//           onChange={(e) => setDateStart(e.target.value)}
-//         />
-//         <input
-//           type="date"
-//           value={dateEnd}
-//           onChange={(e) => setDateEnd(e.target.value)}
-//         />
-//         <button onClick={handleFilter}>Apply Filter</button>
-//       </div>
-
-//       {logs.length > 0 ? (
-//         <table className="logs-table">
-//           <thead>
-//             <tr>
-//               <th>Email</th>
-//               <th>Date</th>
-//               <th>Project</th>
-//               <th>Hours</th>
-//               <th>Description</th>
-//               <th>Updated At</th>
-//             </tr>
-//           </thead>
-//           <tbody>
-//             {logs.map((log, index) => (
-//               <tr key={index}>
-//                 <td>{log.email}</td>
-//                 <td>{log.date}</td>
-//                 <td>{log.project}</td>
-//                 <td>{log.hours}</td>
-//                 <td>{log.description}</td>
-//                 <td>{new Date(log.updatedAt).toLocaleString()}</td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       ) : (
-//         <p className="no-logs">No logs available</p>
-//       )}
-//     </div>
-//   );
-// }
-
-// export default DailyLogs;
-
-
-
-
-
 // import { useState, useEffect, useCallback } from "react";
 // import {
 //   TextField,
@@ -234,20 +11,25 @@
 //   TableHead,
 //   TableRow,
 //   Paper,
-//   Pagination
+//   Pagination,
 // } from "@mui/material";
+// import Autocomplete from "@mui/material/Autocomplete";
 // import debounce from "lodash/debounce";
 
 // function DailyLogs() {
 //   const [logs, setLogs] = useState([]);
 //   const [projectName, setProjectName] = useState("");
 //   const [email, setEmail] = useState("");
-//   const [dateStart, setDateStart] = useState("");
-//   const [dateEnd, setDateEnd] = useState("");
+//   const [month, setMonth] = useState("");
+//   const [year, setYear] = useState("");
 
+
+//   const [allEmails, setAllEmails] = useState([]);
 //   const [currentPage, setCurrentPage] = useState(1);
-//   const itemsPerPage = 10;
+//   const itemsPerPage = 5;
 
+//   const [emailsList, setEmailsList] = useState([]);
+//   const [projectList, setProjectList] = useState([]);
 
 //   useEffect(() => {
 //     fetchLogs();
@@ -255,7 +37,7 @@
 
 //   useEffect(() => {
 //     debouncedFilter();
-//   }, [projectName, email]);
+//   }, [projectName, email, month, year]);
 
 //   const fetchLogs = async (url = "") => {
 //     try {
@@ -265,7 +47,7 @@
 //       );
 //       const data = await response.json();
 
-//       const formattedLogs = Object.entries(data).flatMap(([email, logs]) =>
+//       const formattedLogs = Object.entries(data.data).flatMap(([email, logs]) =>
 //         logs.map((log) => ({
 //           email,
 //           date: log.entryDate,
@@ -277,6 +59,15 @@
 //       );
 
 //       setLogs(formattedLogs);
+
+//       // Extract unique emails and set to emailsList
+//       const uniqueEmails = [...new Set(Object.keys(data.data))];
+//       setEmailsList(uniqueEmails);
+
+//       // Extract unique project names
+//       const allProjects = formattedLogs.map((log) => log.project);
+//       const uniqueProjects = [...new Set(allProjects)];
+//       setProjectList(uniqueProjects);
 //     } catch (error) {
 //       console.error("Failed to fetch logs:", error);
 //     }
@@ -288,12 +79,12 @@
 //     let url = baseUrl;
 //     const params = new URLSearchParams();
 
-//     if (email) url += `/${email}/`;
+//     if (email) url += `/${email}`;
 //     if (projectName) params.append("projectName", projectName);
-//     if (dateStart && dateEnd) {
-//       params.append("dateStart", dateStart);
-//       params.append("dateEnd", dateEnd);
-//     }
+//     if (month && year) {
+//       params.append("month", month);
+//       params.append("year", year);
+//     }    
 
 //     if (params.toString()) {
 //       url += "?" + params.toString();
@@ -302,11 +93,20 @@
 //     fetchLogs(url);
 //   };
 
+//   const clearFilters = () => {
+//     setProjectName("");
+//     setEmail("");
+//     setMonth("");
+//     setYear("");
+//     setCurrentPage(1);
+//     fetchLogs();
+//   };
+
 //   const debouncedFilter = useCallback(debounce(handleFilter, 500), [
 //     projectName,
 //     email,
-//     dateStart,
-//     dateEnd,
+//     month,
+//     year,
 //   ]);
 
 //   const indexOfLastItem = currentPage * itemsPerPage;
@@ -330,42 +130,80 @@
 //           justifyContent: "center",
 //         }}
 //       >
-//         <TextField
-//           label="Project Name"
+//         <Autocomplete
+//           options={projectList}
 //           value={projectName}
-//           onChange={(e) => setProjectName(e.target.value)}
-//           size="small"
+//           onChange={(event, newValue) => {
+//             setProjectName(newValue || "");
+//           }}
+//           renderInput={(params) => (
+//             <TextField {...params} label="Project Name" size="small" />
+//           )}
+//           freeSolo
+//           sx={{ minWidth: 200 }}
 //         />
-//         <TextField
-//           label="Employee Email"
+
+//         {/* Changed Employee Email input to Autocomplete */}
+//         <Autocomplete
+//           options={emailsList}
 //           value={email}
-//           onChange={(e) => setEmail(e.target.value)}
-//           size="small"
+//           onChange={(event, newValue) => setEmail(newValue || "")}
+//           renderInput={(params) => (
+//             <TextField {...params} label="Employee Email" size="small" />
+//           )}
+//           freeSolo
+//           sx={{ minWidth: 200 }}
 //         />
 //         <TextField
-//           type="date"
-//           label="Start Date"
-//           value={dateStart}
-//           onChange={(e) => setDateStart(e.target.value)}
+//           label="Month"
+//           value={month}
+//           onChange={(e) => setMonth(e.target.value)}
+//           select
 //           size="small"
-//           InputLabelProps={{ shrink: true }}
-//         />
+//           sx={{ minWidth: 120 }}
+//           SelectProps={{ native: true }}
+//         >
+//           <option value="" disabled></option>
+//           {[...Array(12)].map((_, i) => (
+//             <option key={i + 1} value={String(i + 1).padStart(2, "0")}>
+//               {String(i + 1).padStart(2, "0")}
+//             </option>
+//           ))}
+//         </TextField>
+
 //         <TextField
-//           type="date"
-//           label="End Date"
-//           value={dateEnd}
-//           onChange={(e) => setDateEnd(e.target.value)}
+//           label="Year"
+//           value={year}
+//           onChange={(e) => setYear(e.target.value)}
+//           select
 //           size="small"
-//           InputLabelProps={{ shrink: true }}
-//         />
+//           sx={{ minWidth: 120 }}
+//           SelectProps={{ native: true }}
+//         >
+//           <option value="" disabled></option>
+//           {[2023, 2024, 2025, 2026].map((yr) => (
+//             <option key={yr} value={yr}>
+//               {yr}
+//             </option>
+//           ))}
+//         </TextField>
+
 //         <Button
+//           variant="contained"
+//           color="primary"
+//           onClick={clearFilters}
+//           sx={{ whiteSpace: "nowrap" }}
+//         >
+//           Clear Filters
+//         </Button>
+//         {/* <Button
 //           variant="contained"
 //           color="primary"
 //           onClick={handleFilter}
 //           sx={{ whiteSpace: "nowrap" }}
 //         >
 //           Apply Date Filter
-//         </Button>
+//         </Button> */}
 //       </Box>
 
 //       {logs.length > 0 ? (
@@ -420,10 +258,6 @@
 
 // export default DailyLogs;
 
-
-
-
-
 import { useState, useEffect, useCallback } from "react";
 import {
   TextField,
@@ -441,30 +275,23 @@ import {
 } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import debounce from "lodash/debounce";
-
 function DailyLogs() {
   const [logs, setLogs] = useState([]);
   const [projectName, setProjectName] = useState("");
   const [email, setEmail] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
-
-
   const [allEmails, setAllEmails] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-
   const [emailsList, setEmailsList] = useState([]);
   const [projectList, setProjectList] = useState([]);
-
   useEffect(() => {
     fetchLogs();
   }, []);
-
   useEffect(() => {
     debouncedFilter();
   }, [projectName, email, month, year]);
-
   const fetchLogs = async (url = "") => {
     try {
       const response = await fetch(
@@ -472,7 +299,6 @@ function DailyLogs() {
           "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs"
       );
       const data = await response.json();
-
       const formattedLogs = Object.entries(data.data).flatMap(([email, logs]) =>
         logs.map((log) => ({
           email,
@@ -483,13 +309,10 @@ function DailyLogs() {
           updatedAt: log.updatedAt,
         }))
       );
-
       setLogs(formattedLogs);
-
       // Extract unique emails and set to emailsList
       const uniqueEmails = [...new Set(Object.keys(data.data))];
       setEmailsList(uniqueEmails);
-
       // Extract unique project names
       const allProjects = formattedLogs.map((log) => log.project);
       const uniqueProjects = [...new Set(allProjects)];
@@ -498,35 +321,31 @@ function DailyLogs() {
       console.error("Failed to fetch logs:", error);
     }
   };
-
   const handleFilter = () => {
     let baseUrl =
       "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs";
     let url = baseUrl;
     const params = new URLSearchParams();
-
     if (email) url += `/${email}`;
     if (projectName) params.append("projectName", projectName);
     if (month && year) {
       params.append("month", month);
       params.append("year", year);
-    }    
-
+    }
     if (params.toString()) {
       url += "?" + params.toString();
     }
-
     fetchLogs(url);
   };
 
-  const clearFilters = () => {
-    setProjectName("");
-    setEmail("");
-    setMonth("");
-    setYear("");
-    setCurrentPage(1);
-    fetchLogs();
-  };
+    const clearFilters = () => {
+      setProjectName("");
+      setEmail("");
+      setMonth("");
+      setYear("");
+      setCurrentPage(1);
+      fetchLogs();
+    };
 
   const debouncedFilter = useCallback(debounce(handleFilter, 500), [
     projectName,
@@ -534,19 +353,15 @@ function DailyLogs() {
     month,
     year,
   ]);
-
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentLogs = logs.slice(indexOfFirstItem, indexOfLastItem);
-
   const totalPages = Math.ceil(logs.length / itemsPerPage);
-
   return (
     <Box sx={{ padding: 3, boxSizing: "border-box" }}>
       <Typography variant="h5" align="center" marginBottom="30px" gutterBottom>
         Daily Logs
       </Typography>
-
       <Box
         sx={{
           display: "flex",
@@ -568,7 +383,6 @@ function DailyLogs() {
           freeSolo
           sx={{ minWidth: 200 }}
         />
-
         {/* Changed Employee Email input to Autocomplete */}
         <Autocomplete
           options={emailsList}
@@ -586,7 +400,7 @@ function DailyLogs() {
           onChange={(e) => setMonth(e.target.value)}
           select
           size="small"
-          sx={{ minWidth: 120 }}
+          sx={{ minWidth: { xs: 150, sm: 120, md: 150 } }}
           SelectProps={{ native: true }}
         >
           <option value="" disabled></option>
@@ -596,14 +410,13 @@ function DailyLogs() {
             </option>
           ))}
         </TextField>
-
         <TextField
           label="Year"
           value={year}
           onChange={(e) => setYear(e.target.value)}
           select
           size="small"
-          sx={{ minWidth: 120 }}
+          sx={{ minWidth: { xs: 150, sm: 120, md: 150 } }}
           SelectProps={{ native: true }}
         >
           <option value="" disabled></option>
@@ -613,7 +426,6 @@ function DailyLogs() {
             </option>
           ))}
         </TextField>
-
         <Button
           variant="contained"
           color="primary"
@@ -631,7 +443,6 @@ function DailyLogs() {
           Apply Date Filter
         </Button> */}
       </Box>
-
       {logs.length > 0 ? (
         <Box>
           <TableContainer component={Paper}>
@@ -681,5 +492,4 @@ function DailyLogs() {
     </Box>
   );
 }
-
 export default DailyLogs;

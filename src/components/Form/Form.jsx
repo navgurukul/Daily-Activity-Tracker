@@ -47,6 +47,7 @@ const Form = () => {
   const [formData, setFormData] = useState(initialFormData);
 
   const [projectData, setProjectData] = useState([]);
+  const [residentialProjectData, setResidentialProjectData] = useState([]);
   const [selectedProject, setSelectedProject] = useState("");
   const [currentContribution, setCurrentContribution] = useState({
     hours: "0",
@@ -165,6 +166,7 @@ const Form = () => {
             return {
               projectName: project.projectName,
               status: project.projectStatus,
+              department: project.department,
             };
           });
 
@@ -182,7 +184,27 @@ const Form = () => {
             activeProjectNames.push("Saturday-Peer-Learning");
           }
           // console.log("Active Projects:", activeProjectNames);
-          setProjectData(activeProjectNames);
+          // setProjectData(activeProjectNames);
+
+          const nonResidentialProjects = projects
+            .filter(
+              (project) =>
+                !project.department.toLowerCase().includes("residential") &&
+                project.status === "Active"
+            )
+            .map((project) => project.projectName);            
+          // console.log("Non-Residential Projects:", nonResidentialProjects);
+          setProjectData(nonResidentialProjects);
+
+          const residentialProjects = projects
+            .filter(
+              (project) =>
+                project.department.includes("Residential") &&
+                project.status === "Active"
+            )
+            .map((project) => project.projectName);
+          // console.log("Residential Projects:", residentialProjects);
+          setResidentialProjectData(residentialProjects);
         });
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -726,25 +748,20 @@ const Form = () => {
               <option value="">--Select a project--</option>
               {projectData.map(
                 (project, index) => (
-                  console.log("Project:", project),
-                  console.log("Project:", project?.projectStatus),
-                  (
                     <option key={index} value={project}>
                       {project}
                     </option>
-                  )
                 )
               )}
             </select>
           ) : (
             <select value={selectedProject} onChange={handleProjectSelect}>
               <option value="">--Select a project--</option>
-              <option>Finance Management</option>
-              <option>Ad-hoc tasks</option>
-              <option>Team channels</option>
-              <option>Support Team Updates</option>
-              <option>Residential Program</option>
-              <option>Saturday-Peer-Learning</option>
+              {residentialProjectData.map((project, index) => (
+                <option key={index} value={project}>
+                  {project}
+                </option>
+              ))}
             </select>
           )}
           <br />

@@ -21,21 +21,39 @@ const CycleSummary = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      const token = localStorage.getItem("jwtToken");
+
+      if (!token) {
+        console.error("JWT token not found in local storage.");
+        setLoading(false);
+        return;
+      }
+
       try {
-        const email = localStorage.getItem('email');
-        const response = await axios.get(
-          'https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation',
-          { params: { email } }
+        const response = await fetch(
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
 
-        const data = response.data?.data?.[0];
+        if (!response.ok) {
+          throw new Error("Failed to fetch payroll data");
+        }
+
+        const result = await response.json();
+        const data = result?.data?.[0];
+
         if (data) {
           setSummaryData({ cycle1: data.cycle1, cycle2: data.cycle2 });
         } else {
-          throw new Error('No data found');
+          throw new Error("No data found");
         }
-      } catch (err) {
-        setError('Failed to fetch cycle summary');
+      } catch (error) {
+        console.error("Error fetching payroll data:", error);
+        setError("Failed to fetch cycle summary");
       } finally {
         setLoading(false);
       }
@@ -44,7 +62,6 @@ const CycleSummary = () => {
     fetchData();
   }, []);
 
-  // Updated labels with all requested keys and emojis
   const labels = {
     totalHours: '⏰ Total Hours Worked',
     totalWorkingDays: '📆 Total Working Days',

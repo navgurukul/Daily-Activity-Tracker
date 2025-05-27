@@ -39,6 +39,7 @@ const ProjectManagement = () => {
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const [filters, setFilters] = useState({
+    department: "",
     projectName: "",
     projectMasterEmail: "",
     priorities: "",
@@ -72,6 +73,9 @@ const ProjectManagement = () => {
   useEffect(() => {
     const filtered = projects.filter((project) => {
       return (
+        (project.department || "")
+          .toLowerCase()
+          .includes(filters.department.toLowerCase()) &&
         (project.projectName || "")
           .toLowerCase()
           .includes(filters.projectName.toLowerCase()) &&
@@ -117,6 +121,7 @@ const ProjectManagement = () => {
       setFeedbackMessage("Please fill in the project name.");
       return;
     }
+    if (data.department !== "Residential Program") {
     if (!data.channelName) {
       setFeedbackMessage("Please fill in the channel name.");
       return;
@@ -129,12 +134,13 @@ const ProjectManagement = () => {
       setFeedbackMessage("Please fill in the project master email.");
       return;
     }
-    if (!data.priorities) {
-      setFeedbackMessage("Please select a priority.");
-      return;
-    }
     if (!data.projectBudget) {
       setFeedbackMessage("Please fill in the project budget.");
+      return;
+    }
+  }
+    if (!data.priorities) {
+      setFeedbackMessage("Please select a priority.");
       return;
     }
     if (!data.projectStatus) {
@@ -349,6 +355,13 @@ const ProjectManagement = () => {
           <h4>Filters:</h4>
           <input
             type="text"
+            name="department"
+            placeholder="Filter by Department"
+            value={filters.department || ""}
+            onChange={handleFilterChange}
+          />
+          <input
+            type="text"
             name="projectName"
             placeholder="Filter by Project Name"
             value={filters.projectName}
@@ -390,6 +403,8 @@ const ProjectManagement = () => {
           </select>
         </div>
         <div className="table-wrapper">
+          {filteredProjects.length !== 0
+            ?
           <table>
             <thead>
               <tr>
@@ -429,6 +444,7 @@ const ProjectManagement = () => {
               ))}
             </tbody>
           </table>
+          : <p className="no-data">No projects found</p>}
         </div>
       </div>
       {isEditMode && (

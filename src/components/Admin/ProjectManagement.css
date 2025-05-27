@@ -177,3 +177,10 @@ th {
   min-width: 200px;
   font-size: 14px;
 }
+
+.no-data {
+  text-align: center;
+  color: gray;
+  padding: 20px;
+  font-size: 18px;
+}

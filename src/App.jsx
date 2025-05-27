@@ -21,7 +21,7 @@ import ProjectManagement from "./components/Admin/ProjectManagement";
 
 function App() {
   const dataContext = useContext(LoginContext);
-  const { email, isAdmin } = dataContext;
+  const { email, isAdmin, loading } = dataContext;
   const [feedbackData, setFeedbackData] = useState(null);
 
   useEffect(() => {
@@ -72,14 +72,12 @@ function App() {
             // element={<ProtectedRoute element={<MonthlyDashboard />} />}
             element={<MonthlyDashboard />}
           />
-          {/* <Route path="/admin" 
-          // element={<ProtectedRoute element={<AdminDashboard />} />} 
-          element={<AdminDashboard />}
-          /> */}
           <Route
             path="/admin"
             element={
-              isAdmin ? (
+              loading ? (
+                <div>Loading...</div>
+              ) : isAdmin ? (
                 <AdminDashboard />
               ) : (
                 <Navigate to="/unauthorized" replace />
@@ -88,16 +86,27 @@ function App() {
           />
           <Route
             path="/leave-history"
-            // element={<ProtectedRoute element={<LeaveHistory />} />}
             element={<LeaveHistory />}
           />
           <Route
             path="/role-update"
-            element={<RoleUpdateForm />}
+            element={
+              loading ? (
+                <div>Loading...</div>
+              ) :
+              isAdmin ? (
+                <RoleUpdateForm />
+              ) : (
+                <Navigate to="/unauthorized" replace />
+              )
+            }
           />
           <Route
             path="/project-management"
             element={
+              loading ? (
+                <div>Loading...</div>
+              ) :
               isAdmin ? (
                 <ProjectManagement />
               ) : (

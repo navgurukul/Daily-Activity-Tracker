@@ -4,21 +4,41 @@ const LoginContext = createContext();
 
 function LoginProvider({ children }) {
   const [email, setEmail] = useState(localStorage.getItem("email") || "");
-  // const [email, setEmail] = useState("amruta@navgurukul.org");
-
-  const adminEmails = [
-    "amitkumar@navgurukul.org",
-    "puran@navgurukul.org",
-    "amruta@navgurukul.org",
-    "ujjwal@navgurukul.org",
-  ];
-  const userEmail = localStorage.getItem("email");
-  const isAdmin = adminEmails.includes(userEmail);
+  const [adminEmails, setAdminEmails] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  }, [email]);
+    const fetchAdminUsers = async () => {
+      try {
+        const response = await fetch(
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl"
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch admin users");
+        }
+
+        const result = await response.json();
+        const adminList = result.items.map((item) => item.email);
+
+        // Remove duplicates, if any
+        const uniqueAdmins = [...new Set(adminList)];
+        setAdminEmails(uniqueAdmins);
+      } catch (error) {
+        console.error("Error fetching admin users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAdminUsers();
+  }, []);
+
+  const isAdmin = adminEmails.includes(email);
+  console.log("Admin Emails:", adminEmails);
+  console.log("Is Admin:", isAdmin);
+  
   return (
-    <LoginContext.Provider value={{ email, setEmail, isAdmin}}>
+    <LoginContext.Provider value={{ email, setEmail, isAdmin, loading }}>
       {children}
     </LoginContext.Provider>
   );

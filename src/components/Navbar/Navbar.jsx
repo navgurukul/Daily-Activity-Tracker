@@ -185,10 +185,10 @@ const Navbar = (props) => {
       <Divider />
       <List>
         {[
-          ...(isAdmin
-            ? [{ text: "Admin", icon: <AdminPanelSettingsIcon /> }]
-            : []),
-          { text: "Project Management", icon: <MenuBookIcon /> },
+          // ...(isAdmin
+          //   ? [{ text: "Admin", icon: <AdminPanelSettingsIcon /> }]
+          //   : []),
+          // { text: "Project Management", icon: <MenuBookIcon /> },
           // { text: "Admin", icon: <ParkIcon /> },
           { text: "Activity Tracker", icon: <PostAddIcon /> },
           { text: "Leave Application", icon: <ApprovalIcon /> },
@@ -260,7 +260,30 @@ const Navbar = (props) => {
         ))}
       </List> */}
       <Divider />
+      {isAdmin && (
       <List>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => handleClick("admin")}
+            // sx={{ marginTop: "0.5rem" }}
+          >
+            <ListItemIcon>
+              <AdminPanelSettingsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Admin" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => handleClick("project-management")}
+            // sx={{ marginTop: "0.5rem" }}
+          >
+            <ListItemIcon>
+              <MenuBookIcon />
+            </ListItemIcon>
+            <ListItemText primary="Project Management" />
+          </ListItemButton>
+        </ListItem>
         <ListItem disablePadding>
           <ListItemButton
             sx={{ marginTop: "auto" }}
@@ -269,24 +292,11 @@ const Navbar = (props) => {
             <ListItemIcon>
               <ManageAccountsIcon />
             </ListItemIcon>
-            <ListItemText
-              primary={
-                <span>
-                  Access Control{" "}
-                  {/* <strong>
-                    {localStorage
-                          .getItem("role")
-                          .charAt(0)
-                          .toUpperCase() +
-                        localStorage.getItem("role").slice(1)
-                      }
-                  </strong> */}
-                </span>
-              }
-            />
+            <ListItemText primary="Access Control" />
           </ListItemButton>
         </ListItem>
       </List>
+      )}
       <Divider />
       <List
         style={{

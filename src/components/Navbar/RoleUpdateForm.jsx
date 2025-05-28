@@ -518,9 +518,13 @@ const RoleUpdateForm = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState({ email: "", id: "" });
 
-  const [nextPageToken, setNextPageToken] = useState(null);
-  const [prevPageTokens, setPrevPageTokens] = useState([]);
-  const [currentPageToken, setCurrentPageToken] = useState(null);
+  // const [nextPageToken, setNextPageToken] = useState(null);
+  // const [previousPage, setpreviousPage] = useState([]);
+  // const [currentPage, setCurrentPage] = useState(null);
+
+  const [nextPage, setNextPage] = useState(null);
+  const [previousPage, setPreviousPage] = useState([]);
+  const [currentPage, setCurrentPage] = useState(null);
 
   const getRoleMessage = () => {
     switch (selectedRole) {
@@ -535,32 +539,63 @@ const RoleUpdateForm = () => {
     }
   };
 
-  const fetchFilteredUsers = async (pageToken = null) => {
+  // const fetchFilteredUsers = async (pageToken = null) => {
+  //   setLoading(true);
+  //   const queryParams = new URLSearchParams();
+  //   if (filterEmail.trim()) queryParams.append("email", filterEmail.trim());
+  //   if (filterRole.trim()) queryParams.append("role", filterRole.trim());
+  //   if (pageToken) queryParams.append("lastKey", pageToken);
+
+  //   try {
+  //     const res = await fetch(
+  //       `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?${queryParams.toString()}`
+  //     );
+  //     const data = await res.json();
+  //     setUsers(data.items || []);
+  //     setNextPageToken(data.nextPageToken || null);
+  //     setCurrentPage(pageToken);
+  //   } catch (err) {
+  //     console.error("Filtering error:", err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   const controller = new AbortController();
+  //   const timeout = setTimeout(() => {
+  //     setpreviousPage([]);
+  //     fetchFilteredUsers();
+  //   }, 400);
+  //   return () => {
+  //     clearTimeout(timeout);
+  //     controller.abort();
+  //   };
+  // }, [filterEmail, filterRole]);
+  const fetchFilteredUsers = async (page = 1) => {
     setLoading(true);
     const queryParams = new URLSearchParams();
     if (filterEmail.trim()) queryParams.append("email", filterEmail.trim());
     if (filterRole.trim()) queryParams.append("role", filterRole.trim());
-    if (pageToken) queryParams.append("lastKey", pageToken);
-
+    if (page > 1) queryParams.append("page", page);
     try {
       const res = await fetch(
         `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?${queryParams.toString()}`
       );
       const data = await res.json();
       setUsers(data.items || []);
-      setNextPageToken(data.nextPageToken || null);
-      setCurrentPageToken(pageToken);
+      setNextPage(data.nextPage || null); // store nextPage instead of nextPage
+      setCurrentPage(page); // optional: store the current page number
     } catch (err) {
       console.error("Filtering error:", err);
     } finally {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     const controller = new AbortController();
     const timeout = setTimeout(() => {
-      setPrevPageTokens([]);
+      setPreviousPage([]);
       fetchFilteredUsers();
     }, 400);
     return () => {
@@ -591,6 +626,13 @@ const RoleUpdateForm = () => {
     fetchEmails();
   }, []);
 
+  const formatRole = (role) => {
+    if (!role) return "";
+    return role
+      .replace(/([A-Z])/g, " $1") // Insert space before capital letters
+      .replace(/^./, (str) => str.toUpperCase()); // Capitalize first letter
+  };
+
   const handleAssignRole = async (e) => {
     e.preventDefault();
     if (!email) {
@@ -620,7 +662,11 @@ const RoleUpdateForm = () => {
 
       if (res.ok) {
         const data = await res.json();
-        setSnackbarMessage(data.message || "Role assigned successfully");
+        const roleDisplay = formatRole(selectedRole);
+        setSnackbarMessage(
+          `Successfully assigned the "${roleDisplay}" role to "${email}".`
+        );
+        // setSnackbarMessage(data.message || "Role assigned successfully");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
         setFilterEmail("");
@@ -726,6 +772,17 @@ const RoleUpdateForm = () => {
                     value={filterEmail}
                     onChange={(e) => setFilterEmail(e.target.value)}
                     label="Filter by Email"
+                    size="small"
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 400,
+                          width: 200,
+                          padding: 0,
+                          fontSize: "0.8rem",
+                        },
+                      },
+                    }}
                   >
                     <MenuItem value="">All</MenuItem>
                     {teamIds.map((email, i) => (
@@ -856,11 +913,11 @@ const RoleUpdateForm = () => {
                   >
                     <Button
                       variant="contained"
-                      disabled={prevPageTokens.length === 0}
+                      disabled={previousPage.length === 0}
                       onClick={() => {
-                        const prev = [...prevPageTokens];
+                        const prev = [...previousPage];
                         const lastToken = prev.pop(); // ✅ Go back to last token
-                        setPrevPageTokens(prev);
+                        setPreviousPage(prev);
                         fetchFilteredUsers(lastToken);
                       }}
                     >
@@ -869,13 +926,13 @@ const RoleUpdateForm = () => {
 
                     <Button
                       variant="contained"
-                      disabled={!nextPageToken}
+                      disabled={!nextPage}
                       onClick={() => {
-                        setPrevPageTokens([
-                          ...prevPageTokens,
-                          currentPageToken,
+                        setPreviousPage([
+                          ...previousPage,
+                          currentPage,
                         ]); // ✅ Store current before moving
-                        fetchFilteredUsers(nextPageToken);
+                        fetchFilteredUsers(nextPage);
                       }}
                     >
                       Next
@@ -896,6 +953,17 @@ const RoleUpdateForm = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     label="Select Email"
+                    size="small"
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 400,
+                          width: 200,
+                          padding: 0,
+                          fontSize: "0.8rem",
+                        },
+                      },
+                    }}
                   >
                     {teamIds.map((id) => (
                       <MenuItem key={id} value={id}>

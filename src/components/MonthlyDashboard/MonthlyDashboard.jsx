@@ -1,18 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Paper,
-  Typography,
-  Box,
-  CircularProgress,
-  Alert,
-  Card,
-  CardContent,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  IconButton,
-  Chip,
-} from "@mui/material";
+import {Paper,Typography,Box,CircularProgress,Alert,Card,CardContent,Dialog,DialogTitle,DialogContent,IconButton,Chip} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import "./MonthlyDashboard.css";
 import CycleSummary from "./CycleSummary";
@@ -109,7 +96,7 @@ const MonthlyDashboard = () => {
   }
   return (
     
-    <Paper className="dashboard-container">
+    <Paper className="dashboard-container" style={{ overflowY: "scroll", height: "90vh" }}>
       <div
         className="dashboard-header-container"
         style={{

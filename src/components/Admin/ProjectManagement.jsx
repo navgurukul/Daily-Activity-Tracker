@@ -244,7 +244,7 @@ const ProjectManagement = () => {
   return (
     <div
       className="admin-container"
-      style={{ overflowY: "scroll", height: "100vh" }}
+      style={{ overflowY: "scroll", height: "90vh" }}
     >
       <h1 className="admin-title">Admin - Project Tracker</h1>
 

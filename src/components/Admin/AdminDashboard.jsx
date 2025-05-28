@@ -25,7 +25,7 @@ const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState("dailyLogs");
 
   return (
-    <div className="admin-dashboard">
+    <div className="admin-dashboard" style={{ overflowY: "scroll", height: "95vh" }}>
       {/* {isAdmin ? ( */}
         <>
           <div className="admin-navbar">

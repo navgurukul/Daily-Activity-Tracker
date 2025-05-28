@@ -1,7 +1,7 @@
 .admin-dashboard {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  /* min-height: 100vh; */
   background-color: #f9fafb;
   margin-left: 3%;
   margin-right: 3%;

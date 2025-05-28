@@ -18,6 +18,7 @@ const NoTabNavBar = () => {
         style={{
           textAlign: "center",
           fontSize: "1.5rem",
+          color: "white",
         }}
       >
         Welcome to Samyarth Daily Activities Tracker

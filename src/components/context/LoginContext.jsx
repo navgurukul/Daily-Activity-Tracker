@@ -8,29 +8,27 @@ function LoginProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAdminUsers = async () => {
+    const checkIfAdminUser = async () => {
       try {
-        const response = await fetch(
-          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl"
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch admin users");
+        const userEmail = localStorage.getItem("email") ?? "";
+        if (!userEmail) return;
+        const roleUrl = `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?email=${userEmail}`;
+        const res = await fetch(roleUrl);
+        const data = await res.json();
+        const role = data?.items?.[0]?.role?.toLowerCase() || "user";
+        const allowedRoles = ["admin", "super admin", "project manager"];
+        if (allowedRoles.includes(role)) {
+          setAdminEmails([userEmail]); // Only current user's email
+        } else {
+          setAdminEmails([]); // Clear it if not an admin
         }
-
-        const result = await response.json();
-        const adminList = result.items.map((item) => item.email);
-
-        // Remove duplicates, if any
-        const uniqueAdmins = [...new Set(adminList)];
-        setAdminEmails(uniqueAdmins);
       } catch (error) {
-        console.error("Error fetching admin users:", error);
+        console.error("Error checking user role:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchAdminUsers();
+    checkIfAdminUser();
   }, []);
 
   const isAdmin = adminEmails.includes(email);

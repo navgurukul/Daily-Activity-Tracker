@@ -411,6 +411,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import "./LeaveManagement.css";
 import { LoginContext } from "../context/LoginContext";
+import { Snackbar, Alert, TextField, Autocomplete } from "@mui/material";
 
 const LeaveManagement = () => {
   const dataContext = useContext(LoginContext);
@@ -425,6 +426,10 @@ const LeaveManagement = () => {
   const [balanceError, setBalanceError] = useState("");
   const [allEmails, setAllEmails] = useState([]);
   const [filteredLeaveHistory, setFilteredLeaveHistory] = useState([]);
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   useEffect(() => {
     fetch(
@@ -480,21 +485,40 @@ const LeaveManagement = () => {
 
       const approveResult = await approveResponse.json();
 
-      if (approveResponse.ok) {
-        alert(`Leave approved for ${email}`);
-        const approvedLeave = pendingLeaves.find(
-          (leave) => leave.Id === leaveId
-        );
-        setPendingLeaves((prev) =>
-          prev.filter((leave) => leave.Id !== leaveId)
-        );
-        setApprovedLeaves((prev) => [...prev, approvedLeave]);
-      } else {
-        alert("Approval failed. Please try again.");
-      }
-    } catch (error) {
-      alert("Something went wrong.");
+    //   if (approveResponse.ok) {
+    //     alert(`Leave approved for ${email}`);
+    //     const approvedLeave = pendingLeaves.find(
+    //       (leave) => leave.Id === leaveId
+    //     );
+    //     setPendingLeaves((prev) =>
+    //       prev.filter((leave) => leave.Id !== leaveId)
+    //     );
+    //     setApprovedLeaves((prev) => [...prev, approvedLeave]);
+    //   } else {
+    //     alert("Approval failed. Please try again.");
+    //   }
+    // } catch (error) {
+    //   alert("Something went wrong.");
+    // }
+    if (approveResponse.ok) {
+      const approvedLeave = pendingLeaves.find((leave) => leave.Id === leaveId);
+      setPendingLeaves((prev) => prev.filter((leave) => leave.Id !== leaveId));
+      setApprovedLeaves((prev) => [...prev, approvedLeave]);
+      
+      setSnackbarMessage(`Leave approved for ${email}`);
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } else {
+      setSnackbarMessage("Approval failed. Please try again.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
+
+  } catch (error) {
+    setSnackbarMessage("Something went wrong.");
+    setSnackbarSeverity("error");
+    setSnackbarOpen(true);
+  }
   };
 
   const fetchLeaveBalance = async () => {
@@ -774,7 +798,7 @@ const LeaveManagement = () => {
               alignItems: "center",
             }}
           >
-            <select
+            {/* <select
               value={searchEmail}
               onChange={(e) => setSearchEmail(e.target.value)}
               style={{ padding: "8px", width: "300px", fontSize: "14px" }}
@@ -785,7 +809,24 @@ const LeaveManagement = () => {
                   {email}
                 </option>
               ))}
-            </select>
+            </select> */}
+            <Autocomplete
+              options={allEmails}
+              value={searchEmail}
+              onChange={(event, newValue) => {
+                setSearchEmail(newValue || "");
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Filter by Email"
+                  size="small"
+                  sx={{ fontSize: "14px" }}
+                />
+              )}
+              freeSolo
+              sx={{ minWidth: 300 }}
+            />
           </div>
 
           {filteredLeaveHistory.length === 0 ? (
@@ -824,6 +865,25 @@ const LeaveManagement = () => {
           )}
         </div>
       )}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+          sx={{
+            width: "100%",
+            backgroundColor:
+              snackbarSeverity === "success" ? "#4CAF50" : "f44336",
+            color: "white",
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

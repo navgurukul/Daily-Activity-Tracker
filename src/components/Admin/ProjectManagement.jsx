@@ -242,7 +242,10 @@ const ProjectManagement = () => {
   }, [feedbackMessage]);
 
   return (
-    <div className="admin-container">
+    <div
+      className="admin-container"
+      style={{ overflowY: "scroll", height: "100vh" }}
+    >
       <h1 className="admin-title">Admin - Project Tracker</h1>
 
       <div className="form-container">
@@ -274,22 +277,24 @@ const ProjectManagement = () => {
           />
           {selectedDept !== "Residential Program" && (
             <>
-            <input
-              type="text"
-              placeholder="Slack Channel Name"
-              className="input-field"
-              value={data.channelName}
-              onChange={(e) =>
-                setData({ ...data, channelName: e.target.value })
-              }
-            />
-            <input
-              type="text"
-              placeholder="Slack Channel ID"
-              className="input-field"
-              value={data.channelId}
-              onChange={(e) => setData({ ...data, channelId: e.target.value })}
-            />
+              <input
+                type="text"
+                placeholder="Slack Channel Name"
+                className="input-field"
+                value={data.channelName}
+                onChange={(e) =>
+                  setData({ ...data, channelName: e.target.value })
+                }
+              />
+              <input
+                type="text"
+                placeholder="Slack Channel ID"
+                className="input-field"
+                value={data.channelId}
+                onChange={(e) =>
+                  setData({ ...data, channelId: e.target.value })
+                }
+              />
             </>
           )}
           <input
@@ -403,48 +408,49 @@ const ProjectManagement = () => {
           </select>
         </div>
         <div className="table-wrapper">
-          {filteredProjects.length !== 0
-            ?
-          <table>
-            <thead>
-              <tr>
-                <th>Department Name</th>
-                <th>Project Name</th>
-                <th>Channel Name</th>
-                <th>Channel ID</th>
-                <th>PM Email</th>
-                <th>Client Name</th>
-                <th>Priorities</th>
-                <th>Project Budget</th>
-                <th>Status</th>
-                <th>Edit</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProjects.map((project, index) => (
-                <tr key={index}>
-                  <td>{project.department}</td>
-                  <td>{project.projectName}</td>
-                  <td>{project.channelName}</td>
-                  <td>{project.channelId}</td>
-                  <td>{project.projectMasterEmail}</td>
-                  <td>{project.clientName}</td>
-                  <td>{project.priorities}</td>
-                  <td>{project.projectBudget}</td>
-                  <td>{project.projectStatus}</td>
-                  <td>
-                    <button
-                      className="editBtn"
-                      onClick={() => handleEditProject(project, index)}
-                    >
-                      ✏️
-                    </button>
-                  </td>
+          {filteredProjects.length !== 0 ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>Department Name</th>
+                  <th>Project Name</th>
+                  <th>Channel Name</th>
+                  <th>Channel ID</th>
+                  <th>PM Email</th>
+                  <th>Client Name</th>
+                  <th>Priorities</th>
+                  <th>Project Budget</th>
+                  <th>Status</th>
+                  <th>Edit</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          : <p className="no-data">No projects found</p>}
+              </thead>
+              <tbody>
+                {filteredProjects.map((project, index) => (
+                  <tr key={index}>
+                    <td>{project.department}</td>
+                    <td>{project.projectName}</td>
+                    <td>{project.channelName}</td>
+                    <td>{project.channelId}</td>
+                    <td>{project.projectMasterEmail}</td>
+                    <td>{project.clientName}</td>
+                    <td>{project.priorities}</td>
+                    <td>{project.projectBudget}</td>
+                    <td>{project.projectStatus}</td>
+                    <td>
+                      <button
+                        className="editBtn"
+                        onClick={() => handleEditProject(project, index)}
+                      >
+                        ✏️
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p className="no-data">No projects found</p>
+          )}
         </div>
       </div>
       {isEditMode && (

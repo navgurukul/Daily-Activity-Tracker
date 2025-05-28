@@ -108,6 +108,7 @@ const MonthlyDashboard = () => {
     return <Alert severity="error">{error}</Alert>;
   }
   return (
+    
     <Paper className="dashboard-container">
       <div
         className="dashboard-header-container"

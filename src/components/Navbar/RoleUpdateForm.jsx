@@ -698,253 +698,260 @@ const RoleUpdateForm = () => {
   };
 
   return (
-    <div className="main">
-      <div className="role-update-container">
-        <div className="tabs">
-          <button
-            className={`tab-button ${tabIndex === 0 ? "active-tab" : ""}`}
-            onClick={() => setTabIndex(0)}
-          >
-            👤 Manage Users
-          </button>
-          <button
-            className={`tab-button ${tabIndex === 1 ? "active-tab" : ""}`}
-            onClick={() => setTabIndex(1)}
-          >
-            🛡️ Assign Roles
-          </button>
-        </div>
+    <div style={{ overflowY: "scroll", height: "100vh" }}>
+      <div className="main">
+        <div className="role-update-container">
+          <div className="tabs">
+            <button
+              className={`tab-button ${tabIndex === 0 ? "active-tab" : ""}`}
+              onClick={() => setTabIndex(0)}
+            >
+              👤 Manage Users
+            </button>
+            <button
+              className={`tab-button ${tabIndex === 1 ? "active-tab" : ""}`}
+              onClick={() => setTabIndex(1)}
+            >
+              🛡️ Assign Roles
+            </button>
+          </div>
 
-        {tabIndex === 0 && (
-          <div className="all-users">
-            <h2>All Users</h2>
-            <div className="filter-section">
-              <FormControl size="small">
-                <InputLabel>Filter by Email</InputLabel>
-                <Select
-                  value={filterEmail}
-                  onChange={(e) => setFilterEmail(e.target.value)}
-                  label="Filter by Email"
+          {tabIndex === 0 && (
+            <div className="all-users">
+              <h2>All Users</h2>
+              <div className="filter-section">
+                <FormControl size="small">
+                  <InputLabel>Filter by Email</InputLabel>
+                  <Select
+                    value={filterEmail}
+                    onChange={(e) => setFilterEmail(e.target.value)}
+                    label="Filter by Email"
+                  >
+                    <MenuItem value="">All</MenuItem>
+                    {teamIds.map((email, i) => (
+                      <MenuItem key={i} value={email}>
+                        {email}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <TextField
+                  label="Filter by Role"
+                  variant="outlined"
+                  select
+                  value={filterRole}
+                  onChange={(e) => setFilterRole(e.target.value)}
+                  size="small"
                 >
                   <MenuItem value="">All</MenuItem>
-                  {teamIds.map((email, i) => (
-                    <MenuItem key={i} value={email}>
-                      {email}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <TextField
-                label="Filter by Role"
-                variant="outlined"
-                select
-                value={filterRole}
-                onChange={(e) => setFilterRole(e.target.value)}
-                size="small"
-              >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="admin">Admin</MenuItem>
-                <MenuItem value="projectManager">Project Manager</MenuItem>
-                <MenuItem value="superAdmin">Super Admin</MenuItem>
-              </TextField>
-              <Button
-                variant="outlined"
-                onClick={handleClearFilters}
-                style={{ border: "2px solid #f44336", color: "#f44336" }}
-              >
-                Clear Filters
-              </Button>
-            </div>
-
-            {loading ? (
-              <CircularProgress
-                style={{
-                  display: "block",
-                  margin: "0 auto",
-                  marginTop: "100px",
-                }}
-              />
-            ) : users.length === 0 ? (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "40px",
-                  fontWeight: "bold",
-                  fontSize: "18px",
-                }}
-              >
-                No user found
-              </div>
-            ) : (
-              <>
-                <div style={{ width: "100%", overflow: "auto" }}>
-                  <table
-                    border="1"
-                    cellPadding="8"
-                    style={{ borderCollapse: "collapse", width: "98%" }}
-                  >
-                    <thead>
-                      <tr>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {users.map((user, idx) => (
-                        <tr key={idx}>
-                          <td>{user.email}</td>
-                          <td>
-                            {user.role
-                              .split(/(?=[A-Z])/)
-                              .join(" ")
-                              .replace(/^\w/, (c) => c.toUpperCase())}
-                          </td>
-                          <td>
-                            <button
-                              style={{
-                                background: "#f44336",
-                                padding: "5px 10px",
-                                cursor: "pointer",
-                              }}
-                              onClick={() => handleDelete(user.email, user.Id)}
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <Dialog
-                  open={deleteDialogOpen}
-                  onClose={() => setDeleteDialogOpen(false)}
+                  <MenuItem value="admin">Admin</MenuItem>
+                  <MenuItem value="projectManager">Project Manager</MenuItem>
+                  <MenuItem value="superAdmin">Super Admin</MenuItem>
+                </TextField>
+                <Button
+                  variant="outlined"
+                  onClick={handleClearFilters}
+                  style={{ border: "2px solid #f44336", color: "#f44336" }}
                 >
-                  <DialogTitle>Delete Role</DialogTitle>
-                  <DialogContent>
-                    <p>
-                      Choose delete option for{" "}
-                      <strong>{deleteTarget.email}</strong>:
-                    </p>
-                    <Button
-                      onClick={() => confirmDelete("email")}
-                      color="error"
-                      sx={{ m: 1 }}
-                    >
-                      🧹 Delete all roles associated with this email
-                    </Button>
-                    <Button
-                      onClick={() => confirmDelete("id")}
-                      color="error"
-                      sx={{ m: 1 }}
-                    >
-                      🧩 Delete selected role
-                    </Button>
-                  </DialogContent>
-                </Dialog>
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    gap: 2,
-                    marginTop: 2,
+                  Clear Filters
+                </Button>
+              </div>
+
+              {loading ? (
+                <CircularProgress
+                  style={{
+                    display: "block",
+                    margin: "0 auto",
+                    marginTop: "100px",
+                  }}
+                />
+              ) : users.length === 0 ? (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "40px",
+                    fontWeight: "bold",
+                    fontSize: "18px",
                   }}
                 >
-                  <Button
-                    variant="contained"
-                    disabled={prevPageTokens.length === 0}
-                    onClick={() => {
-                      const prev = [...prevPageTokens];
-                      const lastToken = prev.pop(); // ✅ Go back to last token
-                      setPrevPageTokens(prev);
-                      fetchFilteredUsers(lastToken);
+                  No user found
+                </div>
+              ) : (
+                <>
+                  <div style={{ width: "100%", overflow: "auto" }}>
+                    <table
+                      border="1"
+                      cellPadding="8"
+                      style={{ borderCollapse: "collapse", width: "98%" }}
+                    >
+                      <thead>
+                        <tr>
+                          <th>Email</th>
+                          <th>Role</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {users.map((user, idx) => (
+                          <tr key={idx}>
+                            <td>{user.email}</td>
+                            <td>
+                              {user.role
+                                .split(/(?=[A-Z])/)
+                                .join(" ")
+                                .replace(/^\w/, (c) => c.toUpperCase())}
+                            </td>
+                            <td>
+                              <button
+                                style={{
+                                  background: "#f44336",
+                                  padding: "5px 10px",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() =>
+                                  handleDelete(user.email, user.Id)
+                                }
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <Dialog
+                    open={deleteDialogOpen}
+                    onClose={() => setDeleteDialogOpen(false)}
+                  >
+                    <DialogTitle>Delete Role</DialogTitle>
+                    <DialogContent>
+                      <p>
+                        Choose delete option for{" "}
+                        <strong>{deleteTarget.email}</strong>:
+                      </p>
+                      <Button
+                        onClick={() => confirmDelete("email")}
+                        color="error"
+                        sx={{ m: 1 }}
+                      >
+                        🧹 Delete all roles associated with this email
+                      </Button>
+                      <Button
+                        onClick={() => confirmDelete("id")}
+                        color="error"
+                        sx={{ m: 1 }}
+                      >
+                        🧩 Delete selected role
+                      </Button>
+                    </DialogContent>
+                  </Dialog>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      gap: 2,
+                      marginTop: 2,
                     }}
                   >
-                    Previous
-                  </Button>
+                    <Button
+                      variant="contained"
+                      disabled={prevPageTokens.length === 0}
+                      onClick={() => {
+                        const prev = [...prevPageTokens];
+                        const lastToken = prev.pop(); // ✅ Go back to last token
+                        setPrevPageTokens(prev);
+                        fetchFilteredUsers(lastToken);
+                      }}
+                    >
+                      Previous
+                    </Button>
 
-                  <Button
-                    variant="contained"
-                    disabled={!nextPageToken}
-                    onClick={() => {
-                      setPrevPageTokens([...prevPageTokens, currentPageToken]); // ✅ Store current before moving
-                      fetchFilteredUsers(nextPageToken);
-                    }}
-                  >
-                    Next
-                  </Button>
-                </Box>
-              </>
-            )}
-          </div>
-        )}
-
-        {tabIndex === 1 && (
-          <div className="assign-role">
-            <h2>Assign Role</h2>
-            <div className="filter-role">
-              <FormControl size="small">
-                <InputLabel>Select Email</InputLabel>
-                <Select
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  label="Select Email"
-                >
-                  {teamIds.map((id) => (
-                    <MenuItem key={id} value={id}>
-                      {id}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <TextField
-                label="Select Role"
-                select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                size="small"
-              >
-                <MenuItem value="admin">Admin</MenuItem>
-                <MenuItem value="projectManager">Project Manager</MenuItem>
-                <MenuItem value="superAdmin">Super Admin</MenuItem>
-              </TextField>
-              <Button
-                variant="contained"
-                onClick={handleAssignRole}
-                style={{ backgroundColor: "#4CAF50", color: "white" }}
-              >
-                Assign Role
-              </Button>
+                    <Button
+                      variant="contained"
+                      disabled={!nextPageToken}
+                      onClick={() => {
+                        setPrevPageTokens([
+                          ...prevPageTokens,
+                          currentPageToken,
+                        ]); // ✅ Store current before moving
+                        fetchFilteredUsers(nextPageToken);
+                      }}
+                    >
+                      Next
+                    </Button>
+                  </Box>
+                </>
+              )}
             </div>
-            {selectedRole && (
-              <Box mt={4}>
-                <Typography variant="body1" color="textSecondary">
-                  {getRoleMessage()}
-                </Typography>
-              </Box>
-            )}
-          </div>
-        )}
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={3000}
-          onClose={() => setSnackbarOpen(false)}
-          anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-        >
-          <Alert
+          )}
+
+          {tabIndex === 1 && (
+            <div className="assign-role">
+              <h2>Assign Role</h2>
+              <div className="filter-role">
+                <FormControl size="small">
+                  <InputLabel>Select Email</InputLabel>
+                  <Select
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    label="Select Email"
+                  >
+                    {teamIds.map((id) => (
+                      <MenuItem key={id} value={id}>
+                        {id}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <TextField
+                  label="Select Role"
+                  select
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                  size="small"
+                >
+                  <MenuItem value="admin">Admin</MenuItem>
+                  <MenuItem value="projectManager">Project Manager</MenuItem>
+                  <MenuItem value="superAdmin">Super Admin</MenuItem>
+                </TextField>
+                <Button
+                  variant="contained"
+                  onClick={handleAssignRole}
+                  style={{ backgroundColor: "#4CAF50", color: "white" }}
+                >
+                  Assign Role
+                </Button>
+              </div>
+              {selectedRole && (
+                <Box mt={4}>
+                  <Typography variant="body1" color="textSecondary">
+                    {getRoleMessage()}
+                  </Typography>
+                </Box>
+              )}
+            </div>
+          )}
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={3000}
             onClose={() => setSnackbarOpen(false)}
-            severity={snackbarSeverity}
-            sx={{ width: "100%" }}
-            style={{
-              backgroundColor:
-                snackbarSeverity === "success" ? "#4CAF50" : "#f44336",
-              color: "white",
-            }}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
           >
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
+            <Alert
+              onClose={() => setSnackbarOpen(false)}
+              severity={snackbarSeverity}
+              sx={{ width: "100%" }}
+              style={{
+                backgroundColor:
+                  snackbarSeverity === "success" ? "#4CAF50" : "#f44336",
+                color: "white",
+              }}
+            >
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
+        </div>
       </div>
     </div>
   );

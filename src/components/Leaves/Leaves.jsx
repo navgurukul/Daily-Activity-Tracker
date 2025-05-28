@@ -311,7 +311,7 @@ const Leaves = () => {
   };
   
   return (
-    <StyledContainer>
+    <StyledContainer style={{ overflowY: "scroll", height: "100vh" }}>
       {loading && (
         <Box
           sx={{

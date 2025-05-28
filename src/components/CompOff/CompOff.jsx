@@ -107,9 +107,11 @@ const CompOff = () => {
   };
 
   return (
-    <div>
+    <div style={{ overflowY: "scroll", height: "100vh" }}>
       <LoadingSpinner loading={loading} />
-      <h1 style={{ textAlign: "center" }}>Compensatory Request Application Form</h1>
+      <h1 style={{ textAlign: "center" }}>
+        Compensatory Request Application Form
+      </h1>
 
       <form onSubmit={handleSubmit} className="form-1">
         {error && <p style={{ color: "red" }}>{error}</p>}

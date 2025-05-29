@@ -479,9 +479,9 @@ const LeaveManagement = () => {
         }
       );
 
-      if (!approveResponse.ok) {
-        throw new Error("Network response was not ok");
-      }
+      // if (!approveResponse.ok) {
+      //   throw new Error("Network response was not ok");
+      // }
 
       const approveResult = await approveResponse.json();
 
@@ -509,7 +509,10 @@ const LeaveManagement = () => {
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } else {
-      setSnackbarMessage("Approval failed. Please try again.");
+      // setSnackbarMessage("Approval failed. Please try again.");
+      setSnackbarMessage(
+        approveResult?.message || "Approval failed. Please try again."
+      );
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
@@ -867,7 +870,7 @@ const LeaveManagement = () => {
       )}
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={3000}
+        autoHideDuration={5000}
         onClose={() => setSnackbarOpen(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       >
@@ -877,7 +880,7 @@ const LeaveManagement = () => {
           sx={{
             width: "100%",
             backgroundColor:
-              snackbarSeverity === "success" ? "#4CAF50" : "f44336",
+              snackbarSeverity === "success" ? "#4CAF50" : "#f44336",
             color: "white",
           }}
         >

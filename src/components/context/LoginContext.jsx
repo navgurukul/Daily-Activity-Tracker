@@ -1,12 +1,9 @@
 import React, { createContext, useEffect, useState } from "react";
-
 const LoginContext = createContext();
-
 function LoginProvider({ children }) {
   const [email, setEmail] = useState(localStorage.getItem("email") || "");
-  const [adminEmails, setAdminEmails] = useState([]);
+  const [userRoles, setUserRoles] = useState([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const checkIfAdminUser = async () => {
       try {
@@ -15,13 +12,12 @@ function LoginProvider({ children }) {
         const roleUrl = `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?email=${userEmail}`;
         const res = await fetch(roleUrl);
         const data = await res.json();
-        const role = data?.items?.[0]?.role?.toLowerCase() || "user";
-        const allowedRoles = ["admin", "super admin", "project manager"];
-        if (allowedRoles.includes(role)) {
-          setAdminEmails([userEmail]); // Only current user's email
-        } else {
-          setAdminEmails([]); // Clear it if not an admin
-        }
+        const roles =
+          data?.items?.map((item) =>
+            item.role.toLowerCase().replace(/\s+/g, "")
+          ) || [];
+        console.log("User Roles:", roles);
+        setUserRoles(roles); // store all user roles
       } catch (error) {
         console.error("Error checking user role:", error);
       } finally {
@@ -30,16 +26,13 @@ function LoginProvider({ children }) {
     };
     checkIfAdminUser();
   }, []);
-
-  const isAdmin = adminEmails.includes(email);
-  console.log("Admin Emails:", adminEmails);
+  const allowedRoles = ["admin", "superadmin", "projectmanager"];
+  const isAdmin = userRoles.some((role) => allowedRoles.includes(role));
   console.log("Is Admin:", isAdmin);
-  
   return (
     <LoginContext.Provider value={{ email, setEmail, isAdmin, loading }}>
       {children}
     </LoginContext.Provider>
   );
 }
-
 export { LoginProvider, LoginContext };

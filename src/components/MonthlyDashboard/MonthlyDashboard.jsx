@@ -116,7 +116,7 @@ const MonthlyDashboard = () => {
     return <Alert severity="error">{error}</Alert>;
   }
   return (
-    <Paper className="dashboard-container">
+    <Paper className="dashboard-container" style={{ overflowY: "scroll", height: "100vh" }}>
       <div
         className="dashboard-header-container"
         style={{

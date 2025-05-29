@@ -35,12 +35,14 @@ function DailyLogs() {
   const [emailsList, setEmailsList] = useState([]);
   const [projectList, setProjectList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const userEmail = localStorage.getItem("email");
   const [editLog, setEditLog] = useState(null);
   const [editedData, setEditedData] = useState({
     Id: "",
-    approvalEmail: "",
+    approvalEmail: userEmail,
     workDescription: "",
     projectName: "",
+    totalHoursSpent: "",
   });
   const [snackbar, setSnackbar] = useState({ open: false, message: "", error: false });
   const [loading, setLoading] = useState(false);
@@ -69,7 +71,7 @@ function DailyLogs() {
           email,
           date: log.entryDate,
           project: log.projectName,
-          hours: log.totalHoursSpent,
+          totalHoursSpent: log.totalHoursSpent,
           description: log.workDescription,
           updatedAt: log.updatedAt,
           logStatus: log.logStatus || "pending",
@@ -116,9 +118,10 @@ function DailyLogs() {
   const handleEditClick = (log) => {
     setEditedData({
       Id: log.Id,
-      approvalEmail: log.email,
+      approvalEmail: userEmail,
       workDescription: log.description,
       projectName: log.project,
+      totalHoursSpent: log.totalHoursSpent,
     });
     setEditLog(log);
   };
@@ -166,7 +169,7 @@ function DailyLogs() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
           },
-          body: JSON.stringify([{ Id: log.Id, approvalEmail: log.email, logStatus: "approved" }]),
+          body: JSON.stringify([{ Id: log.Id, approvalEmail: userEmail, logStatus: "approved" }]),
         }
       );
       if (response.ok) {
@@ -246,7 +249,7 @@ function DailyLogs() {
                     <TableCell>{log.email}</TableCell>
                     <TableCell>{log.date}</TableCell>
                     <TableCell>{log.project}</TableCell>
-                    <TableCell>{log.hours}</TableCell>
+                    <TableCell>{log.totalHoursSpent}</TableCell>
                     <TableCell>{log.description}</TableCell>
                     <TableCell>
                       <Chip label={log.logStatus} color={log.logStatus === "approved" ? "success" : "warning"} size="small" />
@@ -268,21 +271,36 @@ function DailyLogs() {
         <Typography align="center" color="textSecondary">No logs found for selected filters.</Typography>
       )}
 
-      {/* Edit Dialog */}
-      <Dialog open={!!editLog} onClose={() => setEditLog(null)} fullWidth maxWidth="sm">
-        <DialogTitle>Edit Log</DialogTitle>
-        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
-          <TextField label="Approval Email" value={editedData.approvalEmail} onChange={(e) => handleEditChange("approvalEmail", e.target.value)} />
-          <TextField label="Project Name" value={editedData.projectName} onChange={(e) => handleEditChange("projectName", e.target.value)} />
-          <TextField label="Work Description" multiline rows={3} value={editedData.workDescription} onChange={(e) => handleEditChange("workDescription", e.target.value)} />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setEditLog(null)}>Cancel</Button>
-          <Button variant="contained" onClick={handleEditSubmit}>Update</Button>
-        </DialogActions>
-      </Dialog>
+      {/* Edit Dialog  */}
+        <Dialog
+          open={!!editLog}
+          onClose={() => setEditLog(null)}
+          fullWidth
+          maxWidth="md" 
+          PaperProps={{
+            sx: { minHeight: 400, minWidth: 600 },
+          }}
+        >
+          <DialogTitle>Edit Log</DialogTitle>
+          <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+            <TextField label="Approver Email" value={userEmail} disabled sx={{mt:1}} />
+            <TextField label="Project Name" value={editedData.projectName} onChange={(e) => handleEditChange("projectName", e.target.value)} />
+            <TextField label="Work Description" multiline rows={3} value={editedData.workDescription} onChange={(e) => handleEditChange("workDescription", e.target.value)} />
+            <TextField
+          label="Total Hours Spent"
+          type="number"
+          value={editedData.totalHoursSpent}
+          onChange={(e) => handleEditChange("totalHoursSpent", e.target.value)}
+          InputProps={{ inputProps: { min: 0 } }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setEditLog(null)}>Cancel</Button>
+            <Button variant="contained" onClick={handleEditSubmit}>Update</Button>
+          </DialogActions>
+        </Dialog>
 
-      {/* Snackbar */}
+        {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}

@@ -32,6 +32,8 @@ const Payroll = () => {
   const [nameFilter, setNameFilter] = useState("");
   const [emailFilter, setEmailFilter] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [monthFilter, setMonthFilter] = useState("");
+  const [yearFilter, setYearFilter] = useState("");
 
   useEffect(() => {
     const fetchPayrollData = async () => {
@@ -43,20 +45,50 @@ const Payroll = () => {
         return;
       }
 
-      try {
-        const response = await fetch(
-          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+      // try {
+      //   const response = await fetch(
+      //     "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation",
+      //     {
+      //       headers: {
+      //         Authorization: `Bearer ${token}`,
+      //       },
+      //     }
+      //   );
 
+      //   if (!response.ok) {
+      //     throw new Error("Failed to fetch payroll data");
+      //   }
+
+      //   const result = await response.json();
+      //   setPayrollData(result.data);
+      // }
+      //    catch (error) {
+      //     console.error("Error fetching payroll data:", error);
+      //   } finally {
+      //     setLoading(false);
+      //   }
+      // };
+
+      // fetchPayrollData();
+      // }, []);
+      try {
+        let url =
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation";
+        const queryParams = new URLSearchParams();
+        if (emailFilter) queryParams.append("email", emailFilter);
+        if (monthFilter) queryParams.append("month", parseInt(monthFilter) - 1);
+        if (yearFilter) queryParams.append("year", yearFilter);
+        if (queryParams.toString()) {
+          url += `?${queryParams.toString()}`;
+        }
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (!response.ok) {
           throw new Error("Failed to fetch payroll data");
         }
-
         const result = await response.json();
         setPayrollData(result.data);
       } catch (error) {
@@ -65,9 +97,8 @@ const Payroll = () => {
         setLoading(false);
       }
     };
-
     fetchPayrollData();
-  }, []);
+  }, [emailFilter, monthFilter, yearFilter]);
 
   const handleClickOpen = (person) => {
     setSelectedPerson(person);
@@ -137,6 +168,57 @@ const Payroll = () => {
           size="small"
         />
         <TextField
+          select
+          label="Filter by Month"
+          variant="outlined"
+          value={monthFilter}
+          onChange={(e) => setMonthFilter(e.target.value)}
+          size="small"
+          sx={{ width: 165 }}
+          SelectProps={{
+            MenuProps: {
+              PaperProps: {
+                style: {
+                  maxHeight: 200,
+                },
+              },
+            },
+          }}
+        >
+          {Array.from({ length: 12 }, (_, i) => (
+            <MenuItem key={i + 1} value={i + 1}>
+              {i + 1}
+            </MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          select
+          label="Filter by Year"
+          variant="outlined"
+          value={yearFilter}
+          onChange={(e) => setYearFilter(e.target.value)}
+          size="small"
+          sx={{ width: 165 }}
+          SelectProps={{
+            MenuProps: {
+              PaperProps: {
+                style: {
+                  maxHeight: 200,
+                },
+              },
+            },
+          }}
+        >
+          {Array.from({ length: 25 }, (_, i) => {
+            const year = 2025 - i;
+            return (
+              <MenuItem key={year} value={year}>
+                {year}
+              </MenuItem>
+            );
+          })}
+        </TextField>
+        <TextField
           label="Sort by Payable Days"
           select
           value={sortOrder}
@@ -147,6 +229,27 @@ const Payroll = () => {
           <MenuItem value="asc">Low to High</MenuItem>
           <MenuItem value="desc">High to Low</MenuItem>
         </TextField>
+        <Button
+          variant="outlined"
+          onClick={() => {
+            setNameFilter("");
+            setEmailFilter("");
+            setMonthFilter("");
+            setYearFilter("");
+            setSortOrder("asc");
+          }}
+          sx={{
+            color: "#FFFFFF",
+            backgroundColor: "#1976D2",
+            borderColor: "#1976D2",
+            "&:hover": {
+              backgroundColor: "#115293",
+              borderColor: "#115293",
+            },
+          }}
+        >
+          Clear Filters
+        </Button>
       </Box>
 
       {/* Table Layout */}

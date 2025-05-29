@@ -116,7 +116,10 @@ const MonthlyDashboard = () => {
     return <Alert severity="error">{error}</Alert>;
   }
   return (
-    <Paper className="dashboard-container" style={{ overflowY: "scroll", height: "90vh" }}>
+    <Paper
+      className="dashboard-container"
+      style={{ overflowY: "scroll", height: "90vh" }}
+    >
       <div
         className="dashboard-header-container"
         style={{
@@ -128,6 +131,9 @@ const MonthlyDashboard = () => {
         }}
       >
         <div className="dashboard-header">
+          <Typography variant="h6" sx={{ color: "text.secondary", marginBottom: 2 }}>
+            Monthly Activity Dashboard
+          </Typography>
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DatePicker
               views={["year", "month"]}
@@ -137,9 +143,6 @@ const MonthlyDashboard = () => {
               sx={{ width: 200 }}
             />
           </LocalizationProvider>
-          <Typography variant="h6" sx={{ color: "text.secondary" }}>
-            Monthly Activity Dashboard
-          </Typography>
         </div>
         <div style={{ minWidth: 320 }}>
           <CycleSummary />

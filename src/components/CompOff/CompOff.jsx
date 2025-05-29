@@ -114,7 +114,7 @@ const CompOff = () => {
       </h1>
 
       <form onSubmit={handleSubmit} className="form-1">
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {/* {error && <p style={{ color: "red" }}>{error}</p>} */}
 
         {/* User Email */}
         <div>
@@ -223,6 +223,21 @@ const CompOff = () => {
           sx={{ width: "100%" }}
         >
           {successMessage}
+        </Alert>
+      </Snackbar>
+      {/* Error Snackbar */}
+      <Snackbar
+        open={Boolean(error)}
+        autoHideDuration={6000}
+        onClose={() => setError("")}
+      >
+        <Alert
+          onClose={() => setError("")}
+          severity="error"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {error}
         </Alert>
       </Snackbar>
     </div>

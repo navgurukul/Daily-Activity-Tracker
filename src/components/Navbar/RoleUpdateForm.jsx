@@ -529,9 +529,9 @@ const RoleUpdateForm = () => {
   const getRoleMessage = () => {
     switch (selectedRole) {
       case "admin":
-        return "Admin Access: Admins can add/delete admins and project managers";
+        return "Admin Access: Admins can add or remove other admins and project managers. They can also view the payable days overview for all employees.";
       case "projectManager":
-        return "Project Manager Access: Can manage and assign projects, but cannot manage admins/super admins";
+        return "Project Manager Access: Can manage and assign projects, but cannot manage admins/super admins. They can view only their payable days overview.";
       case "superAdmin":
         return "Super Admin Access: Full access including system-wide settings";
       default:

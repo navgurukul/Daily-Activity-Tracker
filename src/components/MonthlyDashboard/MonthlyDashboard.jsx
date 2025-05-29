@@ -145,7 +145,7 @@ const MonthlyDashboard = () => {
           </LocalizationProvider>
         </div>
         <div style={{ minWidth: 320 }}>
-          <CycleSummary />
+          <CycleSummary selectedDate={selectedDate}/>
         </div>
       </div>
 

@@ -13,8 +13,9 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import { LoginContext } from "../context/LoginContext";
+import { se } from "date-fns/locale";
 
-const CycleSummary = () => {
+const CycleSummary = ({ selectedDate }) => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
   const [summaryData, setSummaryData] = useState(null);
@@ -32,9 +33,12 @@ const CycleSummary = () => {
         return;
       }
 
+      const year = selectedDate.getFullYear();
+      const month = selectedDate.getMonth();
+
       try {
         const response = await fetch(
-          `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation?email=${email}`,
+          `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation?email=${email}&year=${year}&month=${month}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -63,7 +67,7 @@ const CycleSummary = () => {
     };
 
     fetchData();
-  }, []);
+  }, [email, selectedDate]);
 
   const labels = {
     totalHours: "⏰ Total Hours Worked",

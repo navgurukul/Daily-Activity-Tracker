@@ -505,7 +505,7 @@ const LeaveManagement = () => {
       setPendingLeaves((prev) => prev.filter((leave) => leave.Id !== leaveId));
       setApprovedLeaves((prev) => [...prev, approvedLeave]);
       
-      setSnackbarMessage(`Leave approved for ${email}`);
+      setSnackbarMessage(`Leave approved for ${approvedLeave.email}`);
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } else {

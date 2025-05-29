@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from "react";
 import {
   Box,
   Typography,
@@ -9,11 +9,14 @@ import {
   DialogTitle,
   DialogContent,
   IconButton,
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import axios from 'axios';
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import axios from "axios";
+import { LoginContext } from "../context/LoginContext";
 
 const CycleSummary = () => {
+  const dataContext = useContext(LoginContext);
+  const { email } = dataContext;
   const [summaryData, setSummaryData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,7 +34,7 @@ const CycleSummary = () => {
 
       try {
         const response = await fetch(
-          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation",
+          `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation?email=${email}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -63,17 +66,17 @@ const CycleSummary = () => {
   }, []);
 
   const labels = {
-    totalHours: '⏰ Total Hours Worked',
-    totalWorkingDays: '📆 Total Working Days',
-    paidLeaves: '🛌 Paid Leaves',
-    totalCompOffLeaveTaken: '🆓 Comp Off Leaves Taken',
-    weekOffDays: '🛑 Week Off Days',
-    numOfWorkOnWeekendDays: '🌞 Work on Weekend Days',
-    totalPayableDays: '🗓️ Total Payable Days',
-    LWP: '⚠️ Leave Without Pay',
-    startDate: '📅 Start Date',
-    endDate: '📅 End Date',
-    overtimeHours: '⚡ Overtime Hours',
+    totalHours: "⏰ Total Hours Worked",
+    totalWorkingDays: "📆 Total Working Days",
+    paidLeaves: "🛌 Paid Leaves",
+    totalCompOffLeaveTaken: "🆓 Comp Off Leaves Taken",
+    weekOffDays: "🛑 Week Off Days",
+    numOfWorkOnWeekendDays: "🌞 Work on Weekend Days",
+    totalPayableDays: "🗓️ Total Payable Days",
+    LWP: "⚠️ Leave Without Pay",
+    startDate: "📅 Start Date",
+    endDate: "📅 End Date",
+    overtimeHours: "⚡ Overtime Hours",
   };
 
   // Render the clickable card showing only totalPayableDays
@@ -85,8 +88,8 @@ const CycleSummary = () => {
         boxShadow: 1,
         minWidth: 180,
         p: 2,
-        cursor: 'pointer',
-        '&:hover': { boxShadow: 4, backgroundColor: '#f0f0f0' },
+        cursor: "pointer",
+        "&:hover": { boxShadow: 4, backgroundColor: "#f0f0f0" },
       }}
       onClick={() => setOpenCycle(cycleKey)}
     >
@@ -94,7 +97,8 @@ const CycleSummary = () => {
         {title}
       </Typography>
       <Typography variant="body2" sx={{ color: "text.secondary" }}>
-        {labels.totalPayableDays}: <strong>{cycle.totalPayableDays ?? 'N/A'}</strong>
+        {labels.totalPayableDays}:{" "}
+        <strong>{cycle.totalPayableDays ?? "N/A"}</strong>
       </Typography>
     </Card>
   );
@@ -108,7 +112,7 @@ const CycleSummary = () => {
           aria-label="close"
           onClick={() => setOpenCycle(null)}
           sx={{
-            position: 'absolute',
+            position: "absolute",
             right: 8,
             top: 8,
             color: (theme) => theme.palette.grey[500],
@@ -142,12 +146,13 @@ const CycleSummary = () => {
     </>
   );
 
-  if (loading) return (
-    <Box display="flex" alignItems="center" gap={1}>
-      <CircularProgress size={20} />
-      <Typography>Loading your data... almost there 🚀</Typography>
-    </Box>
-  );
+  if (loading)
+    return (
+      <Box display="flex" alignItems="center" gap={1}>
+        <CircularProgress size={20} />
+        <Typography>Loading your data... almost there 🚀</Typography>
+      </Box>
+    );
   if (error) return <Alert severity="error">{error}</Alert>;
 
   return (
@@ -155,12 +160,16 @@ const CycleSummary = () => {
       <Typography variant="h6" gutterBottom fontWeight="bold">
         Payable Days Cycle Summary
       </Typography>
-      <Typography variant="subtitle2" sx={{ color: "text.secondary", fontSize:"12px" }} gutterBottom>
-         ( Cycle 1 - 1st to 25th, Cycle 2 - 26th to end of the month )
+      <Typography
+        variant="subtitle2"
+        sx={{ color: "text.secondary", fontSize: "12px" }}
+        gutterBottom
+      >
+        ( Cycle 1 - 1st to 25th, Cycle 2 - 26th to end of the month )
       </Typography>
       <Box display="flex" gap={3}>
-        {renderCycleSummary(summaryData.cycle1, 'Cycle 1', 'cycle1')}
-        {renderCycleSummary(summaryData.cycle2, 'Cycle 2', 'cycle2')}
+        {renderCycleSummary(summaryData.cycle1, "Cycle 1", "cycle1")}
+        {renderCycleSummary(summaryData.cycle2, "Cycle 2", "cycle2")}
       </Box>
 
       <Dialog
@@ -169,8 +178,10 @@ const CycleSummary = () => {
         maxWidth="sm"
         fullWidth
       >
-        {openCycle === 'cycle1' && renderCycleDetails(summaryData.cycle1, 'Cycle 1')}
-        {openCycle === 'cycle2' && renderCycleDetails(summaryData.cycle2, 'Cycle 2')}
+        {openCycle === "cycle1" &&
+          renderCycleDetails(summaryData.cycle1, "Cycle 1")}
+        {openCycle === "cycle2" &&
+          renderCycleDetails(summaryData.cycle2, "Cycle 2")}
       </Dialog>
     </Box>
   );

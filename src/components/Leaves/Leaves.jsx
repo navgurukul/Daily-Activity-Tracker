@@ -147,7 +147,7 @@ const Leaves = () => {
   const fetchData = async () => {
     try {
       const response = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy?email=puran@navgurukul.org"
+        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy?email=${email}`
       );
       const data = await response.json();
       console.log("Data:", data);

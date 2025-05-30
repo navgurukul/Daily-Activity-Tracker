@@ -149,6 +149,7 @@ export const handler = async (event) => {
   
 
   let employmentType = "";
+  let isAlumni ="";
   try {
     const response = await fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata");
     const data = await response.json();
@@ -163,6 +164,8 @@ export const handler = async (event) => {
     }
 
     employmentType = employee["Employment Type"]?.trim();
+    isAlumni = employee["Alumni"]?.trim();
+    console.log(isAlumni,'isAlumniiiiiiiiiiiiiiiiiiiiiiiiiiiiii')
   } catch (err) {
     console.error("Error fetching employee records:", err);
     return {
@@ -341,7 +344,7 @@ try {
 
   // Special case for "compensentary" leave
   // if (  
-  if(body.leaveType.toLowerCase().trim().split(" ").includes("Compensatory")){
+  if(body.leaveType.toLowerCase().trim().split(" ").includes("compensatory")){
     // Query the hrmsCompensatoryAlloted table
     const compScanCommand = new ScanCommand({
       TableName: "hrmsCompensatoryAlloted",
@@ -370,7 +373,9 @@ try {
     const allocations = await res.json();
 
     const employmentData = allocations.data.find(
-      (e) => e["Employment Type"] === employmentType
+      (e) => {
+        return (e["Employment Type"] === employmentType && e[""] === isAlumni);
+      }
     );
 
     const allocatedLeaveStr = employmentData?.[body.leaveType];

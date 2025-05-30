@@ -34,11 +34,11 @@
         },
         "employeesActivityTrackersLogs": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/employeesActivityTrackersLogs-6b333039394e6d6e5436-build.zip"
+          "s3Key": "amplify-builds/employeesActivityTrackersLogs-6465345334464f4b3641-build.zip"
         },
         "employmentLeavePolicy": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/employmentLeavePolicy-6c57412f4b6b72434755-build.zip"
+          "s3Key": "amplify-builds/employmentLeavePolicy-2b3457715843754d3871-build.zip"
         },
         "getLeaveRecords": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
@@ -46,11 +46,11 @@
         },
         "slackNotification": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/slackNotification-496b4f41554c4c7a4164-build.zip"
+          "s3Key": "amplify-builds/slackNotification-674d54492b374e387759-build.zip"
         },
         "payableDaysOfMonth": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/payableDaysOfMonth-465258546c7a53644942-build.zip"
+          "s3Key": "amplify-builds/payableDaysOfMonth-6e63696b674d47694954-build.zip"
         },
         "approveRequests": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",

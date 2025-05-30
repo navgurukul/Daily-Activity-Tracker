@@ -186,11 +186,30 @@ async function calculateHours(year, month) {
       weekData.totalHours += totalDayHours;
       weekData[cycle].totalHours += totalDayHours;
 
-      // if (totalDayHours < 2) {
-      //   weekData.LWP += 1;
-      //   weekData[cycle].LWP += 1;
-      // } else 
-      if (totalDayHours <= 5) {
+     
+      // if (totalDayHours <= 5) {
+      //   weekData.totalWorkingDays += 0.5;
+      //   weekData[cycle].totalWorkingDays += 0.5;
+      //   uniqueDates.add(dateStr);
+      //   if (isWeekOff(entryDate)) {
+      //     weekendWorkDates.add(dateStr);
+      //     weekData[cycle].numOfWorkOnWeekendDays += 1;
+      //   }
+      // } else {
+      //   weekData.totalWorkingDays += 1;
+      //   weekData[cycle].totalWorkingDays += 1;
+      //   uniqueDates.add(dateStr);
+      //   if (isWeekOff(entryDate)) {
+      //     weekendWorkDates.add(dateStr);
+      //     weekData[cycle].numOfWorkOnWeekendDays += 1;
+      //   }
+      // }
+
+      if (totalDayHours < 2) {
+        // Consider this as LWP (Leave Without Pay)
+        weekData.LWP += 1;
+        weekData[cycle].LWP += 1;
+      } else if (totalDayHours <= 5) {
         weekData.totalWorkingDays += 0.5;
         weekData[cycle].totalWorkingDays += 0.5;
         uniqueDates.add(dateStr);
@@ -207,6 +226,15 @@ async function calculateHours(year, month) {
           weekData[cycle].numOfWorkOnWeekendDays += 1;
         }
       }
+      
+
+
+
+
+
+
+
+
     }
 
     // Count week off days
@@ -383,6 +411,7 @@ export const handler = async (event) => {
   const year = queryParams.year !== undefined ? Number(queryParams.year) : new Date().getFullYear();
 
   let emailFilter = queryParams.email;
+  let teamNameFilter = queryParams.jobtype;
   const limit = parseInt(queryParams.limit);
   const page = parseInt(queryParams.page) || 1;
   if(!(userRoles.includes('admin')) && !(userRoles.includes('superAdmin'))){
@@ -394,6 +423,9 @@ export const handler = async (event) => {
   // Filter by email if provided
   if (emailFilter) {
     data = data.filter(item => item.email === emailFilter);
+  }
+  if(teamNameFilter){
+    data = data.filter(item => item.teamName === teamNameFilter);
   }
 
   const totalItems = data.length;

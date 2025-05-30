@@ -535,8 +535,8 @@ const LeaveManagement = () => {
       );
       const result = await response.json();
 
-      if (result.success && result.data[searchEmail]) {
-        setLeaveBalance(result.data[searchEmail].leaveRecords);
+      if (result.success && result.data[0]) {
+        setLeaveBalance(result.data[0].leaveRecords);
       } else {
         setBalanceError("No leave balance data found for this email.");
       }

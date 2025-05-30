@@ -19,6 +19,8 @@ import {handleBeforeUnload} from "./utils/beforeUnloadHandler";
 import RoleUpdateForm from "./components/Navbar/RoleUpdateForm";
 import ProjectManagement from "./components/Admin/ProjectManagement";
 
+import Unauthorized from "./components/Unauthorized/Unauthorized";
+
 function App() {
   const dataContext = useContext(LoginContext);
   const { email, isAdmin, loading } = dataContext;
@@ -114,6 +116,7 @@ function App() {
               )
             }
           />
+          <Route path="/unauthorized" element={<Unauthorized />} />
         </Routes>
       </main>
       {feedbackData && feedbackData.length > 0 && (

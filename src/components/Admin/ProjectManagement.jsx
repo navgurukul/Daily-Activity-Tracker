@@ -39,6 +39,7 @@ const ProjectManagement = () => {
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
   const [filters, setFilters] = useState({
+    department: "",
     projectName: "",
     projectMasterEmail: "",
     priorities: "",
@@ -72,6 +73,9 @@ const ProjectManagement = () => {
   useEffect(() => {
     const filtered = projects.filter((project) => {
       return (
+        (project.department || "")
+          .toLowerCase()
+          .includes(filters.department.toLowerCase()) &&
         (project.projectName || "")
           .toLowerCase()
           .includes(filters.projectName.toLowerCase()) &&
@@ -117,6 +121,7 @@ const ProjectManagement = () => {
       setFeedbackMessage("Please fill in the project name.");
       return;
     }
+    if (data.department !== "Residential Program") {
     if (!data.channelName) {
       setFeedbackMessage("Please fill in the channel name.");
       return;
@@ -129,12 +134,13 @@ const ProjectManagement = () => {
       setFeedbackMessage("Please fill in the project master email.");
       return;
     }
-    if (!data.priorities) {
-      setFeedbackMessage("Please select a priority.");
-      return;
-    }
     if (!data.projectBudget) {
       setFeedbackMessage("Please fill in the project budget.");
+      return;
+    }
+  }
+    if (!data.priorities) {
+      setFeedbackMessage("Please select a priority.");
       return;
     }
     if (!data.projectStatus) {
@@ -236,7 +242,10 @@ const ProjectManagement = () => {
   }, [feedbackMessage]);
 
   return (
-    <div className="admin-container">
+    <div
+      className="admin-container"
+      style={{ overflowY: "scroll", height: "90vh" }}
+    >
       <h1 className="admin-title">Admin - Project Tracker</h1>
 
       <div className="form-container">
@@ -268,22 +277,24 @@ const ProjectManagement = () => {
           />
           {selectedDept !== "Residential Program" && (
             <>
-            <input
-              type="text"
-              placeholder="Slack Channel Name"
-              className="input-field"
-              value={data.channelName}
-              onChange={(e) =>
-                setData({ ...data, channelName: e.target.value })
-              }
-            />
-            <input
-              type="text"
-              placeholder="Slack Channel ID"
-              className="input-field"
-              value={data.channelId}
-              onChange={(e) => setData({ ...data, channelId: e.target.value })}
-            />
+              <input
+                type="text"
+                placeholder="Slack Channel Name"
+                className="input-field"
+                value={data.channelName}
+                onChange={(e) =>
+                  setData({ ...data, channelName: e.target.value })
+                }
+              />
+              <input
+                type="text"
+                placeholder="Slack Channel ID"
+                className="input-field"
+                value={data.channelId}
+                onChange={(e) =>
+                  setData({ ...data, channelId: e.target.value })
+                }
+              />
             </>
           )}
           <input
@@ -349,6 +360,13 @@ const ProjectManagement = () => {
           <h4>Filters:</h4>
           <input
             type="text"
+            name="department"
+            placeholder="Filter by Department"
+            value={filters.department || ""}
+            onChange={handleFilterChange}
+          />
+          <input
+            type="text"
             name="projectName"
             placeholder="Filter by Project Name"
             value={filters.projectName}
@@ -390,45 +408,49 @@ const ProjectManagement = () => {
           </select>
         </div>
         <div className="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Department Name</th>
-                <th>Project Name</th>
-                <th>Channel Name</th>
-                <th>Channel ID</th>
-                <th>PM Email</th>
-                <th>Client Name</th>
-                <th>Priorities</th>
-                <th>Project Budget</th>
-                <th>Status</th>
-                <th>Edit</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProjects.map((project, index) => (
-                <tr key={index}>
-                  <td>{project.department}</td>
-                  <td>{project.projectName}</td>
-                  <td>{project.channelName}</td>
-                  <td>{project.channelId}</td>
-                  <td>{project.projectMasterEmail}</td>
-                  <td>{project.clientName}</td>
-                  <td>{project.priorities}</td>
-                  <td>{project.projectBudget}</td>
-                  <td>{project.projectStatus}</td>
-                  <td>
-                    <button
-                      className="editBtn"
-                      onClick={() => handleEditProject(project, index)}
-                    >
-                      ✏️
-                    </button>
-                  </td>
+          {filteredProjects.length !== 0 ? (
+            <table>
+              <thead>
+                <tr>
+                  <th>Department Name</th>
+                  <th>Project Name</th>
+                  <th>Channel Name</th>
+                  <th>Channel ID</th>
+                  <th>PM Email</th>
+                  <th>Client Name</th>
+                  <th>Priorities</th>
+                  <th>Project Budget</th>
+                  <th>Status</th>
+                  <th>Edit</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredProjects.map((project, index) => (
+                  <tr key={index}>
+                    <td>{project.department}</td>
+                    <td>{project.projectName}</td>
+                    <td>{project.channelName}</td>
+                    <td>{project.channelId}</td>
+                    <td>{project.projectMasterEmail}</td>
+                    <td>{project.clientName}</td>
+                    <td>{project.priorities}</td>
+                    <td>{project.projectBudget}</td>
+                    <td>{project.projectStatus}</td>
+                    <td>
+                      <button
+                        className="editBtn"
+                        onClick={() => handleEditProject(project, index)}
+                      >
+                        ✏️
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p className="no-data">No projects found</p>
+          )}
         </div>
       </div>
       {isEditMode && (

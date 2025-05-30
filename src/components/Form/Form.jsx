@@ -47,6 +47,7 @@ const Form = () => {
   const [formData, setFormData] = useState(initialFormData);
 
   const [projectData, setProjectData] = useState([]);
+  const [residentialProjectData, setResidentialProjectData] = useState([]);
   const [selectedProject, setSelectedProject] = useState("");
   const [currentContribution, setCurrentContribution] = useState({
     hours: "0",
@@ -77,6 +78,24 @@ const Form = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // 'success', 'error', 'warning', 'info'
+
+  const [campuses, setCampuses] = useState([]);
+
+  useEffect(() => {
+    const fetchCampuses = async () => {
+      try {
+        const res = await fetch(
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/campuses"
+        );
+        const data = await res.json();
+        const parsedBody = JSON.parse(data.body);
+        setCampuses(parsedBody.data);
+      } catch (error) {
+        console.error("Failed to fetch campuses:", error);
+      }
+    };
+    fetchCampuses();
+  }, []);
 
   const showSnackbar = (message, severity = "success") => {
     setSnackbarMessage(message);
@@ -147,6 +166,7 @@ const Form = () => {
             return {
               projectName: project.projectName,
               status: project.projectStatus,
+              department: project.department,
             };
           });
 
@@ -164,7 +184,27 @@ const Form = () => {
             activeProjectNames.push("Saturday-Peer-Learning");
           }
           // console.log("Active Projects:", activeProjectNames);
-          setProjectData(activeProjectNames);
+          // setProjectData(activeProjectNames);
+
+          const nonResidentialProjects = projects
+            .filter(
+              (project) =>
+                !project.department.toLowerCase().includes("residential") &&
+                project.status === "Active"
+            )
+            .map((project) => project.projectName);            
+          // console.log("Non-Residential Projects:", nonResidentialProjects);
+          setProjectData(nonResidentialProjects);
+
+          const residentialProjects = projects
+            .filter(
+              (project) =>
+                project.department.includes("Residential") &&
+                project.status === "Active"
+            )
+            .map((project) => project.projectName);
+          // console.log("Residential Projects:", residentialProjects);
+          setResidentialProjectData(residentialProjects);
         });
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -312,6 +352,7 @@ const Form = () => {
 
     const userEmail = localStorage.getItem("email");
     const department = localStorage.getItem("department");
+    // const department = "Residential Program";
 
     const newEntry = {
       entries: formData.contributions.map((c) => ({
@@ -323,6 +364,7 @@ const Form = () => {
         ...(department === "Residential Program" && {
           blockers: formData.blockers,
           campus: formData.campus,
+          department: department,
         }),
       })),
     };
@@ -485,7 +527,7 @@ const Form = () => {
   // }
 
   return (
-    <div>
+    <div style={{ overflowY: "scroll", height: "100vh"}}>
       <LoadingSpinner loading={loading} className="loader-container" />
       <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
         <h3 style={{ fontSize: "32px", fontWeight: "bold", color: "#000" }}>
@@ -575,25 +617,16 @@ const Form = () => {
             <label>Please select your campus :</label>
             <select
               name="campus"
-              // value={campus}
               value={formData.campus}
-              // onChange={(e) => setCampus(e.target.value)}
               onChange={handleChange}
               required
             >
               <option value="">--Select a campus--</option>
-              <option value="Bangalore">Bangalore</option>
-              <option value="Sarjapur">Sarjapur</option>
-              <option value="Kishanganj">Kishanganj</option>
-              <option value="Raipur">Raipur</option>
-              <option value="Dantewada">Dantewada</option>
-              <option value="Jashpur">Jashpur</option>
-              <option value="Pune">Pune</option>
-              <option value="Udaipur">Udaipur</option>
-              <option value="Dharamshala">Dharamshala</option>
-              <option value="Himachal">Himachal</option>
-              <option value="Team channels">Team channels</option>
-              <option value="support-team-updates">Support Team Updates</option>
+              {campuses.map((c, index) => (
+                <option key={index} value={c.campus}>
+                  {c.campus}
+                </option>
+              ))}
             </select>
           </div>
         )}
@@ -715,25 +748,20 @@ const Form = () => {
               <option value="">--Select a project--</option>
               {projectData.map(
                 (project, index) => (
-                  console.log("Project:", project),
-                  console.log("Project:", project?.projectStatus),
-                  (
                     <option key={index} value={project}>
                       {project}
                     </option>
-                  )
                 )
               )}
             </select>
           ) : (
             <select value={selectedProject} onChange={handleProjectSelect}>
               <option value="">--Select a project--</option>
-              <option>Finance Management</option>
-              <option>Ad-hoc tasks</option>
-              <option>Team channels</option>
-              <option>Support Team Updates</option>
-              <option>Residential Program</option>
-              <option>Saturday-Peer-Learning</option>
+              {residentialProjectData.map((project, index) => (
+                <option key={index} value={project}>
+                  {project}
+                </option>
+              ))}
             </select>
           )}
           <br />

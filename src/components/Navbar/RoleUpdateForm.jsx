@@ -1,3 +1,483 @@
+// import React, { useEffect, useState } from "react";
+// import {
+//   TextField,
+//   MenuItem,
+//   Button,
+//   CircularProgress,
+//   Select,
+//   FormControl,
+//   InputLabel,
+//   Pagination,
+//   Box,
+//   Snackbar,
+//   Alert,
+//   Dialog,
+//   DialogTitle,
+//   DialogContent,
+// } from "@mui/material";
+// import axios from "axios";
+// import "./RoleUpdateForm.css";
+
+// const RoleUpdateForm = () => {
+//   const [users, setUsers] = useState([]);
+//   const [loading, setLoading] = useState(false);
+
+//   const [email, setEmail] = useState("");
+//   const [teamIds, setTeamIds] = useState([]);
+//   const [selectedRole, setSelectedRole] = useState("admin");
+
+//   const [filterEmail, setFilterEmail] = useState("");
+//   const [filterRole, setFilterRole] = useState("");
+
+//   const [filteredData, setFilteredData] = useState([]);
+//   const [currentPage, setCurrentPage] = useState(1);
+//   const usersPerPage = 100;
+
+//   const [tabIndex, setTabIndex] = useState(0);
+
+//   const [snackbarOpen, setSnackbarOpen] = useState(false);
+//   const [snackbarMessage, setSnackbarMessage] = useState("");
+//   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
+//   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+//   const [deleteTarget, setDeleteTarget] = useState({ email: "", id: "" });
+
+//   // Fetch users with filters
+//   useEffect(() => {
+//     const controller = new AbortController();
+//     const timeout = setTimeout(() => {
+//       const queryParams = new URLSearchParams();
+//       if (filterEmail.trim()) queryParams.append("email", filterEmail.trim());
+//       if (filterRole.trim()) queryParams.append("role", filterRole.trim());
+
+//       const fetchFilteredUsers = async () => {
+//         setLoading(true);
+//         try {
+//           const res = await fetch(
+//             `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?${queryParams.toString()}`,
+//             { signal: controller.signal }
+//           );
+//           const data = await res.json();
+//           setUsers(data.items || []);
+//         } catch (err) {
+//           if (err.name !== "AbortError") {
+//             console.error("Filtering error:", err);
+//           }
+//         } finally {
+//           setLoading(false);
+//         }
+//       };
+
+//       fetchFilteredUsers();
+//     }, 400);
+
+//     return () => {
+//       clearTimeout(timeout);
+//       controller.abort();
+//     };
+//   }, [filterEmail, filterRole]);
+
+//   useEffect(() => {
+//     setFilteredData(users);
+//     setCurrentPage(1);
+//   }, [users]);
+
+//   useEffect(() => {
+//     const fetchEmails = async () => {
+//       try {
+//         const response = await axios.get(
+//           "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+//         );
+//         const teamIDs = Array.from(
+//           new Set(
+//             response.data?.data
+//               ?.map((entry) => entry["Team ID"])
+//               ?.filter((id) => !!id) // Remove falsy/null/undefined
+//           )
+//         );
+//         setTeamIds(teamIDs);
+//       } catch (error) {
+//         console.error("Error fetching emails:", error);
+//         setSnackbarMessage("Failed to fetch emails");
+//       }
+//     };
+
+//     fetchEmails();
+//   }, []);
+
+//   const handleAssignRole = async (e) => {
+//     e.preventDefault();
+//     if (!email) {
+//       setSnackbarMessage("Please select an email");
+//       setSnackbarSeverity("warning");
+//       setSnackbarOpen(true);
+//       return;
+//     }
+
+//     const payload = {
+//       email,
+//       roles: [selectedRole],
+//     };
+
+//     try {
+//       const res = await fetch(
+//         "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl",
+//         {
+//           method: "POST",
+//           headers: {
+//             "Content-Type": "application/json",
+//             Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+//           },
+//           body: JSON.stringify(payload),
+//         }
+//       );
+
+//       if (res.ok) {
+//         const data = await res.json();
+//         setSnackbarMessage(data.message || "Role assigned successfully");
+//         setSnackbarSeverity("success");
+//         setSnackbarOpen(true);
+//         setFilterEmail("");
+//         setEmail("");
+//         setFilterRole("");
+//       } else {
+//         const data = await res.json();
+//         setSnackbarMessage(data.message || "Failed to assign role");
+//         setSnackbarSeverity("error");
+//         setSnackbarOpen(true);
+//       }
+//     } catch (err) {
+//       console.error("Error assigning role:", err);
+//       setSnackbarMessage("Something went wrong");
+//       setSnackbarSeverity("error");
+//       setSnackbarOpen(true);
+//     }
+//   };
+
+//   const handleDelete = (emailToDelete, idToDelete) => {
+//     setDeleteTarget({ email: emailToDelete, id: idToDelete });
+//     setDeleteDialogOpen(true);
+//   };
+
+//   const confirmDelete = async (option) => {
+//     setDeleteDialogOpen(false);
+//     const { email, id } = deleteTarget;
+//     let url = "";
+
+//     if (option === "email") {
+//       url = `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?email=${encodeURIComponent(
+//         email
+//       )}`;
+//     } else if (option === "id") {
+//       url = `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?Id=${id}`;
+//     } else {
+//       setSnackbarMessage("Invalid option. Use 'email' or 'id'.");
+//       setSnackbarSeverity("error");
+//       setSnackbarOpen(true);
+//       return;
+//     }
+
+//     try {
+//       const res = await fetch(url, {
+//         method: "DELETE",
+//         headers: {
+//           "Content-Type": "application/json",
+//           Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+//         },
+//       });
+
+//       if (res.ok) {
+//         setSnackbarMessage("Deleted successfully");
+//         setSnackbarSeverity("success");
+//         setSnackbarOpen(true);
+//         setFilterEmail("");
+//         setFilterRole("");
+//       } else {
+//         const data = await res.json();
+//         setSnackbarMessage(data.message || "Failed to delete");
+//         setSnackbarSeverity("error");
+//         setSnackbarOpen(true);
+//       }
+//     } catch (err) {
+//       console.error("Error deleting:", err);
+//       setSnackbarMessage("Something went wrong");
+//       setSnackbarSeverity("error");
+//       setSnackbarOpen(true);
+//     }
+//   };
+
+//   const handleClearFilters = () => {
+//     setFilterEmail("");
+//     setFilterRole("");
+//   };
+
+//   // Pagination logic
+//   const indexOfLastUser = currentPage * usersPerPage;
+//   const indexOfFirstUser = indexOfLastUser - usersPerPage;
+//   const currentUsers = filteredData.slice(indexOfFirstUser, indexOfLastUser);
+//   const totalPages = Math.ceil(filteredData.length / usersPerPage);
+
+//   return (
+//     <div
+//       style={{ padding: "20px", fontFamily: "sans-serif", marginLeft: "30px" }}
+//     >
+//       <div className="tabs">
+//         <button
+//           className={`tab-button ${tabIndex === 0 ? "active-tab" : ""}`}
+//           onClick={() => setTabIndex(0)}
+//         >
+//           {/* View Users */}
+//           👤 Manage Users
+//         </button>
+//         <button
+//           className={`tab-button ${tabIndex === 1 ? "active-tab" : ""}`}
+//           onClick={() => setTabIndex(1)}
+//         >
+//           🛡️ Assign Roles
+//         </button>
+//       </div>
+
+//       {tabIndex === 0 && (
+//         <div>
+//           <h2>All Users</h2>
+//           <div
+//             style={{
+//               marginBottom: "20px",
+//               display: "flex",
+//               gap: "20px",
+//               alignItems: "center",
+//             }}
+//           >
+//             <FormControl style={{ width: "300px" }} size="small">
+//               <InputLabel>Filter by Email</InputLabel>
+//               <Select
+//                 value={filterEmail}
+//                 onChange={(e) => setFilterEmail(e.target.value)}
+//                 label="Filter by Email"
+//               >
+//                 <MenuItem value="">All</MenuItem>
+//                 {teamIds.map((email, i) => (
+//                   <MenuItem key={i} value={email}>
+//                     {email}
+//                   </MenuItem>
+//                 ))}
+//               </Select>
+//             </FormControl>
+//             <TextField
+//               label="Filter by Role"
+//               variant="outlined"
+//               select
+//               value={filterRole}
+//               onChange={(e) => setFilterRole(e.target.value)}
+//               style={{ width: "200px" }}
+//               size="small"
+//             >
+//               <MenuItem value="">All</MenuItem>
+//               <MenuItem value="admin">Admin</MenuItem>
+//               <MenuItem value="projectManager">Project Manager</MenuItem>
+//               <MenuItem value="superAdmin">Super Admin</MenuItem>
+//             </TextField>
+//             <Button
+//               variant="outlined"
+//               onClick={handleClearFilters}
+//               style={{
+//                 border: "2px solid #f44336",
+//                 color: "#f44336",
+//               }}
+//             >
+//               Clear Filters
+//             </Button>
+//           </div>
+
+//           {loading ? (
+//             <CircularProgress
+//               style={{
+//                 display: "block",
+//                 margin: "0 auto",
+//                 marginTop: "100px",
+//               }}
+//             />
+//           ) : currentUsers.length === 0 ? (
+//             <div
+//               style={{
+//                 textAlign: "center",
+//                 padding: "40px",
+//                 fontWeight: "bold",
+//                 fontSize: "18px",
+//               }}
+//             >
+//               No user found
+//             </div>
+//           ) : (
+//             <>
+//               <table
+//                 border="1"
+//                 cellPadding="8"
+//                 style={{ borderCollapse: "collapse", width: "100%" }}
+//               >
+//                 <thead>
+//                   <tr>
+//                     <th>Email</th>
+//                     <th>Role</th>
+//                     <th>Action</th>
+//                   </tr>
+//                 </thead>
+//                 <tbody>
+//                   {currentUsers.map((user, idx) => (
+//                     <tr key={idx}>
+//                       <td>{user.email}</td>
+//                       <td>
+//                         {user.role
+//                           .split(/(?=[A-Z])/)
+//                           .join(" ")
+//                           .replace(/^\w/, (c) => c.toUpperCase())}
+//                       </td>
+//                       <td>
+//                         <button
+//                           style={{
+//                             background: "#f44336",
+//                             padding: "5px 10px",
+//                             cursor: "pointer",
+//                           }}
+//                           onClick={() => handleDelete(user.email, user.Id)}
+//                         >
+//                           Delete
+//                         </button>
+//                       </td>
+//                     </tr>
+//                   ))}
+//                 </tbody>
+//               </table>
+//               <Dialog
+//                 open={deleteDialogOpen}
+//                 onClose={() => setDeleteDialogOpen(false)}
+//               >
+//                 <DialogTitle>Delete Role</DialogTitle>
+//                 <DialogContent>
+//                   <p>
+//                     Choose delete option for{" "}
+//                     <strong>{deleteTarget.email}</strong>:
+//                   </p>
+//                   <Button
+//                     onClick={() => confirmDelete("email")}
+//                     color="error"
+//                     sx={{ m: 1 }}
+//                   >
+//                     {/* Delete by Email */}
+//                     🧹 Delete all roles associated with this email
+//                   </Button>
+//                   <Button
+//                     onClick={() => confirmDelete("id")}
+//                     color="error"
+//                     sx={{ m: 1 }}
+//                   >
+//                     {/* Delete by ID */}
+//                     🧩 Delete selected role
+//                   </Button>
+//                 </DialogContent>
+//               </Dialog>
+//               <Box
+//                 sx={{
+//                   display: "flex",
+//                   justifyContent: "center",
+//                   marginTop: 2,
+//                 }}
+//               >
+//                 <Pagination
+//                   count={totalPages}
+//                   page={currentPage}
+//                   onChange={(_, page) => setCurrentPage(page)}
+//                   style={{ marginTop: "20px" }}
+//                   siblingCount={1}
+//                   boundaryCount={1}
+//                   color="primary"
+//                 />
+//               </Box>
+//             </>
+//           )}
+//         </div>
+//       )}
+
+//       {tabIndex === 1 && (
+//         <div>
+//           <h2>Assign Role</h2>
+//           <div
+//             style={{
+//               marginBottom: "20px",
+//               display: "flex",
+//               gap: "20px",
+//               alignItems: "center",
+//             }}
+//           >
+//             <FormControl style={{ width: "300px" }} size="small">
+//               <InputLabel>Select Email</InputLabel>
+//               <Select
+//                 value={email}
+//                 onChange={(e) => setEmail(e.target.value)}
+//                 label="Select Email"
+//               >
+//                 {teamIds.map((id) => (
+//                   <MenuItem key={id} value={id}>
+//                     {id}
+//                   </MenuItem>
+//                 ))}
+//               </Select>
+//             </FormControl>
+
+//             <TextField
+//               label="Select Role"
+//               select
+//               value={selectedRole}
+//               onChange={(e) => setSelectedRole(e.target.value)}
+//               style={{ width: "200px" }}
+//               size="small"
+//             >
+//               <MenuItem value="admin">Admin</MenuItem>
+//               <MenuItem value="projectManager">Project Manager</MenuItem>
+//               <MenuItem value="superAdmin">Super Admin</MenuItem>
+//             </TextField>
+
+//             <Button
+//               variant="contained"
+//               onClick={handleAssignRole}
+//               style={{ backgroundColor: "#4CAF50", color: "white" }}
+//             >
+//               Assign Role
+//             </Button>
+//           </div>
+//         </div>
+//       )}
+//       <Snackbar
+//         open={snackbarOpen}
+//         autoHideDuration={3000}
+//         onClose={() => setSnackbarOpen(false)}
+//         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+//       >
+//         <Alert
+//           onClose={() => setSnackbarOpen(false)}
+//           severity={snackbarSeverity}
+//           sx={{ width: "100%" }}
+//           style={{
+//             backgroundColor:
+//               snackbarSeverity === "success" ? "#4CAF50" : "#f44336",
+//             color: "white",
+//           }}
+//         >
+//           {snackbarMessage}
+//         </Alert>
+//       </Snackbar>
+//     </div>
+//   );
+// };
+
+// export default RoleUpdateForm;
+
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import {
   TextField,
@@ -7,13 +487,13 @@ import {
   Select,
   FormControl,
   InputLabel,
-  Pagination,
   Box,
   Snackbar,
   Alert,
   Dialog,
   DialogTitle,
   DialogContent,
+  Typography,
 } from "@mui/material";
 import axios from "axios";
 import "./RoleUpdateForm.css";
@@ -29,10 +509,6 @@ const RoleUpdateForm = () => {
   const [filterEmail, setFilterEmail] = useState("");
   const [filterRole, setFilterRole] = useState("");
 
-  const [filteredData, setFilteredData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 100;
-
   const [tabIndex, setTabIndex] = useState(0);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -42,45 +518,91 @@ const RoleUpdateForm = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState({ email: "", id: "" });
 
-  // Fetch users with filters
+  // const [nextPageToken, setNextPageToken] = useState(null);
+  // const [previousPage, setpreviousPage] = useState([]);
+  // const [currentPage, setCurrentPage] = useState(null);
+
+  const [nextPage, setNextPage] = useState(null);
+  const [previousPage, setPreviousPage] = useState([]);
+  const [currentPage, setCurrentPage] = useState(null);
+
+  const getRoleMessage = () => {
+    switch (selectedRole) {
+      case "admin":
+        return "Admin Access: Admins can add or remove other admins and project managers. They can also view the payable days overview for all employees.";
+      case "projectManager":
+        return "Project Manager Access: Can manage and assign projects, but cannot manage admins/super admins. They can view only their payable days overview.";
+      case "superAdmin":
+        return "Super Admin Access: Full access including system-wide settings";
+      default:
+        return "";
+    }
+  };
+
+  // const fetchFilteredUsers = async (pageToken = null) => {
+  //   setLoading(true);
+  //   const queryParams = new URLSearchParams();
+  //   if (filterEmail.trim()) queryParams.append("email", filterEmail.trim());
+  //   if (filterRole.trim()) queryParams.append("role", filterRole.trim());
+  //   if (pageToken) queryParams.append("lastKey", pageToken);
+
+  //   try {
+  //     const res = await fetch(
+  //       `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?${queryParams.toString()}`
+  //     );
+  //     const data = await res.json();
+  //     setUsers(data.items || []);
+  //     setNextPageToken(data.nextPageToken || null);
+  //     setCurrentPage(pageToken);
+  //   } catch (err) {
+  //     console.error("Filtering error:", err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   const controller = new AbortController();
+  //   const timeout = setTimeout(() => {
+  //     setpreviousPage([]);
+  //     fetchFilteredUsers();
+  //   }, 400);
+  //   return () => {
+  //     clearTimeout(timeout);
+  //     controller.abort();
+  //   };
+  // }, [filterEmail, filterRole]);
+  const fetchFilteredUsers = async (page = 1) => {
+    setLoading(true);
+    const queryParams = new URLSearchParams();
+    if (filterEmail.trim()) queryParams.append("email", filterEmail.trim());
+    if (filterRole.trim()) queryParams.append("role", filterRole.trim());
+    if (page > 1) queryParams.append("page", page);
+    try {
+      const res = await fetch(
+        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?${queryParams.toString()}`
+      );
+      const data = await res.json();
+      setUsers(data.items || []);
+      setNextPage(data.nextPage || null); // store nextPage instead of nextPage
+      setCurrentPage(page); // optional: store the current page number
+    } catch (err) {
+      console.error("Filtering error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     const controller = new AbortController();
     const timeout = setTimeout(() => {
-      const queryParams = new URLSearchParams();
-      if (filterEmail.trim()) queryParams.append("email", filterEmail.trim());
-      if (filterRole.trim()) queryParams.append("role", filterRole.trim());
-
-      const fetchFilteredUsers = async () => {
-        setLoading(true);
-        try {
-          const res = await fetch(
-            `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?${queryParams.toString()}`,
-            { signal: controller.signal }
-          );
-          const data = await res.json();
-          setUsers(data.items || []);
-        } catch (err) {
-          if (err.name !== "AbortError") {
-            console.error("Filtering error:", err);
-          }
-        } finally {
-          setLoading(false);
-        }
-      };
-
+      setPreviousPage([]);
       fetchFilteredUsers();
     }, 400);
-
     return () => {
       clearTimeout(timeout);
       controller.abort();
     };
   }, [filterEmail, filterRole]);
-
-  useEffect(() => {
-    setFilteredData(users);
-    setCurrentPage(1);
-  }, [users]);
 
   useEffect(() => {
     const fetchEmails = async () => {
@@ -92,7 +614,7 @@ const RoleUpdateForm = () => {
           new Set(
             response.data?.data
               ?.map((entry) => entry["Team ID"])
-              ?.filter((id) => !!id) // Remove falsy/null/undefined
+              ?.filter((id) => !!id)
           )
         );
         setTeamIds(teamIDs);
@@ -101,9 +623,15 @@ const RoleUpdateForm = () => {
         setSnackbarMessage("Failed to fetch emails");
       }
     };
-
     fetchEmails();
   }, []);
+
+  const formatRole = (role) => {
+    if (!role) return "";
+    return role
+      .replace(/([A-Z])/g, " $1") // Insert space before capital letters
+      .replace(/^./, (str) => str.toUpperCase()); // Capitalize first letter
+  };
 
   const handleAssignRole = async (e) => {
     e.preventDefault();
@@ -134,12 +662,17 @@ const RoleUpdateForm = () => {
 
       if (res.ok) {
         const data = await res.json();
-        setSnackbarMessage(data.message || "Role assigned successfully");
+        const roleDisplay = formatRole(selectedRole);
+        setSnackbarMessage(
+          `Successfully assigned the "${roleDisplay}" role to "${email}".`
+        );
+        // setSnackbarMessage(data.message || "Role assigned successfully");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
         setFilterEmail("");
         setEmail("");
         setFilterRole("");
+        fetchFilteredUsers();
       } else {
         const data = await res.json();
         setSnackbarMessage(data.message || "Failed to assign role");
@@ -190,8 +723,7 @@ const RoleUpdateForm = () => {
         setSnackbarMessage("Deleted successfully");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
-        setFilterEmail("");
-        setFilterRole("");
+        fetchFilteredUsers();
       } else {
         const data = await res.json();
         setSnackbarMessage(data.message || "Failed to delete");
@@ -211,261 +743,284 @@ const RoleUpdateForm = () => {
     setFilterRole("");
   };
 
-  // Pagination logic
-  const indexOfLastUser = currentPage * usersPerPage;
-  const indexOfFirstUser = indexOfLastUser - usersPerPage;
-  const currentUsers = filteredData.slice(indexOfFirstUser, indexOfLastUser);
-  const totalPages = Math.ceil(filteredData.length / usersPerPage);
-
   return (
-    <div
-      style={{ padding: "20px", fontFamily: "sans-serif", marginLeft: "30px" }}
-    >
-      <div className="tabs">
-        <button
-          className={`tab-button ${tabIndex === 0 ? "active-tab" : ""}`}
-          onClick={() => setTabIndex(0)}
-        >
-          {/* View Users */}
-          👤 Manage Users
-        </button>
-        <button
-          className={`tab-button ${tabIndex === 1 ? "active-tab" : ""}`}
-          onClick={() => setTabIndex(1)}
-        >
-          🛡️ Assign Roles
-        </button>
-      </div>
-
-      {tabIndex === 0 && (
-        <div>
-          <h2>All Users</h2>
-          <div
-            style={{
-              marginBottom: "20px",
-              display: "flex",
-              gap: "20px",
-              alignItems: "center",
-            }}
-          >
-            <FormControl style={{ width: "300px" }} size="small">
-              <InputLabel>Filter by Email</InputLabel>
-              <Select
-                value={filterEmail}
-                onChange={(e) => setFilterEmail(e.target.value)}
-                label="Filter by Email"
-              >
-                <MenuItem value="">All</MenuItem>
-                {teamIds.map((email, i) => (
-                  <MenuItem key={i} value={email}>
-                    {email}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <TextField
-              label="Filter by Role"
-              variant="outlined"
-              select
-              value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value)}
-              style={{ width: "200px" }}
-              size="small"
+    <div style={{ overflowY: "scroll", height: "100vh" }}>
+      <div className="main">
+        <div className="role-update-container">
+          <div className="tabs">
+            <button
+              className={`tab-button ${tabIndex === 0 ? "active-tab" : ""}`}
+              onClick={() => setTabIndex(0)}
             >
-              <MenuItem value="">All</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
-              <MenuItem value="projectManager">Project Manager</MenuItem>
-              <MenuItem value="superAdmin">Super Admin</MenuItem>
-            </TextField>
-            <Button
-              variant="outlined"
-              onClick={handleClearFilters}
-              style={{
-                border: "2px solid #f44336",
-                color: "#f44336",
-              }}
+              👤 Manage Users
+            </button>
+            <button
+              className={`tab-button ${tabIndex === 1 ? "active-tab" : ""}`}
+              onClick={() => setTabIndex(1)}
             >
-              Clear Filters
-            </Button>
+              🛡️ Assign Roles
+            </button>
           </div>
 
-          {loading ? (
-            <CircularProgress
-              style={{
-                display: "block",
-                margin: "0 auto",
-                marginTop: "100px",
-              }}
-            />
-          ) : currentUsers.length === 0 ? (
-            <div
-              style={{
-                textAlign: "center",
-                padding: "40px",
-                fontWeight: "bold",
-                fontSize: "18px",
-              }}
-            >
-              No user found
-            </div>
-          ) : (
-            <>
-              <table
-                border="1"
-                cellPadding="8"
-                style={{ borderCollapse: "collapse", width: "100%" }}
-              >
-                <thead>
-                  <tr>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentUsers.map((user, idx) => (
-                    <tr key={idx}>
-                      <td>{user.email}</td>
-                      <td>
-                        {user.role
-                          .split(/(?=[A-Z])/)
-                          .join(" ")
-                          .replace(/^\w/, (c) => c.toUpperCase())}
-                      </td>
-                      <td>
-                        <button
-                          style={{
-                            background: "#f44336",
-                            padding: "5px 10px",
-                            cursor: "pointer",
-                          }}
-                          onClick={() => handleDelete(user.email, user.Id)}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <Dialog
-                open={deleteDialogOpen}
-                onClose={() => setDeleteDialogOpen(false)}
-              >
-                <DialogTitle>Delete Role</DialogTitle>
-                <DialogContent>
-                  <p>
-                    Choose delete option for{" "}
-                    <strong>{deleteTarget.email}</strong>:
-                  </p>
-                  <Button
-                    onClick={() => confirmDelete("email")}
-                    color="error"
-                    sx={{ m: 1 }}
+          {tabIndex === 0 && (
+            <div className="all-users">
+              <h2>All Users</h2>
+              <div className="filter-section">
+                <FormControl size="small">
+                  <InputLabel>Filter by Email</InputLabel>
+                  <Select
+                    value={filterEmail}
+                    onChange={(e) => setFilterEmail(e.target.value)}
+                    label="Filter by Email"
+                    size="small"
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 400,
+                          width: 200,
+                          padding: 0,
+                          fontSize: "0.8rem",
+                        },
+                      },
+                    }}
                   >
-                    {/* Delete by Email */}
-                    🧹 Delete all roles associated with this email
-                  </Button>
-                  <Button
-                    onClick={() => confirmDelete("id")}
-                    color="error"
-                    sx={{ m: 1 }}
-                  >
-                    {/* Delete by ID */}
-                    🧩 Delete selected role
-                  </Button>
-                </DialogContent>
-              </Dialog>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  marginTop: 2,
-                }}
-              >
-                <Pagination
-                  count={totalPages}
-                  page={currentPage}
-                  onChange={(_, page) => setCurrentPage(page)}
-                  style={{ marginTop: "20px" }}
-                  siblingCount={1}
-                  boundaryCount={1}
-                  color="primary"
+                    <MenuItem value="">All</MenuItem>
+                    {teamIds.map((email, i) => (
+                      <MenuItem key={i} value={email}>
+                        {email}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <TextField
+                  label="Filter by Role"
+                  variant="outlined"
+                  select
+                  value={filterRole}
+                  onChange={(e) => setFilterRole(e.target.value)}
+                  size="small"
+                >
+                  <MenuItem value="">All</MenuItem>
+                  <MenuItem value="admin">Admin</MenuItem>
+                  <MenuItem value="projectManager">Project Manager</MenuItem>
+                  <MenuItem value="superAdmin">Super Admin</MenuItem>
+                </TextField>
+                <Button
+                  variant="outlined"
+                  onClick={handleClearFilters}
+                  style={{ border: "2px solid #f44336", color: "#f44336" }}
+                >
+                  Clear Filters
+                </Button>
+              </div>
+
+              {loading ? (
+                <CircularProgress
+                  style={{
+                    display: "block",
+                    margin: "0 auto",
+                    marginTop: "100px",
+                  }}
                 />
-              </Box>
-            </>
+              ) : users.length === 0 ? (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "40px",
+                    fontWeight: "bold",
+                    fontSize: "18px",
+                  }}
+                >
+                  No user found
+                </div>
+              ) : (
+                <>
+                  <div style={{ width: "100%", overflow: "auto" }}>
+                    <table
+                      border="1"
+                      cellPadding="8"
+                      style={{ borderCollapse: "collapse", width: "98%" }}
+                    >
+                      <thead>
+                        <tr>
+                          <th>Email</th>
+                          <th>Role</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {users.map((user, idx) => (
+                          <tr key={idx}>
+                            <td>{user.email}</td>
+                            <td>
+                              {user.role
+                                .split(/(?=[A-Z])/)
+                                .join(" ")
+                                .replace(/^\w/, (c) => c.toUpperCase())}
+                            </td>
+                            <td>
+                              <button
+                                style={{
+                                  background: "#f44336",
+                                  padding: "5px 10px",
+                                  cursor: "pointer",
+                                }}
+                                onClick={() =>
+                                  handleDelete(user.email, user.Id)
+                                }
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <Dialog
+                    open={deleteDialogOpen}
+                    onClose={() => setDeleteDialogOpen(false)}
+                  >
+                    <DialogTitle>Delete Role</DialogTitle>
+                    <DialogContent>
+                      <p>
+                        Choose delete option for{" "}
+                        <strong>{deleteTarget.email}</strong>:
+                      </p>
+                      <Button
+                        onClick={() => confirmDelete("email")}
+                        color="error"
+                        sx={{ m: 1 }}
+                      >
+                        🧹 Delete all roles associated with this email
+                      </Button>
+                      <Button
+                        onClick={() => confirmDelete("id")}
+                        color="error"
+                        sx={{ m: 1 }}
+                      >
+                        🧩 Delete selected role
+                      </Button>
+                    </DialogContent>
+                  </Dialog>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "center",
+                      gap: 2,
+                      marginTop: 2,
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      disabled={previousPage.length === 0}
+                      onClick={() => {
+                        const prev = [...previousPage];
+                        const lastToken = prev.pop(); // ✅ Go back to last token
+                        setPreviousPage(prev);
+                        fetchFilteredUsers(lastToken);
+                      }}
+                    >
+                      Previous
+                    </Button>
+
+                    <Button
+                      variant="contained"
+                      disabled={!nextPage}
+                      onClick={() => {
+                        setPreviousPage([
+                          ...previousPage,
+                          currentPage,
+                        ]); // ✅ Store current before moving
+                        fetchFilteredUsers(nextPage);
+                      }}
+                    >
+                      Next
+                    </Button>
+                  </Box>
+                </>
+              )}
+            </div>
           )}
-        </div>
-      )}
 
-      {tabIndex === 1 && (
-        <div>
-          <h2>Assign Role</h2>
-          <div
-            style={{
-              marginBottom: "20px",
-              display: "flex",
-              gap: "20px",
-              alignItems: "center",
-            }}
+          {tabIndex === 1 && (
+            <div className="assign-role">
+              <h2>Assign Role</h2>
+              <div className="filter-role">
+                <FormControl size="small">
+                  <InputLabel>Select Email</InputLabel>
+                  <Select
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    label="Select Email"
+                    size="small"
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 400,
+                          width: 200,
+                          padding: 0,
+                          fontSize: "0.8rem",
+                        },
+                      },
+                    }}
+                  >
+                    {teamIds.map((id) => (
+                      <MenuItem key={id} value={id}>
+                        {id}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <TextField
+                  label="Select Role"
+                  select
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                  size="small"
+                >
+                  <MenuItem value="admin">Admin</MenuItem>
+                  <MenuItem value="projectManager">Project Manager</MenuItem>
+                  <MenuItem value="superAdmin">Super Admin</MenuItem>
+                </TextField>
+                <Button
+                  variant="contained"
+                  onClick={handleAssignRole}
+                  style={{ backgroundColor: "#4CAF50", color: "white" }}
+                >
+                  Assign Role
+                </Button>
+              </div>
+              {selectedRole && (
+                <Box mt={4}>
+                  <Typography variant="body1" color="textSecondary">
+                    {getRoleMessage()}
+                  </Typography>
+                </Box>
+              )}
+            </div>
+          )}
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={3000}
+            onClose={() => setSnackbarOpen(false)}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
           >
-            <FormControl style={{ width: "300px" }} size="small">
-              <InputLabel>Select Email</InputLabel>
-              <Select
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                label="Select Email"
-              >
-                {teamIds.map((id) => (
-                  <MenuItem key={id} value={id}>
-                    {id}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            <TextField
-              label="Select Role"
-              select
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-              style={{ width: "200px" }}
-              size="small"
+            <Alert
+              onClose={() => setSnackbarOpen(false)}
+              severity={snackbarSeverity}
+              sx={{ width: "100%" }}
+              style={{
+                backgroundColor:
+                  snackbarSeverity === "success" ? "#4CAF50" : "#f44336",
+                color: "white",
+              }}
             >
-              <MenuItem value="admin">Admin</MenuItem>
-              <MenuItem value="projectManager">Project Manager</MenuItem>
-              <MenuItem value="superAdmin">Super Admin</MenuItem>
-            </TextField>
-
-            <Button
-              variant="contained"
-              onClick={handleAssignRole}
-              style={{ backgroundColor: "#4CAF50", color: "white" }}
-            >
-              Assign Role
-            </Button>
-          </div>
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
         </div>
-      )}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-      >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-          style={{
-            backgroundColor:
-              snackbarSeverity === "success" ? "#4CAF50" : "#f44336",
-            color: "white",
-          }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+      </div>
     </div>
   );
 };

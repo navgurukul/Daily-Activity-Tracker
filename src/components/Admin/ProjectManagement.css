@@ -1,5 +1,5 @@
 .admin-container {
-  /* margin-left: 50px; */
+  margin-left: 50px;
   padding: 20px;
   background-color: #F4F4F4;
   /* min-height: 100vh; */
@@ -176,4 +176,11 @@ th {
   border-radius: 4px;
   min-width: 200px;
   font-size: 14px;
+}
+
+.no-data {
+  text-align: center;
+  color: gray;
+  padding: 20px;
+  font-size: 18px;
 }

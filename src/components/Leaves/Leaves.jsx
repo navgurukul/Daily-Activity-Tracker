@@ -147,7 +147,7 @@ const Leaves = () => {
   const fetchData = async () => {
     try {
       const response = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy"
+        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy?email=${email}`
       );
       const data = await response.json();
       console.log("Data:", data);
@@ -164,8 +164,8 @@ const Leaves = () => {
   }, []);
 
   useEffect(() => {
-    if (allLeaves[email]) {
-      setLeavesData(allLeaves[email].leaveRecords);
+    if (allLeaves[0] && allLeaves[0].leaveRecords) {
+      setLeavesData(allLeaves[0].leaveRecords);
     } else {
       setLeavesData([]);
     }
@@ -311,7 +311,7 @@ const Leaves = () => {
   };
   
   return (
-    <StyledContainer>
+    <StyledContainer style={{ overflowY: "scroll", height: "100vh" }}>
       {loading && (
         <Box
           sx={{

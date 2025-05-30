@@ -16,20 +16,24 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import "./MonthlyDashboard.css";
 import CycleSummary from "./CycleSummary";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
 const MonthlyDashboard = () => {
   const [employeeData, setEmployeeData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const selectedMonth = selectedDate.getMonth();
+  const selectedYear = selectedDate.getFullYear();
+
   const getDaysInMonth = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
     // Get only current month's days
     const currentMonthDays = Array.from({ length: daysInMonth }, (_, i) => {
-      const date = new Date(year, month, i + 1);
+      const date = new Date(selectedYear, selectedMonth, i + 1);
       // console.log(date);
       return (
         date.getFullYear() +
@@ -44,8 +48,10 @@ const MonthlyDashboard = () => {
   // console.log(getDaysInMonth());
   let email = localStorage.getItem("email") ?? "";
   const getMonthAndYear = () => {
-    const now = new Date();
-    return now.toLocaleString("default", { month: "long", year: "numeric" });
+    return new Date(selectedYear, selectedMonth).toLocaleString("default", {
+      month: "long",
+      year: "numeric",
+    });
   };
   const currentMonthYear = getMonthAndYear();
   useEffect(() => {
@@ -54,7 +60,9 @@ const MonthlyDashboard = () => {
         const email = localStorage.getItem("email");
         const [activityRes, leaveRes] = await Promise.all([
           fetch(
-            "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs"
+            `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs/${email}?month=${String(
+              selectedMonth + 1
+            ).padStart(2, "0")}&year=${selectedYear}`
           ),
           fetch(
             `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?employeeEmail=${email}`
@@ -78,7 +86,7 @@ const MonthlyDashboard = () => {
       }
     };
     fetchData();
-  }, []);
+  }, [selectedMonth, selectedYear]);
   const getDataForDate = (date) => {
     if (!employeeData) return { activities: [], leaves: [] };
     const activities =
@@ -108,7 +116,10 @@ const MonthlyDashboard = () => {
     return <Alert severity="error">{error}</Alert>;
   }
   return (
-    <Paper className="dashboard-container">
+    <Paper
+      className="dashboard-container"
+      style={{ overflowY: "scroll", height: "90vh" }}
+    >
       <div
         className="dashboard-header-container"
         style={{
@@ -120,15 +131,21 @@ const MonthlyDashboard = () => {
         }}
       >
         <div className="dashboard-header">
-          <Typography variant="h5" sx={{ fontWeight: "bold", mb: 0.5 }}>
-            {currentMonthYear}
-          </Typography>
-          <Typography variant="h6" sx={{ color: "text.secondary" }}>
+          <Typography variant="h6" sx={{ color: "text.secondary", marginBottom: 2 }}>
             Monthly Activity Dashboard
           </Typography>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DatePicker
+              views={["year", "month"]}
+              label="Select Month"
+              value={selectedDate}
+              onChange={(newValue) => setSelectedDate(newValue)}
+              sx={{ width: 200 }}
+            />
+          </LocalizationProvider>
         </div>
         <div style={{ minWidth: 320 }}>
-          <CycleSummary />
+          <CycleSummary selectedDate={selectedDate}/>
         </div>
       </div>
 

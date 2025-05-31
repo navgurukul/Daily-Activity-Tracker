@@ -81,6 +81,10 @@ const Form = () => {
 
   const [campuses, setCampuses] = useState([]);
 
+  const [showProjectError, setShowProjectError] = useState(false);
+  const [showHoursError, setShowHoursError] = useState(false);
+  const [showTaskError, setShowTaskError] = useState(false);
+
   useEffect(() => {
     const fetchCampuses = async () => {
       try {
@@ -256,6 +260,10 @@ const Form = () => {
       setError("You can only log a maximum of 2 hours for Ad-hoc tasks");
     setSelectedProject(e.target.value);
     setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
+
+    if (e.target.value !== "") {
+    setShowProjectError(false);
+  }
   };
 
   useEffect(() => {
@@ -279,14 +287,48 @@ const Form = () => {
   };
 
   const addContribution = () => {
-    if (!selectedProject) {
-      alert("Please select a project before saving the contribution");
-      return;
-    }
+    // if (!selectedProject) {
+    //   alert("Please select a project before saving the contribution");
+    //   return;
+    // }
 
-    if (!currentContribution.hours || !currentContribution.task.trim()) {
-      alert("Please fill in both the total hours spent and the task achieved");
+    // if (!currentContribution.hours) {
+    //   alert("Please fill total hours spent");
+    //   return;
+    // }
+    // if (currentContribution.hours < 0) {
+    //   alert("Total hours spent cannot be negative");
+    //   return;
+    // } 
+
+    // if (!currentContribution.task) {
+    //   alert("Please fill what you achieved in this project");
+    //   return;
+    // }
+
+    if (!selectedProject) {
+      setShowProjectError(true);
       return;
+    } else {
+      setShowProjectError(false);
+    }
+    if (!currentContribution.hours) {
+      setShowHoursError(true);
+      return;
+    } else {
+      setShowHoursError(false);
+    }
+    if (!currentContribution.task) {
+      setShowTaskError(true);
+      return;
+    } else {
+      setShowTaskError(false);
+    }
+    if (currentContribution.hours < 0) {
+      setShowHoursError(true);
+      return;
+    } else {
+      setShowHoursError(false);
     }
 
     setFormData((prevState) => ({
@@ -385,6 +427,11 @@ const Form = () => {
     );
     console.log("Existing Logs:", existingLogs);
 
+    if(formData.contributions.length === 0) {
+      setShowProjectError(true);
+      return;
+    }
+
     // Send to API
     try {
       console.log("Ready to send to backend", newEntry);
@@ -433,7 +480,7 @@ const Form = () => {
       }
 
       console.log("Entry successfully sent to backend");
-
+      
       // Clear the form
       setFormData({ ...initialFormData });
       console.log("Form Data after submission:", formData);
@@ -441,6 +488,7 @@ const Form = () => {
       console.error("Error posting entry:", error);
       showSnackbar(error.message || "Failed to save entry", "error");
     }
+    setShowProjectError(false);
   };
 
   const handleLoading = (load) => {
@@ -764,6 +812,11 @@ const Form = () => {
               ))}
             </select>
           )}
+          {showProjectError && (
+    <p style={{ display: "flex", color: "red", marginTop: "4px" }}>
+      Project cannot be empty*
+    </p>
+  )}
           <br />
           <br />
           {selectedProject && (
@@ -779,6 +832,11 @@ const Form = () => {
                 min="0"
                 required
               />
+              {showHoursError && (
+                <p style={{ display: "flex", color: "red", marginTop: "4px" }}>
+                  Total hours spent cannot be empty or negative*
+                </p>
+              )}
               <br />
               <label>What did you achieve in this project?</label>
               <textarea
@@ -787,6 +845,11 @@ const Form = () => {
                 onChange={handleContributionChange}
                 required
               />
+              {showTaskError && (
+                <p style={{ display: "flex", color: "red", marginTop: "4px" }}>
+                  Task cannot be empty*
+                </p>
+              )}
               <button
                 type="button"
                 onClick={addContribution}

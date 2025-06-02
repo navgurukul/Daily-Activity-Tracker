@@ -194,6 +194,7 @@ const ProjectManagement = () => {
     setEditData(project);
     setIsEditMode(true);
     setEditingIndex(index);
+    setSelectedDept(project.department);
   };
 
   const handleUpdateProject = () => {
@@ -474,6 +475,8 @@ const ProjectManagement = () => {
                 }
                 disabled
               />
+              {selectedDept !== "Residential Program" && (
+                <>
               <input
                 type="text"
                 placeholder="Slack Channel Name"
@@ -492,6 +495,8 @@ const ProjectManagement = () => {
                   setEditData({ ...editData, channelId: e.target.value })
                 }
               />
+                </>
+              )}
               <input
                 type="text"
                 placeholder="PM Email"

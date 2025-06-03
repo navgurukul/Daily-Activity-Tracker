@@ -158,6 +158,7 @@ import {
   TextField,
   Modal,
   Pagination,
+  CircularProgress
 } from "@mui/material";
 
 const EmployeeManagement = () => {
@@ -221,7 +222,11 @@ const EmployeeManagement = () => {
         onChange={(e) => setSearchQuery(e.target.value)}
       />
 
-      {loading && <Typography>Loading...</Typography>}
+      {loading && (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+          <CircularProgress />
+        </Box>
+      )}
       {!loading && paginatedData.length === 0 && (
         <Typography>No employee data found.</Typography>
       )}

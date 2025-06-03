@@ -24,7 +24,7 @@ import {
 
 import Autocomplete from "@mui/material/Autocomplete";
 import debounce from "lodash/debounce";
-import { Edit, Check } from "@mui/icons-material";
+import { Edit, Check, Close } from "@mui/icons-material";
 
 function DailyLogs() {
   const [logs, setLogs] = useState([]);
@@ -254,9 +254,43 @@ function DailyLogs() {
                     <TableCell>
                       <Chip label={log.logStatus} color={log.logStatus === "approved" ? "success" : "warning"} size="small" />
                     </TableCell>
-                    <TableCell>
-                      <IconButton size="small" onClick={() => handleEditClick(log)} disabled={log.logStatus === "approved"}><Edit /></IconButton>
-                      <IconButton size="small" onClick={() => handleApprove(log)} disabled={log.logStatus === "approved"}><Check /></IconButton>
+                    <TableCell sx={{ display: "flex", gap: 1, flexDirection:"column"}}>
+                      <IconButton size="small" onClick={() => handleEditClick(log)} disabled={log.logStatus === "approved"} title="Edit"><Edit /></IconButton>
+                      <IconButton size="small" onClick={() => handleApprove(log)} disabled={log.logStatus === "approved"} title="Approve Log"><Check /></IconButton>
+                      <IconButton
+                        size="small"
+                        title="Reject Log"
+                        color="error"
+                        onClick={async () => {
+                          const confirmReject = window.confirm("Are you sure you want to reject this log?");
+                          if (!confirmReject) return;
+                          try {
+                            const response = await fetch(
+                              "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
+                              {
+                                method: "PUT",
+                                headers: {
+                                  "Content-Type": "application/json",
+                                  Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+                                },
+                                body: JSON.stringify([{ Id: log.Id, approvalEmail: userEmail, logStatus: "rejected" }]),
+                              }
+                            );
+                            if (response.ok) {
+                              setSnackbar({ open: true, message: "Log rejected successfully", error: false });
+                              fetchLogs();
+                            } else {
+                              const errorText = await response.text();
+                              throw new Error(errorText);
+                            }
+                          } catch (err) {
+                            setSnackbar({ open: true, message: "Error rejecting log: " + err.message, error: true });
+                          }
+                        }}
+                        disabled={log.logStatus === "approved" || log.logStatus === "rejected"}
+                      >
+                        <Close />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))}

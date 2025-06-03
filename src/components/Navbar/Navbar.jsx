@@ -166,10 +166,15 @@ const Navbar = (props) => {
     handleDrawerClose();
   };
 
+  const headingClick=()=>{
+    navigate('/activity-tracker')
+  }
+
   const drawer = (
     <div style={{ marginTop: "1rem", padding: "none" }}>
       <h1
         className="heading"
+        onClick={headingClick}
         style={{
           color: "black",
           fontSize: "1.5rem",

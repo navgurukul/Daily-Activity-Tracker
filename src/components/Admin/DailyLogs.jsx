@@ -47,6 +47,9 @@ function DailyLogs() {
   const [snackbar, setSnackbar] = useState({ open: false, message: "", error: false });
   const [loading, setLoading] = useState(false);
 
+  const [showApprovalModal, setShowApprovalModal] = useState(false);
+  const [logToApprove, setLogToApprove] = useState(null);
+
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -156,9 +159,14 @@ function DailyLogs() {
     }
   };
 
+  // Function to handle log approval
+  const handleApproveClick = (log) => {
+    setLogToApprove(log);
+    setShowApprovalModal(true);
+  };
+
   const handleApprove = async (log) => {
-    const confirmApprove = window.confirm("Are you sure you want to approve this log?");
-    if (!confirmApprove) return;
+    if (!logToApprove) return;
 
     try {
       const response = await fetch(
@@ -169,7 +177,7 @@ function DailyLogs() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
           },
-          body: JSON.stringify([{ Id: log.Id, approvalEmail: userEmail, logStatus: "approved" }]),
+          body: JSON.stringify([{ Id: logToApprove.Id, approvalEmail: userEmail, logStatus: "approved" }]),
         }
       );
       if (response.ok) {
@@ -181,6 +189,9 @@ function DailyLogs() {
       }
     } catch (err) {
       setSnackbar({ open: true, message: "Error approving log: " + err.message, error: true });
+    } finally {
+      setShowApprovalModal(false);
+      setLogToApprove(null);
     }
   };
 
@@ -256,7 +267,7 @@ function DailyLogs() {
                     </TableCell>
                     <TableCell sx={{ display: "flex", gap: 1, flexDirection:"column"}}>
                       <IconButton size="small" onClick={() => handleEditClick(log)} disabled={log.logStatus === "approved"} title="Edit"><Edit /></IconButton>
-                      <IconButton size="small" onClick={() => handleApprove(log)} disabled={log.logStatus === "approved"} title="Approve Log"><Check /></IconButton>
+                      <IconButton size="small" onClick={() => handleApproveClick(log)} disabled={log.logStatus === "approved"} title="Approve Log"><Check /></IconButton>
                       <IconButton
                         size="small"
                         title="Reject Log"
@@ -343,6 +354,18 @@ function DailyLogs() {
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         ContentProps={{ style: { backgroundColor: snackbar.error ? "#d32f2f" : "#4caf50" } }}
       />
+      {/* Approval Modal */}
+      {showApprovalModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <p>Are you sure you want to approve this log?</p>
+            <Button onClick={handleApprove}>Yes</Button>
+            <Button onClick={() => {
+              setShowApprovalModal(false);
+              setLogToApprove(null);
+            }}>No</Button>
+          </div>
+            </div>)}
     </Box>
   );
 }

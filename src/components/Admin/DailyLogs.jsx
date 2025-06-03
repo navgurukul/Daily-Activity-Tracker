@@ -50,6 +50,10 @@ function DailyLogs() {
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [logToApprove, setLogToApprove] = useState(null);
 
+  // state to reject logs
+  const [logToReject, setLogToReject] = useState(null);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -165,6 +169,12 @@ function DailyLogs() {
     setShowApprovalModal(true);
   };
 
+  // Function to handle log rejection
+  const handleRejectClick = (log) => {
+    setLogToReject(log);
+    setShowRejectModal(true);
+  };
+
   const handleApprove = async (log) => {
     if (!logToApprove) return;
 
@@ -194,6 +204,36 @@ function DailyLogs() {
       setLogToApprove(null);
     }
   };
+
+  const handleReject = async () => {
+    if (!logToReject) return;
+
+    try {
+      const response = await fetch(
+        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+          body: JSON.stringify([{ Id: logToReject.Id, approvalEmail: userEmail, logStatus: "rejected" }]),
+        }
+      );
+      if (response.ok) {
+        setSnackbar({ open: true, message: "Log rejected successfully", error: false });
+        fetchLogs();
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
+    } catch (err) {
+      setSnackbar({ open: true, message: "Error rejecting log: " + err.message, error: true });
+    } finally {
+      setShowRejectModal(false);
+      setLogToReject(null);
+    }
+  }
 
   return (
     <Box sx={{ padding: 3 }}>
@@ -272,32 +312,7 @@ function DailyLogs() {
                         size="small"
                         title="Reject Log"
                         color="error"
-                        onClick={async () => {
-                          const confirmReject = window.confirm("Are you sure you want to reject this log?");
-                          if (!confirmReject) return;
-                          try {
-                            const response = await fetch(
-                              "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
-                              {
-                                method: "PUT",
-                                headers: {
-                                  "Content-Type": "application/json",
-                                  Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-                                },
-                                body: JSON.stringify([{ Id: log.Id, approvalEmail: userEmail, logStatus: "rejected" }]),
-                              }
-                            );
-                            if (response.ok) {
-                              setSnackbar({ open: true, message: "Log rejected successfully", error: false });
-                              fetchLogs();
-                            } else {
-                              const errorText = await response.text();
-                              throw new Error(errorText);
-                            }
-                          } catch (err) {
-                            setSnackbar({ open: true, message: "Error rejecting log: " + err.message, error: true });
-                          }
-                        }}
+                        onClick={() => handleRejectClick(log)}
                         disabled={log.logStatus === "approved" || log.logStatus === "rejected"}
                       >
                         <Close />
@@ -366,6 +381,19 @@ function DailyLogs() {
             }}>No</Button>
           </div>
             </div>)}
+      {/* Reject Modal */}
+      {showRejectModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <p>Are you sure you want to reject this log?</p>
+            <Button onClick={handleReject}>Yes</Button>
+            <Button onClick={() => {
+              setShowRejectModal(false);
+              setLogToReject(null);
+            }}>No</Button>
+          </div>
+        </div>
+      )}
     </Box>
   );
 }

@@ -18,6 +18,7 @@ import {
   TableHead,
   TableRow,
   Paper,
+  CircularProgress
 } from "@mui/material";
 
 const Payroll = () => {
@@ -139,7 +140,11 @@ const Payroll = () => {
   );
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+                <CircularProgress />
+              </Box>
+    );
   }
 
   return (

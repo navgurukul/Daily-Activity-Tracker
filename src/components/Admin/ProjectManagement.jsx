@@ -97,6 +97,16 @@ const ProjectManagement = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleClearFilters = () => {
+    setFilters({
+      department: "",
+      projectName: "",
+      projectMasterEmail: "",
+      priorities: "",
+      projectStatus: "",
+    });
+  };
+
   useEffect(() => {
     fetch(
       "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees"
@@ -407,6 +417,13 @@ const ProjectManagement = () => {
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
           </select>
+          <button
+            className="clear-filters-btn"
+            variant="contained"
+            onClick={handleClearFilters}
+          >
+            Clear Filters
+          </button>
         </div>
         <div className="table-wrapper">
           {filteredProjects.length !== 0 ? (

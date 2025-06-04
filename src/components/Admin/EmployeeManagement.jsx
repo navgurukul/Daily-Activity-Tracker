@@ -274,7 +274,7 @@ const EmployeeManagement = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: { xs: "90vw", sm: "85vw", md: 600, lg: 700 },
+            width: { xs: "88vw", sm: "85vw", md: 600, lg: 700 },
             bgcolor: "background.paper",
             borderRadius: 3,
             boxShadow: 24,

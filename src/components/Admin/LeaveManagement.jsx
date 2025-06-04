@@ -613,9 +613,9 @@ const LeaveManagement = () => {
     <div className="leave-container">
       <h1>Leave Management</h1>
 
-      <div className="tabs">
+      <div className="tab">
         <button
-          className={`tab-button ${
+          className={`tabs_button ${
             selectedTab === "pending" ? "active-tab" : ""
           }`}
           onClick={() => setSelectedTab("pending")}
@@ -623,7 +623,7 @@ const LeaveManagement = () => {
           Pending Leaves
         </button>
         <button
-          className={`tab-button ${
+          className={`tabs_button ${
             selectedTab === "approved" ? "active-tab" : ""
           }`}
           onClick={() => setSelectedTab("approved")}
@@ -631,7 +631,7 @@ const LeaveManagement = () => {
           Approved Leaves
         </button>
         <button
-          className={`tab-button ${
+          className={`tabs_button ${
             selectedTab === "balance" ? "active-tab" : ""
           }`}
           onClick={() => setSelectedTab("balance")}
@@ -639,7 +639,7 @@ const LeaveManagement = () => {
           Leave Balance
         </button>
         <button
-          className={`tab-button ${
+          className={`tabs_button ${
             selectedTab === "history" ? "active-tab" : ""
           }`}
           onClick={() => setSelectedTab("history")}
@@ -649,10 +649,11 @@ const LeaveManagement = () => {
       </div>
 
       {selectedTab === "pending" && (
-        <div>
+        <div className="pending-data">
           {pendingLeaves.length === 0 ? (
             <p>No pending leaves found.</p>
           ) : (
+            <div style={{ overflowX: "auto" }}>
             <table>
               <thead>
                 <tr>
@@ -690,12 +691,13 @@ const LeaveManagement = () => {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
       )}
 
       {selectedTab === "approved" && (
-        <div>
+        <div className="approved-data">
           {approvedLeaves.length === 0 ? (
             <p>No approved leaves found.</p>
           ) : (
@@ -733,11 +735,13 @@ const LeaveManagement = () => {
 
       {selectedTab === "balance" && (
         <div>
-          <div
+          <div className="balance-tab"
             style={{
+              width: "100%",
               marginBottom: "15px",
               display: "flex",
               gap: "10px",
+              flexWrap: "wrap",
               alignItems: "center",
             }}
           >
@@ -761,7 +765,7 @@ const LeaveManagement = () => {
               {loadingBalance ? "Loading..." : "View Balance"}
             </button>
           </div>
-
+          <div className="balance-data">
           {balanceError && <p style={{ color: "red" }}>{balanceError}</p>}
 
           {leaveBalance.length > 0 && (
@@ -788,6 +792,7 @@ const LeaveManagement = () => {
               </tbody>
             </table>
           )}
+        </div>
         </div>
       )}
 
@@ -831,7 +836,7 @@ const LeaveManagement = () => {
               sx={{ minWidth: 300 }}
             />
           </div>
-
+          <div className="history-data">
           {filteredLeaveHistory.length === 0 ? (
             <p>No leave history found.</p>
           ) : (
@@ -867,6 +872,7 @@ const LeaveManagement = () => {
             </table>
           )}
         </div>
+        </div>  
       )}
       <Snackbar
         open={snackbarOpen}

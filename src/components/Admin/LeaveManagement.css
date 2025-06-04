@@ -1,7 +1,7 @@
 .leave-container {
   /* max-width: 1200px; */
-  width: 90%;
-  margin: 10px auto;
+  /* width: 90%; */
+  /* margin: 10px auto; */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,6 +12,7 @@
   border-radius: 8px;
   background-color: #ffffff;
   font-family: Arial, sans-serif; */
+   /* border: 1px solid red; */
 }
 
 h1 {
@@ -19,13 +20,13 @@ h1 {
   color: #333;
 }
 
-.tabs {
+.tab {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
 }
 
-.tab-button {
+.tabs_button {
   padding: 10px 20px;
   border: 2px solid #ccc;
   border-radius: 5px;
@@ -36,7 +37,7 @@ h1 {
   transition: all 0.2s ease-in-out;
 }
 
-.tab-button:hover {
+.tabs_button:hover {
   background-color: #e0e0e0;
 }
 
@@ -93,4 +94,76 @@ label {
 
 .filter-btn:hover{
   background-color: #138496;
+}
+
+.balance-tab select{
+  width: 300px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+@media (max-width: 1024px) {
+  .pending-data{
+    max-width: 765px;
+    overflow: scroll;
+  }
+  .approved-data{
+    max-width: 765px;
+    overflow: scroll;
+  }
+}
+
+@media (max-width: 768px) {
+  .pending-data{
+    max-width: 760px;
+  }
+  .approved-data{
+    max-width: 760px;
+  }
+}
+
+@media (max-width: 425px) {
+  .pending-data{
+    max-width: 415px;
+  }
+  .approved-data{
+    max-width: 415px;
+  }
+  .tab {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .tabs_button{
+    width: 200px;
+  }
+  .balance-tab select{
+    width: 300px;
+    padding: 8px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 375px) {
+  .pending-data{
+    max-width: 370px;
+  }
+  .approved-data{
+    max-width: 370px;
+  }
+  .balance-data{
+    max-width: 365px;
+    overflow: scroll;
+  }
+}
+
+@media (max-width: 320px) {
+  .pending-data{
+    max-width: 315px;
+  }
+  .approved-data{
+    max-width: 315px;
+  }
+  .balance-data{
+    max-width: 310px;
+  }
 }

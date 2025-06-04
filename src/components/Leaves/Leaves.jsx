@@ -43,6 +43,10 @@ const StyledContainer = styled(Container)(({ theme }) => ({
   [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(2),
   },
+  [theme.breakpoints.up("md")]: {
+    marginLeft: theme.spacing(9),
+    maxWidth: "93% !important",
+  },
   "& .MuiPaper-root": {
     width: "100%",
     maxWidth: "100%",

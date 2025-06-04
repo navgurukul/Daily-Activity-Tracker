@@ -2,7 +2,6 @@
   margin-left: 50px;
   padding: 20px;
   background-color: #F4F4F4;
-  /* min-height: 100vh; */
   overflow-x: auto;
 }
 .admin-title {
@@ -11,6 +10,7 @@
   font-weight: bold;
   margin-bottom: 20px;
 }
+
 /* Form Section */
 .form-container {
   background: white;
@@ -28,8 +28,6 @@
   flex-wrap: wrap;
 }
 .input-field {
-  /* flex: 1; */
-  /* width: calc(25% - 10px); */
   width: 32.99%;
   padding: 10px;
   border: 1px solid #ccc;
@@ -48,6 +46,7 @@
 .add-btn:hover {
   background-color: #45A049;
 }
+
 /* Table Section */
 .table-container {
   background: white;
@@ -57,9 +56,6 @@
 }
 .table-container h2 {
   margin-bottom: 15px;
-}
-.table-wrapper {
-  overflow-x: auto;
 }
 table {
   width: 99.5%;
@@ -86,17 +82,12 @@ th {
   color: gray;
   padding: 10px;
 }
-
 .editBtn {
-  /* background-color: #45AF50; */
   background-color: #f1f0f0;
 }
-
 .editBtn:hover {
-  /* background-color: #3E9B43; */
   background-color: #bbb;
 }
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -109,32 +100,27 @@ th {
   align-items: center;
   z-index: 999;
 }
-
 .modal-content {
   background-color: white;
   padding: 30px;
-  width: 600px;
+  width: 500px;
   border-radius: 8px;
   position: relative;
   max-height: 90vh;
   overflow-y: auto;
 }
-
 .close-button {
   position: absolute;
   right: 15px;
   top: 10px;
   font-size: 24px;
   border: none;
-  /* background: transparent; */
   cursor: pointer;
   background-color: #4CAF50;
 }
-
 .close-button:hover {
   background-color: #45A049;
 }
-
 .toast-message {
   position: fixed;
   bottom: 20px;
@@ -146,7 +132,6 @@ th {
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   z-index: 9999;
 }
-
 .deleteBtn {
   margin-left: 8px;
   background-color: #ff4d4d;
@@ -156,19 +141,15 @@ th {
   border-radius: 4px;
   cursor: pointer;
 }
-
 .deleteBtn:hover {
   background-color: #cc0000;
 }
-
-
 .filters {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
 }
-
 .filters input, .filters select {
   width: auto;
   padding: 6px 10px;
@@ -177,10 +158,177 @@ th {
   min-width: 200px;
   font-size: 14px;
 }
-
 .no-data {
   text-align: center;
   color: gray;
   padding: 20px;
   font-size: 18px;
+}
+.clear-filters-btn {
+  background-color: #1976D2;
+  color: white;
+  border: none;
+  padding: 7px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.clear-filters-btn:hover {
+  background-color: #115293;
+}
+
+
+/* Responsiveness */
+@media (max-width: 1024px) {
+ .admin-container {
+    margin-left: 80px;
+  }
+  .form-fields input, .form-fields select {
+    width: 232px;
+  }
+  .form-container button{
+    width: 676px;
+  }
+
+ .filters{
+    row-gap: 0;
+  }
+  .filters h4{
+    margin: 0;
+  }
+  .filters input, .filters select {
+    width: 200px;
+  }
+  .filters select:first-of-type{
+    margin-left:63px;
+  }
+  .filters button{
+    width: 177px;
+  }
+  .table-wrapper {
+    overflow-x: auto;
+  }
+
+  .modal-overlay{
+    margin-left: 250px;
+  }
+  .modal-content .add-btn{
+    width: 440px;
+  }
+}
+
+@media (max-width: 768px) {
+ .admin-container {
+    margin-left: 0px;
+  }
+  .form-fields input, .form-fields select{
+    width: 225px;
+  }
+  
+  .form-container button{
+    width: 655px;
+  }
+  .filters{
+    row-gap: 0;
+  }
+  .filters h4{
+    font-size: medium;
+    margin: 0;
+  }
+  .filters input, .filters select {
+    width: 200px;
+  }
+  .filters select:first-of-type{
+    margin-left:65px;
+  }
+  .filters button{
+    width: 177px;
+  }
+
+  .modal-overlay{
+    margin-left: 0px;
+  }
+  .modal-content .add-btn{
+    width: 425px;
+  }
+}
+
+@media (max-width: 425px) {
+  .form-container{
+    text-align: center;
+  }
+  .form-fields{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .form-fields input, .form-fields select{
+    width: 260px;
+  }
+  .form-container button{
+    width: 230px;
+  }
+
+  .table-container h2{
+    text-align: center;
+  }
+  .filters{
+    row-gap: 0;
+    display: flex;
+    justify-content: center;
+  }
+  .filters h4{
+    font-size: medium;
+    width: 250px;
+    margin: 0;
+  }
+  .filters input, .filters select {
+    width: 250px;
+  }
+  .filters select:first-of-type{
+    margin-left:0px;
+  }
+  .filters button{
+    width: 228px;
+  }
+
+  .modal-content{
+    width: 340px;
+  }
+  .modal-content h2{
+    text-align: center;
+  }
+  .modal-content .add-btn{
+    width: 232px;
+    margin-left: 40px;
+  }
+}
+
+@media (max-width: 375px) {
+  .form-fields input, .form-fields select{
+    width: 250px;
+  }
+  .form-container button{
+    width: 220px;
+  }
+
+  .modal-content{
+    width: 300px;
+  }
+  .modal-content .add-btn{
+    width: 220px;
+    margin-left: 25px;
+  }
+}
+
+@media (max-width: 320px) {
+  .form-container button{
+    width: 210px;
+  }
+  .modal-content{
+    width: 245px;
+  }
+  .modal-content .add-btn{
+    width: 215px;
+    margin-left: 0px;
+  }
 }

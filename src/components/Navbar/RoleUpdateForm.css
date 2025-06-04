@@ -1,279 +1,247 @@
-/* .tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  
-  .tab-button {
-    padding: 10px 20px;
-    border: 2px solid #ccc;
-    border-radius: 5px;
-    background-color: #f3f3f3;
-    color: #333;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-  }
-  
-  .tab-button:hover {
-    background-color: #e0e0e0;
-  }
-  
-  .active-tab {
-    background-color: #2e7d32;
-    color: white;
-    border-color: #2e7d32;
-  }
-   */
+.main {
+  width: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 60px;
+}
+
+.role-update-container {
+  width: 100%;
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  background-color: #f3f3f3;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.tab-button:hover {
+  background-color: #e0e0e0;
+}
+
+.active-tab {
+  background-color: #2e7d32;
+  color: white;
+  border-color: #2e7d32;
+}
+
+.filter-section {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-section .MuiFormControl-root {
+  width: 300px;
+}
+
+.filter-section .MuiTextField-root {
+  width: 200px;
+}
+
+.filter-role {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-role .MuiFormControl-root {
+  width: 300px;
+}
+
+.filter-role .MuiTextField-root {
+  width: 200px;
+}
 
 
-
-   .main {
-    width: 90%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 60px;
+/* Responsiveness */
+@media (max-width: 1024px) {
+  .main {
+    margin-left: 80px;
   }
-  
+}
+
+@media (max-width: 768px) {
+  .main {
+    width: 95%;
+    margin-left: 25px;
+  }
+
   .role-update-container {
-    width: 100%;
-    padding: 20px;
-    font-family: sans-serif;
+    margin-left: 0px;
+    padding: 15px;
   }
-  
+}
+
+@media (max-width: 425px) {
+  .main {
+    width: 96%;
+    margin-left: 10px;
+  }
+
+  .role-update-container {
+    padding: 10px;
+  }
+
   .tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    margin-left: 25px;
   }
-  
+
   .tab-button {
-    padding: 10px 20px;
-    border: 2px solid #ccc;
-    border-radius: 5px;
-    background-color: #f3f3f3;
-    color: #333;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    max-width: 130px;
   }
-  
-  .tab-button:hover {
-    background-color: #e0e0e0;
+
+  .all-users h2 {
+    text-align: center;
   }
-  
-  .active-tab {
-    background-color: #2e7d32;
-    color: white;
-    border-color: #2e7d32;
-  }
-  
-  
-  
+
   .filter-section {
-    margin-bottom: 20px;
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    flex-wrap: wrap;
+    justify-content: center;
   }
-  
+
   .filter-section .MuiFormControl-root {
-    width: 300px;
+    width: 260px;
   }
-  
+
   .filter-section .MuiTextField-root {
-    width: 200px;
+    width: 260px;
   }
-  
+
+  .filter-section button {
+    width: 260px;
+  }
+
+  .assign-role h2 {
+    text-align: center;
+  }
+
   .filter-role {
-    margin-bottom: 20px;
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    flex-wrap: wrap;
+    justify-content: center;
   }
-  
+
   .filter-role .MuiFormControl-root {
-      width: 300px;
-    }
-  
-    .filter-role .MuiTextField-root {
-      width: 200px;
-    }
-  
-  
-  /* Responsiveness */
-  @media (max-width: 1024px) {
-    .main {
-      margin-left: 80px;
-    }
+    width: 260px;
   }
-  
-  @media (max-width: 768px) {
-    .main {
-      width: 95%;
-      margin-left: 25px;
-    }
-  
-    .role-update-container {
-      margin-left: 0px;
-      padding: 15px;
-    }
+
+  .filter-role .MuiTextField-root {
+    width: 260px;
   }
-  
-  @media (max-width: 425px) {
-    .main {
-      width: 96%;
-      margin-left: 10px;
-    }
-  
-    .role-update-container {
-      padding: 10px;
-    }
-  
-    .tabs {
-      margin-left: 25px;
-    }
-  
-    .tab-button {
-      max-width: 130px;
-    }
-  
-    .all-users h2 {
-      text-align: center;
-    }
-  
-    .filter-section {
-      justify-content: center;
-    }
-  
-    .filter-section .MuiFormControl-root {
-      width: 260px;
-    }
-  
-    .filter-section .MuiTextField-root {
-      width: 260px;
-    }
-  
-    .filter-section button {
-      width: 260px;
-    }
-  
-    .assign-role h2 {
-      text-align: center;
-    }
-  
-    .filter-role {
-      justify-content: center;
-    }
-  
-    .filter-role .MuiFormControl-root {
-      width: 260px;
-    }
-  
-    .filter-role .MuiTextField-root {
-      width: 260px;
-    }
-  
-    .filter-role button {
-      width: 260px;
-    }
+
+  .filter-role button {
+    width: 260px;
   }
-  
-  @media (max-width: 375px) {
-    .main {
-      width: 99%;
-      margin-left: 2px;
-    }
-  
-    .role-update-container {
-      padding: 8px;
-    }
-  
-    .tabs {
-      margin-left: 0px;
-    }
-  
-    .tab-button {
-      width: 129px;
-    }
-  
-    .filter-section {
-      justify-content: center;
-    }
-  
-    .filter-section .MuiFormControl-root {
-      width: 260px;
-    }
-  
-    .filter-section .MuiTextField-root {
-      width: 260px;
-    }
-  
-    .filter-section button {
-      width: 260px;
-    }
-  
-  
-    .filter-role .MuiFormControl-root {
-      width: 260px;
-    }
-  
-    .filter-role .MuiTextField-root {
-      width: 260px;
-    }
-  
-    .filter-role button {
-      width: 260px;
-    }
-  
+}
+
+@media (max-width: 375px) {
+  .main {
+    width: 99%;
+    margin-left: 2px;
   }
-  
-  @media (max-width: 320px) {
-    .main {
-      width: 99%;
-      margin-left: 4px;
-    }
-  
-    .role-update-container {
-      padding: 6px;
-    }
-  
-    .tabs {
-      margin-left: 8px;
-    }
-  
-    .tab-button {
-      width: 98px;
-    }
-  
-    .filter-section {
-      justify-content: center;
-    }
-  
-    .filter-section .MuiFormControl-root {
-      width: 260px;
-    }
-  
-    .filter-section .MuiTextField-root {
-      width: 260px;
-    }
-  
-    .filter-section button {
-      width: 260px;
-    }
-  
-    .filter-role .MuiFormControl-root {
-      width: 260px;
-    }
-  
-    .filter-role .MuiTextField-root {
-      width: 260px;
-    }
-  
-    .filter-role button {
-      width: 260px;
-    }
+
+  .role-update-container {
+    padding: 8px;
   }
+
+  .tabs {
+    margin-left: 0px;
+  }
+
+  .tab-button {
+    width: 129px;
+  }
+
+  .filter-section {
+    justify-content: center;
+  }
+
+  .filter-section .MuiFormControl-root {
+    width: 260px;
+  }
+
+  .filter-section .MuiTextField-root {
+    width: 260px;
+  }
+
+  .filter-section button {
+    width: 260px;
+  }
+
+
+  .filter-role .MuiFormControl-root {
+    width: 260px;
+  }
+
+  .filter-role .MuiTextField-root {
+    width: 260px;
+  }
+
+  .filter-role button {
+    width: 260px;
+  }
+
+}
+
+@media (max-width: 320px) {
+  .main {
+    width: 97%;
+    margin-left: 4px;
+  }
+
+  .role-update-container {
+    padding: 6px;
+  }
+
+  .tabs {
+    margin-left: 8px;
+  }
+
+  .tab-button {
+    width: 98px;
+  }
+
+  .filter-section {
+    justify-content: center;
+  }
+
+  .filter-section .MuiFormControl-root {
+    width: 260px;
+  }
+
+  .filter-section .MuiTextField-root {
+    width: 260px;
+  }
+
+  .filter-section button {
+    width: 260px;
+  }
+
+  .filter-role .MuiFormControl-root {
+    width: 260px;
+  }
+
+  .filter-role .MuiTextField-root {
+    width: 260px;
+  }
+
+  .filter-role button {
+    width: 260px;
+  }
+}

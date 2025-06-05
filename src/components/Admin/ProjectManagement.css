@@ -26,9 +26,15 @@
   display: flex;
   gap: 5px;
   flex-wrap: wrap;
+  width: 100%;
+}
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 32.99%;
 }
 .input-field {
-  width: 32.99%;
+  /* width: 32.99%; */
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -121,16 +127,13 @@ th {
 .close-button:hover {
   background-color: #45A049;
 }
-.toast-message {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #4CAF50;
-  color: white;
-  padding: 10px 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  z-index: 9999;
+
+.error-message {
+  color: red;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  margin-bottom: 10px;
+  text-align: left;
 }
 .deleteBtn {
   margin-left: 8px;

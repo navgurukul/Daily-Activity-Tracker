@@ -236,7 +236,7 @@ function DailyLogs() {
   }
 
   return (
-    <Box sx={{ padding: 3 }}>
+    <Box>
       <Typography variant="h5" align="center" mb={3}>
         Daily Logs
       </Typography>
@@ -249,7 +249,7 @@ function DailyLogs() {
           onChange={(e, val) => setProjectName(val || "")}
           renderInput={(params) => <TextField {...params} label="Project Name" size="small" />}
           freeSolo
-          sx={{ minWidth: 200 }}
+          sx={{ minWidth: 280 }}
         />
         <Autocomplete
           options={emailsList}
@@ -257,15 +257,15 @@ function DailyLogs() {
           onChange={(e, val) => setEmail(val || "")}
           renderInput={(params) => <TextField {...params} label="Employee Email" size="small" />}
           freeSolo
-          sx={{ minWidth: 200 }}
+          sx={{ minWidth: 280 }}
         />
-        <TextField label="Month" value={month} onChange={(e) => setMonth(e.target.value)} select size="small" sx={{ minWidth: 150 }} SelectProps={{ native: true }}>
+        <TextField label="Month" value={month} onChange={(e) => setMonth(e.target.value)} select size="small" sx={{ minWidth: {xs:130, sm:200} }} SelectProps={{ native: true }}>
           <option value="" disabled></option>
           {[...Array(12)].map((_, i) => (
             <option key={i + 1} value={String(i + 1).padStart(2, "0")}>{String(i + 1).padStart(2, "0")}</option>
           ))}
         </TextField>
-        <TextField label="Year" value={year} onChange={(e) => setYear(e.target.value)} select size="small" sx={{ minWidth: 150 }} SelectProps={{ native: true }}>
+        <TextField label="Year" value={year} onChange={(e) => setYear(e.target.value)} select size="small" sx={{ minWidth:{xs:130, sm:200}}} SelectProps={{ native: true }}>
           <option value="" disabled></option>
           {[2023, 2024, 2025, 2026].map((yr) => (
             <option key={yr} value={yr}>{yr}</option>
@@ -276,12 +276,12 @@ function DailyLogs() {
 
       {/* Logs Table */}
       {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+        <Box sx={{ display: "flex", justifyContent: "center"}}>
           <CircularProgress />
         </Box>
       ) : logs.length > 0 ? (
         <>
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} sx={{ overflowX: { xs: "scroll", sm: "hidden" } }}>
             <Table>
               <TableHead>
                 <TableRow>

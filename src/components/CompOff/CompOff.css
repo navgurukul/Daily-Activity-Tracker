@@ -59,6 +59,12 @@ form {
       max-width: 300px; 
     }
   }
+  @media (max-width: 320px) { 
+    .form-1 {
+      width: 83%; 
+      max-width: 300px; 
+    }
+  }
   
   
   

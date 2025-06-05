@@ -582,7 +582,7 @@ const ProjectManagement = () => {
                 <option value="P3">P3-Low</option>
               </select>
               <input
-                type="text"
+                type="number"
                 placeholder="Project Budget"
                 className="input-field"
                 value={editData.projectBudget}

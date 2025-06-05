@@ -366,7 +366,6 @@ const LeaveManagement = () => {
         <div>
           <div
             style={{
-              marginBottom: "15px",
               display: "flex",
               gap: "10px",
               alignItems: "center",

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import "./LeaveManagement.css";
 import { LoginContext } from "../context/LoginContext";
-import { Snackbar, Alert, TextField, Autocomplete } from "@mui/material";
+import { Snackbar, Alert, TextField, Autocomplete, CircularProgress } from "@mui/material";
 
 const LeaveManagement = () => {
   const dataContext = useContext(LoginContext);
@@ -95,27 +95,30 @@ const LeaveManagement = () => {
   };
 
   const fetchLeaveBalance = async () => {
-    setLoadingBalance(true);
-    setBalanceError("");
-    setLeaveBalance([]);
+  if (!searchEmail) return;
 
-    try {
-      const response = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy"
-      );
-      const result = await response.json();
+  setLoadingBalance(true);
+  setBalanceError("");
+  setLeaveBalance([]);
 
-      if (result.success && result.data[0]) {
-        setLeaveBalance(result.data[0].leaveRecords);
-      } else {
-        setBalanceError("No leave balance data found for this email.");
-      }
-    } catch (error) {
-      setBalanceError("Error fetching leave balance data.");
+  try {
+    const response = await fetch(
+      `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy?email=${searchEmail}`
+    );
+    const result = await response.json();
+
+    if (result.success && result.data.length > 0) {
+      setLeaveBalance(result.data[0].leaveRecords);
+    } else {
+      setBalanceError("No leave balance data found for this email.");
     }
+  } catch (error) {
+    console.error("Error:", error);
+    setBalanceError("Error fetching leave balance data.");
+  }
 
-    setLoadingBalance(false);
-  };
+  setLoadingBalance(false);
+};
 
   const fetchLeaveHistory = async () => {
     try {
@@ -328,9 +331,15 @@ const LeaveManagement = () => {
               onClick={fetchLeaveBalance}
               disabled={loadingBalance || !searchEmail}
             >
-              {loadingBalance ? "Loading..." : "View Balance"}
+              View Balance
             </button>
           </div>
+        {loadingBalance && (
+          <div className="loading-indicator">
+            <CircularProgress size={24} />
+            <span style={{ marginLeft: "10px" }}>Loading balance...</span>
+          </div>
+        )}
           <div className="balance-data">
           {balanceError && <p style={{ color: "red" }}>{balanceError}</p>}
 

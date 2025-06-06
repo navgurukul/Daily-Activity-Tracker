@@ -287,25 +287,6 @@ const Form = () => {
   };
 
   const addContribution = () => {
-    // if (!selectedProject) {
-    //   alert("Please select a project before saving the contribution");
-    //   return;
-    // }
-
-    // if (!currentContribution.hours) {
-    //   alert("Please fill total hours spent");
-    //   return;
-    // }
-    // if (currentContribution.hours < 0) {
-    //   alert("Total hours spent cannot be negative");
-    //   return;
-    // } 
-
-    // if (!currentContribution.task) {
-    //   alert("Please fill what you achieved in this project");
-    //   return;
-    // }
-
     if (!selectedProject) {
       setShowProjectError(true);
       return;
@@ -813,9 +794,9 @@ const Form = () => {
             </select>
           )}
           {showProjectError && (
-    <p style={{ display: "flex", color: "red", marginTop: "4px" }}>
+    <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem"}}>
       Project cannot be empty*
-    </p>
+    </div>
   )}
           <br />
           <br />
@@ -833,9 +814,9 @@ const Form = () => {
                 required
               />
               {showHoursError && (
-                <p style={{ display: "flex", color: "red", marginTop: "4px" }}>
+                <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem"}}>
                   Total hours spent cannot be empty or negative*
-                </p>
+                </div>
               )}
               <br />
               <label>What did you achieve in this project?</label>
@@ -846,9 +827,9 @@ const Form = () => {
                 required
               />
               {showTaskError && (
-                <p style={{ display: "flex", color: "red", marginTop: "4px" }}>
+                <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem"}}>
                   Task cannot be empty*
-                </p>
+                </div>
               )}
               <button
                 type="button"

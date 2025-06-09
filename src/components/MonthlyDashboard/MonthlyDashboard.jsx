@@ -124,13 +124,6 @@ const MonthlyDashboard = () => {
     >
       <div
         className="dashboard-header-container"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "0 16px",
-          marginBottom: 24,
-        }}
       >
         <div className="dashboard-header">
           <Typography variant="h6" sx={{ color: "text.secondary", marginBottom: 2 }}>
@@ -146,11 +139,12 @@ const MonthlyDashboard = () => {
             />
           </LocalizationProvider>
         </div>
-        <div style={{ minWidth: 320 }}>
+        <div style={{ minWidth: 290 }}>
           <CycleSummary selectedDate={selectedDate}/>
         </div>
       </div>
 
+<div className="calender">
       <div className="calendar-grid">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <div key={day} className="weekday-header">
@@ -193,6 +187,7 @@ const MonthlyDashboard = () => {
             />
           );
         })}
+      </div>
       </div>
       {selectedDay && (
         <DayDetailsDialog

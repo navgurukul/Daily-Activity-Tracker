@@ -376,8 +376,9 @@ function DailyLogs() {
       {/* Approval Modal */}
       {showApprovalModal && (
         <div className="modal-overlay">
-          <div className="modal-content">
-            <p>Are you sure you want to approve this log?</p>
+          <div className="modal-content"
+          style={{ width: "300px", height: "100px", padding: 0 }}>
+            <p style={{ margin: 0, padding: "15px 0px", fontSize: "15px", textAlign: 'center' }}>Are you sure you want to approve this log?</p>
             <Button onClick={handleApprove}>Yes</Button>
             <Button onClick={() => {
               setShowApprovalModal(false);
@@ -388,13 +389,22 @@ function DailyLogs() {
       {/* Reject Modal */}
       {showRejectModal && (
         <div className="modal-overlay">
-          <div className="modal-content">
-            <p>Are you sure you want to reject this log?</p>
+          <div
+            className="modal-content"
+            style={{ width: "300px", height: "100px", padding: 0 }}
+          >
+            <p style={{ margin: 0, padding: "15px 0px", fontSize: "15px", textAlign: 'center' }}>
+              Are you sure you want to reject this log?
+            </p>
             <Button onClick={handleReject}>Yes</Button>
-            <Button onClick={() => {
-              setShowRejectModal(false);
-              setLogToReject(null);
-            }}>No</Button>
+            <Button
+              onClick={() => {
+                setShowRejectModal(false);
+                setLogToReject(null);
+              }}
+            >
+              No
+            </Button>
           </div>
         </div>
       )}

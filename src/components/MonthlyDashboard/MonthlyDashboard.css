@@ -1,9 +1,15 @@
-/* MonthlyDashboard.css */
 .dashboard-container {
   padding: 24px;
   margin: 20px;
 }
 
+.dashboard-header-container{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  margin-bottom: 24px;
+}
 .dashboard-title {
   margin-bottom: 24px !important;
   color: black;
@@ -208,4 +214,106 @@
 .activities-section {
   border-top: 1px solid #e0e0e0;
   padding-top: 16px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-container {
+    margin-left: 95px;
+  }
+  .dashboard-header{
+    margin-top: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    margin-left: 20px;
+  }
+  .dashboard-header-container{
+    padding: 0 ;
+  }
+}
+@media (max-width: 425px){
+  .dashboard-header-container{
+    display: inline;
+    margin: 0;
+    padding: 0;
+  }
+  .dashboard-container {
+    margin-left: 10px;
+  }
+  .dashboard-header{
+    text-align: center;
+    margin-top: 0;
+    padding: 0;
+    
+  }
+  .calendar-grid {
+    width: 700px;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
+  }
+}
+@media (max-width: 425px){
+  .dashboard-header-container{
+    display: inline;
+    margin: 0;
+    padding: 0;
+  }
+  .dashboard-container {
+    margin: 10px;
+    padding: 5px;
+  }
+  .dashboard-header{
+    text-align: center;
+    margin-top: 0;
+    padding: 0;
+    
+  }
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+  }
+}
+@media (max-width: 425px){
+  .dashboard-header-container{
+    display: inline;
+    margin: 0;
+    padding: 0;
+  }
+  .dashboard-container {
+    margin: 10px;
+    padding: 5px;
+  }
+  .dashboard-header{
+    text-align: center;
+    margin-top: 0;
+    padding: 0;
+    
+  }
+  .calender{
+    width: 99%;
+    overflow: scroll;
+  }
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
+  }
+}
+@media (max-width: 320px){
+  .dashboard-header-container{
+    display: inline;
+    margin: 0;
+    padding: 0;
+  }
+  .dashboard-container {
+    margin: 10px;
+    padding: 10px;
+  }
+  .dashboard-header{
+    text-align: center;
+  }
 }

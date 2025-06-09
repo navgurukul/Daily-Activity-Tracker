@@ -364,7 +364,7 @@ const ProjectManagement = () => {
           </div>
           <div className="input-wrapper">
           <input
-            type="text"
+            type="number"
             placeholder="Project Budget"
             className="input-field"
             value={data.projectBudget}

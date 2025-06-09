@@ -38,7 +38,8 @@ const Payroll = () => {
 
   useEffect(() => {
     const fetchPayrollData = async () => {
-      const token = localStorage.getItem("jwtToken");
+      // const token = localStorage.getItem("jwtToken");
+      const token = sessionStorage.getItem("jwtToken");
 
       if (!token) {
         console.error("JWT token not found in local storage.");

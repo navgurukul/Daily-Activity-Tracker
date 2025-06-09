@@ -145,7 +145,8 @@ function DailyLogs() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
           },
           body: JSON.stringify([{ ...editedData, logStatus: "pending" }]),
         }
@@ -185,7 +186,8 @@ function DailyLogs() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
           },
           body: JSON.stringify([{ Id: logToApprove.Id, approvalEmail: userEmail, logStatus: "approved" }]),
         }
@@ -215,7 +217,8 @@ function DailyLogs() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
           },
           body: JSON.stringify([{ Id: logToReject.Id, approvalEmail: userEmail, logStatus: "rejected" }]),
         }

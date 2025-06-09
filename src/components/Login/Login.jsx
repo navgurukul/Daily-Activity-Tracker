@@ -15,18 +15,20 @@ function Login() {
   const [alertMessage, setAlertMessage] = useState("");
 
   useEffect(() => {
-    localStorage.getItem("email") ? navigate("/activity-tracker") : null;
+    // localStorage.getItem("email") ? navigate("/activity-tracker") : null;
+    sessionStorage.getItem("email") ? navigate("/activity-tracker") : navigate("/");
   },[])
   const handleCallbackResponse = async (response) => {
     let jwtToken = response.credential;
     console.log("Encoded JWT ID token: " + jwtToken);
-    sessionStorage.setItem("bearerToken", jwtToken);
+    // sessionStorage.setItem("bearerToken", jwtToken);
     const decoded = jwtDecode(jwtToken);
     console.log("Decoded Token:", decoded);
     const userEmail = decoded?.email;
     const userName = decoded?.name;
 
-    localStorage.setItem("jwtToken", jwtToken);
+    // localStorage.setItem("jwtToken", jwtToken);
+    sessionStorage.setItem("jwtToken", jwtToken);
 
     if (userEmail.endsWith("@navgurukul.org") || userEmail.endsWith("@thesama.in") || userEmail.endsWith("@samyarth.org") ){
       const username = userEmail.split("@")[0];
@@ -53,7 +55,8 @@ function Login() {
           const department = userRecord?.Department || "Not Available";
 
           // Step 3: Save in localStorage and navigate
-          localStorage.setItem("email", userEmail);
+          // localStorage.setItem("email", userEmail);
+          sessionStorage.setItem("email", userEmail);
           localStorage.setItem("name", userName);
           localStorage.setItem("role", role);
           localStorage.setItem("department", department);

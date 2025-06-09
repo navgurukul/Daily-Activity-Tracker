@@ -46,7 +46,8 @@ const MonthlyDashboard = () => {
     return currentMonthDays;
   };
   // console.log(getDaysInMonth());
-  let email = localStorage.getItem("email") ?? "";
+  // let email = localStorage.getItem("email") ?? "";
+  let email = sessionStorage.getItem("email") ?? "";
   const getMonthAndYear = () => {
     return new Date(selectedYear, selectedMonth).toLocaleString("default", {
       month: "long",
@@ -57,7 +58,8 @@ const MonthlyDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const email = localStorage.getItem("email");
+        // const email = localStorage.getItem("email");
+        const email = sessionStorage.getItem("email");
         const [activityRes, leaveRes] = await Promise.all([
           fetch(
             `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs/${email}?month=${String(

@@ -55,7 +55,8 @@ const CompOff = () => {
       delete payload.halfDayStatus;
     }
   
-    const token = sessionStorage.getItem("bearerToken");
+    // const token = sessionStorage.getItem("bearerToken");
+    const token = sessionStorage.getItem("jwtToken");
   
     try {
       const response = await fetch(

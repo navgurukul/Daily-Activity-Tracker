@@ -59,7 +59,8 @@ const LeaveManagement = () => {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
           },
           body: JSON.stringify({
             Id: leaveId,

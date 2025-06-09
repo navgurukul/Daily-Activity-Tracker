@@ -27,11 +27,6 @@ function App() {
   const [feedbackData, setFeedbackData] = useState(null);
 
   useEffect(() => {
-    // const handleBeforeUnload = (event) => {
-    //   event.preventDefault();
-    //   event.returnValue = true;
-    // };
-
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
@@ -39,67 +34,88 @@ function App() {
     };
   }, []);
 
+  const ProtectedRoute = ({ children }) => {
+  const email = sessionStorage.getItem("email");
+  return email ? children : <Navigate to="/" replace />;
+};
+
   return (
     <div className="App">
       {email && email !== "" ? <Navbar /> : <NoTabNavBar />}
-      {/* {<Navbar />} */}
       <br />
       <br />
       <main>
         <Routes>
           <Route path="/" element={<Login />} />
-          {/* <Route path="/" element={<Form />} /> */}
           <Route
             path="/activity-tracker"
-            // element={<ProtectedRoute element={<Form />} />}
-            element={<Form />}
+            element={
+              <ProtectedRoute>
+                <Form />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/comp-off-application"
-            // element={<ProtectedRoute element={<CompOff />} />}
-            element={<CompOff />}
+            element={
+              <ProtectedRoute>
+                <CompOff />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/leave-application"
-            // element={<ProtectedRoute element={<Leaves />} />}
-            element={<Leaves />}
+            element={
+              <ProtectedRoute>
+                <Leaves />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/leaves"
-            // element={<ProtectedRoute element={<Leaves />} />}
-            element={<Leaves />}
+            element={
+              <ProtectedRoute>
+                <Leaves />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/monthly-activity-dashboard"
-            // element={<ProtectedRoute element={<MonthlyDashboard />} />}
-            element={<MonthlyDashboard />}
+            element={
+              <ProtectedRoute>
+                <MonthlyDashboard />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/admin"
             element={
               loading ? (
                 <div>Loading...</div>
-              ) : isAdmin ? (
-                <AdminDashboard />
               ) : (
-                <Navigate to="/unauthorized" replace />
+                <ProtectedRoute>
+                  {isAdmin ? <AdminDashboard /> : <Navigate to="/unauthorized" replace />}
+                </ProtectedRoute>
               )
             }
           />
           <Route
             path="/leave-history"
-            element={<LeaveHistory />}
+            element={
+              <ProtectedRoute>
+                <LeaveHistory />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/role-update"
             element={
               loading ? (
                 <div>Loading...</div>
-              ) :
-              isAdmin ? (
-                <RoleUpdateForm />
               ) : (
-                <Navigate to="/unauthorized" replace />
+                <ProtectedRoute>
+                  {isAdmin ? <RoleUpdateForm /> : <Navigate to="/unauthorized" replace />}
+                </ProtectedRoute>
               )
             }
           />
@@ -108,11 +124,10 @@ function App() {
             element={
               loading ? (
                 <div>Loading...</div>
-              ) :
-              isAdmin ? (
-                <ProjectManagement />
               ) : (
-                <Navigate to="/unauthorized" replace />
+                <ProtectedRoute>
+                  {isAdmin ? <ProjectManagement /> : <Navigate to="/unauthorized" replace />}
+                </ProtectedRoute>
               )
             }
           />

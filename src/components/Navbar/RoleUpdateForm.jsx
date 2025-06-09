@@ -137,7 +137,8 @@ const RoleUpdateForm = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
           },
           body: JSON.stringify(payload),
         }
@@ -198,7 +199,8 @@ const RoleUpdateForm = () => {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
         },
       });
 

@@ -113,7 +113,8 @@ const Form = () => {
   };
 
   useEffect(() => {
-    let email = localStorage.getItem("email") ?? "";
+    // let email = localStorage.getItem("email") ?? "";
+    let email = sessionStorage.getItem("email") ?? "";
     setAttemptLoading(true);
     fetch(`${url}?email=${email}&type=attempts`)
       .then((response) => response.json())
@@ -373,7 +374,8 @@ const Form = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const userEmail = localStorage.getItem("email");
+    // const userEmail = localStorage.getItem("email");
+    const userEmail = email;
     const department = localStorage.getItem("department");
     // const department = "Residential Program";
 

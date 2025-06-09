@@ -35,7 +35,8 @@ function DailyLogs() {
   const [emailsList, setEmailsList] = useState([]);
   const [projectList, setProjectList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const userEmail = localStorage.getItem("email");
+  // const userEmail = localStorage.getItem("email");
+  const userEmail = sessionStorage.getItem("email");
   const [editLog, setEditLog] = useState(null);
   const [editedData, setEditedData] = useState({
     Id: "",

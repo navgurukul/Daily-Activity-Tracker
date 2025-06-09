@@ -21,6 +21,8 @@ const LeaveManagement = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
+  const [isApproving, setIsApproving] = useState(false);
+
   useEffect(() => {
     fetch(
       "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?status=pending&limit=100&page=1"
@@ -52,6 +54,7 @@ const LeaveManagement = () => {
   }, []);
 
   const handleApprove = async (leaveId) => {
+    setIsApproving(true);
     try {
       const approveResponse = await fetch(
         "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy",
@@ -92,6 +95,8 @@ const LeaveManagement = () => {
     setSnackbarMessage("Something went wrong.");
     setSnackbarSeverity("error");
     setSnackbarOpen(true);
+  } finally {
+    setIsApproving(false);
   }
   };
 
@@ -224,6 +229,12 @@ const LeaveManagement = () => {
 
       {selectedTab === "pending" && (
         <div className="pending-data">
+          {isApproving && (
+            <div className="loader-overlay">
+              <CircularProgress size={24} />
+              <span style={{ marginLeft: "10px", fontWeight: "bold" }}>Approving leave...</span>
+            </div>
+          )}
           {pendingLeaves.length === 0 ? (
             <p>No pending leaves found.</p>
           ) : (

@@ -316,7 +316,7 @@ const RoleUpdateForm = () => {
                     fontSize: "18px",
                   }}
                 >
-                  No role assigned to this user
+                  No user found
                 </div>
               ) : (
                 <>

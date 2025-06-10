@@ -35,17 +35,21 @@
 @media (max-width: 768px) {
   .main_container {
     margin-left: 0px;
+    margin-top: 70px;
   }
 }
 @media (max-width: 425px) {
   .main_container {
     padding: 5px;
+    margin-right: 0px;
   }
   
 }
 @media (max-width: 320px) {
   .main_container {
     width: 333px;
+    margin-right: 5px;
+    padding: 0;
   }
   .Tabs {
     gap: 5px;

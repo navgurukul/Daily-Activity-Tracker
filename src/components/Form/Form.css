@@ -5,6 +5,10 @@ body {
   height: 100%;
 }
 
+.form-container {
+  margin-top: 0px;
+}
+
 form {
   display: flex;
   flex-direction: column;
@@ -157,11 +161,24 @@ td {
   box-sizing: border-box;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 1024px) {
+  .full-width-button{
+    max-width: 100%;
+  }
+  .save-button{
+    padding: 0;
+    width: 20px;
+  }
+}
+
+@media (max-width: 768px) {
   .full-width-button {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
+  }
+  .form-container{
+    margin-top: 35px !important;
   }
 }
 

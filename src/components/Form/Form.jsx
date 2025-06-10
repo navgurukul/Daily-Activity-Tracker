@@ -582,7 +582,7 @@ const Form = () => {
     const currentDept = formData.department || userDepartment;
 
   return (
-    <div style={{ overflowY: "scroll", height: "100vh"}}>
+    <div className="form-container" style={{ overflowY: "scroll", height: "100vh"}}>
       <LoadingSpinner loading={loading} className="loader-container" />
       <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
         <h3 style={{ fontSize: "32px", fontWeight: "bold", color: "#000" }}>

@@ -55,6 +55,9 @@ function DailyLogs() {
   const [logToReject, setLogToReject] = useState(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
 
+  const [isApproving, setIsApproving] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
+
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -179,6 +182,7 @@ function DailyLogs() {
 
   const handleApprove = async (log) => {
     if (!logToApprove) return;
+    setIsApproving(true);
 
     try {
       const response = await fetch(
@@ -205,11 +209,13 @@ function DailyLogs() {
     } finally {
       setShowApprovalModal(false);
       setLogToApprove(null);
+      setIsApproving(false);
     }
   };
 
   const handleReject = async () => {
     if (!logToReject) return;
+    setIsRejecting(true);
 
     try {
       const response = await fetch(
@@ -236,6 +242,7 @@ function DailyLogs() {
     } finally {
       setShowRejectModal(false);
       setLogToReject(null);
+      setIsRejecting(false);
     }
   }
 
@@ -277,6 +284,19 @@ function DailyLogs() {
         </TextField>
         <Button variant="contained" color="primary" onClick={clearFilters}>Clear Filters</Button>
       </Box>
+
+      {isApproving && (
+        <div style={{position: "fixed", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, background: "rgba(255, 255, 255, 0.7)" }}>
+                      <CircularProgress size={24} />
+                      <span style={{ marginLeft: "10px", fontWeight: "bold" }}>Approving logs...</span>
+                    </div>
+      )}
+      {isRejecting && (
+        <div style={{position: "fixed", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, background: "rgba(255, 255, 255, 0.7)" }}>
+          <CircularProgress size={24} />
+          <span style={{ marginLeft: "10px", fontWeight: "bold" }}>Rejecting logs...</span>
+        </div>
+      )}
 
       {/* Logs Table */}
       {loading ? (

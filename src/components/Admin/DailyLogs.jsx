@@ -15,6 +15,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   Snackbar,
   IconButton,
@@ -374,40 +375,67 @@ function DailyLogs() {
         ContentProps={{ style: { backgroundColor: snackbar.error ? "#d32f2f" : "#4caf50" } }}
       />
       {/* Approval Modal */}
-      {showApprovalModal && (
-        <div className="modal-overlay">
-          <div className="modal-content"
-          style={{ width: "300px", height: "100px", padding: 0 }}>
-            <p style={{ margin: 0, padding: "15px 0px", fontSize: "15px", textAlign: 'center' }}>Are you sure you want to approve this log?</p>
-            <Button onClick={handleApprove}>Yes</Button>
-            <Button onClick={() => {
-              setShowApprovalModal(false);
-              setLogToApprove(null);
-            }}>No</Button>
-          </div>
-            </div>)}
+            <Dialog
+  open={showApprovalModal}
+  onClose={() => {
+    setShowApprovalModal(false);
+    setLogToApprove(null);
+  }}
+  aria-labelledby="approval-dialog-title"
+  aria-describedby="approval-dialog-description"
+>
+  <DialogTitle id="approval-dialog-title">{"Approve Log"}</DialogTitle>
+  <DialogContent>
+    <DialogContentText id="approval-dialog-description">
+      Are you sure you want to approve this log?
+    </DialogContentText>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={handleApprove} color="primary" autoFocus>
+      Yes
+    </Button>
+    <Button
+      onClick={() => {
+        setShowApprovalModal(false);
+        setLogToApprove(null);
+      }}
+      color="primary"
+    >
+      No
+    </Button>
+  </DialogActions>
+</Dialog>
       {/* Reject Modal */}
-      {showRejectModal && (
-        <div className="modal-overlay">
-          <div
-            className="modal-content"
-            style={{ width: "300px", height: "100px", padding: 0 }}
+      <Dialog
+        open={showRejectModal}
+        onClose={() => {
+          setShowRejectModal(false);
+          setLogToReject(null);
+        }}
+        aria-labelledby="reject-dialog-title"
+        aria-describedby="reject-dialog-description"
+      >
+        <DialogTitle id="reject-dialog-title">{"Reject Log"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="reject-dialog-description">
+            Are you sure you want to reject this log?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleReject} color="primary" autoFocus>
+            Yes
+          </Button>
+          <Button
+            onClick={() => {
+              setShowRejectModal(false);
+              setLogToReject(null);
+            }}
+            color="primary"
           >
-            <p style={{ margin: 0, padding: "15px 0px", fontSize: "15px", textAlign: 'center' }}>
-              Are you sure you want to reject this log?
-            </p>
-            <Button onClick={handleReject}>Yes</Button>
-            <Button
-              onClick={() => {
-                setShowRejectModal(false);
-                setLogToReject(null);
-              }}
-            >
-              No
-            </Button>
-          </div>
-        </div>
-      )}
+            No
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

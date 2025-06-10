@@ -89,6 +89,8 @@ const Form = () => {
   const [showTaskError, setShowTaskError] = useState(false);
   const [departments, setDepartments] = useState([]);
 
+  const [showSaveError, setShowSaveError] = useState(false);
+
   useEffect(() => {
     const fetchCampuses = async () => {
       try {
@@ -272,8 +274,18 @@ const Form = () => {
 
   useEffect(() => {
     // console.log("Selected Project:", selectedProject);
-    setMaxHours(2);
+    setMaxHours(15);
   }, [selectedProject]);
+
+  useEffect(() => {
+    if (showSaveError) {
+      const timer = setTimeout(() => {
+        setShowSaveError(false);
+      }, 3000); 
+
+      return () => clearTimeout(timer);
+    }
+  }, [showSaveError]);
 
   function checkMaxValue(input) {
     if (selectedProject === "Ad-hoc tasks") {
@@ -376,6 +388,11 @@ const Form = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!saved) {
+      setShowSaveError(true);
+      return;
+    }
 
     // const userEmail = localStorage.getItem("email");
     const userEmail = email;
@@ -582,7 +599,7 @@ const Form = () => {
     const currentDept = formData.department || userDepartment;
 
   return (
-    <div className="form-container" style={{ overflowY: "scroll", height: "100vh"}}>
+    <div className="form-container" style={{ overflowY: "scroll", height: "100vh", marginTop: "-20px"}}>
       <LoadingSpinner loading={loading} className="loader-container" />
       <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
         <h3 style={{ fontSize: "32px", fontWeight: "bold", color: "#000" }}>
@@ -861,7 +878,6 @@ const Form = () => {
                 onChange={handleContributionChange}
                 onInput={(e) => checkMaxValue(e.target)}
                 min="0"
-                required
               />
               {showHoursError && (
                 <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem"}}>
@@ -874,7 +890,6 @@ const Form = () => {
                 name="task"
                 value={currentContribution.task}
                 onChange={handleContributionChange}
-                required
               />
               {showTaskError && (
                 <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem"}}>
@@ -891,6 +906,11 @@ const Form = () => {
             </div>
           )}
         </div>
+        {showSaveError && (
+          <p style={{ display: "flex", color: "red", marginTop: "4px"}}>
+            Please save your contribution before submitting.
+          </p>
+        )}
         <button type="submit" className="full-width-button">
           Submit
         </button>

@@ -199,7 +199,7 @@ const LeaveManagement = () => {
           }`}
           onClick={() => setSelectedTab("pending")}
         >
-          Pending Leaves
+          Pending Requests
         </button>
         <button
           className={`tabs_button ${
@@ -215,7 +215,7 @@ const LeaveManagement = () => {
           }`}
           onClick={() => setSelectedTab("balance")}
         >
-          Leave Balance
+          Alloted Leaves
         </button>
         <button
           className={`tabs_button ${
@@ -223,7 +223,7 @@ const LeaveManagement = () => {
           }`}
           onClick={() => setSelectedTab("history")}
         >
-          Leave History
+          History
         </button>
       </div>
 

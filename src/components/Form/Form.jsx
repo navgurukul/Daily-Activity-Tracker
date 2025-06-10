@@ -830,7 +830,6 @@ const Form = () => {
               name="selectedProject"
               value={selectedProject}
               onChange={handleProjectSelect}
-              required
             >
               <option value="">--Select a project--</option>
               {projectByDepartment[currentDept].map((project, index) => (

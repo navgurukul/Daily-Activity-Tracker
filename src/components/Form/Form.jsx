@@ -21,6 +21,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
+import { set } from "lodash";
 
 const Form = () => {
   const dataContext = useContext(LoginContext);
@@ -46,8 +47,10 @@ const Form = () => {
   };
   const [formData, setFormData] = useState(initialFormData);
 
-  const [projectData, setProjectData] = useState([]);
-  const [residentialProjectData, setResidentialProjectData] = useState([]);
+  // const [projectData, setProjectData] = useState([]);
+  // const [residentialProjectData, setResidentialProjectData] = useState([]);
+  const [projectByDepartment, setProjectByDepartment] = useState({});
+  const [projectsLoading, setProjectsLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState("");
   const [currentContribution, setCurrentContribution] = useState({
     hours: "0",
@@ -84,6 +87,7 @@ const Form = () => {
   const [showProjectError, setShowProjectError] = useState(false);
   const [showHoursError, setShowHoursError] = useState(false);
   const [showTaskError, setShowTaskError] = useState(false);
+  const [departments, setDepartments] = useState([]);
 
   useEffect(() => {
     const fetchCampuses = async () => {
@@ -188,28 +192,27 @@ const Form = () => {
           if (dayOfWeek === 6) {
             activeProjectNames.push("Saturday-Peer-Learning");
           }
-          // console.log("Active Projects:", activeProjectNames);
-          // setProjectData(activeProjectNames);
+          projects.forEach((project) => {
+            if (project.status === "Active") {
+              const dept = project.department.trim();
+              const projectName = project.projectName;
 
-          const nonResidentialProjects = projects
-            .filter(
-              (project) =>
-                !project.department.toLowerCase().includes("residential") &&
-                project.status === "Active"
-            )
-            .map((project) => project.projectName);            
-          // console.log("Non-Residential Projects:", nonResidentialProjects);
-          setProjectData(nonResidentialProjects);
+              if (!projectByDepartment[dept]) {
+                projectByDepartment[dept] = new Set();
+              }
+              projectByDepartment[dept].add(projectName);
+            }
+          });
 
-          const residentialProjects = projects
-            .filter(
-              (project) =>
-                project.department.includes("Residential") &&
-                project.status === "Active"
-            )
-            .map((project) => project.projectName);
-          // console.log("Residential Projects:", residentialProjects);
-          setResidentialProjectData(residentialProjects);
+          // Convert Sets to Arrays
+          Object.keys(projectByDepartment).forEach((dept) => {
+            projectByDepartment[dept] = Array.from(
+              projectByDepartment[dept]
+            );
+          });
+          setProjectByDepartment(projectByDepartment);
+          setProjectsLoading(false);
+
         });
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -557,6 +560,27 @@ const Form = () => {
   //   return minDate.toISOString().split("T")[0];
   // }
 
+    useEffect(() => {
+      const fetchDepartments = async () => {
+        try {
+          const res = await fetch(
+            "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+          );
+          const data = await res.json();
+          if (data.success) {
+            const allDepartments = data.data.map((item) => item.Department);
+            const uniqueDepartments = [...new Set(allDepartments)];
+            setDepartments(uniqueDepartments);
+          }
+        } catch (err) {
+          console.error("Error fetching departments:", err);
+        }
+      };
+      fetchDepartments();
+    }, []);
+
+    const currentDept = formData.department || userDepartment;
+
   return (
     <div style={{ overflowY: "scroll", height: "100vh"}}>
       <LoadingSpinner loading={loading} className="loader-container" />
@@ -605,16 +629,38 @@ const Form = () => {
           <label>Employee Department:</label>
           <input
             type="text"
-            name="department"
+            // name="department"
             value={userDepartment}
-            onChange={handleChange}
+            // onChange={handleChange}
             required
             disabled
             color="red"
-          />
-        </div>
-        {userDepartment === "Residential Program" && (
+            />
+          </div>
           <div>
+            <label>Current Working Department:</label>
+            <select
+            name="department"
+            value={formData.department || userDepartment}
+            onChange={(e) => {
+              setFormData((prev) => ({
+              ...prev,
+              department: e.target.value,
+              }));
+            }}
+            >
+            <option value="" disabled>
+              Select Department
+            </option>
+            {departments.map((dept, idx) => (
+              <option key={idx} value={dept}>
+              {dept}
+              </option>
+            ))}
+            </select>
+          </div>
+          {(formData.department || userDepartment) === "Residential Program" && (
+            <div>
             <label>
               Please Mention Any Blockers or Challenges You Are Facing (Minimum
               25 characters):
@@ -643,7 +689,7 @@ const Form = () => {
           />
         </div>
 
-        {userDepartment === "Residential Program" && (
+        {(formData.department || userDepartment) === "Residential Program" && (
           <div>
             <label>Please select your campus :</label>
             <select
@@ -774,25 +820,28 @@ const Form = () => {
         )}
         <div>
           <label>Select a project in which you contributed:</label>
-          {userDepartment !== "Residential Program" ? (
-            <select value={selectedProject} onChange={handleProjectSelect}>
-              <option value="">--Select a project--</option>
-              {projectData.map(
-                (project, index) => (
-                    <option key={index} value={project}>
-                      {project}
-                    </option>
-                )
-              )}
+          {projectsLoading ? (
+            <select disabled>
+              <option value="">Loading projects...</option>
             </select>
-          ) : (
-            <select value={selectedProject} onChange={handleProjectSelect}>
+          // ) : currentDept in projectByDepartment ? (
+          ) : Object.keys(projectByDepartment).length > 0 && currentDept in projectByDepartment ? (
+            <select
+              name="selectedProject"
+              value={selectedProject}
+              onChange={handleProjectSelect}
+              required
+            >
               <option value="">--Select a project--</option>
-              {residentialProjectData.map((project, index) => (
+              {projectByDepartment[currentDept].map((project, index) => (
                 <option key={index} value={project}>
                   {project}
                 </option>
               ))}
+            </select>
+          ) : (
+            <select disabled>
+              <option value="">No projects available for your department</option>
             </select>
           )}
           {showProjectError && (

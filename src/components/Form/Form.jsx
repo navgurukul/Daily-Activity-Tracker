@@ -389,6 +389,8 @@ const Form = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setLoading(true);
+
     if (!saved) {
       setShowSaveError(true);
       return;
@@ -487,6 +489,8 @@ const Form = () => {
       // Clear the form
       setFormData({ ...initialFormData });
       console.log("Form Data after submission:", formData);
+
+      setLoading(false);
     } catch (error) {
       console.error("Error posting entry:", error);
       showSnackbar(error.message || "Failed to save entry", "error");

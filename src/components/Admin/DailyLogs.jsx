@@ -141,32 +141,86 @@ function DailyLogs() {
     setEditedData((prev) => ({ ...prev, [field]: value }));
   };
 
+  // const handleEditSubmit = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
+  //       {
+  //         method: "PUT",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+  //           Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+  //         },
+  //         body: JSON.stringify([{ ...editedData, logStatus: "pending" }]),
+  //       }
+  //     );
+  //     if (response.ok) {
+  //       setSnackbar({ open: true, message: "Log updated successfully", error: false });
+  //       setEditLog(null);
+  //       fetchLogs();
+  //     } else {
+  //       const errorText = await response.text();
+  //       throw new Error(errorText);
+  //     }
+  //   } catch (err) {
+  //     setSnackbar({ open: true, message: "Error updating log: " + err.message, error: true });
+  //   }
+  // };
+
   const handleEditSubmit = async () => {
-    try {
-      const response = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
-          },
-          body: JSON.stringify([{ ...editedData, logStatus: "pending" }]),
-        }
-      );
-      if (response.ok) {
-        setSnackbar({ open: true, message: "Log updated successfully", error: false });
-        setEditLog(null);
-        fetchLogs();
-      } else {
-        const errorText = await response.text();
-        throw new Error(errorText);
+  const dateOfLog = editLog.date;
+  // Convert edited hours to number (in case user enters string)
+  const editedHours = Number(editedData.totalHoursSpent) || 0;
+  // Calculate total hours for the same date, excluding the current editing log
+  const totalHoursForDate = logs
+    .filter((log) => log.date === dateOfLog && log.Id !== editLog.Id && log.email === editLog.email)
+    .reduce((sum, log) => sum + (Number(log.totalHoursSpent) || 0), 0);
+
+  const newTotal = totalHoursForDate + editedHours;
+  console.log(`Total hours for ${dateOfLog} excluding current log: ${totalHoursForDate}`);
+  
+  if (newTotal > 15) {
+    setSnackbar({
+      open: true,
+      message: `You cannot log more than 15 hours for ${dateOfLog}. Total would become ${newTotal}.`,
+      error: true,
+    });
+    return;
+  }
+  // Proceed to update
+  try {
+    const response = await fetch(
+      "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+        },
+        body: JSON.stringify([{ ...editedData, logStatus: "pending" }]),
       }
-    } catch (err) {
-      setSnackbar({ open: true, message: "Error updating log: " + err.message, error: true });
+    );
+    if (response.ok) {
+      setSnackbar({
+        open: true,
+        message: "Log updated successfully",
+        error: false,
+      });
+      setEditLog(null);
+      fetchLogs();
+    } else {
+      const errorText = await response.text();
+      throw new Error(errorText);
     }
-  };
+  } catch (err) {
+    setSnackbar({
+      open: true,
+      message: "Error updating log: " + err.message,
+      error: true,
+    });
+  }
+};
 
   // Function to handle log approval
   const handleApproveClick = (log) => {

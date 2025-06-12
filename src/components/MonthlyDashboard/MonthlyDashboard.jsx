@@ -203,7 +203,7 @@ const DayCell = ({ date, activities = [], leaves = [], onSelect }) => {
     new Date(date).toISOString().split("T")[0] ===
     new Date().toISOString().split("T")[0];
   const totalHours = activities.reduce(
-    (sum, act) => sum + (act["totalHoursSpent"] || 0),
+    (sum, act) => sum + Number(act["totalHoursSpent"] || 0),
     0
   );
   const hasData = activities.length > 0 || leaves.length > 0;

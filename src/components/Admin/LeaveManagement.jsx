@@ -311,7 +311,7 @@ const LeaveManagement = () => {
           {pendingLeaves.length === 0 ? (
             <p>No pending leaves found.</p>
           ) : (
-            <div style={{ overflowX: "auto" }}>
+            <div style={{ sx: {overflowX: "auto"}, sm: { overflowX: "hidden" } }}>
               <table>
                 <thead>
                   <tr>

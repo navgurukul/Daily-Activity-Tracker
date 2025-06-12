@@ -130,7 +130,7 @@ td {
 }
 .delete-button,
 .edit-button {
-  width: 130px;
+  max-width: 130px;
   padding: 5px;
   border-radius: 4px;
   border: none;

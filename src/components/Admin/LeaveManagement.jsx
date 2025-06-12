@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import "./LeaveManagement.css";
 import { LoginContext } from "../context/LoginContext";
-import { Snackbar, Alert, TextField, Autocomplete, CircularProgress } from "@mui/material";
+import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, } from "@mui/material";
 
 const LeaveManagement = () => {
   const dataContext = useContext(LoginContext);
@@ -23,35 +23,70 @@ const LeaveManagement = () => {
 
   const [isApproving, setIsApproving] = useState(false);
 
+  const [filterEmail, setFilterEmail] = useState("");
+  const [filterMonth, setFilterMonth] = useState("");
+
+  const fetchLeavesData = async (status,email='', month='') => {
+    try {
+      const response = await fetch(
+        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?status=${status}&employeeEmail=${email}&month=${month}&limit=100&page=1`
+      );
+      const data = await response.json();
+
+      const result = [];
+      const emails = [];
+      // console.log("result: ", result);
+      // console.log("emails: ", emails);
+
+
+
+      Object.keys(data).forEach((email) => {
+        emails.push(email);
+        const userLeaves = data[email];
+
+        userLeaves?.[status]?.forEach((record) =>
+          result.push({ email, ...record })
+        );
+      });
+
+      if (status === "pending") {
+        setPendingLeaves(result);
+      } else if (status === "approved") {
+        setApprovedLeaves(result);
+      }
+
+      setAllEmails(emails);
+    } catch (err) {
+      console.error(`Failed to fetch ${status} leaves`, err);
+    }
+  };
+
   useEffect(() => {
-    fetch(
-      "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?status=pending&limit=100&page=1"
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        const pending = [];
-        const approved = [];
-        const emails = [];
-
-        Object.keys(data).forEach((email) => {
-          emails.push(email);
-          const userLeaves = data[email];
-
-          userLeaves?.pending?.forEach((record) =>
-            pending.push({ email, ...record })
-          );
-
-          userLeaves?.approved?.forEach((record) =>
-            approved.push({ email, ...record })
-          );
-        });
-
-        setPendingLeaves(pending);
-        setApprovedLeaves(approved);
-        setAllEmails(emails);
-      })
-      .catch((err) => console.error("Failed to fetch data", err));
+    fetchLeavesData("pending");
   }, []);
+
+  useEffect(() => {
+    setSearchEmail("");
+    setFilterEmail("");
+    setFilterMonth("");
+  }, [selectedTab]);
+
+ useEffect(() => {
+  if (selectedTab === "pending") {
+    if (filterEmail || filterMonth) {
+      fetchLeavesData("pending", filterEmail, filterMonth);
+    } else {
+      fetchLeavesData("pending"); // No filters applied
+    }
+  } else if (selectedTab === "approved") {
+    if (filterEmail || filterMonth) {
+      fetchLeavesData("approved", filterEmail, filterMonth);
+    } else {
+      fetchLeavesData("approved"); // No filters applied
+    }
+  }
+}, [filterEmail, filterMonth, selectedTab]);
+
 
   const handleApprove = async (leaveId) => {
     setIsApproving(true);
@@ -74,57 +109,57 @@ const LeaveManagement = () => {
       );
 
       const approveResult = await approveResponse.json();
-    if (approveResponse.ok) {
-      const approvedLeave = pendingLeaves.find((leave) => leave.Id === leaveId);
-      setPendingLeaves((prev) => prev.filter((leave) => leave.Id !== leaveId));
-      setApprovedLeaves((prev) => [...prev, approvedLeave]);
-      
-      setSnackbarMessage(`Leave approved for ${approvedLeave.email}`);
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-    } else {
-      // setSnackbarMessage("Approval failed. Please try again.");
-      setSnackbarMessage(
-        approveResult?.message || "Approval failed. Please try again."
-      );
+      if (approveResponse.ok) {
+        const approvedLeave = pendingLeaves.find((leave) => leave.Id === leaveId);
+        setPendingLeaves((prev) => prev.filter((leave) => leave.Id !== leaveId));
+        setApprovedLeaves((prev) => [...prev, approvedLeave]);
+
+        setSnackbarMessage(`Leave approved for ${approvedLeave.email}`);
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+      } else {
+        // setSnackbarMessage("Approval failed. Please try again.");
+        setSnackbarMessage(
+          approveResult?.message || "Approval failed. Please try again."
+        );
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      }
+
+    } catch (error) {
+      setSnackbarMessage("Something went wrong.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
+    } finally {
+      setIsApproving(false);
     }
-
-  } catch (error) {
-    setSnackbarMessage("Something went wrong.");
-    setSnackbarSeverity("error");
-    setSnackbarOpen(true);
-  } finally {
-    setIsApproving(false);
-  }
   };
 
   const fetchLeaveBalance = async () => {
-  if (!searchEmail) return;
+    if (!searchEmail) return;
 
-  setLoadingBalance(true);
-  setBalanceError("");
-  setLeaveBalance([]);
+    setLoadingBalance(true);
+    setBalanceError("");
+    setLeaveBalance([]);
 
-  try {
-    const response = await fetch(
-      `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy?email=${searchEmail}`
-    );
-    const result = await response.json();
+    try {
+      const response = await fetch(
+        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy?email=${searchEmail}`
+      );
+      const result = await response.json();
 
-    if (result.success && result.data.length > 0) {
-      setLeaveBalance(result.data[0].leaveRecords);
-    } else {
-      setBalanceError("No leave balance data found for this email.");
+      if (result.success && result.data.length > 0) {
+        setLeaveBalance(result.data[0].leaveRecords);
+      } else {
+        setBalanceError("No leave balance data found for this email.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setBalanceError("Error fetching leave balance data.");
     }
-  } catch (error) {
-    console.error("Error:", error);
-    setBalanceError("Error fetching leave balance data.");
-  }
 
-  setLoadingBalance(false);
-};
+    setLoadingBalance(false);
+  };
 
   const fetchLeaveHistory = async () => {
     try {
@@ -194,41 +229,79 @@ const LeaveManagement = () => {
 
       <div className="tab">
         <button
-          className={`tabs_button ${
-            selectedTab === "pending" ? "active-tab" : ""
-          }`}
-          onClick={() => setSelectedTab("pending")}
+          className={`tabs_button ${selectedTab === "pending" ? "active-tab" : ""
+            }`}
+          onClick={() => {
+            setSelectedTab("pending");
+            fetchLeavesData("pending");
+          }}
         >
           Pending Requests
         </button>
+
         <button
-          className={`tabs_button ${
-            selectedTab === "approved" ? "active-tab" : ""
-          }`}
-          onClick={() => setSelectedTab("approved")}
+          className={`tabs_button ${selectedTab === "approved" ? "active-tab" : ""
+            }`}
+          onClick={() => {
+            setSelectedTab("approved");
+            fetchLeavesData("approved");
+          }}
         >
           Approved Leaves
         </button>
         <button
-          className={`tabs_button ${
-            selectedTab === "balance" ? "active-tab" : ""
-          }`}
+          className={`tabs_button ${selectedTab === "balance" ? "active-tab" : ""
+            }`}
           onClick={() => setSelectedTab("balance")}
         >
-          Alloted Leaves
+          Allotted Leaves
         </button>
         <button
-          className={`tabs_button ${
-            selectedTab === "history" ? "active-tab" : ""
-          }`}
+          className={`tabs_button ${selectedTab === "history" ? "active-tab" : ""
+            }`}
           onClick={() => setSelectedTab("history")}
         >
           History
         </button>
       </div>
 
+
       {selectedTab === "pending" && (
         <div className="pending-data">
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px", alignItems: "center", marginTop: '5px' }}>
+            <Autocomplete
+              options={allEmails}
+              value={filterEmail}
+              onChange={(e, newValue) => setFilterEmail(newValue || "")}
+              renderInput={(params) => <TextField {...params} label="Filter by Email" size="small" />}
+              sx={{ minWidth: 250 }}
+              freeSolo
+            />
+
+            <FormControl size="small" sx={{ minWidth: 150 }}>
+              <InputLabel id="month-select-label">Month</InputLabel>
+              <Select
+                labelId="month-select-label"
+                value={filterMonth}
+                label="Month"
+                onChange={(e) => setFilterMonth(e.target.value)}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="01">January</MenuItem>
+                <MenuItem value="02">February</MenuItem>
+                <MenuItem value="03">March</MenuItem>
+                <MenuItem value="04">April</MenuItem>
+                <MenuItem value="05">May</MenuItem>
+                <MenuItem value="06">June</MenuItem>
+                <MenuItem value="07">July</MenuItem>
+                <MenuItem value="08">August</MenuItem>
+                <MenuItem value="09">September</MenuItem>
+                <MenuItem value="10">October</MenuItem>
+                <MenuItem value="11">November</MenuItem>
+                <MenuItem value="12">December</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
           {isApproving && (
             <div className="loader-overlay">
               <CircularProgress size={24} />
@@ -239,41 +312,41 @@ const LeaveManagement = () => {
             <p>No pending leaves found.</p>
           ) : (
             <div style={{ overflowX: "auto" }}>
-            <table>
-              <thead>
-                <tr>
-                  <th>Email</th>
-                  <th>Leave Type</th>
-                  <th>From</th>
-                  <th>To</th>
-                  <th>Duration</th>
-                  <th>Type</th>
-                  <th>Reason</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pendingLeaves.map((leave, index) => (
-                  <tr key={index}>
-                    <td>{leave.email}</td>
-                    <td>{leave.leaveType}</td>
-                    <td>{leave.startDate}</td>
-                    <td>{leave.endDate}</td>
-                    <td>{leave.leaveDuration}</td>
-                    <td>{leave.durationType}</td>
-                    <td>{leave.reasonForLeave}</td>
-                    <td>
-                      <button
-                        className="approve-button"
-                        onClick={() => handleApprove(leave.Id)}
-                      >
-                        Approve
-                      </button>
-                    </td>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Email</th>
+                    <th>Leave Type</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Duration</th>
+                    <th>Type</th>
+                    <th>Reason</th>
+                    <th>Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {pendingLeaves.map((leave, index) => (
+                    <tr key={index}>
+                      <td>{leave.email}</td>
+                      <td>{leave.leaveType}</td>
+                      <td>{leave.startDate}</td>
+                      <td>{leave.endDate}</td>
+                      <td>{leave.leaveDuration}</td>
+                      <td>{leave.durationType}</td>
+                      <td>{leave.reasonForLeave}</td>
+                      <td>
+                        <button
+                          className="approve-button"
+                          onClick={() => handleApprove(leave.Id)}
+                        >
+                          Approve
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
@@ -281,6 +354,40 @@ const LeaveManagement = () => {
 
       {selectedTab === "approved" && (
         <div className="approved-data">
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px", alignItems: "center", marginTop: '5px' }}>
+            <Autocomplete
+              options={allEmails}
+              value={filterEmail}
+              onChange={(e, newValue) => setFilterEmail(newValue || "")}
+              renderInput={(params) => <TextField {...params} label="Filter by Email" size="small" />}
+              sx={{ minWidth: 250 }}
+              freeSolo
+            />
+
+            <FormControl size="small" sx={{ minWidth: 150 }}>
+              <InputLabel id="month-select-label">Month</InputLabel>
+              <Select
+                labelId="month-select-label"
+                value={filterMonth}
+                label="Month"
+                onChange={(e) => setFilterMonth(e.target.value)}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="01">January</MenuItem>
+                <MenuItem value="02">February</MenuItem>
+                <MenuItem value="03">March</MenuItem>
+                <MenuItem value="04">April</MenuItem>
+                <MenuItem value="05">May</MenuItem>
+                <MenuItem value="06">June</MenuItem>
+                <MenuItem value="07">July</MenuItem>
+                <MenuItem value="08">August</MenuItem>
+                <MenuItem value="09">September</MenuItem>
+                <MenuItem value="10">October</MenuItem>
+                <MenuItem value="11">November</MenuItem>
+                <MenuItem value="12">December</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
           {approvedLeaves.length === 0 ? (
             <p>No approved leaves found.</p>
           ) : (
@@ -346,40 +453,40 @@ const LeaveManagement = () => {
               View Balance
             </button>
           </div>
-        {loadingBalance && (
-          <div className="loading-indicator">
-            <CircularProgress size={24} />
-            <span style={{ marginLeft: "10px" }}>Loading balance...</span>
-          </div>
-        )}
-          <div className="balance-data">
-          {balanceError && <p style={{ color: "red" }}>{balanceError}</p>}
-
-          {leaveBalance.length > 0 && (
-            <table>
-              <thead>
-                <tr>
-                  <th>Leave Type</th>
-                  <th>Leaves Used</th>
-                  <th>Pending Leaves</th>
-                  <th>Total Allotted</th>
-                  <th>Balance</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leaveBalance.map((record, index) => (
-                  <tr key={index}>
-                    <td>{record.leaveType}</td>
-                    <td>{record.usedLeaves}</td>
-                    <td>{record.pendingLeaves}</td>
-                    <td>{record.totalLeavesAllotted}</td>
-                    <td>{record.leaveLeft}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {loadingBalance && (
+            <div className="loading-indicator">
+              <CircularProgress size={24} />
+              <span style={{ marginLeft: "10px" }}>Loading balance...</span>
+            </div>
           )}
-        </div>
+          <div className="balance-data">
+            {balanceError && <p style={{ color: "red" }}>{balanceError}</p>}
+
+            {leaveBalance.length > 0 && (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Leave Type</th>
+                    <th>Leaves Used</th>
+                    <th>Pending Leaves</th>
+                    <th>Total Allotted</th>
+                    <th>Balance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leaveBalance.map((record, index) => (
+                    <tr key={index}>
+                      <td>{record.leaveType}</td>
+                      <td>{record.usedLeaves}</td>
+                      <td>{record.pendingLeaves}</td>
+                      <td>{record.totalLeavesAllotted}</td>
+                      <td>{record.leaveLeft}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
       )}
 
@@ -411,42 +518,42 @@ const LeaveManagement = () => {
             />
           </div>
           <div className="history-data">
-          {filteredLeaveHistory.length === 0 ? (
-            <p>No leave history found.</p>
-          ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Email</th>
-                  <th>Leave Type</th>
-                  <th>From</th>
-                  <th>To</th>
-                  <th>Duration</th>
-                  <th>Type</th>
-                  <th>Reason</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLeaveHistory.map((leave, index) => (
-                  <tr key={index}>
-                    <td>{leave.Id}</td>
-                    <td>{leave.email}</td>
-                    <td>{leave.leaveType}</td>
-                    <td>{leave.startDate}</td>
-                    <td>{leave.endDate}</td>
-                    <td>{leave.leaveDuration}</td>
-                    <td>{leave.durationType}</td>
-                    <td>{leave.reasonForLeave}</td>
-                    <td>{leave.status}</td>
+            {filteredLeaveHistory.length === 0 ? (
+              <p>No leave history found.</p>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Leave Type</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Duration</th>
+                    <th>Type</th>
+                    <th>Reason</th>
+                    <th>Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody>
+                  {filteredLeaveHistory.map((leave, index) => (
+                    <tr key={index}>
+                      <td>{leave.Id}</td>
+                      <td>{leave.email}</td>
+                      <td>{leave.leaveType}</td>
+                      <td>{leave.startDate}</td>
+                      <td>{leave.endDate}</td>
+                      <td>{leave.leaveDuration}</td>
+                      <td>{leave.durationType}</td>
+                      <td>{leave.reasonForLeave}</td>
+                      <td>{leave.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         </div>
-        </div>  
       )}
       <Snackbar
         open={snackbarOpen}

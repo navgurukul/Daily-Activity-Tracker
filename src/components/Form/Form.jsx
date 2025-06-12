@@ -680,7 +680,7 @@ const Form = () => {
             ))}
             </select>
           </div>
-          {(formData.department || userDepartment) === "Residential Program" && (
+          {/* {(formData.department || userDepartment) === "Residential Program" && (
             <div>
             <label>
               Please Mention Any Blockers or Challenges You Are Facing (Minimum
@@ -689,14 +689,12 @@ const Form = () => {
             <textarea
               name="blockers"
               value={formData.blockers}
-              // value={blockers}
-              // onChange={(e) => setBlockers(e.target.value)}
               onChange={handleChange}
               minLength={25}
               required
             />
           </div>
-        )}
+        )} */}
         <div>
           <label>Select the date for which you want to update the form:</label>
           <input

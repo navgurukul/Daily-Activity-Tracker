@@ -82,7 +82,7 @@ export const handler = async (event, context) => {
   // Handle /employmentLeavePolicy
   if (path === "/employmentLeavePolicy") {
     if (method === "GET") {
-      return await getLeavePolicyHandler();
+      return await getLeavePolicyHandler(event, context);
     } else if (method === "POST") {
       return await leaveRequestHandler(event, context);
     }
@@ -102,4 +102,3 @@ export const handler = async (event, context) => {
     body: JSON.stringify({ message: "Endpoint not found" }),
   };
 };
-

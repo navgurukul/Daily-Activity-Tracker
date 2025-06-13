@@ -1,3 +1,5 @@
+
+
 import { DynamoDBClient, GetItemCommand } from "@aws-sdk/client-dynamodb";
 import pkg from "@aws-sdk/lib-dynamodb";
 const { DynamoDBDocumentClient, PutCommand, ScanCommand } = pkg;
@@ -47,7 +49,7 @@ export const handler = async (event) => {
     const { email } = decodedToken;
 
     // Checking if the user is trying to raise leave for themselves
-    const { leaveIsRaisingFrom,userEmail } = JSON.parse(event.body);
+    const { leaveIsRaisingFrom, userEmail } = JSON.parse(event.body);
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>@@@@@@
     // if (email.toLowerCase() != leaveIsRaisingFrom.toLowerCase() || email.toLowerCase() === userEmail.toLowerCase()) {
     //   return {
@@ -217,24 +219,50 @@ export const handler = async (event) => {
       }
 
       const managerEmail = user["Reporting maanger email ID"];
+      let rolesArray = ["admin", "superAdmin"];
 
       if (!managerEmail || managerEmail.toLowerCase() !== leaveIsRaisingFrom.toLowerCase()) {
-        // Check fallback in hrmsAccessControler table
+
+        const roleKeys = rolesArray.map((_, idx) => `:roleVal${idx}`);
+        const filterExpression = `#email = :emailVal AND #role IN (${roleKeys.join(", ")})`;
+
+        const expressionAttributeValues = {
+          ":emailVal": leaveIsRaisingFrom.toLowerCase(),
+        };
+
+        rolesArray.forEach((role, idx) => {
+          expressionAttributeValues[`:roleVal${idx}`] = role;
+        });
+
         const accessCheck = await docClient.send(
           new ScanCommand({
             TableName: "hrmsAccessControler",
-            FilterExpression: "#email = :emailVal AND #role = :roleVal",
+            FilterExpression: filterExpression,
             ExpressionAttributeNames: {
               "#email": "email",
-              "#role": "role"
+              "#role": "role",
             },
-            ExpressionAttributeValues: {
-              ":emailVal": leaveIsRaisingFrom.toLowerCase(),
-              ":roleVal": "admin"
-            }
+            ExpressionAttributeValues: expressionAttributeValues,
           })
         );
-      
+
+
+        // Check fallback in hrmsAccessControler table
+        // const accessCheck = await docClient.send(
+        //   new ScanCommand({
+        //     TableName: "hrmsAccessControler",
+        //     FilterExpression: "#email = :emailVal AND #role = :roleVal",
+        //     ExpressionAttributeNames: {
+        //       "#email": "email",
+        //       "#role": "role"
+        //     },
+        //     ExpressionAttributeValues: {
+        //       ":emailVal": leaveIsRaisingFrom.toLowerCase(),
+        //       ":roleVal": "superAdmin"
+        //     },
+        //   })
+        // );
+
         if (!accessCheck.Items || accessCheck.Items.length === 0) {
           return {
             statusCode: 403,
@@ -299,3 +327,4 @@ export const handler = async (event) => {
     };
   }
 };
+

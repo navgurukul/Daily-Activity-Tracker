@@ -1,9 +1,9 @@
 
-import { UpdateCommand, GetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+
+import { UpdateCommand, GetCommand, QueryCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { docClient } from "../services/dbClient.mjs";
 import { buildResponse } from "../utils/responseBuilder.mjs";
 import { extractEmailFromGoogleToken } from "../utils/verifyGoogleToken.mjs";
-
 
 export const handlePut = async (event, stage, origin) => {
   try {
@@ -12,29 +12,15 @@ export const handlePut = async (event, stage, origin) => {
     if (!token) {
       return buildResponse(401, { message: 'Missing Google token' }, origin);
     }
-    console.log("Token received:", token);
-    console.log("Segments count:", token?.split('.').length);  // Should be 3
 
     const tokenEmail = await extractEmailFromGoogleToken(token);
-
     const updates = JSON.parse(event.body);
-
-    const mismatched = updates.find(
-      (item) => item.approvalEmail?.toLowerCase() !== tokenEmail?.toLowerCase()
-    );
-
-    if (mismatched) {
-      return buildResponse(403, {
-        message: `Authenticated email does not match approvalEmail (${mismatched.approvalEmail})`,
-      }, origin);
-    }
-    const approvalItems = ["approved", "rejected", "pending"];
-    // const updates = JSON.parse(event.body);
 
     if (!Array.isArray(updates) || updates.length === 0) {
       return buildResponse(400, { message: "Request must be a non-empty array of updates" }, origin);
     }
 
+    const approvalItems = ["approved", "rejected", "pending"];
     const invalidItems = updates.filter(item => !item.Id || !item.logStatus || !item.approvalEmail);
     if (invalidItems.length > 0) {
       return buildResponse(400, {
@@ -51,7 +37,6 @@ export const handlePut = async (event, stage, origin) => {
       }, origin);
     }
 
-    // Fetch employee sheet data
     const apiResponse = await fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata");
     const apiJson = await apiResponse.json();
 
@@ -60,10 +45,38 @@ export const handlePut = async (event, stage, origin) => {
     }
 
     const employeeSheetData = apiJson.data;
-    const privilegedRoles = ["admin", "controller"];
+    const privilegedRoles = ["superadmin", "admin"];
+    let isPrivileged = false;
 
-    const updatePromises = updates.map(async ({ Id, logStatus, approvalEmail }) => {
-      // Step 1: Get existing log to extract target user's email
+    // Check if tokenEmail has privileged access
+    const accessData = await docClient.send(new QueryCommand({
+      TableName: "hrmsAccessControler",
+      IndexName: "email-index",
+      KeyConditionExpression: "email = :email",
+      ExpressionAttributeValues: { ":email": tokenEmail.toLowerCase() },
+    }));
+
+    if (accessData.Items && accessData.Items.length > 0) {
+      const roles = accessData.Items.map(item => item.role?.toLowerCase());
+      isPrivileged = roles.some(role => privilegedRoles.includes(role));
+    }
+
+    // Now perform mismatch check ONLY if NOT privileged
+    if (!isPrivileged) {
+      const mismatched = updates.find(
+        (item) => item.approvalEmail?.toLowerCase() !== tokenEmail?.toLowerCase()
+      );
+
+      if (mismatched) {
+        return buildResponse(403, {
+          message: `Authenticated email does not match approvalEmail (${mismatched.approvalEmail})`,
+        }, origin);
+      }
+    }
+
+    const updatePromises = updates.map(async (item) => {
+      const { Id, logStatus, approvalEmail, workDescription, totalHoursSpent, projectName, entryDate } = item;
+
       const { Item: existingRecord } = await docClient.send(new GetCommand({
         TableName: "employeeDailyActivityLogs",
         Key: { Id },
@@ -72,7 +85,6 @@ export const handlePut = async (event, stage, origin) => {
       const userEmail = existingRecord?.email;
       if (!userEmail) throw new Error(`No email found for log Id: ${Id}`);
 
-      // Step 2: Get RM from employee sheet
       const matchedEmployee = employeeSheetData.find(
         person => person["Team ID"]?.toLowerCase() === userEmail.toLowerCase()
       );
@@ -82,35 +94,58 @@ export const handlePut = async (event, stage, origin) => {
         throw new Error(`No valid Reporting Manager found for: ${userEmail}`);
       }
 
-      const isRM = approvalEmail.toLowerCase() === reportingManagerEmail.toLowerCase();
+      const isRM = tokenEmail.toLowerCase() === reportingManagerEmail.toLowerCase();
 
-      // Step 3: Check access control table for privileged roles
-      let isPrivileged = false;
-      const accessData = await docClient.send(new QueryCommand({
-        TableName: "hrmsAccessControler",
-        IndexName: "email-index",
-        KeyConditionExpression: "email = :email",
-        ExpressionAttributeValues: { ":email": approvalEmail.toLowerCase() },
-      }));
 
-      if (accessData.Items && accessData.Items.length > 0) {
-        const roles = accessData.Items.map(item => item.role?.toLowerCase());
-        isPrivileged = roles.some(role => privilegedRoles.includes(role));
+
+      let projectManagerEmail;   
+      const project_params = {
+        TableName: "ProjectMaster",
+        FilterExpression: "projectName = :pname",
+        ExpressionAttributeValues: {
+          ":pname": existingRecord?.projectName,
+        },
+      };
+      const project_result = await docClient.send(new ScanCommand(project_params));
+      const ProjectMasterEmail = project_result.Items[0]['projectMasterEmail']
+      console.log("+++++++PROJECT PARAMS",project_result);
+      let isProjectManager = ProjectMasterEmail === tokenEmail;
+
+      if (!isRM && !isPrivileged && !isProjectManager) {
+        throw new Error(`You are not the RM or authorized superAdmin/admin of ${userEmail}. RM is: ${reportingManagerEmail}`);
+      }
+      // Build update expression
+      let updateExp = "set logStatus = :logStatus, approvalEmail = :approvalEmail";
+      const expAttrVals = {
+        ":logStatus": logStatus,
+        ":approvalEmail": approvalEmail,
+      };
+
+      if (workDescription !== undefined) {
+        updateExp += ", workDescription = :workDescription";
+        expAttrVals[":workDescription"] = workDescription;
       }
 
-      if (!isRM && !isPrivileged) {
-        throw new Error(`You are not the RM or authorized controller/admin of ${userEmail}. RM is: ${reportingManagerEmail}`);
+      if (totalHoursSpent !== undefined) {
+        updateExp += ", totalHoursSpent = :totalHoursSpent";
+        expAttrVals[":totalHoursSpent"] = totalHoursSpent;
       }
 
-      // Step 4: Perform update
+      if (projectName !== undefined) {
+        updateExp += ", projectName = :projectName";
+        expAttrVals[":projectName"] = projectName;
+      }
+
+      if (entryDate !== undefined) {
+        updateExp += ", entryDate = :entryDate";
+        expAttrVals[":entryDate"] = entryDate;
+      }
+
       const params = {
         TableName: "employeeDailyActivityLogs",
         Key: { Id },
-        UpdateExpression: "set logStatus = :logStatus, approvalEmail = :approvalEmail",
-        ExpressionAttributeValues: {
-          ":logStatus": logStatus,
-          ":approvalEmail": approvalEmail,
-        },
+        UpdateExpression: updateExp,
+        ExpressionAttributeValues: expAttrVals,
         ReturnValues: "ALL_NEW",
       };
 
@@ -121,7 +156,7 @@ export const handlePut = async (event, stage, origin) => {
     const updatedItems = await Promise.all(updatePromises);
 
     return buildResponse(200, {
-      message: "Records updated successfully",
+      message: "Records updated successfully.",
       updatedCount: updatedItems.length,
       data: updatedItems,
     }, origin);

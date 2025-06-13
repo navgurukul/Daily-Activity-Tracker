@@ -29,6 +29,10 @@ async function verifyGoogleToken(authHeader) {
     const payload = ticket.getPayload();
     return payload?.email;
   } catch (err) {
+    if (err.message.includes('Token used too late') || err.message.includes('exp')) {
+      return "Google token expired. Please sign in again."
+      // return "Google token expired. Please sign in again."
+    }
     console.error('Token verification failed:', err.message);
     const error = new Error('Invalid or expired token');
     error.statusCode = 401;
@@ -63,6 +67,7 @@ async function fetchAllEmployees() {
         email: entry['Team ID'],
         name: entry['First and Last Name'],
         teamName: entry['Work Location Type'],
+        joiningDate: entry['Date of Joining'] ? new Date(entry['Date of Joining']) : null
       }));
     }
   } catch (error) {
@@ -94,11 +99,25 @@ async function calculateHours(year, month) {
   ];
 
   const allEmployees = await fetchAllEmployees();
-  const logs = (await scanTable(EMPLOYEE_TABLE)).filter(item => {
-    if (!item.entryDate) return false;
-    const date = new Date(item.entryDate);
-    return isSameMonth(date, year, month);
-  });
+  // const logs = (await scanTable(EMPLOYEE_TABLE)).filter(item => {
+  //   if (!item.entryDate) return false;
+  //   const date = new Date(item.entryDate);
+  //   return isSameMonth(date, year, month);
+  // });
+
+  const allLogs = await scanTable(EMPLOYEE_TABLE);
+const logs = [];
+for (const item of allLogs) {
+  if (!item.entryDate) continue;
+  const date = new Date(item.entryDate);
+  if (!isSameMonth(date, year, month)) continue;
+  if (item.logStatus === 'approved') {
+    logs.push(item);
+  } else {
+    console.warn(`Skipping unapproved log for ${item.email} on ${item.entryDate}`);
+  }
+}
+
 
   const leaveRequests = await scanTable(LEAVE_TABLE);
 
@@ -160,6 +179,7 @@ async function calculateHours(year, month) {
 // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
         // LWP addition for blank working days
         const daysInMonth = new Date(year, month + 1, 0).getDate();
+        console.log("oooooooooooooooooooooo",daysInMonth);
         const leaveDatesSet = new Set();
     
 
@@ -186,11 +206,11 @@ async function calculateHours(year, month) {
       weekData.totalHours += totalDayHours;
       weekData[cycle].totalHours += totalDayHours;
 
-      // if (totalDayHours < 2) {
-      //   weekData.LWP += 1;
-      //   weekData[cycle].LWP += 1;
-      // } else 
-      if (totalDayHours <= 5) {
+      if (totalDayHours < 3) {
+        weekData.LWP += 1;
+        weekData[cycle].LWP += 1;
+      } else 
+      if (totalDayHours <= 6) {
         weekData.totalWorkingDays += 0.5;
         weekData[cycle].totalWorkingDays += 0.5;
         uniqueDates.add(dateStr);
@@ -214,6 +234,8 @@ async function calculateHours(year, month) {
       const date = new Date(year, month, d);
       const dateStr = date.toISOString().split('T')[0];
       const cycle = getCycle(date);
+       // ✅ Skip if employee joined after this date
+      if (emp.joiningDate && date < emp.joiningDate) continue;
 
       if (isWeekOff(date) && !weekendWorkDates.has(dateStr)) {
         weekData.weekOffDays++;
@@ -224,28 +246,31 @@ async function calculateHours(year, month) {
     // Add Paid/Comp Off Leaves
     for (const leave of leaveRequests) {
       if (leave.userEmail !== emp.email || leave.status === 'rejected') continue;
-      const isComp = leave.leaveType.toLowerCase().includes('compensatory leave');
-      const isHalf = leave.durationType === 'Half Day';
-      let start = new Date(leave.startDate);
-      const end = new Date(leave.endDate);
-
-      while (start <= end) {
-        if (isSameMonth(start, year, month)) {
-          const cycle = getCycle(start);
-          const amount = isHalf ? 0.5 : 1;
-          if (isComp) {
-            weekData[cycle].totalCompOffLeaveTaken += amount;
-          } 
-          else if (leave.leaveType !== 'LWP') {
-            weekData[cycle].paidLeaves += amount;
+      if(leave.userEmail !== emp.email || leave.status === 'approved'){
+        const isComp = leave.leaveType.toLowerCase().includes('compensatory leave');
+        const isHalf = leave.durationType === 'Half Day';
+        let start = new Date(leave.startDate);
+        const end = new Date(leave.endDate);
+  
+        while (start <= end) {
+          if (isSameMonth(start, year, month)) {
+            const cycle = getCycle(start);
+            const amount = isHalf ? 0.5 : 1;
+            if (isComp) {
+              weekData[cycle].totalCompOffLeaveTaken += amount;
+            } 
+            else if (leave.leaveType !== 'LWP') {
+              weekData[cycle].paidLeaves += amount;
+            }
           }
+          start.setDate(start.getDate() + 1);
         }
-        start.setDate(start.getDate() + 1);
       }
     }
 
     // ✅ Add Holiday Payable Days
     for (const holiday of HOLIDAY_DATES) {
+    
       if (holiday.month !== month) continue;
       const holidayDate = new Date(year, month, holiday.date);
       const dateStr = holidayDate.toISOString().split('T')[0];
@@ -371,6 +396,20 @@ export const handler = async (event) => {
   const authHeader = event.headers?.Authorization || event.headers?.authorization;
   const authUserEmail = await verifyGoogleToken(authHeader);
   console.log("Verified user email:", authUserEmail);
+  if(authUserEmail === "Google token expired. Please sign in again."){
+    return {
+      statusCode: 401,
+      headers: {
+        'Access-Control-Allow-Origin': '*', // Or specify your frontend domain instead of '*'
+        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Methods': 'GET,OPTIONS',
+      },
+      body: JSON.stringify({
+        success: false,
+        message: "Google token expired. Please sign in again."
+      }),
+    };
+  }
   if (authUserEmail === "invalid token") {
     return {
       statusCode: 401,
@@ -383,6 +422,7 @@ export const handler = async (event) => {
   const year = queryParams.year !== undefined ? Number(queryParams.year) : new Date().getFullYear();
 
   let emailFilter = queryParams.email;
+  let teamNameFilter = queryParams.jobtype;
   const limit = parseInt(queryParams.limit);
   const page = parseInt(queryParams.page) || 1;
   if(!(userRoles.includes('admin')) && !(userRoles.includes('superAdmin'))){
@@ -394,6 +434,9 @@ export const handler = async (event) => {
   // Filter by email if provided
   if (emailFilter) {
     data = data.filter(item => item.email === emailFilter);
+  }
+  if(teamNameFilter){
+    data = data.filter(item => item.teamName === teamNameFilter);
   }
 
   const totalItems = data.length;

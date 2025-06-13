@@ -225,7 +225,7 @@ const LeaveManagement = () => {
 
   return (
     <div className="leave-container">
-      <h1>Leave Management</h1>
+      <h1>Leave Dashboard</h1>
 
       <div className="tab">
         <button

@@ -14,6 +14,8 @@ const CompOff = () => {
   const navigate = useNavigate();
   const [showAuthError, setShowAuthError] = useState(false);
 
+  const [emailList, setEmailList] = useState([]);
+
   const getTodayDate = () => {
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -106,6 +108,26 @@ const CompOff = () => {
     document.getElementById("root").style.opacity = load ? "0.8" : "1";
   };
 
+  useEffect(() => {
+    const fetchEmails = async () => {
+      try {
+        const response = await fetch(
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+        );
+        const result = await response.json();
+        if (result.success) {
+          const emails = result.data
+            .map((item) => item["Team ID"])
+            .filter((email) => email); // filter out null/undefined
+          setEmailList(emails);
+        }
+      } catch (error) {
+        console.error("Error fetching emails:", error);
+      }
+    };
+    fetchEmails();
+  }, []);
+
   return (
     <div style={{ overflowY: "scroll", height: "100vh", marginTop: "45px" }}>
       <LoadingSpinner loading={loading} />
@@ -115,14 +137,20 @@ const CompOff = () => {
 
       <form onSubmit={handleSubmit} className="form-1">
         <div>
-          <label>Employee Email:</label>
+          <label htmlFor="userEmail">Employee Email:</label>
           <input
-            type="email"
-            name="userEmail"
-            value={leaveData.userEmail}
-            onChange={handleChange}
-            required
-          />
+        type="email"
+        name="userEmail"
+        list="email-options"
+        value={leaveData.userEmail}
+        onChange={handleChange}
+        required
+      />
+      <datalist id="email-options">
+        {emailList.map((email, index) => (
+          <option key={index} value={email} />
+        ))}
+      </datalist>
         </div>
 
         {/* Reason */}

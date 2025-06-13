@@ -13,7 +13,13 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
 } from "@mui/material";
 import axios from "axios";
 import "./RoleUpdateForm.css";
@@ -41,19 +47,6 @@ const RoleUpdateForm = () => {
   const [nextPage, setNextPage] = useState(null);
   const [previousPage, setPreviousPage] = useState([]);
   const [currentPage, setCurrentPage] = useState(null);
-
-  const getRoleMessage = () => {
-    switch (selectedRole) {
-      case "admin":
-        return "Admin Access: Admins can add or remove other admins and project managers. They can also view the payable days overview for all employees.";
-      case "projectManager":
-        return "Project Manager Access: Can manage and assign projects, but cannot manage admins/super admins. They can view only their payable days overview.";
-      case "superAdmin":
-        return "Super Admin Access: Full access including system-wide settings";
-      default:
-        return "";
-    }
-  };
 
   const fetchFilteredUsers = async (page = 1) => {
     setLoading(true);
@@ -482,13 +475,38 @@ const RoleUpdateForm = () => {
                   Assign Role
                 </Button>
               </div>
-              {selectedRole && (
-                <Box mt={4}>
-                  <Typography variant="body1" color="textSecondary">
-                    {getRoleMessage()}
-                  </Typography>
-                </Box>
-              )}
+              <Box>
+  <TableContainer component={Paper} elevation={1} sx={{overflowX: "hidden"}}>
+    <Table>
+      <TableHead>
+        <TableRow>
+          <TableCell><strong>Role</strong></TableCell>
+          <TableCell><strong>Access Description</strong></TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        <TableRow>
+          <TableCell>Admin</TableCell>
+          <TableCell>
+            Can add or remove other admins and project managers. Also view the payable days overview for all employees.
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>Project Manager</TableCell>
+          <TableCell>
+            Can manage and assign projects, but cannot manage admins or super admins. Can only view their own payable days overview.
+          </TableCell>
+        </TableRow>
+        <TableRow>
+          <TableCell>Super Admin</TableCell>
+          <TableCell>
+            Full access including system-wide settings.
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  </TableContainer>
+</Box>
             </div>
           )}
           <Snackbar

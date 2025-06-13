@@ -165,28 +165,58 @@ export async function handleGet(event, stage, origin) {
   const { items, nextKey, hasMore } = await paginate(baseInput, commandClass, page, limit);
 
   // Optional in-memory filters
-  const filteredItems = items.filter(item => {
-    const entryDate = new Date(item.entryDate);
+  // const filteredItems = items.filter(item => {
+  //   const entryDate = new Date(item.entryDate);
 
-    const matchDateRange = query.dateStart && query.dateEnd
-      ? (entryDate >= new Date(query.dateStart) && entryDate <= new Date(query.dateEnd))
-      : true;
+  //   const matchDateRange = query.dateStart && query.dateEnd
+  //     ? (entryDate >= new Date(query.dateStart) && entryDate <= new Date(query.dateEnd))
+  //     : true;
 
-    const matchProject = query.projectName
-      ? item.projectName === query.projectName
-      : true;
+  //   const matchProject = query.projectName
+  //     ? item.projectName === query.projectName
+  //     : true;
 
-    const matchSpecificDate = query.date
-      ? item.entryDate === query.date
-      : true;
+  //   const matchSpecificDate = query.date
+  //     ? item.entryDate === query.date
+  //     : true;
 
-    const matchMonthYear = query.month && query.year
-      ? (entryDate.getUTCFullYear() === parseInt(query.year) &&
-         entryDate.getUTCMonth() + 1 === parseInt(query.month))
-      : true;
+  //   const matchMonthYear = query.month && query.year
+  //     ? (entryDate.getUTCFullYear() === parseInt(query.year) &&
+  //        entryDate.getUTCMonth() + 1 === parseInt(query.month))
+  //     : true;
 
-    return matchDateRange && matchProject && matchSpecificDate && matchMonthYear;
-  }); 
+  //   return matchDateRange && matchProject && matchSpecificDate && matchMonthYear;
+  // }); 
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+const filteredItems = items
+.filter(item => {
+  const entryDate = new Date(item.entryDate);
+
+  const matchDateRange = query.dateStart && query.dateEnd
+    ? (entryDate >= new Date(query.dateStart) && entryDate <= new Date(query.dateEnd))
+    : true;
+
+  const matchProject = query.projectName
+    ? item.projectName === query.projectName
+    : true;
+
+  const matchSpecificDate = query.date
+    ? item.entryDate === query.date
+    : true;
+
+  const matchMonthYear = query.month && query.year
+    ? (entryDate.getUTCFullYear() === parseInt(query.year) &&
+       entryDate.getUTCMonth() + 1 === parseInt(query.month))
+    : true;
+
+  return matchDateRange && matchProject && matchSpecificDate && matchMonthYear;
+})
+.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)); // 🔥 Sort latest first
+
+// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
   console.log("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",filteredItems);
 
   const formatted = filteredItems.reduce((acc, item) => {

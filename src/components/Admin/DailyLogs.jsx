@@ -15,6 +15,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
   Snackbar,
   IconButton,
@@ -24,7 +25,7 @@ import {
 
 import Autocomplete from "@mui/material/Autocomplete";
 import debounce from "lodash/debounce";
-import { Edit, Check } from "@mui/icons-material";
+import { Edit, Check, Close } from "@mui/icons-material";
 
 function DailyLogs() {
   const [logs, setLogs] = useState([]);
@@ -35,7 +36,7 @@ function DailyLogs() {
   const [emailsList, setEmailsList] = useState([]);
   const [projectList, setProjectList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const userEmail = localStorage.getItem("email");
+  const userEmail = sessionStorage.getItem("email");
   const [editLog, setEditLog] = useState(null);
   const [editedData, setEditedData] = useState({
     Id: "",
@@ -46,6 +47,16 @@ function DailyLogs() {
   });
   const [snackbar, setSnackbar] = useState({ open: false, message: "", error: false });
   const [loading, setLoading] = useState(false);
+
+  const [showApprovalModal, setShowApprovalModal] = useState(false);
+  const [logToApprove, setLogToApprove] = useState(null);
+
+  // state to reject logs
+  const [logToReject, setLogToReject] = useState(null);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+
+  const [isApproving, setIsApproving] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
 
   const itemsPerPage = 5;
 
@@ -130,35 +141,102 @@ function DailyLogs() {
     setEditedData((prev) => ({ ...prev, [field]: value }));
   };
 
+  // const handleEditSubmit = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
+  //       {
+  //         method: "PUT",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+  //           Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+  //         },
+  //         body: JSON.stringify([{ ...editedData, logStatus: "pending" }]),
+  //       }
+  //     );
+  //     if (response.ok) {
+  //       setSnackbar({ open: true, message: "Log updated successfully", error: false });
+  //       setEditLog(null);
+  //       fetchLogs();
+  //     } else {
+  //       const errorText = await response.text();
+  //       throw new Error(errorText);
+  //     }
+  //   } catch (err) {
+  //     setSnackbar({ open: true, message: "Error updating log: " + err.message, error: true });
+  //   }
+  // };
+
   const handleEditSubmit = async () => {
-    try {
-      const response = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-          },
-          body: JSON.stringify([{ ...editedData, logStatus: "pending" }]),
-        }
-      );
-      if (response.ok) {
-        setSnackbar({ open: true, message: "Log updated successfully", error: false });
-        setEditLog(null);
-        fetchLogs();
-      } else {
-        const errorText = await response.text();
-        throw new Error(errorText);
+  const dateOfLog = editLog.date;
+  // Convert edited hours to number (in case user enters string)
+  const editedHours = Number(editedData.totalHoursSpent) || 0;
+  // Calculate total hours for the same date, excluding the current editing log
+  const totalHoursForDate = logs
+    .filter((log) => log.date === dateOfLog && log.Id !== editLog.Id && log.email === editLog.email)
+    .reduce((sum, log) => sum + (Number(log.totalHoursSpent) || 0), 0);
+
+  const newTotal = totalHoursForDate + editedHours;
+  console.log(`Total hours for ${dateOfLog} excluding current log: ${totalHoursForDate}`);
+  
+  if (newTotal > 15) {
+    setSnackbar({
+      open: true,
+      message: `You cannot log more than 15 hours for ${dateOfLog}. Total would become ${newTotal}.`,
+      error: true,
+    });
+    return;
+  }
+  // Proceed to update
+  try {
+    const response = await fetch(
+      "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+        },
+        body: JSON.stringify([{ ...editedData, logStatus: "pending" }]),
       }
-    } catch (err) {
-      setSnackbar({ open: true, message: "Error updating log: " + err.message, error: true });
+    );
+    if (response.ok) {
+      setSnackbar({
+        open: true,
+        message: "Log updated successfully",
+        error: false,
+      });
+      setEditLog(null);
+      fetchLogs();
+    } else {
+      const errorText = await response.text();
+      throw new Error(errorText);
     }
+  } catch (err) {
+    setSnackbar({
+      open: true,
+      message: "Error updating log: " + err.message,
+      error: true,
+    });
+  }
+};
+
+  // Function to handle log approval
+  const handleApproveClick = (log) => {
+    setLogToApprove(log);
+    setShowApprovalModal(true);
+  };
+
+  // Function to handle log rejection
+  const handleRejectClick = (log) => {
+    setLogToReject(log);
+    setShowRejectModal(true);
   };
 
   const handleApprove = async (log) => {
-    const confirmApprove = window.confirm("Are you sure you want to approve this log?");
-    if (!confirmApprove) return;
+    if (!logToApprove) return;
+    setIsApproving(true);
 
     try {
       const response = await fetch(
@@ -167,9 +245,10 @@ function DailyLogs() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
           },
-          body: JSON.stringify([{ Id: log.Id, approvalEmail: userEmail, logStatus: "approved" }]),
+          body: JSON.stringify([{ Id: logToApprove.Id, approvalEmail: userEmail, logStatus: "approved" }]),
         }
       );
       if (response.ok) {
@@ -181,11 +260,48 @@ function DailyLogs() {
       }
     } catch (err) {
       setSnackbar({ open: true, message: "Error approving log: " + err.message, error: true });
+    } finally {
+      setShowApprovalModal(false);
+      setLogToApprove(null);
+      setIsApproving(false);
     }
   };
 
+  const handleReject = async () => {
+    if (!logToReject) return;
+    setIsRejecting(true);
+
+    try {
+      const response = await fetch(
+        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+          },
+          body: JSON.stringify([{ Id: logToReject.Id, approvalEmail: userEmail, logStatus: "rejected" }]),
+        }
+      );
+      if (response.ok) {
+        setSnackbar({ open: true, message: "Log rejected successfully", error: false });
+        fetchLogs();
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
+    } catch (err) {
+      setSnackbar({ open: true, message: "Error rejecting log: " + err.message, error: true });
+    } finally {
+      setShowRejectModal(false);
+      setLogToReject(null);
+      setIsRejecting(false);
+    }
+  }
+
   return (
-    <Box sx={{ padding: 3 }}>
+    <Box>
       <Typography variant="h5" align="center" mb={3}>
         Daily Logs
       </Typography>
@@ -198,7 +314,7 @@ function DailyLogs() {
           onChange={(e, val) => setProjectName(val || "")}
           renderInput={(params) => <TextField {...params} label="Project Name" size="small" />}
           freeSolo
-          sx={{ minWidth: 200 }}
+          sx={{ minWidth: 280 }}
         />
         <Autocomplete
           options={emailsList}
@@ -206,15 +322,15 @@ function DailyLogs() {
           onChange={(e, val) => setEmail(val || "")}
           renderInput={(params) => <TextField {...params} label="Employee Email" size="small" />}
           freeSolo
-          sx={{ minWidth: 200 }}
+          sx={{ minWidth: 280 }}
         />
-        <TextField label="Month" value={month} onChange={(e) => setMonth(e.target.value)} select size="small" sx={{ minWidth: 150 }} SelectProps={{ native: true }}>
+        <TextField label="Month" value={month} onChange={(e) => setMonth(e.target.value)} select size="small" sx={{ minWidth: {xs:130, sm:200} }} SelectProps={{ native: true }}>
           <option value="" disabled></option>
           {[...Array(12)].map((_, i) => (
             <option key={i + 1} value={String(i + 1).padStart(2, "0")}>{String(i + 1).padStart(2, "0")}</option>
           ))}
         </TextField>
-        <TextField label="Year" value={year} onChange={(e) => setYear(e.target.value)} select size="small" sx={{ minWidth: 150 }} SelectProps={{ native: true }}>
+        <TextField label="Year" value={year} onChange={(e) => setYear(e.target.value)} select size="small" sx={{ minWidth:{xs:130, sm:200}}} SelectProps={{ native: true }}>
           <option value="" disabled></option>
           {[2023, 2024, 2025, 2026].map((yr) => (
             <option key={yr} value={yr}>{yr}</option>
@@ -223,14 +339,27 @@ function DailyLogs() {
         <Button variant="contained" color="primary" onClick={clearFilters}>Clear Filters</Button>
       </Box>
 
+      {isApproving && (
+        <div style={{position: "fixed", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, background: "rgba(255, 255, 255, 0.7)" }}>
+                      <CircularProgress size={24} />
+                      <span style={{ marginLeft: "10px", fontWeight: "bold" }}>Approving logs...</span>
+                    </div>
+      )}
+      {isRejecting && (
+        <div style={{position: "fixed", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, background: "rgba(255, 255, 255, 0.7)" }}>
+          <CircularProgress size={24} />
+          <span style={{ marginLeft: "10px", fontWeight: "bold" }}>Rejecting logs...</span>
+        </div>
+      )}
+
       {/* Logs Table */}
       {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+        <Box sx={{ display: "flex", justifyContent: "center"}}>
           <CircularProgress />
         </Box>
       ) : logs.length > 0 ? (
         <>
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} sx={{ overflowX: { xs: "scroll", sm: "hidden" } }}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -254,9 +383,19 @@ function DailyLogs() {
                     <TableCell>
                       <Chip label={log.logStatus} color={log.logStatus === "approved" ? "success" : "warning"} size="small" />
                     </TableCell>
-                    <TableCell>
-                      <IconButton size="small" onClick={() => handleEditClick(log)} disabled={log.logStatus === "approved"}><Edit /></IconButton>
-                      <IconButton size="small" onClick={() => handleApprove(log)} disabled={log.logStatus === "approved"}><Check /></IconButton>
+                    <TableCell sx={{ display: "flex", gap: 1, flexDirection:"column", alignItems: "center", justifyContent: "center" }}>
+                      <IconButton size="small" onClick={() => handleEditClick(log)} disabled={log.logStatus === "approved"} title="Edit Log" sx={{ hight:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#1976d21a"}}}><Edit /></IconButton>
+                      <IconButton size="small" onClick={() => handleApproveClick(log)} disabled={log.logStatus === "approved"} title="Approve Log" sx={{ hight:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#2e7d321a"}}}><Check /></IconButton>
+                      <IconButton
+                        size="small"
+                        title="Reject Log"
+                        color="error"
+                        onClick={() => handleRejectClick(log)}
+                        disabled={log.logStatus === "approved" || log.logStatus === "rejected"}
+                        sx={{ hight:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#d32f2f1a"}}}
+                      >
+                        <Close />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -309,6 +448,68 @@ function DailyLogs() {
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         ContentProps={{ style: { backgroundColor: snackbar.error ? "#d32f2f" : "#4caf50" } }}
       />
+      {/* Approval Modal */}
+            <Dialog
+  open={showApprovalModal}
+  onClose={() => {
+    setShowApprovalModal(false);
+    setLogToApprove(null);
+  }}
+  aria-labelledby="approval-dialog-title"
+  aria-describedby="approval-dialog-description"
+>
+  <DialogTitle id="approval-dialog-title">{"Approve Log"}</DialogTitle>
+  <DialogContent>
+    <DialogContentText id="approval-dialog-description">
+      Are you sure you want to approve this log?
+    </DialogContentText>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={handleApprove} color="primary" autoFocus>
+      Yes
+    </Button>
+    <Button
+      onClick={() => {
+        setShowApprovalModal(false);
+        setLogToApprove(null);
+      }}
+      color="primary"
+    >
+      No
+    </Button>
+  </DialogActions>
+</Dialog>
+      {/* Reject Modal */}
+      <Dialog
+        open={showRejectModal}
+        onClose={() => {
+          setShowRejectModal(false);
+          setLogToReject(null);
+        }}
+        aria-labelledby="reject-dialog-title"
+        aria-describedby="reject-dialog-description"
+      >
+        <DialogTitle id="reject-dialog-title">{"Reject Log"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="reject-dialog-description">
+            Are you sure you want to reject this log?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleReject} color="primary" autoFocus>
+            Yes
+          </Button>
+          <Button
+            onClick={() => {
+              setShowRejectModal(false);
+              setLogToReject(null);
+            }}
+            color="primary"
+          >
+            No
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

@@ -1,6 +1,6 @@
 
 
-import { UpdateCommand, GetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { UpdateCommand, GetCommand, QueryCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { docClient } from "../services/dbClient.mjs";
 import { buildResponse } from "../utils/responseBuilder.mjs";
 import { extractEmailFromGoogleToken } from "../utils/verifyGoogleToken.mjs";
@@ -96,10 +96,24 @@ export const handlePut = async (event, stage, origin) => {
 
       const isRM = tokenEmail.toLowerCase() === reportingManagerEmail.toLowerCase();
 
-      if (!isRM && !isPrivileged) {
-        throw new Error(`You are not the RM or authorized controller/admin of ${userEmail}. RM is: ${reportingManagerEmail}`);
-      }
 
+
+      let projectManagerEmail;   
+      const project_params = {
+        TableName: "ProjectMaster",
+        FilterExpression: "projectName = :pname",
+        ExpressionAttributeValues: {
+          ":pname": existingRecord?.projectName,
+        },
+      };
+      const project_result = await docClient.send(new ScanCommand(project_params));
+      const ProjectMasterEmail = project_result.Items[0]['projectMasterEmail']
+      console.log("+++++++PROJECT PARAMS",project_result);
+      let isProjectManager = ProjectMasterEmail === tokenEmail;
+
+      if (!isRM && !isPrivileged && !isProjectManager) {
+        throw new Error(`You are not the RM or authorized superAdmin/admin of ${userEmail}. RM is: ${reportingManagerEmail}`);
+      }
       // Build update expression
       let updateExp = "set logStatus = :logStatus, approvalEmail = :approvalEmail";
       const expAttrVals = {
@@ -142,7 +156,7 @@ export const handlePut = async (event, stage, origin) => {
     const updatedItems = await Promise.all(updatePromises);
 
     return buildResponse(200, {
-      message: "Records updated successfully",
+      message: "Records updated successfully.",
       updatedCount: updatedItems.length,
       data: updatedItems,
     }, origin);

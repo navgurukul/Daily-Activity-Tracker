@@ -43,6 +43,10 @@ const StyledContainer = styled(Container)(({ theme }) => ({
   [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(2),
   },
+  [theme.breakpoints.up("md")]: {
+    marginLeft: theme.spacing(9),
+    maxWidth: "91% !important",
+  },
   "& .MuiPaper-root": {
     width: "100%",
     maxWidth: "100%",
@@ -311,7 +315,7 @@ const Leaves = () => {
   };
   
   return (
-    <StyledContainer style={{ overflowY: "scroll", height: "100vh" }}>
+    <StyledContainer style={{ overflowY: "scroll", height: "100vh", marginTop: "45px" }}>
       {loading && (
         <Box
           sx={{

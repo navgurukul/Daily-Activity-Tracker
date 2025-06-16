@@ -5,6 +5,10 @@ body {
   height: 100%;
 }
 
+.form-container {
+  margin-top: 0px;
+}
+
 form {
   display: flex;
   flex-direction: column;
@@ -126,7 +130,7 @@ td {
 }
 .delete-button,
 .edit-button {
-  width: 130px;
+  max-width: 130px;
   padding: 5px;
   border-radius: 4px;
   border: none;
@@ -138,12 +142,16 @@ td {
 .edit-button,
 .save-button {
   background-color: #4caf50;
-  margin-bottom: 10px;
-
-  width: 100px;
-  height: 20px;
+  margin-bottom: 18px;
+  max-width: 130px;
+  height: 30px;
   width: 130px;
   padding: 7px;
+}
+.save-button{
+  max-width: 130px;
+  height: 30px;
+  margin-top: 20px;
 }
 .delete-button:hover {
   background-color: #d32f2f;
@@ -157,11 +165,20 @@ td {
   box-sizing: border-box;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 1024px) {
+  .full-width-button{
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
   .full-width-button {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
+  }
+  .formContainer{
+    margin-top: 40px !important;
   }
 }
 
@@ -183,5 +200,28 @@ td {
   .from-1 {
     width: 90%;
     max-width: 300px;
+  }
+}
+@media (max-width:425px){
+  .delete-button,
+  .edit-button {
+    max-width: 50px;
+  }
+  .save-button{
+    max-width: 50px;
+    height: 35px;
+    margin-top: 31px;
+  }
+  .full-width-button{
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 320px) {
+  .from-1 {
+    margin: 0;
+    margin-left: 4px;
+    width: 86%;
+    max-width: 270px;
   }
 }

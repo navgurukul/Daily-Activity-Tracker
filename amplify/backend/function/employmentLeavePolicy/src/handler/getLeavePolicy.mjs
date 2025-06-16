@@ -8,6 +8,7 @@ const docClient = DynamoDBDocumentClient.from(client);
 const restrictedLeaveTypes = ["Festival Leave", "Casual Leave", "Wellness Leave"];
 
 async function paginatedScan(params) {
+  console.log("+=================================================",params);
   let items = [];
   let ExclusiveStartKey;
   do {
@@ -101,6 +102,10 @@ export async function handler(event, context) {
       fetchUserEmploymentTypes(),
       fetchCompensatoryLeaveCounts(),
     ]);
+
+    let email = event.queryStringParameters?.email || null
+    const limit = parseInt(event.queryStringParameters?.limit) || 10;
+    const page = parseInt(event.queryStringParameters?.page) || 1;
 
     const userEmploymentTypes = userInfo.userEmploymentTypeMap;
     const userJoiningDates = userInfo.userJoiningDates;
@@ -212,11 +217,41 @@ export async function handler(event, context) {
       }
     }
 
-    const responseData = Object.entries(groupedByUser).map(([email, leaveRecords]) => ({
+    let responseData = Object.entries(groupedByUser).map(([email, leaveRecords]) => ({
       userEmail: email,
       leaveRecords: Object.values(leaveRecords),
     }));
 
+    if(email){
+      responseData = responseData.filter(ele => ele.userEmail === email);
+      return {
+        statusCode: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+        },
+        body: JSON.stringify({
+          success: true,
+          totalUsers: responseData.length,
+          data: responseData,
+        }),
+        // body: JSON.stringify({
+        //   success: true,
+        //   totalUsers: totalItems,
+        //   currentPage: page,
+        //   totalPages,
+        //   data: paginatedData,
+        // }),
+      };
+    }
+
+    // Pagination logic
+    const totalItems = responseData.length;
+    const totalPages = Math.ceil(totalItems / limit);
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedData = responseData.slice(startIndex, endIndex);
     return {
       statusCode: 200,
       headers: {
@@ -224,10 +259,17 @@ export async function handler(event, context) {
         "Access-Control-Allow-Methods": "GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
       },
+      // body: JSON.stringify({
+      //   success: true,
+      //   totalUsers: responseData.length,
+      //   data: responseData,
+      // }),
       body: JSON.stringify({
         success: true,
-        totalUsers: responseData.length,
-        data: responseData,
+        totalUsers: totalItems,
+        currentPage: page,
+        totalPages,
+        data: paginatedData,
       }),
     };
   } catch (error) {

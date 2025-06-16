@@ -30,8 +30,9 @@ export const handler = async (event) => {
     }
     
     if (event.httpMethod === "PUT") {
-      const result = await handlePut(event, stage, origin);
-      return buildResponse(result.statusCode, JSON.parse(result.body), origin);
+      return await handlePut(event, stage, origin);
+      // const result = await handlePut(event, stage, origin);
+      // return buildResponse(result.statusCode, JSON.parse(result.body), origin);
     }
 
     return buildResponse(405, { message: "Method Not Allowed" }, origin);

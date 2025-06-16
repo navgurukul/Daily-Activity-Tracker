@@ -18,6 +18,7 @@ import {
   TableHead,
   TableRow,
   Paper,
+  CircularProgress
 } from "@mui/material";
 
 const Payroll = () => {
@@ -37,7 +38,8 @@ const Payroll = () => {
 
   useEffect(() => {
     const fetchPayrollData = async () => {
-      const token = localStorage.getItem("jwtToken");
+      // const token = localStorage.getItem("jwtToken");
+      const token = sessionStorage.getItem("jwtToken");
 
       if (!token) {
         console.error("JWT token not found in local storage.");
@@ -139,12 +141,16 @@ const Payroll = () => {
   );
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+                <CircularProgress />
+              </Box>
+    );
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" mb={3} fontWeight="bold">
+    <Box sx={{ p: {xs:0, sm:3} }}>
+      <Typography variant="h4" mb={2} fontWeight="bold" sx={{ fontSize: { xs: "1.5rem",  sm: "2.15rem"}}}>
         Employee Payable Days Overview
       </Typography>
       <Typography variant="subtitle1" mb={3} color="text.secondary">
@@ -152,13 +158,14 @@ const Payroll = () => {
       </Typography>
 
       {/* Filters */}
-      <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 3 }}>
+      <Box sx={{ display: "flex", gap: {xs:1, sm:2}, flexWrap: "wrap", mb: 3, justifyContent: "center"  }}>
         <TextField
           label="Filter by Name"
           variant="outlined"
           value={nameFilter}
           onChange={(e) => setNameFilter(e.target.value)}
           size="small"
+          sx={{ width: {xs:300, sm:320}}}
         />
         <TextField
           label="Filter by Email"
@@ -166,6 +173,7 @@ const Payroll = () => {
           value={emailFilter}
           onChange={(e) => setEmailFilter(e.target.value)}
           size="small"
+          sx={{ width: {xs:300, sm:320}}}
         />
         <TextField
           select
@@ -174,7 +182,7 @@ const Payroll = () => {
           value={monthFilter}
           onChange={(e) => setMonthFilter(e.target.value)}
           size="small"
-          sx={{ width: 165 }}
+          sx={{ width: {xs:152, sm:152}}}
           SelectProps={{
             MenuProps: {
               PaperProps: {
@@ -198,7 +206,7 @@ const Payroll = () => {
           value={yearFilter}
           onChange={(e) => setYearFilter(e.target.value)}
           size="small"
-          sx={{ width: 165 }}
+          sx={{ width: {xs:140, sm:152}}}
           SelectProps={{
             MenuProps: {
               PaperProps: {
@@ -224,7 +232,7 @@ const Payroll = () => {
           value={sortOrder}
           onChange={handleSortChange}
           size="small"
-          sx={{ width: 150 }}
+          sx={{ width: {xs:152, sm:152} }}
         >
           <MenuItem value="asc">Low to High</MenuItem>
           <MenuItem value="desc">High to Low</MenuItem>
@@ -239,6 +247,8 @@ const Payroll = () => {
             setSortOrder("asc");
           }}
           sx={{
+            width: {xs:140, sm:152},
+            padding: 0,
             color: "#FFFFFF",
             backgroundColor: "#1976D2",
             borderColor: "#1976D2",
@@ -255,7 +265,7 @@ const Payroll = () => {
       {/* Table Layout */}
       <TableContainer
         component={Paper}
-        sx={{ maxWidth: "100%", overflow: "hidden" }}
+        sx={{ maxWidth: "100%", overflow: {xs:"scroll", sm:"hidden"} }}
       >
         <Table
           sx={{ minWidth: 650, tableLayout: "auto" }}
@@ -299,6 +309,8 @@ const Payroll = () => {
           page={page}
           onChange={handleChangePage}
           color="primary"
+          siblingCount={0}
+          boundaryCount={1}
         />
       </Box>
 

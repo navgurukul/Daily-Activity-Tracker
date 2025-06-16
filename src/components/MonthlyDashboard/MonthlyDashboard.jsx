@@ -46,7 +46,8 @@ const MonthlyDashboard = () => {
     return currentMonthDays;
   };
   // console.log(getDaysInMonth());
-  let email = localStorage.getItem("email") ?? "";
+  // let email = localStorage.getItem("email") ?? "";
+  let email = sessionStorage.getItem("email") ?? "";
   const getMonthAndYear = () => {
     return new Date(selectedYear, selectedMonth).toLocaleString("default", {
       month: "long",
@@ -57,7 +58,8 @@ const MonthlyDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const email = localStorage.getItem("email");
+        // const email = localStorage.getItem("email");
+        const email = sessionStorage.getItem("email");
         const [activityRes, leaveRes] = await Promise.all([
           fetch(
             `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs/${email}?month=${String(
@@ -122,13 +124,6 @@ const MonthlyDashboard = () => {
     >
       <div
         className="dashboard-header-container"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "0 16px",
-          marginBottom: 24,
-        }}
       >
         <div className="dashboard-header">
           <Typography variant="h6" sx={{ color: "text.secondary", marginBottom: 2 }}>
@@ -144,11 +139,12 @@ const MonthlyDashboard = () => {
             />
           </LocalizationProvider>
         </div>
-        <div style={{ minWidth: 320 }}>
+        <div style={{ minWidth: 290 }}>
           <CycleSummary selectedDate={selectedDate}/>
         </div>
       </div>
 
+<div className="calender">
       <div className="calendar-grid">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <div key={day} className="weekday-header">
@@ -192,6 +188,7 @@ const MonthlyDashboard = () => {
           );
         })}
       </div>
+      </div>
       {selectedDay && (
         <DayDetailsDialog
           selectedDay={selectedDay}
@@ -206,7 +203,7 @@ const DayCell = ({ date, activities = [], leaves = [], onSelect }) => {
     new Date(date).toISOString().split("T")[0] ===
     new Date().toISOString().split("T")[0];
   const totalHours = activities.reduce(
-    (sum, act) => sum + (act["totalHoursSpent"] || 0),
+    (sum, act) => sum + Number(act["totalHoursSpent"] || 0),
     0
   );
   const hasData = activities.length > 0 || leaves.length > 0;

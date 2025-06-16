@@ -5,8 +5,8 @@ import { insertOrUpdateEmployee } from './storeInDynamoDB.mjs';
 export async function handler(event) {
     console.log("📩 Received Event:", JSON.stringify(event, null, 2));
 
-    const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:5500'];
     const origin = event.headers.origin || event.headers.Origin;
+    const allowedOrigins = ['http://localhost:3000', 'http://127.0.0.1:5500', origin];
 
     const headers = {
         'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : '',
@@ -24,8 +24,11 @@ export async function handler(event) {
         }
 
         const queryParams = event.queryStringParameters || {};
+        const team_id = queryParams?.employee_email
+        const department = event.queryStringParameters?.department;
+        // const report_man_email = queryParams?.rm_email
         const sheetKey = (queryParams.sheet || '').toLowerCase().trim();
-
+        // console.log("-----------------PNC SHEET",sheetKey,'PCCCCCCCCCC');
         // Handle GET
         if (event.httpMethod === 'GET') {
             if (sheetKey === 'employmenttypes') {
@@ -73,6 +76,21 @@ export async function handler(event) {
             }
 
             const data = await fetchGoogleSheetData(actualSheetName);
+            if((department && sheetKey === 'pncdata')||(team_id && sheetKey === 'pncdata')){
+                let filteredData = data;
+                if (team_id) {
+                    filteredData = data.filter(item => item["Team ID"] === team_id);
+                }
+                if (department) {
+                    filteredData = data.filter(item => item.Department === department);
+                }
+                return {
+                    statusCode: 200,
+                    headers,
+                    body: JSON.stringify({ success: true, sheet: actualSheetName, data:filteredData }),
+                };
+            }
+
             return {
                 statusCode: 200,
                 headers,

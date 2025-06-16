@@ -9,6 +9,8 @@ import { docClient } from "../services/dbClient.mjs";
 import { buildResponse } from "../utils/responseBuilder.mjs";
 
 export async function handlePost(event, stage, origin) {
+
+  
   let hrmsEmail;
   const now = new Date();
   // let mismatchedEntriesCount = {};  // { email: count }
@@ -20,12 +22,15 @@ export async function handlePost(event, stage, origin) {
     now.setDate(now.getDate() - 1);
     today = now.toISOString().split("T")[0];
   }
-
+  
   const { entries } = JSON.parse(event.body);
   let department = entries[0].department;
   let campus = entries[0].campus;
   const entryDateStr = entries[0].entryDate//entryDateObj.toISOString().split("T")[0]; // e.g., "2025-05-05"
   // for freeze callendar......
+  let log_status;
+  let log_date;
+  let payload_entryDate = entryDateStr
   const TODAY = new Date(); 
   const inputDate = new Date(entryDateStr);
 
@@ -57,7 +62,7 @@ export async function handlePost(event, stage, origin) {
     inputDay <= 25
   ) {
     // message = "";
-    return buildResponse(400, { message: "Data before the 25th has been frozen. You cannot fill data for dates on or before the 25th." }, origin);
+    return buildResponse(400, { message: "Data before the 25th has been frozen. You cannot fill data for dates on before the 25th." }, origin);
   }
 
   const year1 = now.getFullYear();
@@ -124,10 +129,15 @@ export async function handlePost(event, stage, origin) {
     };
 
     const result = await docClient.send(new QueryCommand(queryParams));
-    console.log("RRRRRRRRRRRRR",result);
+ 
+    // console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE",result);
     let totalHours = 0;
     for (const item of result.Items) {
+      log_status = item.logStatus;
+      log_date = item.entryDate
       // Check if same project exists in current payload (i.e. being updated)
+      if(item.logStatus === "rejected") continue
+      // console.log("EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE",item);
       const isSameEntryInPayload = entries.some(e =>
         e.email === item.email &&
         e.entryDate === item.entryDate &&
@@ -170,7 +180,7 @@ export async function handlePost(event, stage, origin) {
   // Step 2: Process each entry
   for (const entry of entries) {
     console.log("++++++++++++++++++++++",entry);
-    const { email, projectName, totalHoursSpent, workDescription, entryDate, department = null, campus = null } = entry;
+    const { email, projectName, totalHoursSpent, workDescription, entryDate,workingDepartment, department = null, campus = null } = entry;
 
     // === Restrict ANY submission for previous month after 8 PM of its last day ===
     const checkEntryDateObj = new Date(entryDate);
@@ -228,13 +238,20 @@ export async function handlePost(event, stage, origin) {
     const allowedDate = new Date(today);
     allowedDate.setDate(today.getDate() - 3); // last 3 days = today, yesterday, day before yesterday
 
-    if (entryDateObj < allowedDate || entryDateObj > today) {
-      results.push({
-        entry,
-        status: "failed",
-        reason: "Entry date must be within the last 3 days",
-      });
-      continue;
+    if(log_status === 'rejected' && payload_entryDate === log_date){
+
+    }else{
+      if (entryDateObj < allowedDate || entryDateObj > today) {
+        // if(log_status === 'rejected' && payload_entryDate === log_date){
+        //   continue
+        // }
+        results.push({
+          entry,
+          status: "failed",
+          reason: "Entry date must be within the last 3 days",
+        });
+        continue;
+    }
     }
 
 
@@ -354,15 +371,19 @@ export async function handlePost(event, stage, origin) {
           SET workDescription = :desc,
               totalHoursSpent = :hours,
               updatedAt = :updatedAt,
+              workingDepartment = :workingDepartment,
               department = :department,
-              campus = :campus
+              campus = :campus,
+              logStatus = :logStatus
         `,
         ExpressionAttributeValues: {
           ":desc": entry.workDescription,
           ":hours": entry.totalHoursSpent,
           ":updatedAt": new Date().toISOString(),
+          ":workingDepartment": entry.workingDepartment || null,
           ":department": entry.department || null,
-          ":campus": entry.campus || null
+          ":campus": entry.campus || null,
+          ":logStatus": "pending"
         }
 
 
@@ -387,9 +408,10 @@ export async function handlePost(event, stage, origin) {
         projectName,
         totalHoursSpent,
         workDescription,
+        workingDepartment :workingDepartment || null,
         stage,
         updatedAtDate,
-        logStatus: "",
+        logStatus: "pending",
         approvalEmail: "",
         updatedAt: new Date().toISOString(),
         // department:dtment || "",
@@ -428,7 +450,7 @@ export async function handlePost(event, stage, origin) {
       const isMismatched = item.entryDate !== item.updatedAtDate;
 
       const entryDateObj = new Date(item.entryDate);
-      const now = new Date("2025-05-19T06:30:00");
+      const now = new Date();
       const isThisMonth =
         entryDateObj.getMonth() === now.getMonth() &&
         entryDateObj.getFullYear() === now.getFullYear();
@@ -442,7 +464,7 @@ export async function handlePost(event, stage, origin) {
 
 
       const userDte = new Date(entryDateStr);
-      const timeStamp = new Date("2025-05-19T06:30:00");
+      const timeStamp = new Date();
 
       // const timeStamp = new Date("")
       const todayss = new Date();
@@ -460,7 +482,7 @@ export async function handlePost(event, stage, origin) {
       // Condition: selected date ≠ timestamp date AND selected date < timestamp
       const isDifferentDate = userDte.getTime() !== new Date(timeStamp).setHours(0, 0, 0, 0);
       const isPastDate = userDte < timeStamp;
-    
+      
       if (isDifferentDate && isPastDate) {
         // Only deduct if timestamp is AFTER the next day's 7 AM
         if (timeStamp >= nextDay7am) {
@@ -475,7 +497,6 @@ export async function handlePost(event, stage, origin) {
       ) {
         backdatedLeft[email] = 3 - uniqueMismatchedDates.size;
       }
-
     backdatedLeft[email] = 3 - uniqueMismatchedDates.size;
 
     // mismatchedEntriesCount[email] = mismatched.length;

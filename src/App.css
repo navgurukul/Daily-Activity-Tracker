@@ -11,7 +11,7 @@ body {
 main {
   margin: 0 auto;
   margin-left: 15%;
-  margin-top: -2rem;
+  margin-top: -3rem;
   /* display: flex; */
   justify-content: center;
   align-items: center;
@@ -66,7 +66,6 @@ form button:hover {
 
 @media screen and (max-width: 1008px) {
   main{
-    margin-top: 2rem;
     margin-left: 0;
     font-size: small;
     

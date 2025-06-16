@@ -21,7 +21,7 @@ const NoTabNavBar = () => {
           color: "white",
         }}
       >
-        Welcome to Samyarth Daily Activities Tracker
+        Welcome to the Daily Activities Tracker
       </h1>
     </nav>
   );

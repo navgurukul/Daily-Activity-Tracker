@@ -166,10 +166,15 @@ const Navbar = (props) => {
     handleDrawerClose();
   };
 
+  const headingClick=()=>{
+    navigate('/activity-tracker')
+  }
+
   const drawer = (
     <div style={{ marginTop: "1rem", padding: "none" }}>
       <h1
         className="heading"
+        onClick={headingClick}
         style={{
           color: "black",
           fontSize: "1.5rem",
@@ -217,7 +222,7 @@ const Navbar = (props) => {
                 },
               }}
             >
-              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} />
             </ListItemButton>
           </ListItem>
@@ -267,7 +272,7 @@ const Navbar = (props) => {
             onClick={() => handleClick("admin")}
             // sx={{ marginTop: "0.5rem" }}
           >
-            <ListItemIcon>
+            <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
               <AdminPanelSettingsIcon />
             </ListItemIcon>
             <ListItemText primary="Admin" />
@@ -278,7 +283,7 @@ const Navbar = (props) => {
             onClick={() => handleClick("project-management")}
             // sx={{ marginTop: "0.5rem" }}
           >
-            <ListItemIcon>
+            <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
               <MenuBookIcon />
             </ListItemIcon>
             <ListItemText primary="Project Management" />
@@ -289,7 +294,7 @@ const Navbar = (props) => {
             sx={{ marginTop: "auto" }}
             onClick={() => handleClick("role-update")}
           >
-            <ListItemIcon>
+            <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
               <ManageAccountsIcon />
             </ListItemIcon>
             <ListItemText primary="Access Control" />
@@ -311,7 +316,7 @@ const Navbar = (props) => {
             onClick={() => handleClick("logout")}
             sx={{ marginTop: "auto" }}
           >
-            <ListItemIcon>
+            <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
               <LogoutIcon />
             </ListItemIcon>
             <ListItemText primary="Logout" />

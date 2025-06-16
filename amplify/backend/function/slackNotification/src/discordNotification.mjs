@@ -60,7 +60,7 @@ const getEmployeeLogs = async () => {
       "#entryDate": "entryDate"
     },
     ExpressionAttributeValues: {
-      ":d1": "resendential",
+      ":d1": "Residential Program",
       ":yesterday": isoYest
     }
   });

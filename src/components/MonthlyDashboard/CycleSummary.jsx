@@ -25,7 +25,8 @@ const CycleSummary = ({ selectedDate }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = localStorage.getItem("jwtToken");
+      // const token = localStorage.getItem("jwtToken");
+      const token = sessionStorage.getItem("jwtToken");
 
       if (!token) {
         console.error("JWT token not found in local storage.");
@@ -160,18 +161,18 @@ const CycleSummary = ({ selectedDate }) => {
   if (error) return <Alert severity="error">{error}</Alert>;
 
   return (
-    <Box mt={4}>
+    <Box sx={{mt:4, textAlign:'center'}}>
       <Typography variant="h6" gutterBottom fontWeight="bold">
         Payable Days Cycle Summary
       </Typography>
       <Typography
         variant="subtitle2"
-        sx={{ color: "text.secondary", fontSize: "12px" }}
+        sx={{ color: "text.secondary", width:'100%', fontSize: {xs:'10.5px', sm:"13px"}, flexWrap:'wrap' }}
         gutterBottom
       >
         ( Cycle 1 - 1st to 25th, Cycle 2 - 26th to end of the month )
       </Typography>
-      <Box display="flex" gap={3}>
+      <Box sx={{display:'flex', justifyContent:'center',alignItems:'center', flexDirection:{xs:'column', sm:'row'}, gap: {xs:1,md:3},mb:{xs:3,sm:0}}}>
         {renderCycleSummary(summaryData.cycle1, "Cycle 1", "cycle1")}
         {renderCycleSummary(summaryData.cycle2, "Cycle 2", "cycle2")}
       </Box>

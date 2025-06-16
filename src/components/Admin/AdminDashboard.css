@@ -1,7 +1,6 @@
 .admin-dashboard {
   display: flex;
   flex-direction: column;
-  /* min-height: 100vh; */
   background-color: #f9fafb;
   margin-left: 3%;
   margin-right: 3%;
@@ -16,16 +15,15 @@ body::-webkit-scrollbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #2c3e50; /* dark navy */
+  background: #2c3e50;
   color: #ffffff;
   padding: 15px 20px;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* subtle shadow for depth */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   flex-wrap: wrap;
 }
-
 .admin-navbar h2 {
   margin: 0;
   font-size: 22px;
@@ -38,7 +36,6 @@ body::-webkit-scrollbar {
   gap: 20px;
   flex-wrap: wrap;
 }
-
 .admin-nav-links button {
   background: transparent;
   border: none;
@@ -50,10 +47,9 @@ body::-webkit-scrollbar {
   border-bottom: 2px solid transparent;
   font-weight: 500;
 }
-
 .admin-nav-links button:hover,
 .admin-nav-links button.active {
-  border-bottom: 2px solid #00b894; /* teal accent */
+  border-bottom: 2px solid #00b894;
   color: #00b894;
 }
 
@@ -61,7 +57,7 @@ body::-webkit-scrollbar {
 .content {
   flex-grow: 1;
   padding: 25px;
-  color: #2d3436; /* dark gray for main text */
+  color: #2d3436;
 }
 
 /* Not Admin Message */
@@ -69,16 +65,20 @@ body::-webkit-scrollbar {
   text-align: center;
   margin-top: 50px;
   font-size: 18px;
-  color: #e74c3c; /* stronger red for better alert */
+  color: #e74c3c;
 }
 
 /* Responsive Styles */
 @media (max-width: 1024px) {
   .admin-dashboard {
-    margin-left: 0; /* remove sidebar spacing */
-    margin-right: 0;
+    margin-left: 0px;
+    margin-right: 0px;
   }
-
+  .admin-nav-links {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
   .sidebar {
     position: fixed;
     left: 0;
@@ -108,7 +108,8 @@ body::-webkit-scrollbar {
 
   .admin-navbar {
     justify-content: space-between;
-    margin-left: 9%;
+    margin-left: 10.5%;
+    margin-right: 0.7%;
   }
 
   .admin-navbar h2 {
@@ -145,12 +146,16 @@ body::-webkit-scrollbar {
     width: 100%;
     gap: 10px;
   }
+  .admin-navbar {
+    margin-left: 0;
+    margin-right: 0;
+  }
 
   .admin-nav-links button {
     font-size: 15px;
     padding: 8px 10px;
     text-align: left;
-    width: 100%;
+    /* width: 100%; */
   }
 
   .content {

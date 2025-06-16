@@ -55,7 +55,7 @@ const CompOff = () => {
       delete payload.halfDayStatus;
     }
   
-    const token = sessionStorage.getItem("bearerToken");
+    const token = sessionStorage.getItem("jwtToken");
   
     try {
       const response = await fetch(
@@ -107,16 +107,13 @@ const CompOff = () => {
   };
 
   return (
-    <div style={{ overflowY: "scroll", height: "100vh" }}>
+    <div style={{ overflowY: "scroll", height: "100vh", marginTop: "45px" }}>
       <LoadingSpinner loading={loading} />
       <h1 style={{ textAlign: "center" }}>
         Compensatory Request Application Form
       </h1>
 
       <form onSubmit={handleSubmit} className="form-1">
-        {/* {error && <p style={{ color: "red" }}>{error}</p>} */}
-
-        {/* User Email */}
         <div>
           <label>Employee Email:</label>
           <input

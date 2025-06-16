@@ -1,26 +1,4 @@
-.leave-history-container {
-  padding: 20px;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.leave-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.leave-table th,
-.leave-table td {
-  border: 1px solid #ccc;
-  padding: 8px 12px;
-  text-align: left;
-}
-
-.leave-table th {
-  background-color: #f0f0f0;
-}
-
-.tabs {
+.Tabs {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
@@ -45,4 +23,42 @@
   background-color: #2e7d32;
   color: white;
   border-color: #2e7d32;
+}
+
+.main_container {
+  margin-top: 15px;
+  margin-left: 60px;
+}
+
+@media (max-width: 1024px) {
+  .main_container {
+    margin-left: 82px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main_container {
+    margin-left: 0px;
+    margin-top: 70px;
+  }
+}
+@media (max-width: 425px) {
+  .main_container {
+    padding: 5px;
+    margin-right: 0px;
+    margin-left: 0px;
+  }
+}
+
+@media (max-width: 320px) {
+  .main_container {
+    width: 333px;
+    margin-right: 5px;
+    padding: 0;
+  }
+  .Tabs {
+    gap: 5px;
+  }
+  
 }

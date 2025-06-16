@@ -52,6 +52,11 @@
   color: #ffffff; /* Customize hover text color */
 }
 
+.heading:hover {
+  color: #4E545C !important;
+  cursor: pointer;
+}
+
 /* Responsive styles */
 @media (max-width: 1008px) {
   .heading {

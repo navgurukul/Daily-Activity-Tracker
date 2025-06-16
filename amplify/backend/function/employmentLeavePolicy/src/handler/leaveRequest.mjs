@@ -104,7 +104,7 @@ export const handler = async (event) => {
   const isOptionalReasonType = optionalReasonTypes.some((type) =>
     leaveType.includes(type)
   );
-
+  console.log("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUu",body.userEmail);
   if (!isOptionalReasonType) {
     const reason = body.reasonForLeave?.trim();
     if (!reason || reason.length < 25) {
@@ -116,8 +116,8 @@ export const handler = async (event) => {
         }),
       };
     }
-  } 
- 
+  }
+
   if (body.halfDayStatus && (!body.durationType || body.durationType.toLowerCase() !== "half-day")) {
     return {
       statusCode: 400,
@@ -127,7 +127,7 @@ export const handler = async (event) => {
       }),
     };
   }
-  
+
 
   const isApproverEmailValid = body.approverEmail ? emailRegex.test(body.approverEmail) : true;
   const isUserEmailValid = emailRegex.test(body.userEmail);
@@ -146,14 +146,35 @@ export const handler = async (event) => {
       body: JSON.stringify({ message: "Invalid startDate or endDate format" }),
     };
   }
-  
+
+
+  const inpDay = new Date(body.startDate).getDate();
+  const aaj = new Date();
+  const todayDay = aaj.getDate();
+  if (
+    // inputMonth === todayMonth &&
+    // inputYear === todayYear &&
+    todayDay > 25 &&
+    inpDay <= 25
+  ) {
+
+    return {
+      statusCode: 400,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({
+        message: `Backdated leave not allowed after the 25th of the month.`,
+      }),
+    };
+  }
+
 
   let employmentType = "";
-  let isAlumni ="";
+  let isAlumni = "";
   try {
     const response = await fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata");
     const data = await response.json();
     const employee = data.data.find((record) => record["Team ID"] === body.userEmail);
+    console.log("000000000000000000000employee");
 
     if (!employee) {
       return {
@@ -164,8 +185,13 @@ export const handler = async (event) => {
     }
 
     employmentType = employee["Employment Type"]?.trim();
-    isAlumni = employee["Alumni"]?.trim();
-    console.log(isAlumni,'isAlumniiiiiiiiiiiiiiiiiiiiiiiiiiiiii')
+    if(employee["Alumni"]?.trim() == "N/A"){
+      isAlumni = "Non-Alumni"
+    }else{
+      isAlumni = employee["Alumni"]?.trim();
+    }
+    console.log("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",employee["Alumni"]);
+    console.log(isAlumni, 'isAlumniiiiiiiiiiiiiiiiiiiiiiiiiiiiii')
   } catch (err) {
     console.error("Error fetching employee records:", err);
     return {
@@ -176,9 +202,9 @@ export const handler = async (event) => {
   }
 
   // half day status [first half Or second half]
-  if(body.durationType){
-    if(body.durationType.toLowerCase() === "half-day"){
-      if(!body.halfDayStatus){
+  if (body.durationType) {
+    if (body.durationType.toLowerCase() === "half-day") {
+      if (!body.halfDayStatus) {
         return {
           statusCode: 400,
           headers: { "Access-Control-Allow-Origin": "*" },
@@ -223,89 +249,103 @@ export const handler = async (event) => {
     };
   }
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-const today = new Date();
-const startDate = new Date(body.startDate);
+  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  const today = new Date();
+  const startDate = new Date(body.startDate);
 
-// Check if the startDate is in the past
-const isStartDateInPast = startDate < today;
+  // Check if the startDate is in the past
+  const isStartDateInPast = startDate < today;
 
-// Check today's values
-const currentDay = today.getDate();
-const currentMonth = today.getMonth(); // 0-indexed
-const thisYear = today.getFullYear();
+  // Check today's values
+  const currentDay = today.getDate();
+  const currentMonth = today.getMonth(); // 0-indexed
+  const thisYear = today.getFullYear();
 
-// Rule 1: After 25th, no backdated leave at all
-if (currentDay > 25 && isStartDateInPast) {
-  return {
-    statusCode: 400,
-    headers: { "Access-Control-Allow-Origin": "*" },
-    body: JSON.stringify({
-      message: `Backdated leave not allowed after the 25th of the month.`,
-    }),
-  };
-}
+  // // Rule 1: After 25th, no backdated leave at all
+  // if (currentDay > 25 && isStartDateInPast) {
+  //   return {
+  //     statusCode: 400,
+  //     headers: { "Access-Control-Allow-Origin": "*" },
+  //     body: JSON.stringify({
+  //       message: `Backdated leave not allowed after the 25th of the month.`,
+  //     }),
+  //   };
+  // }
 
-// Rule 2: If startDate is before 26th of previous month → disallow
-const previousMonth = new Date(thisYear, currentMonth - 1, 26); // 26th of previous month
-if (isStartDateInPast && startDate < previousMonth) {
-  return {
-    statusCode: 400,
-    headers: { "Access-Control-Allow-Origin": "*" },
-    body: JSON.stringify({
-      message: `Backdated leave before 26th of last month is not allowed.`,
-    }),
-  };
-}
+  // // Rule 2: If startDate is before 26th of previous month → disallow
+  // const previousMonth = new Date(thisYear, currentMonth - 1, 26); // 26th of previous month
+  // if (isStartDateInPast && startDate < previousMonth) {
+  //   return {
+  //     statusCode: 400,
+  //     headers: { "Access-Control-Allow-Origin": "*" },
+  //     body: JSON.stringify({
+  //       message: `Backdated leave before 26th of last month is not allowed.`,
+  //     }),
+  //   };
+  // }
+
+  // ======================================================================================================================================================================================
+
+  // // 1. Month and year must be same
+  // if (inputMonth !== todayMonth || inputYear !== todayYear) {
+  //   return buildResponse(400, {
+  //     message: "You can only apply leave for the current month.",
+  //     origin
+  //   });
+  // }
+
+  // 2. Data before 25th frozen if today > 25
+  
 
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-// 
-// Parse values from input
-const email = body.email;
-const beginingDate = new Date(body.startDate);  // Expected: new Date("2024-05-10")
-const endingDate = new Date(body.endDate);      // Expected: new Date("2024-05-12")
+  // 
+  // Parse values from input
+  const email = body.email;
+  const beginingDate = new Date(body.startDate);  // Expected: new Date("2024-05-10")
+  const endingDate = new Date(body.endDate);      // Expected: new Date("2024-05-12")
 
-// Collect all leave dates in the range
-const leaveDates = [];
-for (let d = new Date(beginingDate); d <= endingDate; d.setDate(d.getDate() + 1)) {
-  leaveDates.push(new Date(d).toISOString().split('T')[0]); 
-  // Example output: ["2024-05-10", "2024-05-11", "2024-05-12"]
-}
-
-// Query the DynamoDB table for conflicting activity logs
-const params = {
-  TableName: 'employeeDailyActivityLogs',
-  IndexName: 'email-entryDate-index', // Ensure this GSI is created in DynamoDB
-  KeyConditionExpression: '#email = :email AND #entryDate BETWEEN :beginingDate AND :endingDate',
-  ExpressionAttributeNames: {
-    '#email': 'email',       // Attribute name in your table
-    '#entryDate': 'entryDate'
-  },
-  ExpressionAttributeValues: {
-    ':email': body.userEmail,               // Expected: "ujjwal@navgurukul.org"
-    ':beginingDate': body.startDate,        // Expected: "2024-05-10"
-    ':endingDate': body.endDate             // Expected: "2024-05-12"
+  // Collect all leave dates in the range
+  const leaveDates = [];
+  for (let d = new Date(beginingDate); d <= endingDate; d.setDate(d.getDate() + 1)) {
+    leaveDates.push(new Date(d).toISOString().split('T')[0]);
+    // Example output: ["2024-05-10", "2024-05-11", "2024-05-12"]
   }
-};
 
-const result = await docClient.query(params).promise();
-
-// Check if any entries already exist for the requested dates
-if (result.Items && result.Items.length > 0) {
-  const conflictingDates = result.Items.map(item => item.entryDate);
-  return {
-    statusCode: 400,
-    body: JSON.stringify({
-      message: `Leave cannot be applied. Log(s) already exist for date(s): ${conflictingDates.join(', ')}`
-    })
+  // Query the DynamoDB table for conflicting activity logs
+  const params = {
+    TableName: 'employeeDailyActivityLogs',
+    IndexName: 'email-entryDate-index', // Ensure this GSI is created in DynamoDB
+    KeyConditionExpression: '#email = :email AND #entryDate BETWEEN :beginingDate AND :endingDate',
+    ExpressionAttributeNames: {
+      '#email': 'email',       // Attribute name in your table
+      '#entryDate': 'entryDate'
+    },
+    ExpressionAttributeValues: {
+      ':email': body.userEmail,               // Expected: "ujjwal@navgurukul.org"
+      ':beginingDate': body.startDate,        // Expected: "2024-05-10"
+      ':endingDate': body.endDate             // Expected: "2024-05-12"
+    }
   };
-}
+
+  const result = await docClient.query(params).promise();
+
+  // Check if any entries already exist for the requested dates
+  if (result.Items && result.Items.length > 0) {
+    const conflictingDates = result.Items.map(item => item.entryDate);
+    return {
+      statusCode: 400,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({
+        message: `Leave cannot be applied. Log(s) already exist for date(s): ${conflictingDates.join(', ')}`
+      })
+    };
+  }
 
 
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // validating Leaves dates can not be overlapped
   const scanExistingLeaves = new ScanCommand({
@@ -315,17 +355,17 @@ if (result.Items && result.Items.length > 0) {
     ExpressionAttributeValues: { ":email": { S: body.userEmail } },
   });
   const existingLeaves = await client.send(scanExistingLeaves);
-  
+
   if (existingLeaves.Items && existingLeaves.Items.length > 0) {
     const newStart = new Date(body.startDate);
     const newEnd = new Date(body.endDate);
-  
+
     for (const item of existingLeaves.Items) {
       const prevStart = new Date(item.startDate.S);
       const prevEnd = new Date(item.endDate.S);
-  
+
       const isOverlap = newStart <= prevEnd && newEnd >= prevStart;
-  
+
       if (isOverlap) {
         return {
           statusCode: 409,
@@ -337,96 +377,101 @@ if (result.Items && result.Items.length > 0) {
       }
     }
   }
-  
-  let maxLeaveAllowed = null;
-try {
-  const currentYear = new Date().getFullYear();
 
-  // Special case for "compensentary" leave
-  // if (  
-  if(body.leaveType.toLowerCase().trim().split(" ").includes("compensatory")){
-    // Query the hrmsCompensatoryAlloted table
-    const compScanCommand = new ScanCommand({
-      TableName: "hrmsCompensatoryAlloted",
+  let maxLeaveAllowed = null;
+  try {
+    const currentYear = new Date().getFullYear();
+
+    // Special case for "compensentary" leave
+    // if (  
+    if (body.leaveType.toLowerCase().trim().split(" ").includes("compensatory")) {
+      // Query the hrmsCompensatoryAlloted table
+      const compScanCommand = new ScanCommand({
+        TableName: "hrmsCompensatoryAlloted",
+        FilterExpression:
+          "#email = :email AND #status = :status",
+        ExpressionAttributeNames: {
+          "#email": "userEmail",
+          "#status": "status",
+        },
+        ExpressionAttributeValues: {
+          ":email": { S: body.userEmail },
+          ":status": { S: "pending" },
+        },
+      });
+
+      const compResult = await client.send(compScanCommand);
+
+      // Sum all pending compensatory leave durations
+      maxLeaveAllowed = compResult.Items?.reduce((sum, item) => {
+        return sum + parseFloat(item.leaveDuration?.N || "0");
+      }, 0) || 0;
+    }
+    else {
+      // For all other leave types, continue with API fetch
+      const res = await fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=leaveallocations");
+      const allocations = await res.json();
+      console.log('Allocaions for the leave............',allocations);
+      console.log('This is the employeement type....',employmentType);
+      const employmentData = allocations.data.find(
+        (e) => {
+          console.log('EEEEEEEEEEEEEEEEEEEEEEEEEEEEEE---',employmentType, isAlumni);
+          return (e["Employment Type"] === employmentType && e[""] === isAlumni);
+        }
+      );
+
+      console.log("=====employmentData ", employmentData);
+
+      const allocatedLeaveStr = employmentData?.[body.leaveType];
+      console.log('---------------------------------', allocatedLeaveStr);
+      if (!allocatedLeaveStr || allocatedLeaveStr === "N/A") {
+        maxLeaveAllowed = 0;
+      } else {
+        maxLeaveAllowed = parseFloat(allocatedLeaveStr);
+      }
+    }
+
+    // Fetch all previously taken leaves for this year and type
+    const scanCommand = new ScanCommand({
+      TableName: TABLE_NAME,
       FilterExpression:
-        "#email = :email AND #status = :status",
+        "#email = :email AND #type = :type AND begins_with(#start, :year)",
       ExpressionAttributeNames: {
         "#email": "userEmail",
-        "#status": "status",
+        "#type": "leaveType",
+        "#start": "startDate",
       },
       ExpressionAttributeValues: {
         ":email": { S: body.userEmail },
-        ":status": { S: "pending" },
+        ":type": { S: body.leaveType },
+        ":year": { S: `${currentYear}-` },
       },
     });
 
-    const compResult = await client.send(compScanCommand);
+    const result = await client.send(scanCommand);
 
-    // Sum all pending compensatory leave durations
-    maxLeaveAllowed = compResult.Items?.reduce((sum, item) => {
-      return sum + parseFloat(item.leaveDuration?.N || "0");
-    }, 0) || 0;
-  }
-   else {
-    // For all other leave types, continue with API fetch
-    const res = await fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=leaveallocations");
-    const allocations = await res.json();
+    let totalUsed = result.Items?.reduce((sum, item) => {
+      const status = item.status?.S?.toLowerCase();
+      const isRejected = status === "rejected";
 
-    const employmentData = allocations.data.find(
-      (e) => {
-        return (e["Employment Type"] === employmentType && e[""] === isAlumni);
+      if (!isRejected) {
+        return sum + parseFloat(item.leaveDuration?.N || "0");
       }
-    );
+      return sum;
+    }, 0) || 0;
 
-    const allocatedLeaveStr = employmentData?.[body.leaveType];
-    if (!allocatedLeaveStr || allocatedLeaveStr === "N/A") {
-      maxLeaveAllowed = 0;
-    } else {
-      maxLeaveAllowed = parseFloat(allocatedLeaveStr);
+    const thisRequestDuration = calculateLeaveDuration(body.startDate, body.endDate, (body.durationType || "Full-Day"));
+
+    if (totalUsed + thisRequestDuration > maxLeaveAllowed) {
+      return {
+        statusCode: 400,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify({
+          message: `You have exceeded your annual quota for ${body.leaveType}. Allocated: ${maxLeaveAllowed}, Used: ${totalUsed}`,
+        }),
+      };
     }
   }
-
-  // Fetch all previously taken leaves for this year and type
-  const scanCommand = new ScanCommand({
-    TableName: TABLE_NAME,
-    FilterExpression:
-      "#email = :email AND #type = :type AND begins_with(#start, :year)",
-    ExpressionAttributeNames: {
-      "#email": "userEmail",
-      "#type": "leaveType",
-      "#start": "startDate",
-    },
-    ExpressionAttributeValues: {
-      ":email": { S: body.userEmail },
-      ":type": { S: body.leaveType },
-      ":year": { S: `${currentYear}-` },
-    },
-  });
-
-  const result = await client.send(scanCommand);
-
-  let totalUsed = result.Items?.reduce((sum, item) => {
-    const status = item.status?.S?.toLowerCase();
-    const isRejected = status === "rejected";
-
-    if (!isRejected) {
-      return sum + parseFloat(item.leaveDuration?.N || "0");
-    }
-    return sum;
-  }, 0) || 0;
-
-  const thisRequestDuration = calculateLeaveDuration(body.startDate, body.endDate,(body.durationType||"Full-Day"));
-
-  if (totalUsed + thisRequestDuration > maxLeaveAllowed) {
-    return {
-      statusCode: 400,
-      headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({
-        message: `You have exceeded your annual quota for ${body.leaveType}. Allocated: ${maxLeaveAllowed}, Used: ${totalUsed}`,
-      }),
-    };
-  }
-}
   catch (err) {
     console.error("Leave allocation fetch error:", err);
   }
@@ -460,7 +505,7 @@ try {
     }
   }
 
-  const leaveDuration = calculateLeaveDuration(body.startDate, body.endDate, ( body.durationType||"Full-Day"));
+  const leaveDuration = calculateLeaveDuration(body.startDate, body.endDate, (body.durationType || "Full-Day"));
   const uniqueId = await generateUniqueId();
   const leaveApplyDate = new Date().toISOString();
 
@@ -470,16 +515,16 @@ try {
       Id: { S: uniqueId },
       approvalDate: { S: "" },
       approverEmail: { S: "" },
-      durationType: { S: body.durationType || "Full-Day"},
+      durationType: { S: body.durationType || "Full-Day" },
       endDate: { S: body.endDate },
       leaveDuration: { N: leaveDuration.toString() },
       leaveType: { S: body.leaveType },
-      halfDayStatus: { S: body.halfDayStatus || ""},
+      halfDayStatus: { S: body.halfDayStatus || "" },
       reasonForLeave: { S: body.reasonForLeave || "" },
       startDate: { S: body.startDate },
       status: { S: "pending" },
       userEmail: { S: body.userEmail },
-      stage:{S:stage},
+      stage: { S: stage },
       leaveApplyDate: { S: leaveApplyDate || "" }
     },
   });

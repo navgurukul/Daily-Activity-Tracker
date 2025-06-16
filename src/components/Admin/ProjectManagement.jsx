@@ -36,7 +36,8 @@ const ProjectManagement = () => {
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
-  const [feedbackMessage, setFeedbackMessage] = useState("");
+  // const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [errors, setErrors] = useState({});
 
   const [filters, setFilters] = useState({
     department: "",
@@ -97,6 +98,16 @@ const ProjectManagement = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleClearFilters = () => {
+    setFilters({
+      department: "",
+      projectName: "",
+      projectMasterEmail: "",
+      priorities: "",
+      projectStatus: "",
+    });
+  };
+
   useEffect(() => {
     fetch(
       "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees"
@@ -116,37 +127,37 @@ const ProjectManagement = () => {
   }, []);
 
   const handleAddProject = () => {
+    const newErrors = {};
     // Pre-validation
-    if (!data.projectName) {
-      setFeedbackMessage("Please fill in the project name.");
-      return;
+    if (!data.department) {
+      newErrors.department = "Please select a department*";
     }
-    if (data.department !== "Residential Program") {
+    if (!data.projectName) {
+    newErrors.projectName = "Please fill in the project name*";
+  }
+
+  if (data.department !== "Residential Program") {
     if (!data.channelName) {
-      setFeedbackMessage("Please fill in the channel name.");
-      return;
+      newErrors.channelName = "Please fill in the channel name*";
     }
     if (!data.channelId) {
-      setFeedbackMessage("Please fill in the channel ID.");
-      return;
+      newErrors.channelId = "Please fill in the channel ID*";
     }
     if (!data.projectMasterEmail) {
-      setFeedbackMessage("Please fill in the project master email.");
-      return;
+      newErrors.projectMasterEmail = "Please fill in the project master email*";
     }
     if (!data.projectBudget) {
-      setFeedbackMessage("Please fill in the project budget.");
-      return;
+      newErrors.projectBudget = "Please fill in the project budget*";
     }
   }
-    if (!data.priorities) {
-      setFeedbackMessage("Please select a priority.");
-      return;
-    }
-    if (!data.projectStatus) {
-      setFeedbackMessage("Please select a project status.");
-      return;
-    }
+
+  if (!data.priorities) {
+    newErrors.priorities = "Please select a priority*";
+  }
+
+  if (!data.projectStatus) {
+    newErrors.projectStatus = "Please select a project status*";
+  }
 
     // Check if project name already exists
     const isDuplicate = projects.some(
@@ -155,12 +166,16 @@ const ProjectManagement = () => {
     );
 
     if (isDuplicate) {
-      setFeedbackMessage("Project name already exists");
+      newErrors.projectName = "Project name already exists";
       return;
     }
 
-    // Clear feedback if all good
-    setFeedbackMessage("");
+    if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+
+  setErrors({});
     // Make the API call
     fetch(API_URL, {
       method: "POST",
@@ -194,6 +209,7 @@ const ProjectManagement = () => {
     setEditData(project);
     setIsEditMode(true);
     setEditingIndex(index);
+    setSelectedDept(project.department);
   };
 
   const handleUpdateProject = () => {
@@ -212,7 +228,7 @@ const ProjectManagement = () => {
         const updatedProjects = [...projects];
         updatedProjects[editingIndex] = updatedProject;
         setProjects(updatedProjects);
-        setFeedbackMessage(updatedProject.message);
+        // setFeedbackMessage(updatedProject.message);
         setEditData({
           department: selectedDept,
           projectName: "",
@@ -234,12 +250,12 @@ const ProjectManagement = () => {
       .catch((err) => console.error("Error updating project:", err));
   };
 
-  useEffect(() => {
-    if (feedbackMessage) {
-      const timer = setTimeout(() => setFeedbackMessage(""), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [feedbackMessage]);
+  // useEffect(() => {
+  //   if (feedbackMessage) {
+  //     const timer = setTimeout(() => setFeedbackMessage(""), 3000);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [feedbackMessage]);
 
   return (
     <div
@@ -251,6 +267,7 @@ const ProjectManagement = () => {
       <div className="form-container">
         <h2>Add New Project</h2>
         <div className="form-fields">
+          <div className="input-wrapper">
           <select
             className="input-field"
             value={selectedDept}
@@ -268,6 +285,9 @@ const ProjectManagement = () => {
               </option>
             ))}
           </select>
+          {errors.department && <div className="error-message">{errors.department}</div>}
+          </div>
+          <div className="input-wrapper">
           <input
             type="text"
             placeholder="Project Name"
@@ -275,8 +295,11 @@ const ProjectManagement = () => {
             value={data.projectName}
             onChange={(e) => setData({ ...data, projectName: e.target.value })}
           />
+          {errors.projectName && <div className="error-message">{errors.projectName}</div>}
+          </div>
           {selectedDept !== "Residential Program" && (
             <>
+            <div className="input-wrapper">
               <input
                 type="text"
                 placeholder="Slack Channel Name"
@@ -286,6 +309,9 @@ const ProjectManagement = () => {
                   setData({ ...data, channelName: e.target.value })
                 }
               />
+              {errors.channelName && <div className="error-message">{errors.channelName}</div>}
+              </div>
+              <div className="input-wrapper">
               <input
                 type="text"
                 placeholder="Slack Channel ID"
@@ -295,8 +321,11 @@ const ProjectManagement = () => {
                   setData({ ...data, channelId: e.target.value })
                 }
               />
+              {errors.channelId && <div className="error-message">{errors.channelId}</div>}
+              </div>
             </>
           )}
+          <div className="input-wrapper">
           <input
             type="text"
             placeholder="PM Email"
@@ -306,6 +335,9 @@ const ProjectManagement = () => {
               setData({ ...data, projectMasterEmail: e.target.value })
             }
           />
+          {errors.projectMasterEmail && <div className="error-message">{errors.projectMasterEmail}</div>}
+          </div>
+          <div className="input-wrapper">
           <input
             type="text"
             placeholder="Client Name"
@@ -313,6 +345,8 @@ const ProjectManagement = () => {
             value={data.clientName}
             onChange={(e) => setData({ ...data, clientName: e.target.value })}
           />
+          </div>
+          <div className="input-wrapper">
           <select
             className="input-field"
             value={data.priorities}
@@ -326,8 +360,11 @@ const ProjectManagement = () => {
             <option value="P2">P2-Moderate</option>
             <option value="P3">P3-Low</option>
           </select>
+          {errors.priorities && <div className="error-message">{errors.priorities}</div>}
+          </div>
+          <div className="input-wrapper">
           <input
-            type="text"
+            type="number"
             placeholder="Project Budget"
             className="input-field"
             value={data.projectBudget}
@@ -335,6 +372,9 @@ const ProjectManagement = () => {
               setData({ ...data, projectBudget: e.target.value })
             }
           />
+          {errors.projectBudget && <div className="error-message">{errors.projectBudget}</div>}
+          </div>
+        <div className="input-wrapper">
           <select
             className="input-field"
             value={data.projectStatus}
@@ -348,6 +388,8 @@ const ProjectManagement = () => {
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
           </select>
+          {errors.projectStatus && <div className="error-message">{errors.projectStatus}</div>}
+          </div>
         </div>
         <button className="add-btn" onClick={handleAddProject}>
           Add Project
@@ -406,6 +448,13 @@ const ProjectManagement = () => {
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
           </select>
+          <button
+            className="clear-filters-btn"
+            variant="contained"
+            onClick={handleClearFilters}
+          >
+            Clear Filters
+          </button>
         </div>
         <div className="table-wrapper">
           {filteredProjects.length !== 0 ? (
@@ -474,6 +523,8 @@ const ProjectManagement = () => {
                 }
                 disabled
               />
+              {selectedDept !== "Residential Program" && (
+                <>
               <input
                 type="text"
                 placeholder="Slack Channel Name"
@@ -492,6 +543,8 @@ const ProjectManagement = () => {
                   setEditData({ ...editData, channelId: e.target.value })
                 }
               />
+                </>
+              )}
               <input
                 type="text"
                 placeholder="PM Email"
@@ -529,7 +582,7 @@ const ProjectManagement = () => {
                 <option value="P3">P3-Low</option>
               </select>
               <input
-                type="text"
+                type="number"
                 placeholder="Project Budget"
                 className="input-field"
                 value={editData.projectBudget}
@@ -556,9 +609,6 @@ const ProjectManagement = () => {
             </button>
           </div>
         </div>
-      )}
-      {feedbackMessage && (
-        <div className="toast-message">{feedbackMessage}</div>
       )}
     </div>
   );

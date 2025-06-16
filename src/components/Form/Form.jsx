@@ -913,7 +913,7 @@ const Form = () => {
             Please save your contribution before submitting.
           </p>
         )}
-        <button type="submit" className="full-width-button">
+        <button type="submit" className="full-width-button" disabled={formData.contributions.length === 0}>
           Submit
         </button>
       </form>

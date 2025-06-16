@@ -165,6 +165,12 @@ td {
   box-sizing: border-box;
 }
 
+.full-width-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  color: #666;
+}
+
 @media (max-width: 1024px) {
   .full-width-button{
     max-width: 100%;

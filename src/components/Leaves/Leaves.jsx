@@ -414,7 +414,7 @@ const Leaves = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="3" style={{ textAlign: "center" }}>
+                      <td colSpan="5" style={{ textAlign: "center" }}>
                         No data available for this email
                       </td>
                     </tr>

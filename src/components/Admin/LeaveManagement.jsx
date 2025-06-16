@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import "./LeaveManagement.css";
 import { LoginContext } from "../context/LoginContext";
 import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, } from "@mui/material";
+import axios from "axios";
 
 const LeaveManagement = () => {
   const dataContext = useContext(LoginContext);
@@ -26,7 +27,7 @@ const LeaveManagement = () => {
   const [filterEmail, setFilterEmail] = useState("");
   const [filterMonth, setFilterMonth] = useState("");
 
-  const fetchLeavesData = async (status,email='', month='') => {
+  const fetchLeavesData = async (status, email = '', month = '') => {
     try {
       const response = await fetch(
         `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?status=${status}&employeeEmail=${email}&month=${month}&limit=100&page=1`
@@ -35,8 +36,7 @@ const LeaveManagement = () => {
 
       const result = [];
       const emails = [];
-      // console.log("result: ", result);
-      // console.log("emails: ", emails);
+
 
 
 
@@ -55,7 +55,6 @@ const LeaveManagement = () => {
         setApprovedLeaves(result);
       }
 
-      setAllEmails(emails);
     } catch (err) {
       console.error(`Failed to fetch ${status} leaves`, err);
     }
@@ -71,21 +70,21 @@ const LeaveManagement = () => {
     setFilterMonth("");
   }, [selectedTab]);
 
- useEffect(() => {
-  if (selectedTab === "pending") {
-    if (filterEmail || filterMonth) {
-      fetchLeavesData("pending", filterEmail, filterMonth);
-    } else {
-      fetchLeavesData("pending"); // No filters applied
+  useEffect(() => {
+    if (selectedTab === "pending") {
+      if (filterEmail || filterMonth) {
+        fetchLeavesData("pending", filterEmail, filterMonth);
+      } else {
+        fetchLeavesData("pending"); // No filters applied
+      }
+    } else if (selectedTab === "approved") {
+      if (filterEmail || filterMonth) {
+        fetchLeavesData("approved", filterEmail, filterMonth);
+      } else {
+        fetchLeavesData("approved"); // No filters applied
+      }
     }
-  } else if (selectedTab === "approved") {
-    if (filterEmail || filterMonth) {
-      fetchLeavesData("approved", filterEmail, filterMonth);
-    } else {
-      fetchLeavesData("approved"); // No filters applied
-    }
-  }
-}, [filterEmail, filterMonth, selectedTab]);
+  }, [filterEmail, filterMonth, selectedTab]);
 
 
   const handleApprove = async (leaveId) => {
@@ -160,6 +159,29 @@ const LeaveManagement = () => {
 
     setLoadingBalance(false);
   };
+
+  useEffect(() => {
+    const fetchEmails = async () => {
+      try {
+        const response = await axios.get(
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+        );
+        const teamIDs = Array.from(
+          new Set(
+            response.data?.data
+              ?.map((entry) => entry["Team ID"])
+              ?.filter((id) => !!id)
+          )
+        );
+        setAllEmails(teamIDs);
+      } catch (error) {
+        console.error("Error fetching emails:", error);
+        setSnackbarMessage("Failed to fetch emails");
+      }
+    };
+    fetchEmails();
+  }, []);
+
 
   const fetchLeaveHistory = async () => {
     try {
@@ -267,24 +289,42 @@ const LeaveManagement = () => {
 
 
       {selectedTab === "pending" && (
-        <div className="pending-data">
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px", alignItems: "center", marginTop: '5px' }}>
+        <div>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
             <Autocomplete
               options={allEmails}
               value={filterEmail}
               onChange={(e, newValue) => setFilterEmail(newValue || "")}
               renderInput={(params) => <TextField {...params} label="Filter by Email" size="small" />}
-              sx={{ minWidth: 250 }}
+              sx={{ minWidth: 260 }}
               freeSolo
+              slotProps={{
+                paper: {
+                  sx: {
+                    '& ul': {
+                      maxHeight: 250,
+                      overflowY: 'auto',
+                    },
+                  },
+                },
+              }}
             />
 
-            <FormControl size="small" sx={{ minWidth: 150 }}>
+            <FormControl size="small" sx={{ minWidth: { xs: 260, sm: 160 } }}>
               <InputLabel id="month-select-label">Month</InputLabel>
               <Select
                 labelId="month-select-label"
                 value={filterMonth}
                 label="Month"
                 onChange={(e) => setFilterMonth(e.target.value)}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 200,
+                      marginLeft: { xs: -1.5, sm: 0 },
+                    },
+                  },
+                }}
               >
                 <MenuItem value="">All</MenuItem>
                 <MenuItem value="01">January</MenuItem>
@@ -302,16 +342,117 @@ const LeaveManagement = () => {
               </Select>
             </FormControl>
           </div>
-          {isApproving && (
-            <div className="loader-overlay">
-              <CircularProgress size={24} />
-              <span style={{ marginLeft: "10px", fontWeight: "bold" }}>Approving leave...</span>
-            </div>
-          )}
-          {pendingLeaves.length === 0 ? (
-            <p>No pending leaves found.</p>
-          ) : (
-            <div style={{ sx: {overflowX: "auto"}, sm: { overflowX: "hidden" } }}>
+          <div className="pending-data">
+
+            {isApproving && (
+              <div className="loader-overlay">
+                <CircularProgress size={24} />
+                <span style={{ marginLeft: "10px", fontWeight: "bold" }}>Approving leave...</span>
+              </div>
+            )}
+            {pendingLeaves.length === 0 ? (
+              <p>No pending leaves found.</p>
+            ) : (
+              <div style={{ sx: { overflowX: "auto" }, sm: { overflowX: "hidden" } }}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Email</th>
+                      <th>Leave Type</th>
+                      <th>From</th>
+                      <th>To</th>
+                      <th>Duration</th>
+                      <th>Type</th>
+                      <th>Reason</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pendingLeaves.map((leave, index) => (
+                      <tr key={index}>
+                        <td>{leave.email}</td>
+                        <td>{leave.leaveType}</td>
+                        <td>{leave.startDate}</td>
+                        <td>{leave.endDate}</td>
+                        <td>{leave.leaveDuration}</td>
+                        <td>{leave.durationType}</td>
+                        <td>{leave.reasonForLeave}</td>
+                        <td>
+                          <button
+                            className="approve-button"
+                            onClick={() => handleApprove(leave.Id)}
+                          >
+                            Approve
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {selectedTab === "approved" && (
+        <div>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px", alignItems: "center", marginTop: '5px' }}>
+            <Autocomplete
+              options={allEmails}
+              value={filterEmail}
+              onChange={(e, newValue) => setFilterEmail(newValue || "")}
+              renderInput={(params) => <TextField {...params} label="Filter by Email" size="small" />}
+              sx={{ minWidth: 260 }}
+              freeSolo
+              slotProps={{
+                paper: {
+                  sx: {
+                    '& ul': {
+                      maxHeight: 250,
+                      overflowY: 'auto',
+                    },
+                  },
+                },
+              }}
+            />
+
+            <FormControl size="small" sx={{ minWidth: { xs: 260, sm: 160 } }}>
+              <InputLabel id="month-select-label">Month</InputLabel>
+              <Select
+                labelId="month-select-label"
+                value={filterMonth}
+                label="Month"
+                onChange={(e) => setFilterMonth(e.target.value)}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 200,
+                      marginLeft: { xs: -1.5, sm: 0 },
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="01">January</MenuItem>
+                <MenuItem value="02">February</MenuItem>
+                <MenuItem value="03">March</MenuItem>
+                <MenuItem value="04">April</MenuItem>
+                <MenuItem value="05">May</MenuItem>
+                <MenuItem value="06">June</MenuItem>
+                <MenuItem value="07">July</MenuItem>
+                <MenuItem value="08">August</MenuItem>
+                <MenuItem value="09">September</MenuItem>
+                <MenuItem value="10">October</MenuItem>
+                <MenuItem value="11">November</MenuItem>
+                <MenuItem value="12">December</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+          <div className="approved-data">
+            {approvedLeaves.length === 0 ? (
+              <p>No approved leaves found.</p>
+            ) : (
               <table>
                 <thead>
                   <tr>
@@ -322,11 +463,10 @@ const LeaveManagement = () => {
                     <th>Duration</th>
                     <th>Type</th>
                     <th>Reason</th>
-                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {pendingLeaves.map((leave, index) => (
+                  {approvedLeaves.map((leave, index) => (
                     <tr key={index}>
                       <td>{leave.email}</td>
                       <td>{leave.leaveType}</td>
@@ -335,89 +475,12 @@ const LeaveManagement = () => {
                       <td>{leave.leaveDuration}</td>
                       <td>{leave.durationType}</td>
                       <td>{leave.reasonForLeave}</td>
-                      <td>
-                        <button
-                          className="approve-button"
-                          onClick={() => handleApprove(leave.Id)}
-                        >
-                          Approve
-                        </button>
-                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </div>
-          )}
-        </div>
-      )}
-
-      {selectedTab === "approved" && (
-        <div className="approved-data">
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px", alignItems: "center", marginTop: '5px' }}>
-            <Autocomplete
-              options={allEmails}
-              value={filterEmail}
-              onChange={(e, newValue) => setFilterEmail(newValue || "")}
-              renderInput={(params) => <TextField {...params} label="Filter by Email" size="small" />}
-              sx={{ minWidth: 250 }}
-              freeSolo
-            />
-
-            <FormControl size="small" sx={{ minWidth: 150 }}>
-              <InputLabel id="month-select-label">Month</InputLabel>
-              <Select
-                labelId="month-select-label"
-                value={filterMonth}
-                label="Month"
-                onChange={(e) => setFilterMonth(e.target.value)}
-              >
-                <MenuItem value="">All</MenuItem>
-                <MenuItem value="01">January</MenuItem>
-                <MenuItem value="02">February</MenuItem>
-                <MenuItem value="03">March</MenuItem>
-                <MenuItem value="04">April</MenuItem>
-                <MenuItem value="05">May</MenuItem>
-                <MenuItem value="06">June</MenuItem>
-                <MenuItem value="07">July</MenuItem>
-                <MenuItem value="08">August</MenuItem>
-                <MenuItem value="09">September</MenuItem>
-                <MenuItem value="10">October</MenuItem>
-                <MenuItem value="11">November</MenuItem>
-                <MenuItem value="12">December</MenuItem>
-              </Select>
-            </FormControl>
+            )}
           </div>
-          {approvedLeaves.length === 0 ? (
-            <p>No approved leaves found.</p>
-          ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Email</th>
-                  <th>Leave Type</th>
-                  <th>From</th>
-                  <th>To</th>
-                  <th>Duration</th>
-                  <th>Type</th>
-                  <th>Reason</th>
-                </tr>
-              </thead>
-              <tbody>
-                {approvedLeaves.map((leave, index) => (
-                  <tr key={index}>
-                    <td>{leave.email}</td>
-                    <td>{leave.leaveType}</td>
-                    <td>{leave.startDate}</td>
-                    <td>{leave.endDate}</td>
-                    <td>{leave.leaveDuration}</td>
-                    <td>{leave.durationType}</td>
-                    <td>{leave.reasonForLeave}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
         </div>
       )}
 
@@ -437,6 +500,7 @@ const LeaveManagement = () => {
               value={searchEmail}
               onChange={(e) => setSearchEmail(e.target.value)}
               style={{ padding: "8px", width: "300px", fontSize: "14px" }}
+              
             >
               <option value="">-- Select Email --</option>
               {allEmails.map((email, index) => (
@@ -515,6 +579,16 @@ const LeaveManagement = () => {
               )}
               freeSolo
               sx={{ minWidth: 300 }}
+              slotProps={{
+                paper: {
+                  sx: {
+                    '& ul': {
+                      maxHeight: 250,
+                      overflowY: 'auto',
+                    },
+                  },
+                },
+              }}
             />
           </div>
           <div className="history-data">

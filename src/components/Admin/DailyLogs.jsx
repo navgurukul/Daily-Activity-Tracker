@@ -381,7 +381,7 @@ function DailyLogs() {
                     <TableCell>{log.totalHoursSpent}</TableCell>
                     <TableCell>{log.description}</TableCell>
                     <TableCell>
-                      <Chip label={log.logStatus} color={log.logStatus === "approved" ? "success" : "warning"} size="small" />
+                      <Chip label={log.logStatus} color={log.logStatus === "approved" ? "success" : log.logStatus === "rejected" ? "error" : "warning"} size="small" />
                     </TableCell>
                     <TableCell sx={{ display: "flex", gap: 1, flexDirection:"column", alignItems: "center", justifyContent: "center" }}>
                       <IconButton size="small" onClick={() => handleEditClick(log)} disabled={log.logStatus === "approved"} title="Edit Log" sx={{ hight:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#1976d21a"}}}><Edit /></IconButton>

@@ -801,6 +801,7 @@ const Form = () => {
                           style={{
                             display: "flex",
                             justifyContent: "center",
+                            maxWidth: "100%",
                           }}
                         >
                           <div className="button-container">

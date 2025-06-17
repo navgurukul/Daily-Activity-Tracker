@@ -182,68 +182,43 @@ const LeaveManagement = () => {
     fetchEmails();
   }, []);
 
-
-  const fetchLeaveHistory = async () => {
+const fetchLeaveHistory = async (email, month) => {
     try {
       const response = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?limit=100&page=1"
+        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?employeeEmail=${email}&month=${month}&limit=100&page=1`
       );
       const data = await response.json();
-
       const history = [];
-
-      Object.keys(data).forEach((email) => {
-        const userLeaves = data[email];
-
+      Object.keys(data).forEach((emailKey) => {
+        const userLeaves = data[emailKey];
         const allRecords = [
           ...(userLeaves.pending || []).map((r) => ({
-            email,
+            email: emailKey,
             status: "Pending",
-            ...r,
+            ...r
           })),
           ...(userLeaves.approved || []).map((r) => ({
-            email,
+            email: emailKey,
             status: "Approved",
-            ...r,
-          })),
+            ...r })),
           ...(userLeaves.rejected || []).map((r) => ({
-            email,
+            email: emailKey,
             status: "Rejected",
-            ...r,
-          })),
+            ...r })),
         ];
-
         history.push(...allRecords);
       });
-
       setLeaveHistory(history);
-      setFilteredLeaveHistory(history); // Initially, no filtering
+      setFilteredLeaveHistory(history);
     } catch (error) {
       console.error("Error fetching leave history:", error);
     }
   };
-
   useEffect(() => {
     if (selectedTab === "history") {
-      fetchLeaveHistory();
+      fetchLeaveHistory(searchEmail, filterMonth);
     }
-  }, [selectedTab]);
-
-  // Filter leave history based on selected email
-  const filterLeaveHistoryByEmail = (email) => {
-    if (email) {
-      const filteredHistory = leaveHistory.filter(
-        (record) => record.email === email
-      );
-      setFilteredLeaveHistory(filteredHistory);
-    } else {
-      setFilteredLeaveHistory(leaveHistory); // Reset to all records when no email is selected
-    }
-  };
-
-  useEffect(() => {
-    filterLeaveHistoryByEmail(searchEmail);
-  }, [searchEmail, leaveHistory]);
+  }, [selectedTab, searchEmail, filterMonth]);     
 
   return (
     <div className="leave-container">
@@ -575,6 +550,7 @@ const LeaveManagement = () => {
               display: "flex",
               gap: "10px",
               alignItems: "center",
+              flexWrap: "wrap",
             }}
           >
             <Autocomplete
@@ -592,7 +568,7 @@ const LeaveManagement = () => {
                 />
               )}
               freeSolo
-              sx={{ minWidth: 300 }}
+              sx={{ minWidth: 260 }}
               slotProps={{
                 paper: {
                   sx: {
@@ -604,6 +580,37 @@ const LeaveManagement = () => {
                 },
               }}
             />
+            <FormControl size="small" sx={{ minWidth: { xs: 260, sm: 160 } }}>
+              <InputLabel id="month-select-label">Month</InputLabel>
+              <Select
+                labelId="month-select-label"
+                value={filterMonth}
+                label="Month"
+                onChange={(e) => setFilterMonth(e.target.value)}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 200,
+                      marginLeft: { xs: -1.5, sm: 0 },
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="01">January</MenuItem>
+                <MenuItem value="02">February</MenuItem>
+                <MenuItem value="03">March</MenuItem>
+                <MenuItem value="04">April</MenuItem>
+                <MenuItem value="05">May</MenuItem>
+                <MenuItem value="06">June</MenuItem>
+                <MenuItem value="07">July</MenuItem>
+                <MenuItem value="08">August</MenuItem>
+                <MenuItem value="09">September</MenuItem>
+                <MenuItem value="10">October</MenuItem>
+                <MenuItem value="11">November</MenuItem>
+                <MenuItem value="12">December</MenuItem>
+              </Select>
+            </FormControl>
           </div>
           <div className="history-data">
             {filteredLeaveHistory.length === 0 ? (

@@ -496,19 +496,33 @@ const LeaveManagement = () => {
               alignItems: "center",
             }}
           >
-            <select
+            <Autocomplete
+              options={allEmails}
               value={searchEmail}
-              onChange={(e) => setSearchEmail(e.target.value)}
-              style={{ padding: "8px", width: "300px", fontSize: "14px" }}
-              
-            >
-              <option value="">-- Select Email --</option>
-              {allEmails.map((email, index) => (
-                <option key={index} value={email}>
-                  {email}
-                </option>
-              ))}
-            </select>
+              onChange={(event, newValue) => {
+                setSearchEmail(newValue || "");
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Filter by Email"
+                  size="small"
+                  sx={{ fontSize: "14px" }}
+                />
+              )}
+              freeSolo
+              sx={{ minWidth: 300 }}
+              slotProps={{
+                paper: {
+                  sx: {
+                    '& ul': {
+                      maxHeight: 250,
+                      overflowY: 'auto',
+                    },
+                  },
+                },
+              }}
+            />
             <button
               className="filter-btn"
               onClick={fetchLeaveBalance}

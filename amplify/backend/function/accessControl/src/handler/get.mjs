@@ -107,7 +107,7 @@ import { ddb } from '../db/dynamoClient.mjs';
 import { ScanCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { withCORS } from '../utils/cors.mjs';
 
-const TABLE_NAME = 'hrmsAccessControler';
+// const TABLE_NAME = 'hrmsAccessControler';
 const GSI_NAME = 'email-role-index';
 
 export const handler = async (event) => {

@@ -321,8 +321,10 @@ const fetchLeaveHistory = async (email, month) => {
 
             {isApproving && (
               <div className="loader-overlay">
-                <CircularProgress size={24} />
-                <span style={{ marginLeft: "10px", fontWeight: "bold" }}>Approving leave...</span>
+                <div className="loader-box">
+                  <span style={{ marginLeft: "10px", fontWeight: "bold" }}>Approving leave...</span>
+                  <CircularProgress size={24} />
+                </div>
               </div>
             )}
             {pendingLeaves.length === 0 ? (

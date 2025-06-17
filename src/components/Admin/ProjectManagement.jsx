@@ -470,7 +470,7 @@ const ProjectManagement = () => {
                   <th>Priorities</th>
                   <th>Project Budget</th>
                   <th>Status</th>
-                  <th>Edit</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>

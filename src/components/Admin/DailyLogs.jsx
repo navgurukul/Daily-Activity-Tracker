@@ -384,15 +384,15 @@ function DailyLogs() {
                       <Chip label={log.logStatus} color={log.logStatus === "approved" ? "success" : log.logStatus === "rejected" ? "error" : "warning"} size="small" />
                     </TableCell>
                     <TableCell sx={{ display: "flex", gap: 1, flexDirection:"column", alignItems: "center", justifyContent: "center" }}>
-                      <IconButton size="small" onClick={() => handleEditClick(log)} disabled={log.logStatus === "approved"} title="Edit Log" sx={{ hight:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#1976d21a"}}}><Edit /></IconButton>
-                      <IconButton size="small" onClick={() => handleApproveClick(log)} disabled={log.logStatus === "approved"} title="Approve Log" sx={{ hight:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#2e7d321a"}}}><Check /></IconButton>
+                      <IconButton size="small" onClick={() => handleEditClick(log)} disabled={log.logStatus === "approved"} title="Edit Log" sx={{ height:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#1976d21a"}}}><Edit /></IconButton>
+                      <IconButton size="small" onClick={() => handleApproveClick(log)} disabled={log.logStatus === "approved"} title="Approve Log" sx={{ height:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#2e7d321a"}}}><Check /></IconButton>
                       <IconButton
                         size="small"
                         title="Reject Log"
                         color="error"
                         onClick={() => handleRejectClick(log)}
                         disabled={log.logStatus === "approved" || log.logStatus === "rejected"}
-                        sx={{ hight:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#d32f2f1a"}}}
+                        sx={{ height:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#d32f2f1a"}}}
                       >
                         <Close />
                       </IconButton>

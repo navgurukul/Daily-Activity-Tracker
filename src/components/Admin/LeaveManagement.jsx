@@ -619,7 +619,7 @@ const fetchLeaveHistory = async (email, month) => {
               <table>
                 <thead>
                   <tr>
-                    <th>ID</th>
+                    {/* <th>ID</th> */}
                     <th>Email</th>
                     <th>Leave Type</th>
                     <th>From</th>
@@ -633,7 +633,7 @@ const fetchLeaveHistory = async (email, month) => {
                 <tbody>
                   {filteredLeaveHistory.map((leave, index) => (
                     <tr key={index}>
-                      <td>{leave.Id}</td>
+                      {/* <td>{leave.Id}</td> */}
                       <td>{leave.email}</td>
                       <td>{leave.leaveType}</td>
                       <td>{leave.startDate}</td>

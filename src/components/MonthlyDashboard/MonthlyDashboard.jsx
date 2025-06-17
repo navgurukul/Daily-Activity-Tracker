@@ -126,7 +126,7 @@ const MonthlyDashboard = () => {
         className="dashboard-header-container"
       >
         <div className="dashboard-header">
-          <Typography variant="h6" sx={{ color: "text.secondary", marginBottom: 2 }}>
+          <Typography variant="h4" sx={{ marginBottom: 2 }}>
             Monthly Activity Dashboard
           </Typography>
           <LocalizationProvider dateAdapter={AdapterDateFns}>

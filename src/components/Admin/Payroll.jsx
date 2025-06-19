@@ -143,6 +143,11 @@ const Payroll = () => {
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
+                <Typography variant="h6" sx={{ mb: 2 }}>
+                  Loading Payroll Data...
+                </Typography>
+                <br />
+                <br />
                 <CircularProgress />
               </Box>
     );

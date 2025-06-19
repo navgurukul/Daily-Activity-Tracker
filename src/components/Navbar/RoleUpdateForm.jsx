@@ -222,7 +222,7 @@ const RoleUpdateForm = () => {
   };
 
   return (
-    <div style={{ overflowY: "scroll"}}>
+    <div style={{ overflowY: "scroll", height: "100vh" }}>
       <div className="main">
         <div className="role-update-container">
           <div className="tabs">

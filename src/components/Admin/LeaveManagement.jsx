@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import "./LeaveManagement.css";
 import { LoginContext } from "../context/LoginContext";
-import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, } from "@mui/material";
+import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, Chip } from "@mui/material";
 import axios from "axios";
 
 const LeaveManagement = () => {
@@ -621,7 +621,6 @@ const fetchLeaveHistory = async (email, month) => {
               <table>
                 <thead>
                   <tr>
-                    {/* <th>ID</th> */}
                     <th>Email</th>
                     <th>Leave Type</th>
                     <th>From</th>
@@ -635,7 +634,6 @@ const fetchLeaveHistory = async (email, month) => {
                 <tbody>
                   {filteredLeaveHistory.map((leave, index) => (
                     <tr key={index}>
-                      {/* <td>{leave.Id}</td> */}
                       <td>{leave.email}</td>
                       <td>{leave.leaveType}</td>
                       <td>{leave.startDate}</td>
@@ -643,7 +641,18 @@ const fetchLeaveHistory = async (email, month) => {
                       <td>{leave.leaveDuration}</td>
                       <td>{leave.durationType}</td>
                       <td>{leave.reasonForLeave}</td>
-                      <td>{leave.status}</td>
+                      <td>
+                        <Chip
+                          label={leave.status}
+                          color={
+                            leave.status === "approved"
+                              ? "success"
+                              : leave.status === "pending"
+                                ? "warning"
+                                : "error"
+                          }
+                        />
+                      </td>
                     </tr>
                   ))}
                 </tbody>

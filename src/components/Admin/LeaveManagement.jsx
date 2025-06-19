@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import "./LeaveManagement.css";
 import { LoginContext } from "../context/LoginContext";
-import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, Chip } from "@mui/material";
+import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, Box, Button, Chip } from "@mui/material";
 import axios from "axios";
 
 const LeaveManagement = () => {
@@ -27,7 +27,13 @@ const LeaveManagement = () => {
   const [filterEmail, setFilterEmail] = useState("");
   const [filterMonth, setFilterMonth] = useState("");
 
+
+
+  const [inputError, setInputError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const fetchLeavesData = async (status, email = '', month = '') => {
+    setLoading(true)
     try {
       const response = await fetch(
         `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?status=${status}&employeeEmail=${email}&month=${month}&limit=100&page=1`
@@ -57,6 +63,8 @@ const LeaveManagement = () => {
 
     } catch (err) {
       console.error(`Failed to fetch ${status} leaves`, err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -135,7 +143,11 @@ const LeaveManagement = () => {
   };
 
   const fetchLeaveBalance = async () => {
-    if (!searchEmail) return;
+    if (!searchEmail) {
+      setInputError("Please select an email*")
+      return;
+    }
+    setInputError("");
 
     setLoadingBalance(true);
     setBalanceError("");
@@ -182,7 +194,8 @@ const LeaveManagement = () => {
     fetchEmails();
   }, []);
 
-const fetchLeaveHistory = async (email, month) => {
+  const fetchLeaveHistory = async (email, month) => {
+    setLoading(true)
     try {
       const response = await fetch(
         `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?employeeEmail=${email}&month=${month}&limit=100&page=1`
@@ -200,11 +213,13 @@ const fetchLeaveHistory = async (email, month) => {
           ...(userLeaves.approved || []).map((r) => ({
             email: emailKey,
             status: "Approved",
-            ...r })),
+            ...r
+          })),
           ...(userLeaves.rejected || []).map((r) => ({
             email: emailKey,
             status: "Rejected",
-            ...r })),
+            ...r
+          })),
         ];
         history.push(...allRecords);
       });
@@ -212,13 +227,21 @@ const fetchLeaveHistory = async (email, month) => {
       setFilteredLeaveHistory(history);
     } catch (error) {
       console.error("Error fetching leave history:", error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
     if (selectedTab === "history") {
       fetchLeaveHistory(searchEmail, filterMonth);
     }
-  }, [selectedTab, searchEmail, filterMonth]);     
+  }, [selectedTab, searchEmail, filterMonth]);
+
+  const clearFilters = () => {
+    setFilterEmail("");
+    setSearchEmail("")
+    setFilterMonth("");
+  };
 
   return (
     <div className="leave-container">
@@ -316,36 +339,56 @@ const fetchLeaveHistory = async (email, month) => {
                 <MenuItem value="12">December</MenuItem>
               </Select>
             </FormControl>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={clearFilters}
+              sx={{ width: 150 }}
+            >
+              Clear Filters
+            </Button>
           </div>
           <div className="pending-data">
 
             {isApproving && (
               <div className="loader-overlay">
                 <div className="loader-box">
-                  <span style={{ marginLeft: "10px", fontWeight: "bold" }}>Approving leave...</span>
+                  <span style={{ margin: "0px", fontWeight: "bold" }}>Please wait for a moment, leave is approving...</span>
                   <CircularProgress size={24} />
                 </div>
               </div>
             )}
-            {pendingLeaves.length === 0 ? (
-              <p>No pending leaves found.</p>
-            ) : (
-              <div style={{ sx: { overflowX: "auto" }, sm: { overflowX: "hidden" } }}>
-                <table>
-                  <thead>
+
+            {loading && (
+              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
+                <p>Loading...</p>
+                <CircularProgress />
+              </Box>
+            )}
+
+            <div style={{ sx: { overflowX: "auto" }, sm: { overflowX: "hidden" } }}>
+              <table style={{ minWidth: 1180 }}>
+                <thead>
+                  <tr>
+                    <th>Email</th>
+                    <th>Leave Type</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Duration</th>
+                    <th>Type</th>
+                    <th>Reason</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {!loading && pendingLeaves.length === 0 ? (
                     <tr>
-                      <th>Email</th>
-                      <th>Leave Type</th>
-                      <th>From</th>
-                      <th>To</th>
-                      <th>Duration</th>
-                      <th>Type</th>
-                      <th>Reason</th>
-                      <th>Action</th>
+                      <td colSpan="8">
+                        No pending leaves found.
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {pendingLeaves.map((leave, index) => (
+                  ) : (
+                    pendingLeaves.map((leave, index) => (
                       <tr key={index}>
                         <td>{leave.email}</td>
                         <td>{leave.leaveType}</td>
@@ -363,11 +406,12 @@ const fetchLeaveHistory = async (email, month) => {
                           </button>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+
           </div>
         </div>
       )}
@@ -425,25 +469,44 @@ const fetchLeaveHistory = async (email, month) => {
                 <MenuItem value="12">December</MenuItem>
               </Select>
             </FormControl>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={clearFilters}
+              sx={{ width: 150 }}
+            >
+              Clear Filters
+            </Button>
           </div>
+          {loading && (
+            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
+              <p>Loading...</p>
+              <CircularProgress />
+            </Box>
+          )}
           <div className="approved-data">
-            {approvedLeaves.length === 0 ? (
-              <p>No approved leaves found.</p>
-            ) : (
-              <table>
-                <thead>
+            <table style={{ minWidth: 1180 }}>
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Leave Type</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Duration</th>
+                  <th>Type</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                {!loading && approvedLeaves.length === 0 ? (
                   <tr>
-                    <th>Email</th>
-                    <th>Leave Type</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Duration</th>
-                    <th>Type</th>
-                    <th>Reason</th>
+                    <td colSpan="7">
+                      <p>No approved leaves found.</p>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {approvedLeaves.map((leave, index) => (
+
+                ) : (
+                  approvedLeaves.map((leave, index) => (
                     <tr key={index}>
                       <td>{leave.email}</td>
                       <td>{leave.leaveType}</td>
@@ -453,10 +516,10 @@ const fetchLeaveHistory = async (email, month) => {
                       <td>{leave.durationType}</td>
                       <td>{leave.reasonForLeave}</td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
@@ -473,63 +536,81 @@ const fetchLeaveHistory = async (email, month) => {
               alignItems: "center",
             }}
           >
-            <Autocomplete
-              options={allEmails}
-              value={searchEmail}
-              onChange={(event, newValue) => {
-                setSearchEmail(newValue || "");
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Filter by Email"
-                  size="small"
-                  sx={{ fontSize: "14px" }}
-                />
-              )}
-              freeSolo
-              sx={{ minWidth: 300 }}
-              slotProps={{
-                paper: {
-                  sx: {
-                    '& ul': {
-                      maxHeight: 250,
-                      overflowY: 'auto',
+            <Box sx={{ display: { xs: 'block', sm: 'flex' }, alignItems: 'flex-start', gap: 2 }}>
+              <Autocomplete
+                options={allEmails}
+                value={searchEmail}
+                onChange={(event, newValue) => {
+                  setSearchEmail(newValue || "");
+                  if (!newValue) {
+                    setLeaveBalance([]);
+                    setInputError("")
+                  } else {
+                    setInputError("");
+                  }
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Filter by Email"
+                    size="small"
+                    sx={{ fontSize: "14px" }}
+                    error={Boolean(inputError)}
+                    helperText={inputError}
+                    FormHelperTextProps={{
+                      sx: {
+                        fontSize:'14px',
+                        fontWeight:'bold'
+                      },
+                    }}
+                  />
+
+                )}
+                freeSolo
+                sx={{ minWidth: 300 }}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      '& ul': {
+                        maxHeight: 250,
+                        overflowY: 'auto',
+                      },
                     },
                   },
-                },
-              }}
-            />
-            <button
-              className="filter-btn"
-              onClick={fetchLeaveBalance}
-              disabled={loadingBalance || !searchEmail}
-            >
-              View Balance
-            </button>
+                }}
+              />
+
+
+              <button
+                className="filter-btn"
+                onClick={fetchLeaveBalance}
+                disabled={loadingBalance}
+              >
+                View Balance
+              </button>
+            </Box>
           </div>
           {loadingBalance && (
-            <div className="loading-indicator">
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
               <CircularProgress size={24} />
-              <span style={{ marginLeft: "10px" }}>Loading balance...</span>
+              <p>Loading balance...</p>
             </div>
           )}
           <div className="balance-data">
             {balanceError && <p style={{ color: "red" }}>{balanceError}</p>}
-
-            {leaveBalance.length > 0 && (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Leave Type</th>
-                    <th>Leaves Used</th>
-                    <th>Pending Leaves</th>
-                    <th>Total Allotted</th>
-                    <th>Balance</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {leaveBalance.map((record, index) => (
+            <table >
+              <thead>
+                <tr>
+                  <th>Leave Type</th>
+                  <th>Leaves Used</th>
+                  <th>Pending Leaves</th>
+                  <th>Total Allotted</th>
+                  <th>Balance</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaveBalance.length > 0 ? (
+                  leaveBalance.map((record, index) => (
                     <tr key={index}>
                       <td>{record.leaveType}</td>
                       <td>{record.usedLeaves}</td>
@@ -537,10 +618,16 @@ const fetchLeaveHistory = async (email, month) => {
                       <td>{record.totalLeavesAllotted}</td>
                       <td>{record.leaveLeft}</td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan='5'>
+                      <p>No records available</p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
@@ -613,26 +700,47 @@ const fetchLeaveHistory = async (email, month) => {
                 <MenuItem value="12">December</MenuItem>
               </Select>
             </FormControl>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={clearFilters}
+              sx={{ width: 150 }}
+            >
+              Clear Filters
+            </Button>
           </div>
+
+          {loading && (
+            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
+              <p>Loading...</p>
+              <CircularProgress />
+            </Box>
+          )}
+
           <div className="history-data">
-            {filteredLeaveHistory.length === 0 ? (
-              <p>No leave history found.</p>
-            ) : (
-              <table>
-                <thead>
+            <table style={{ minWidth: 1180 }}>
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Leave Type</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Duration</th>
+                  <th>Type</th>
+                  <th>Reason</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {!loading && filteredLeaveHistory.length === 0 ? (
                   <tr>
-                    <th>Email</th>
-                    <th>Leave Type</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Duration</th>
-                    <th>Type</th>
-                    <th>Reason</th>
-                    <th>Status</th>
+                    <td colSpan='8'>
+                      <p>No leave history found.</p>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredLeaveHistory.map((leave, index) => (
+
+                ) : (
+                  filteredLeaveHistory.map((leave, index) => (
                     <tr key={index}>
                       <td>{leave.email}</td>
                       <td>{leave.leaveType}</td>
@@ -654,10 +762,10 @@ const fetchLeaveHistory = async (email, month) => {
                         />
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

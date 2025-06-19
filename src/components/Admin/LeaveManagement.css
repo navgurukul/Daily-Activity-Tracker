@@ -130,6 +130,12 @@ label {
   100% { transform: rotate(360deg); }
 }
 
+.balance-data table{
+  width: 100%;
+  min-width: 1000px;
+
+}
+
 @media (max-width: 1024px) {
   .pending-data{
     max-width: 765px;
@@ -142,6 +148,9 @@ label {
   .history-data{
     max-width: 765px;
     overflow: scroll;
+  }
+  .balance-data table{
+    min-width: 700px;
   }
 }
 
@@ -178,6 +187,9 @@ label {
   }
   .history-data{
     max-width: 415px;
+  }
+  .balance-data table{
+    min-width: auto;
   }
 }
 

@@ -70,7 +70,7 @@ const ProjectManagement = () => {
     };
     fetchDepartments();
   }, []);
-  
+
   useEffect(() => {
     const filtered = projects.filter((project) => {
       return (
@@ -133,31 +133,31 @@ const ProjectManagement = () => {
       newErrors.department = "Please select a department*";
     }
     if (!data.projectName) {
-    newErrors.projectName = "Please fill in the project name*";
-  }
+      newErrors.projectName = "Please fill in the project name*";
+    }
 
-  if (data.department !== "Residential Program") {
-    if (!data.channelName) {
-      newErrors.channelName = "Please fill in the channel name*";
+    if (data.department !== "Residential Program") {
+      if (!data.channelName) {
+        newErrors.channelName = "Please fill in the channel name*";
+      }
+      if (!data.channelId) {
+        newErrors.channelId = "Please fill in the channel ID*";
+      }
+      if (!data.projectMasterEmail) {
+        newErrors.projectMasterEmail = "Please fill in the project master email*";
+      }
+      if (!data.projectBudget) {
+        newErrors.projectBudget = "Please fill in the project budget*";
+      }
     }
-    if (!data.channelId) {
-      newErrors.channelId = "Please fill in the channel ID*";
-    }
-    if (!data.projectMasterEmail) {
-      newErrors.projectMasterEmail = "Please fill in the project master email*";
-    }
-    if (!data.projectBudget) {
-      newErrors.projectBudget = "Please fill in the project budget*";
-    }
-  }
 
-  if (!data.priorities) {
-    newErrors.priorities = "Please select a priority*";
-  }
+    if (!data.priorities) {
+      newErrors.priorities = "Please select a priority*";
+    }
 
-  if (!data.projectStatus) {
-    newErrors.projectStatus = "Please select a project status*";
-  }
+    if (!data.projectStatus) {
+      newErrors.projectStatus = "Please select a project status*";
+    }
 
     // Check if project name already exists
     const isDuplicate = projects.some(
@@ -171,11 +171,11 @@ const ProjectManagement = () => {
     }
 
     if (Object.keys(newErrors).length > 0) {
-    setErrors(newErrors);
-    return;
-  }
+      setErrors(newErrors);
+      return;
+    }
 
-  setErrors({});
+    setErrors({});
     // Make the API call
     fetch(API_URL, {
       method: "POST",
@@ -268,127 +268,127 @@ const ProjectManagement = () => {
         <h2>Add New Project</h2>
         <div className="form-fields">
           <div className="input-wrapper">
-          <select
-            className="input-field"
-            value={selectedDept}
-            onChange={(e) => {
-              setData({ ...data, department: e.target.value });
-              setSelectedDept(e.target.value);
-            }}
-          >
-            <option value="" disabled>
-              Select Department
-            </option>
-            {departments.map((dept, idx) => (
-              <option key={idx} value={dept}>
-                {dept}
+            <select
+              className="input-field"
+              value={selectedDept}
+              onChange={(e) => {
+                setData({ ...data, department: e.target.value });
+                setSelectedDept(e.target.value);
+              }}
+            >
+              <option value="" disabled>
+                Select Department
               </option>
-            ))}
-          </select>
-          {errors.department && <div className="error-message">{errors.department}</div>}
+              {departments.map((dept, idx) => (
+                <option key={idx} value={dept}>
+                  {dept}
+                </option>
+              ))}
+            </select>
+            {errors.department && <div className="error-message">{errors.department}</div>}
           </div>
           <div className="input-wrapper">
-          <input
-            type="text"
-            placeholder="Project Name"
-            className="input-field"
-            value={data.projectName}
-            onChange={(e) => setData({ ...data, projectName: e.target.value })}
-          />
-          {errors.projectName && <div className="error-message">{errors.projectName}</div>}
+            <input
+              type="text"
+              placeholder="Project Name"
+              className="input-field"
+              value={data.projectName}
+              onChange={(e) => setData({ ...data, projectName: e.target.value })}
+            />
+            {errors.projectName && <div className="error-message">{errors.projectName}</div>}
           </div>
           {selectedDept !== "Residential Program" && (
             <>
-            <div className="input-wrapper">
-              <input
-                type="text"
-                placeholder="Slack Channel Name"
-                className="input-field"
-                value={data.channelName}
-                onChange={(e) =>
-                  setData({ ...data, channelName: e.target.value })
-                }
-              />
-              {errors.channelName && <div className="error-message">{errors.channelName}</div>}
+              <div className="input-wrapper">
+                <input
+                  type="text"
+                  placeholder="Slack Channel Name"
+                  className="input-field"
+                  value={data.channelName}
+                  onChange={(e) =>
+                    setData({ ...data, channelName: e.target.value })
+                  }
+                />
+                {errors.channelName && <div className="error-message">{errors.channelName}</div>}
               </div>
               <div className="input-wrapper">
-              <input
-                type="text"
-                placeholder="Slack Channel ID"
-                className="input-field"
-                value={data.channelId}
-                onChange={(e) =>
-                  setData({ ...data, channelId: e.target.value })
-                }
-              />
-              {errors.channelId && <div className="error-message">{errors.channelId}</div>}
+                <input
+                  type="text"
+                  placeholder="Slack Channel ID"
+                  className="input-field"
+                  value={data.channelId}
+                  onChange={(e) =>
+                    setData({ ...data, channelId: e.target.value })
+                  }
+                />
+                {errors.channelId && <div className="error-message">{errors.channelId}</div>}
               </div>
             </>
           )}
           <div className="input-wrapper">
-          <input
-            type="text"
-            placeholder="PM Email"
-            className="input-field"
-            value={data.projectMasterEmail}
-            onChange={(e) =>
-              setData({ ...data, projectMasterEmail: e.target.value })
-            }
-          />
-          {errors.projectMasterEmail && <div className="error-message">{errors.projectMasterEmail}</div>}
+            <input
+              type="text"
+              placeholder="PM Email"
+              className="input-field"
+              value={data.projectMasterEmail}
+              onChange={(e) =>
+                setData({ ...data, projectMasterEmail: e.target.value })
+              }
+            />
+            {errors.projectMasterEmail && <div className="error-message">{errors.projectMasterEmail}</div>}
           </div>
           <div className="input-wrapper">
-          <input
-            type="text"
-            placeholder="Client Name"
-            className="input-field"
-            value={data.clientName}
-            onChange={(e) => setData({ ...data, clientName: e.target.value })}
-          />
+            <input
+              type="text"
+              placeholder="Client Name"
+              className="input-field"
+              value={data.clientName}
+              onChange={(e) => setData({ ...data, clientName: e.target.value })}
+            />
           </div>
           <div className="input-wrapper">
-          <select
-            className="input-field"
-            value={data.priorities}
-            onChange={(e) => setData({ ...data, priorities: e.target.value })}
-          >
-            <option value="" disabled selected>
-              Select Priority
-            </option>
-            <option value="P0">P0-Very High</option>
-            <option value="P1">P1-High</option>
-            <option value="P2">P2-Moderate</option>
-            <option value="P3">P3-Low</option>
-          </select>
-          {errors.priorities && <div className="error-message">{errors.priorities}</div>}
+            <select
+              className="input-field"
+              value={data.priorities}
+              onChange={(e) => setData({ ...data, priorities: e.target.value })}
+            >
+              <option value="" disabled selected>
+                Select Priority
+              </option>
+              <option value="P0">P0-Very High</option>
+              <option value="P1">P1-High</option>
+              <option value="P2">P2-Moderate</option>
+              <option value="P3">P3-Low</option>
+            </select>
+            {errors.priorities && <div className="error-message">{errors.priorities}</div>}
           </div>
           <div className="input-wrapper">
-          <input
-            type="number"
-            placeholder="Project Budget"
-            className="input-field"
-            value={data.projectBudget}
-            onChange={(e) =>
-              setData({ ...data, projectBudget: e.target.value })
-            }
-          />
-          {errors.projectBudget && <div className="error-message">{errors.projectBudget}</div>}
+            <input
+              type="number"
+              placeholder="Project Budget"
+              className="input-field"
+              value={data.projectBudget}
+              onChange={(e) =>
+                setData({ ...data, projectBudget: e.target.value })
+              }
+            />
+            {errors.projectBudget && <div className="error-message">{errors.projectBudget}</div>}
           </div>
-        <div className="input-wrapper">
-          <select
-            className="input-field"
-            value={data.projectStatus}
-            onChange={(e) =>
-              setData({ ...data, projectStatus: e.target.value })
-            }
-          >
-            <option value="" disabled selected>
-              Select Status
-            </option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
-          {errors.projectStatus && <div className="error-message">{errors.projectStatus}</div>}
+          <div className="input-wrapper">
+            <select
+              className="input-field"
+              value={data.projectStatus}
+              onChange={(e) =>
+                setData({ ...data, projectStatus: e.target.value })
+              }
+            >
+              <option value="" disabled selected>
+                Select Status
+              </option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+            {errors.projectStatus && <div className="error-message">{errors.projectStatus}</div>}
           </div>
         </div>
         <button className="add-btn" onClick={handleAddProject}>
@@ -525,24 +525,24 @@ const ProjectManagement = () => {
               />
               {selectedDept !== "Residential Program" && (
                 <>
-              <input
-                type="text"
-                placeholder="Slack Channel Name"
-                className="input-field"
-                value={editData.channelName}
-                onChange={(e) =>
-                  setEditData({ ...editData, channelName: e.target.value })
-                }
-              />
-              <input
-                type="text"
-                placeholder="Slack Channel ID"
-                className="input-field"
-                value={editData.channelId}
-                onChange={(e) =>
-                  setEditData({ ...editData, channelId: e.target.value })
-                }
-              />
+                  <input
+                    type="text"
+                    placeholder="Slack Channel Name"
+                    className="input-field"
+                    value={editData.channelName}
+                    onChange={(e) =>
+                      setEditData({ ...editData, channelName: e.target.value })
+                    }
+                  />
+                  <input
+                    type="text"
+                    placeholder="Slack Channel ID"
+                    className="input-field"
+                    value={editData.channelId}
+                    onChange={(e) =>
+                      setEditData({ ...editData, channelId: e.target.value })
+                    }
+                  />
                 </>
               )}
               <input

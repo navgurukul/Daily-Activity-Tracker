@@ -73,6 +73,9 @@ body::-webkit-scrollbar {
   .admin-dashboard {
     margin-left: 2%;
   }
+  .admin-navbar h2 {
+    margin-left: 20px;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -120,6 +123,7 @@ body::-webkit-scrollbar {
 
   .admin-navbar h2 {
     font-size: 18px;
+    margin-left: 0;
   }
 
   .admin-nav-links {

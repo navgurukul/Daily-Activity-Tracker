@@ -21,12 +21,14 @@
 }
 .form-container h2 {
   margin-bottom: 15px;
+  margin-left: 15px;
 }
 .form-fields {
   display: flex;
   gap: 2px;
   flex-wrap: wrap;
   width: 100%;
+  margin-left: 15px;
 }
 .input-wrapper {
   display: flex;
@@ -51,7 +53,8 @@
   border-radius: 5px;
   cursor: pointer;
   margin-top: 10px;
-  width: 97.5%;
+  width: 96%;
+  margin-left: 15px;
 }
 .add-btn:hover {
   background-color: #45A049;
@@ -185,6 +188,11 @@ th {
 
 
 /* Responsiveness */
+@media (max-width: 1440px) {
+  .table-wrapper {
+    overflow-x: auto;
+  }
+}
 @media (max-width: 1024px) {
  .admin-container {
     margin-left: 80px;
@@ -192,8 +200,15 @@ th {
   .form-fields input, .form-fields select {
     width: 235px;
   }
+  .form-container h2{
+    margin-left: 5px;
+  }
+  .form-fields {
+    margin-left: 5px;
+  }
   .form-container button{
     width: 690px;
+    margin-left: 5px;
   }
 
  .filters{
@@ -264,10 +279,14 @@ th {
   .form-container{
     text-align: center;
   }
+  .form-container h2{
+    margin-left: 0;
+  }
   .form-fields{
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-left: 0;
   }
   .input-wrapper{
     width: 260px;
@@ -277,6 +296,7 @@ th {
   }
   .form-container button{
     width: 230px;
+    margin-left: 0;
   }
 
   .table-container h2{
@@ -320,6 +340,7 @@ th {
   }
   .form-container button{
     width: 220px;
+    margin-left: -10px;
   }
 
   .modal-content{
@@ -333,7 +354,7 @@ th {
 
 @media (max-width: 320px) {
   .form-container button{
-    width: 210px;
+    width: 220px;
   }
   .modal-content{
     width: 245px;

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Box,
   Typography,
@@ -9,6 +10,7 @@ import {
   DialogActions,
   Button,
   Pagination,
+  Autocomplete,
   TextField,
   MenuItem,
   Table,
@@ -36,6 +38,9 @@ const Payroll = () => {
   const [monthFilter, setMonthFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
 
+  const [allEmails, setAllEmails] = useState([]);
+  const [allNames, setAllNames] = useState([]);
+
   useEffect(() => {
     const fetchPayrollData = async () => {
       // const token = localStorage.getItem("jwtToken");
@@ -47,32 +52,6 @@ const Payroll = () => {
         return;
       }
 
-      // try {
-      //   const response = await fetch(
-      //     "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation",
-      //     {
-      //       headers: {
-      //         Authorization: `Bearer ${token}`,
-      //       },
-      //     }
-      //   );
-
-      //   if (!response.ok) {
-      //     throw new Error("Failed to fetch payroll data");
-      //   }
-
-      //   const result = await response.json();
-      //   setPayrollData(result.data);
-      // }
-      //    catch (error) {
-      //     console.error("Error fetching payroll data:", error);
-      //   } finally {
-      //     setLoading(false);
-      //   }
-      // };
-
-      // fetchPayrollData();
-      // }, []);
       try {
         let url =
           "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation";
@@ -101,6 +80,37 @@ const Payroll = () => {
     };
     fetchPayrollData();
   }, [emailFilter, monthFilter, yearFilter]);
+
+  useEffect(() => {
+    const fetchEmailsAndNames = async () => {
+      try {
+        const response = await axios.get(
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+        );
+        const teamIDs = Array.from(
+          new Set(
+            response.data?.data
+              ?.map((entry) => entry["Team ID"])
+              ?.filter((id) => !!id)
+          )
+        );
+        const names = Array.from(
+          new Set(
+            response.data?.data
+              ?.map((entry) => entry["First and Last Name"])
+              ?.filter((name) => !!name)
+          )
+        );
+        setAllEmails(teamIDs);
+        setAllNames(names);
+      } catch (error) {
+        console.error("Error fetching emails:", error);
+        setSnackbarMessage("Failed to fetch emails");
+      }
+    };
+    fetchEmailsAndNames();
+  }, []);
+
 
   const handleClickOpen = (person) => {
     setSelectedPerson(person);
@@ -143,19 +153,21 @@ const Payroll = () => {
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  Loading Payroll Data...
-                </Typography>
-                <br />
-                <br />
-                <CircularProgress />
-              </Box>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Loading Payroll Data...
+        </Typography>
+        <br />
+        <br />
+        <CircularProgress />
+      </Box>
     );
   }
 
+
+
   return (
-    <Box sx={{ p: {xs:0, sm:3} }}>
-      <Typography variant="h4" mb={2} fontWeight="bold" sx={{ fontSize: { xs: "1.5rem",  sm: "2.15rem"}}}>
+    <Box sx={{ p: { xs: 0, sm: 3 } }}>
+      <Typography variant="h4" mb={2} fontWeight="bold" sx={{ fontSize: { xs: "1.5rem", sm: "2.15rem" } }}>
         Employee Payable Days Overview
       </Typography>
       <Typography variant="subtitle1" mb={3} color="text.secondary">
@@ -163,22 +175,47 @@ const Payroll = () => {
       </Typography>
 
       {/* Filters */}
-      <Box sx={{ display: "flex", gap: {xs:1, sm:2}, flexWrap: "wrap", mb: 3, justifyContent: "center"  }}>
-        <TextField
-          label="Filter by Name"
-          variant="outlined"
+      <Box sx={{ display: "flex", gap: { xs: 1, sm: 2 }, flexWrap: "wrap", mb: 3, justifyContent: "center" }}>
+        <Autocomplete
+          options={allNames}  // your fetched names array
           value={nameFilter}
-          onChange={(e) => setNameFilter(e.target.value)}
-          size="small"
-          sx={{ width: {xs:300, sm:320}}}
+          onChange={(event, newValue) => setNameFilter(newValue || "")}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Filter by Name"
+              variant="outlined"
+              size="small"
+              sx={{ width: { xs: 300, sm: 320 } }}
+            />
+          )}
+          freeSolo
+          ListboxProps={{
+            style: {
+              maxHeight: 200,
+            },
+          }}
         />
-        <TextField
-          label="Filter by Email"
-          variant="outlined"
+        <Autocomplete
+          options={allEmails}
           value={emailFilter}
-          onChange={(e) => setEmailFilter(e.target.value)}
-          size="small"
-          sx={{ width: {xs:300, sm:320}}}
+          onChange={(event, newValue) => setEmailFilter(newValue || "")}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Filter by Email"
+              variant="outlined"
+              size="small"
+              sx={{ width: { xs: 300, sm: 320 } }}
+            />
+            
+          )}
+          freeSolo
+          ListboxProps={{
+            style: {
+              maxHeight: 200,
+            },
+          }}
         />
         <TextField
           select
@@ -187,7 +224,7 @@ const Payroll = () => {
           value={monthFilter}
           onChange={(e) => setMonthFilter(e.target.value)}
           size="small"
-          sx={{ width: {xs:152, sm:152}}}
+          sx={{ width: { xs: 152, sm: 152 } }}
           SelectProps={{
             MenuProps: {
               PaperProps: {
@@ -211,7 +248,7 @@ const Payroll = () => {
           value={yearFilter}
           onChange={(e) => setYearFilter(e.target.value)}
           size="small"
-          sx={{ width: {xs:140, sm:152}}}
+          sx={{ width: { xs: 140, sm: 152 } }}
           SelectProps={{
             MenuProps: {
               PaperProps: {
@@ -237,7 +274,7 @@ const Payroll = () => {
           value={sortOrder}
           onChange={handleSortChange}
           size="small"
-          sx={{ width: {xs:152, sm:152} }}
+          sx={{ width: { xs: 152, sm: 152 } }}
         >
           <MenuItem value="asc">Low to High</MenuItem>
           <MenuItem value="desc">High to Low</MenuItem>
@@ -252,7 +289,7 @@ const Payroll = () => {
             setSortOrder("asc");
           }}
           sx={{
-            width: {xs:140, sm:152},
+            width: { xs: 140, sm: 152 },
             padding: 0,
             color: "#FFFFFF",
             backgroundColor: "#1976D2",
@@ -270,7 +307,7 @@ const Payroll = () => {
       {/* Table Layout */}
       <TableContainer
         component={Paper}
-        sx={{ maxWidth: "100%", overflow: {xs:"scroll", sm:"hidden"} }}
+        sx={{ maxWidth: "100%", overflow: { xs: "scroll", sm: "hidden" } }}
       >
         <Table
           sx={{ minWidth: 650, tableLayout: "auto" }}

@@ -90,6 +90,8 @@ const Form = () => {
   const [departments, setDepartments] = useState([]);
 
   const [showSaveError, setShowSaveError] = useState(false);
+  const [projectNameToId, setProjectNameToId] = useState({});
+
 
   useEffect(() => {
     const fetchCampuses = async () => {
@@ -175,6 +177,7 @@ const Form = () => {
 
           const projects = data.data.map((project) => {
             return {
+              projectId: project.Id,
               projectName: project.projectName,
               status: project.projectStatus,
               department: project.department,
@@ -194,10 +197,13 @@ const Form = () => {
           if (dayOfWeek === 6) {
             activeProjectNames.push("Saturday-Peer-Learning");
           }
+          const nameToIdMap = {};
           projects.forEach((project) => {
             if (project.status === "Active") {
               const dept = project.department.trim();
               const projectName = project.projectName;
+
+              nameToIdMap[projectName] = project.projectId;
 
               if (!projectByDepartment[dept]) {
                 projectByDepartment[dept] = new Set();
@@ -214,7 +220,7 @@ const Form = () => {
           });
           setProjectByDepartment(projectByDepartment);
           setProjectsLoading(false);
-
+          setProjectNameToId(nameToIdMap);
         });
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -405,6 +411,7 @@ const Form = () => {
       entries: formData.contributions.map((c) => ({
         email: userEmail,
         projectName: c.project,
+        projectId: projectNameToId[c.project],
         totalHoursSpent: Number(c.hours),
         workDescription: c.task,
         entryDate: formData.selectedDate,
@@ -453,6 +460,7 @@ const Form = () => {
       console.log("Response of Post API:", response);
       if (!response.ok) {
         throw new Error(result.message || "Failed to save entry");
+        // console.error("Failed to save entry:");
       }
       showSnackbar("Entry successfully saved!", "success");
 

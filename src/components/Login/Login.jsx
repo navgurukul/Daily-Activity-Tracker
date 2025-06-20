@@ -62,7 +62,13 @@ function Login() {
           localStorage.setItem("department", department);
           setEmail(userEmail);
 
-          navigate("/activity-tracker");
+          // navigate("/activity-tracker");
+
+          setAlertMessage('Logged-in successfully!');
+          setSnackbarOpen(true);
+          setTimeout(() => {
+  navigate("/activity-tracker");
+}, 1500);
         } catch (error) {
           console.error("Error fetching role data:", error);
           setAlertMessage("Login failed due to server error.");
@@ -113,7 +119,8 @@ function Login() {
           elevation={6}
           variant="filled"
           onClose={handleCloseSnackbar}
-          severity="warning"
+          // severity="warning"
+          severity={alertMessage.includes("successfully") ? "success" : "warning"}
         >
           {alertMessage}
         </MuiAlert>

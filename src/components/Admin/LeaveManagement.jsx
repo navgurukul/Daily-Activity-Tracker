@@ -256,7 +256,7 @@ const LeaveManagement = () => {
             fetchLeavesData("pending");
           }}
         >
-          Pending Requests
+          ⏳ Pending Requests
         </button>
 
         <button
@@ -267,21 +267,21 @@ const LeaveManagement = () => {
             fetchLeavesData("approved");
           }}
         >
-          Approved Leaves
+          ✔️ Approved Leaves
         </button>
         <button
           className={`tabs_button ${selectedTab === "balance" ? "active-tab" : ""
             }`}
           onClick={() => setSelectedTab("balance")}
         >
-          Allotted Leaves
+          📋 Allotted Leaves
         </button>
         <button
           className={`tabs_button ${selectedTab === "history" ? "active-tab" : ""
             }`}
           onClick={() => setSelectedTab("history")}
         >
-          History
+          📜 History
         </button>
       </div>
 
@@ -353,7 +353,7 @@ const LeaveManagement = () => {
             {isApproving && (
               <div className="loader-overlay">
                 <div className="loader-box">
-                  <span style={{ margin: "0px", fontWeight: "bold" }}>Please wait for a moment, leave is approving...</span>
+                  <span style={{ margin: "0px", fontWeight: "bold" }}>Approving leave...</span>
                   <CircularProgress size={24} />
                 </div>
               </div>

@@ -34,6 +34,8 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { styled } from "@mui/material/styles";
 
+import LoadingSpinner from "../Loader/LoadingSpinner";
+
 // Styled Components
 const StyledContainer = styled(Container)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -316,24 +318,7 @@ const Leaves = () => {
   
   return (
     <StyledContainer style={{ overflowY: "scroll", height: "100vh", marginTop: "45px" }}>
-      {loading && (
-        <Box
-          sx={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "rgba(255, 255, 255, 0.8)",
-            zIndex: 9999,
-          }}
-        >
-          <CircularProgress />
-        </Box>
-      )}
+      <LoadingSpinner loading={loading} />
 
       <Typography
         variant="h4"
@@ -471,35 +456,6 @@ const Leaves = () => {
                         {leaveType}
                       </MenuItem>
                     ))}
-
-                  {/* Only show Casual Leave, Wellness Leave, Festival Leave
-                  and Comp-off, if Comp-Off balance > 0 */}
-                  {/* {Array.isArray(leaveResult) &&
-                    leaveResult.map((leaveType, index) => {
-                      if (
-                        leaveType === "Compensatory Leave" &&
-                        allLeaves[email]?.leaveRecords?.find(
-                          (leave) => leave.leaveType === leaveType
-                        )?.leaveLeft > 0
-                      ) {
-                        return (
-                          <MenuItem key={index} value={leaveType}>
-                            {leaveType}
-                          </MenuItem>
-                        );
-                      } else if (
-                        leaveType === "Casual Leave" ||
-                        leaveType === "Wellness Leave" ||
-                        leaveType === "Festival Leave"
-                      ) {
-                        return (
-                          <MenuItem key={index} value={leaveType}>
-                            {leaveType}
-                          </MenuItem>
-                        );
-                      }
-                      return null;
-                    })} */}
                 </Select>
                 {leaveData.leaveType && (
                   <Typography

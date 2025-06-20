@@ -141,33 +141,6 @@ function DailyLogs() {
     setEditedData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // const handleEditSubmit = async () => {
-  //   try {
-  //     const response = await fetch(
-  //       "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
-  //       {
-  //         method: "PUT",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-  //           Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
-  //         },
-  //         body: JSON.stringify([{ ...editedData, logStatus: "pending" }]),
-  //       }
-  //     );
-  //     if (response.ok) {
-  //       setSnackbar({ open: true, message: "Log updated successfully", error: false });
-  //       setEditLog(null);
-  //       fetchLogs();
-  //     } else {
-  //       const errorText = await response.text();
-  //       throw new Error(errorText);
-  //     }
-  //   } catch (err) {
-  //     setSnackbar({ open: true, message: "Error updating log: " + err.message, error: true });
-  //   }
-  // };
-
   const handleEditSubmit = async () => {
   const dateOfLog = editLog.date;
   // Convert edited hours to number (in case user enters string)
@@ -383,7 +356,17 @@ function DailyLogs() {
                     <TableCell>
                       <Chip label={log.logStatus} color={log.logStatus === "approved" ? "success" : log.logStatus === "rejected" ? "error" : "warning"} size="small" />
                     </TableCell>
-                    <TableCell sx={{ display: "flex", gap: 1, flexDirection:"column", alignItems: "center", justifyContent: "center" }}>
+                    <TableCell>
+                      <Box
+    sx={{
+      display: "flex",
+      flexDirection: "column",
+      gap: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      height: "100%",
+    }}
+  >
                       <IconButton size="small" onClick={() => handleEditClick(log)} disabled={log.logStatus === "approved"} title="Edit Log" sx={{ height:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#1976d21a"}}}><Edit /></IconButton>
                       <IconButton size="small" onClick={() => handleApproveClick(log)} disabled={log.logStatus === "approved"} title="Approve Log" sx={{ height:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#2e7d321a"}}}><Check /></IconButton>
                       <IconButton
@@ -396,6 +379,7 @@ function DailyLogs() {
                       >
                         <Close />
                       </IconButton>
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))}

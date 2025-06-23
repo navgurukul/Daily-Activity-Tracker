@@ -139,7 +139,7 @@ const Leaves = () => {
     "userEmail": email,
     "durationType": "",
     "halfDayStatus": "",
-    "status": "pending",  
+    "status": "pending",
   });
   const [remainingLeaves, setRemainingLeaves] = useState();
   const [halfDay, setHalfDay] = useState(false);
@@ -149,6 +149,14 @@ const Leaves = () => {
 
   const [leavesData, setLeavesData] = useState([]);
   const [allLeaves, setAllLeaves] = useState({});
+
+  const [fieldErrors, setFieldErrors] = useState({
+    leaveType: "",
+    reasonForLeave: "",
+    durationType: "",
+    halfDayStatus: "",
+  });
+
 
   const fetchData = async () => {
     try {
@@ -254,11 +262,50 @@ const Leaves = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
-    // Check for missing fields
+
+    // 1️⃣ Reset errors
+    const errors = {
+      leaveType: "",
+      reasonForLeave: "",
+      durationType: "",
+      halfDayStatus: "",
+    };
+
+    // 2️⃣ Validate each field
+    if (!leaveData.leaveType) {
+      errors.leaveType = "Please select a leave type*";
+    }
+
+    if (!leaveData.reasonForLeave.trim()) {
+      errors.reasonForLeave = "Please enter a reason for leave*";
+    } else if (
+      !["Casual Leave", "Wellness Leave", "Festival Leave", "Compensatory Leave"]
+        .includes(leaveData.leaveType) &&
+      leaveData.reasonForLeave.trim().length < 25
+    ) {
+      errors.reasonForLeave = "Please provide a reason with at least 25 characters*";
+    }
+
+    if (!leaveData.durationType) {
+      errors.durationType = "Please select a duration type*";
+    }
+
+    if (leaveData.durationType === "half-day" && !leaveData.halfDayStatus) {
+      errors.halfDayStatus = "Please select a half day status*";
+    }
+
+    // 3️⃣ Apply errors to state
+    setFieldErrors(errors);
+
+    // 4️⃣ If any error found, stop here
+    const hasError = Object.values(errors).some(Boolean);
+    if (hasError) {
+      setLoading(false);
+      return;
+    }
+
+    // ✅ 5️⃣ Also check required non-error-tracked fields
     if (
-      !leaveData.leaveType ||
-      !leaveData.reasonForLeave ||
       !leaveData.startDate ||
       !leaveData.endDate ||
       !leaveData.userEmail
@@ -267,18 +314,13 @@ const Leaves = () => {
       setLoading(false);
       return;
     }
-  
-    // Validate reasonForLeave character length
-    // if (leaveData.reasonForLeave.trim().length < 25) {
-    //   setError("Reason for leave must be at least 25 characters long.");
-    //   setLoading(false);
-    //   return;
-    // }
-  
+
+    // 6️⃣ Submit to backend
     const payload = { ...leaveData };
     if (payload.durationType !== "half-day") {
       delete payload.halfDayStatus;
     }
+
     try {
       const response = await fetch(
         "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy",
@@ -288,17 +330,17 @@ const Leaves = () => {
           body: JSON.stringify(payload),
         }
       );
-    
+
       if (!response.ok) {
         const errorData = await response.json();
         setErrorMessage(errorData.message || "Something went wrong.");
         setLoading(false);
         return;
       }
-    
-      setLoading(false);
-      setErrorMessage(""); // Clear error message
+
+      // ✅ Success
       setSuccessMessage("Leave request submitted successfully!");
+      setErrorMessage("");
       setLeaveData({
         endDate: getTodayDate(),
         durationType: "",
@@ -312,10 +354,12 @@ const Leaves = () => {
     } catch (error) {
       console.error("Error submitting leave request:", error);
       setErrorMessage("Error submitting leave request.");
+    } finally {
       setLoading(false);
     }
   };
-  
+
+
   return (
     <StyledContainer style={{ overflowY: "scroll", height: "100vh", marginTop: "45px" }}>
       <LoadingSpinner loading={loading} />
@@ -446,8 +490,8 @@ const Leaves = () => {
                   name="leaveType"
                   value={leaveData.leaveType}
                   onChange={handleChange}
-                  required
                   label="Leave Type"
+                  error={Boolean(fieldErrors.leaveType)}
                 >
                   <MenuItem value="">--Select Leave Type--</MenuItem>
                   {Array.isArray(leaveResult) &&
@@ -457,6 +501,11 @@ const Leaves = () => {
                       </MenuItem>
                     ))}
                 </Select>
+                {fieldErrors.leaveType && (
+                  <Typography variant="caption" sx={{ color: "red", fontSize: 14, fontWeight: 'bold', mt: -1 }}>
+                    {fieldErrors.leaveType}
+                  </Typography>
+                )}
                 {leaveData.leaveType && (
                   <Typography
                     variant="caption"
@@ -481,9 +530,33 @@ const Leaves = () => {
                   name="reasonForLeave"
                   value={leaveData.reasonForLeave}
                   onChange={handleChange}
-                  required
                   multiline
                   rows={4}
+                  error={Boolean(fieldErrors.reasonForLeave)}
+                  helperText={fieldErrors.reasonForLeave}
+                  FormHelperTextProps={{
+                    sx: {
+                      color: "red !important",
+                      fontSize: 14,
+                      fontWeight: "bold",
+                      m: 0,
+                      mt: -1,
+                    },
+                  }}
+                  InputLabelProps={{
+                    sx: {
+                      color: "rgba(0, 0, 0, 0.6)",
+                      "&.Mui-focused": {
+                        color: "primary.main",
+                      },
+                      "&.Mui-error": {
+                        color: "rgba(0, 0, 0, 0.6)",
+                      },
+                      "&.Mui-focused.Mui-error": {
+                        color: "primary.main",
+                      },
+                    },
+                  }}
                   sx={{
                     "& .MuiInputBase-root": {
                       height: "auto !important",
@@ -494,7 +567,7 @@ const Leaves = () => {
               </StyledFormControl>
             </Grid>
 
-            {leaveData.leaveType &&
+            {/* {leaveData.leaveType &&
               ![
                 "Casual Leave",
                 "Wellness Leave",
@@ -518,7 +591,7 @@ const Leaves = () => {
                     Please provide a reason with at least 25 characters.
                   </Typography>
                 </Grid>
-              )}
+              )} */}
             <Grid item xs={12} md={6}>
               <StyledFormControl>
                 <TextField
@@ -571,12 +644,17 @@ const Leaves = () => {
                   name="durationType"
                   value={leaveData.durationType}
                   onChange={handleChange}
-                  required
                   label="Duration Type"
+                  error={Boolean(fieldErrors.durationType)}
                 >
                   <MenuItem value="full-day">Full Day</MenuItem>
                   <MenuItem value="half-day">Half Day</MenuItem>
                 </Select>
+                {fieldErrors.durationType && (
+                  <Typography variant="caption" sx={{ color: "red", fontSize: 14, fontWeight: 'bold', mt: -1 }}>
+                    {fieldErrors.durationType}
+                  </Typography>
+                )}
                 <Typography
                   variant="caption"
                   sx={{
@@ -600,10 +678,16 @@ const Leaves = () => {
                     value={leaveData.halfDayStatus}
                     onChange={handleChange}
                     label="Half Day Status"
+                    error={Boolean(fieldErrors.halfDayStatus)}
                   >
                     <MenuItem value="first-half">First Half</MenuItem>
                     <MenuItem value="second-half">Second Half</MenuItem>
                   </Select>
+                  {fieldErrors.halfDayStatus && (
+                    <Typography variant="caption" sx={{ color: "red", fontSize: 14, fontWeight: 'bold', mt: -1 }}>
+                      {fieldErrors.halfDayStatus}
+                    </Typography>
+                  )}
                   <Typography
                     variant="caption"
                     sx={{

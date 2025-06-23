@@ -80,7 +80,7 @@ const Form = () => {
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // 'success', 'error', 'warning', 'info'
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const [campuses, setCampuses] = useState([]);
 
@@ -274,12 +274,11 @@ const Form = () => {
     setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
 
     if (e.target.value !== "") {
-    setShowProjectError(false);
-  }
+      setShowProjectError(false);
+    }
   };
 
   useEffect(() => {
-    // console.log("Selected Project:", selectedProject);
     setMaxHours(15);
   }, [selectedProject]);
 
@@ -287,7 +286,7 @@ const Form = () => {
     if (showSaveError) {
       const timer = setTimeout(() => {
         setShowSaveError(false);
-      }, 3000); 
+      }, 3000);
 
       return () => clearTimeout(timer);
     }
@@ -439,7 +438,7 @@ const Form = () => {
     );
     console.log("Existing Logs:", existingLogs);
 
-    if(formData.contributions.length === 0) {
+    if (formData.contributions.length === 0) {
       setShowProjectError(true);
       return;
     }
@@ -493,7 +492,7 @@ const Form = () => {
       }
 
       console.log("Entry successfully sent to backend");
-      
+
       // Clear the form
       setFormData({ ...initialFormData });
       console.log("Form Data after submission:", formData);
@@ -589,29 +588,29 @@ const Form = () => {
   //   return minDate.toISOString().split("T")[0];
   // }
 
-    useEffect(() => {
-      const fetchDepartments = async () => {
-        try {
-          const res = await fetch(
-            "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
-          );
-          const data = await res.json();
-          if (data.success) {
-            const allDepartments = data.data.map((item) => item.Department);
-            const uniqueDepartments = [...new Set(allDepartments)];
-            setDepartments(uniqueDepartments);
-          }
-        } catch (err) {
-          console.error("Error fetching departments:", err);
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await fetch(
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+        );
+        const data = await res.json();
+        if (data.success) {
+          const allDepartments = data.data.map((item) => item.Department);
+          const uniqueDepartments = [...new Set(allDepartments)];
+          setDepartments(uniqueDepartments);
         }
-      };
-      fetchDepartments();
-    }, []);
+      } catch (err) {
+        console.error("Error fetching departments:", err);
+      }
+    };
+    fetchDepartments();
+  }, []);
 
-    const currentDept = formData.department || userDepartment;
+  const currentDept = formData.department || userDepartment;
 
   return (
-    <div className="form-container" style={{ overflowY: "scroll", height: "100vh", marginTop: "-20px"}}>
+    <div className="form-container" style={{ overflowY: "scroll", height: "100vh", marginTop: "-20px" }}>
       <LoadingSpinner loading={loading} className="loader-container" />
       <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
         <h3 style={{ fontSize: "32px", fontWeight: "bold", color: "#000" }}>
@@ -658,58 +657,45 @@ const Form = () => {
           <label>Employee Department:</label>
           <input
             type="text"
-            // name="department"
             value={userDepartment}
-            // onChange={handleChange}
             required
             disabled
             color="red"
-            />
-          </div>
-          <div>
-            <label>Current Working Department:</label>
-            <select
+          />
+        </div>
+        <div>
+          <label>Current Working Department:</label>
+          <select
             name="department"
             value={formData.department || userDepartment}
             onChange={(e) => {
+              const newDepartment = e.target.value;
               setFormData((prev) => ({
-              ...prev,
-              department: e.target.value,
+                ...prev,
+                department: newDepartment,
               }));
+              // Reset project and contribution when department changes
+              setSelectedProject("");
+              setCurrentContribution({ hours: "", task: "" });
             }}
-            >
+          >
             <option value="" disabled>
               Select Department
             </option>
             {departments.map((dept, idx) => (
               <option key={idx} value={dept}>
-              {dept}
+                {dept}
               </option>
             ))}
-            </select>
-          </div>
-          {/* {(formData.department || userDepartment) === "Residential Program" && (
-            <div>
-            <label>
-              Please Mention Any Blockers or Challenges You Are Facing (Minimum
-              25 characters):
-            </label>
-            <textarea
-              name="blockers"
-              value={formData.blockers}
-              onChange={handleChange}
-              minLength={25}
-              required
-            />
-          </div>
-        )} */}
+          </select>
+        </div>
+
         <div>
           <label>Select the date for which you want to update the form:</label>
           <input
             type="date"
             name="selectedDate"
             max={today}
-            // disabled={isDateDisabled}
             min={getMinDate()}
             value={formData.selectedDate}
             onChange={handleChange}
@@ -738,7 +724,6 @@ const Form = () => {
         {formData.contributions.length > 0 && (
           <div>
             <h3>Contributions Summary</h3>
-
             <table>
               <thead>
                 <tr>
@@ -852,7 +837,6 @@ const Form = () => {
             <select disabled>
               <option value="">Loading projects...</option>
             </select>
-          // ) : currentDept in projectByDepartment ? (
           ) : Object.keys(projectByDepartment).length > 0 && currentDept in projectByDepartment ? (
             <select
               name="selectedProject"
@@ -872,10 +856,10 @@ const Form = () => {
             </select>
           )}
           {showProjectError && (
-    <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem"}}>
-      Project cannot be empty*
-    </div>
-  )}
+            <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem" }}>
+              Project cannot be empty*
+            </div>
+          )}
           <br />
           <br />
           {selectedProject && (
@@ -891,7 +875,7 @@ const Form = () => {
                 min="0"
               />
               {showHoursError && (
-                <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem"}}>
+                <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem" }}>
                   Total hours spent cannot be empty or negative*
                 </div>
               )}
@@ -903,7 +887,7 @@ const Form = () => {
                 onChange={handleContributionChange}
               />
               {showTaskError && (
-                <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem"}}>
+                <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem" }}>
                   Task cannot be empty*
                 </div>
               )}
@@ -918,7 +902,7 @@ const Form = () => {
           )}
         </div>
         {showSaveError && (
-          <p style={{ display: "flex", color: "red", marginTop: "4px"}}>
+          <p style={{ display: "flex", color: "red", marginTop: "4px" }}>
             Please save your contribution before submitting.
           </p>
         )}

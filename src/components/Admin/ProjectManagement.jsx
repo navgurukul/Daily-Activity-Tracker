@@ -639,6 +639,56 @@ const ProjectManagement = () => {
                   />
                 </>
               )}
+              {selectedDept === "Residential Program" && (
+                <>
+                  <select
+                    name="campus"
+                    className="input-field"
+                    value={editData.campus || ""}
+                    onChange={(e) =>
+                      setEditData({ ...editData, campus: e.target.value })
+                    }
+                    required
+                  >
+                    <option value="" disabled>
+                      Select Campus
+                    </option>
+                    {campuses.map((campus, idx) => (
+                      <option key={idx} value={campus}>
+                        {campus}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="tooltip-container">
+                    <input
+                      type="text"
+                      placeholder="Discord Channel Web Hook URL"
+                      className="input-field"
+                      value={editData.discordWebhook || ""}
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          discordWebhook: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="tooltip-container">
+                    <textarea
+                      placeholder="POC of Project"
+                      className="input-field"
+                      value={editData.poc_of_project || ""}
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          poc_of_project: e.target.value,
+                        })
+                      }
+                      rows="1"
+                    />
+                  </div>
+                </>
+                  )}
               <input
                 type="text"
                 placeholder="PM Email"

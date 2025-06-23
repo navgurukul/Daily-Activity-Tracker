@@ -33,6 +33,9 @@ const ProjectManagement = () => {
     priorities: "",
     projectBudget: "",
     Id: "",
+    campus: "",
+    discordWebhook: "",
+    poc_of_project: "",
   });
 
   const [projects, setProjects] = useState([]);
@@ -219,6 +222,9 @@ const ProjectManagement = () => {
           priorities: "",
           projectBudget: "",
           Id: "",
+          campus: "",
+          discordWebhook: "",
+          poc_of_project: "",
         });
         // window.removeEventListener("beforeunload", handleBeforeUnload);
         // window.location.reload();
@@ -262,6 +268,9 @@ const ProjectManagement = () => {
           priorities: "",
           projectBudget: "",
           Id: "",
+          campus: "",
+          discordWebhook: "",
+          poc_of_project: "",
         });
         setIsEditMode(false);
         setEditingIndex(null);

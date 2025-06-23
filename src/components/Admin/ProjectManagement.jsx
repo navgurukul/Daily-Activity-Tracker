@@ -18,6 +18,9 @@ const ProjectManagement = () => {
     priorities: "",
     projectBudget: "",
     Id: "",
+    campus: "",
+    discordWebhook: "",
+    poc_of_project: "",
   });
   const [editData, setEditData] = useState({
     department: "",
@@ -51,6 +54,24 @@ const ProjectManagement = () => {
 
   const [departments, setDepartments] = useState([]);
   const [selectedDept, setSelectedDept] = useState("");
+
+  const [campuses, setCampuses] = useState([
+    "Bangalore",
+    "Himachal",
+    "Kishanganj",
+    "Udaipur",
+    "Dantewada",
+    "Raipur",
+    "Jashpur",
+    "Dharamshala",
+    "Sarjapur",
+    "Pune",
+    "Team Channels",
+    "Support Team Updates",
+    "Raigarh"
+  ]);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [showTextareaTooltip, setShowTextareaTooltip] = useState(false);
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -160,22 +181,22 @@ const ProjectManagement = () => {
     }
 
     // Check if project name already exists
-    const isDuplicate = projects.some(
-      (project) =>
-        project.projectName.toLowerCase() === data.projectName.toLowerCase()
-    );
+    // const isDuplicate = projects.some(
+    //   (project) =>
+    //     project.projectName.toLowerCase() === data.projectName.toLowerCase()
+    // );
 
-    if (isDuplicate) {
-      newErrors.projectName = "Project name already exists";
-      return;
-    }
+    // if (isDuplicate) {
+    //   newErrors.projectName = "Project name already exists";
+    //   return;
+    // }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+    // if (Object.keys(newErrors).length > 0) {
+    //   setErrors(newErrors);
+    //   return;
+    // }
 
-    setErrors({});
+    // setErrors({});
     // Make the API call
     fetch(API_URL, {
       method: "POST",
@@ -199,8 +220,8 @@ const ProjectManagement = () => {
           projectBudget: "",
           Id: "",
         });
-        window.removeEventListener("beforeunload", handleBeforeUnload);
-        window.location.reload();
+        // window.removeEventListener("beforeunload", handleBeforeUnload);
+        // window.location.reload();
       })
       .catch((error) => console.error("Error adding project:", error));
   };
@@ -287,6 +308,70 @@ const ProjectManagement = () => {
             </select>
             {errors.department && <div className="error-message">{errors.department}</div>}
           </div>
+          {selectedDept === "Residential Program" && (
+            <>
+            <div className="input-wrapper">
+            <select
+              name="campus"
+              className="input-field"
+              value={data.campus || ""}
+              onChange={(e) => setData({ ...data, campus: e.target.value })}
+              required
+            >
+              <option value="" disabled>
+                Select Campus
+              </option>
+              {campuses.map((campus, idx) => (
+                <option key={idx} value={campus}>
+                  {campus}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="input-wrapper">
+  <div className="tooltip-container">
+    <input
+      type="text"
+      placeholder="Discord Channel Web Hook URL"
+      className="input-field"
+      value={data.discordWebhook || ""}
+      onChange={(e) => setData({ ...data, discordWebhook: e.target.value })}
+      onFocus={() => setShowTooltip(true)}
+      onBlur={() => setShowTooltip(false)}
+      onMouseEnter={() => setShowTooltip(true)}
+      onMouseLeave={() => setShowTooltip(false)}
+    />
+    {showTooltip && (
+      <div className="custom-tooltip">
+        Get your Discord Channel Web Hook URL from your Discord channel settings
+      </div>
+    )}
+  </div>
+  {errors.discordWebhook && <div className="error-message">{errors.discordWebhook}</div>}
+</div>
+            <div className="input-wrapper">
+  <div className="tooltip-container">
+    <textarea
+      placeholder="POC of Project"
+      className="input-field"
+      value={data.poc_of_project || ""}
+      onChange={(e) => setData({ ...data, poc_of_project: e.target.value })}
+      rows="2"
+      onFocus={() => setShowTextareaTooltip(true)}
+      onBlur={() => setShowTextareaTooltip(false)}
+      onMouseEnter={() => setShowTextareaTooltip(true)}
+      onMouseLeave={() => setShowTextareaTooltip(false)}
+    />
+    {showTextareaTooltip && (
+      <div className="custom-tooltip">
+        Enter emails of POC separated by commas (e.g.: john@example.com, jane@example.com)
+      </div>
+    )}
+  </div>
+  {errors.poc_of_project && <div className="error-message">{errors.poc_of_project}</div>}
+</div>
+          </>
+            )}
           <div className="input-wrapper">
             <input
               type="text"

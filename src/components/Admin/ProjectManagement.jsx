@@ -42,18 +42,16 @@ const ProjectManagement = () => {
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
-  // const [feedbackMessage, setFeedbackMessage] = useState("");
   const [errors, setErrors] = useState({});
 
   const [filters, setFilters] = useState({
     department: "",
+    campus: "",
     projectName: "",
     projectMasterEmail: "",
     priorities: "",
     projectStatus: "",
   });
-
-  const [filteredProjects, setFilteredProjects] = useState(projects);
 
   const [departments, setDepartments] = useState([]);
   const [selectedDept, setSelectedDept] = useState("");
@@ -76,6 +74,13 @@ const ProjectManagement = () => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [showTextareaTooltip, setShowTextareaTooltip] = useState(false);
 
+  const [tabIndex, setTabIndex] = useState(0);
+
+  const [residentialProjects, setResidentialProjects] = useState([]);
+const [nonResidentialProjects, setNonResidentialProjects] = useState([]);
+const [filteredResidential, setFilteredResidential] = useState([]);
+const [filteredNonResidential, setFilteredNonResidential] = useState([]);
+
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
@@ -96,26 +101,31 @@ const ProjectManagement = () => {
   }, []);
 
   useEffect(() => {
-    const filtered = projects.filter((project) => {
-      return (
-        (project.department || "")
-          .toLowerCase()
-          .includes(filters.department.toLowerCase()) &&
-        (project.projectName || "")
-          .toLowerCase()
-          .includes(filters.projectName.toLowerCase()) &&
-        (project.projectMasterEmail || "")
-          .toLowerCase()
-          .includes(filters.projectMasterEmail.toLowerCase()) &&
-        (project.priorities || "")
-          .toLowerCase()
-          .includes(filters.priorities.toLowerCase()) &&
-        (project.projectStatus || "")
-          .includes(filters.projectStatus)
-      );
-    });
-    setFilteredProjects(filtered);
-  }, [filters, projects]);
+  const filtered = residentialProjects.filter((project) => {
+    return (
+      (project.department || "").toLowerCase().includes(filters.department.toLowerCase()) &&
+      (project.projectName || "").toLowerCase().includes(filters.projectName.toLowerCase()) &&
+      (project.projectMasterEmail || "").toLowerCase().includes(filters.projectMasterEmail.toLowerCase()) &&
+      (project.priorities || "").toLowerCase().includes(filters.priorities.toLowerCase()) &&
+      (project.projectStatus || "").includes(filters.projectStatus)
+    );
+  });
+  setFilteredResidential(filtered);
+}, [filters, residentialProjects]);
+
+useEffect(() => {
+  const filtered = nonResidentialProjects.filter((project) => {
+    return (
+      (project.department || "").toLowerCase().includes(filters.department.toLowerCase()) &&
+      (project.projectName || "").toLowerCase().includes(filters.projectName.toLowerCase()) &&
+      (project.projectMasterEmail || "").toLowerCase().includes(filters.projectMasterEmail.toLowerCase()) &&
+      (project.priorities || "").toLowerCase().includes(filters.priorities.toLowerCase()) &&
+      (project.projectStatus || "").includes(filters.projectStatus)
+    );
+  });
+  setFilteredNonResidential(filtered);
+}, [filters, nonResidentialProjects]);
+
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -292,12 +302,28 @@ const ProjectManagement = () => {
       .catch((err) => console.error("Error updating project:", err));
   };
 
-  // useEffect(() => {
-  //   if (feedbackMessage) {
-  //     const timer = setTimeout(() => setFeedbackMessage(""), 3000);
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [feedbackMessage]);
+  useEffect(() => {
+  fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees?ResidentialNonResi=Residential-Program")
+    .then((res) => res.json())
+    .then((data) => {
+      if (Array.isArray(data.data)) {
+        setResidentialProjects(data.data);
+      }
+    })
+    .catch((err) => console.error("Error fetching residential:", err));
+}, []);
+
+useEffect(() => {
+  fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees?ResidentialNonResi=Non-Residential")
+    .then((res) => res.json())
+    .then((data) => {
+      if (Array.isArray(data.data)) {
+        setNonResidentialProjects(data.data);
+      }
+    })
+    .catch((err) => console.error("Error fetching non-residential:", err));
+}, []);
+
 
   return (
     <div
@@ -505,6 +531,20 @@ const ProjectManagement = () => {
 
       <div className="table-container">
         <h2>Project List</h2>
+        <div className="tabs">
+            <button
+              className={`tab-button ${tabIndex === 0 ? "active-tab" : ""}`}
+              onClick={() => setTabIndex(0)}
+            >
+               🏡 Residential Projects
+            </button>
+            <button
+              className={`tab-button ${tabIndex === 1 ? "active-tab" : ""}`}
+              onClick={() => setTabIndex(1)}
+            >
+               🏢 Non-Residential Projects
+            </button>
+          </div>
         <div className="filters">
           <h4>Filters:</h4>
           <input
@@ -564,50 +604,96 @@ const ProjectManagement = () => {
           </button>
         </div>
         <div className="table-wrapper">
-          {filteredProjects.length !== 0 ? (
-            <table>
-              <thead>
-                <tr>
-                  <th>Department Name</th>
-                  <th>Project Name</th>
-                  <th>Channel Name</th>
-                  <th>Channel ID</th>
-                  <th>PM Email</th>
-                  <th>Client Name</th>
-                  <th>Priorities</th>
-                  <th>Project Budget</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredProjects.map((project, index) => (
-                  <tr key={index}>
-                    <td>{project.department}</td>
-                    <td>{project.projectName}</td>
-                    <td>{project.channelName}</td>
-                    <td>{project.channelId}</td>
-                    <td>{project.projectMasterEmail}</td>
-                    <td>{project.clientName}</td>
-                    <td>{project.priorities}</td>
-                    <td>{project.projectBudget}</td>
-                    <td>{project.projectStatus}</td>
-                    <td>
-                      <button
-                        className="editBtn"
-                        onClick={() => handleEditProject(project, index)}
-                      >
-                        ✏️
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p className="no-data">No projects found</p>
-          )}
-        </div>
+  {tabIndex === 0 ? (
+    filteredResidential.length !== 0 ? (
+      <table>
+        <thead>
+          <tr>
+            {/* <th>Department Name</th> */}
+            <th>Project Name</th>
+            <th>Campus</th>
+            <th>Discord Channel Web Hook URL</th>
+            <th>POC of Project</th>
+            <th>PM Email</th>
+            <th>Client Name</th>
+            <th>Priorities</th>
+            <th>Project Budget</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredResidential.map((project, index) => (
+            <tr key={index}>
+              {/* <td>{project.department}</td> */}
+              <td>{project.projectName}</td>
+              <td>{project.campus}</td>
+              <td>{project.discordWebhook}</td>
+              <td>{project.poc_of_project}</td>
+              <td>{project.projectMasterEmail}</td>
+              <td>{project.clientName}</td>
+              <td>{project.priorities}</td>
+              <td>{project.projectBudget}</td>
+              <td>{project.projectStatus}</td>
+              <td>
+                <button
+                  className="editBtn"
+                  onClick={() => handleEditProject(project, index)}
+                >
+                  ✏️
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    ) : (
+      <p className="no-data">No residential projects found</p>
+    )
+  ) : filteredNonResidential.length !== 0 ? (
+    <table>
+      <thead>
+        <tr>
+          <th>Department Name</th>
+          <th>Project Name</th>
+          <th>Channel Name</th>
+          <th>Channel ID</th>
+          <th>PM Email</th>
+          <th>Client Name</th>
+          <th>Priorities</th>
+          <th>Project Budget</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {filteredNonResidential.map((project, index) => (
+          <tr key={index}>
+            <td>{project.department}</td>
+            <td>{project.projectName}</td>
+            <td>{project.channelName}</td>
+            <td>{project.channelId}</td>
+            <td>{project.projectMasterEmail}</td>
+            <td>{project.clientName}</td>
+            <td>{project.priorities}</td>
+            <td>{project.projectBudget}</td>
+            <td>{project.projectStatus}</td>
+            <td>
+              <button
+                className="editBtn"
+                onClick={() => handleEditProject(project, index)}
+              >
+                ✏️
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ) : (
+    <p className="no-data">No non-residential projects found</p>
+  )}
+</div>
       </div>
       {isEditMode && (
         <div className="modal-overlay">

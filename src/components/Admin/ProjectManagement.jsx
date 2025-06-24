@@ -174,6 +174,17 @@ const ProjectManagement = () => {
         newErrors.projectBudget = "Please fill in the project budget*";
       }
     }
+    if (data.department === "Residential Program") {
+      if (!data.campus) {
+        newErrors.campus = "Please select a campus*";
+      }
+      if (!data.discordWebhook) {
+        newErrors.discordWebhook = "Please fill in the Discord channel web hook URL*";
+      }
+      if (!data.poc_of_project) {
+        newErrors.poc_of_project = "Please fill in the POC of project*";
+      }
+    }
 
     if (!data.priorities) {
       newErrors.priorities = "Please select a priority*";
@@ -194,12 +205,13 @@ const ProjectManagement = () => {
     //   return;
     // }
 
-    // if (Object.keys(newErrors).length > 0) {
-    //   setErrors(newErrors);
-    //   return;
-    // }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
-    // setErrors({});
+    setErrors({});
+
     // Make the API call
     fetch(API_URL, {
       method: "POST",
@@ -336,6 +348,7 @@ const ProjectManagement = () => {
                 </option>
               ))}
             </select>
+            {errors.campus && <div className="error-message">{errors.campus}</div>}
           </div>
           <div className="input-wrapper">
   <div className="tooltip-container">

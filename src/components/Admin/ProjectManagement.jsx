@@ -226,8 +226,8 @@ const ProjectManagement = () => {
           discordWebhook: "",
           poc_of_project: "",
         });
-        // window.removeEventListener("beforeunload", handleBeforeUnload);
-        // window.location.reload();
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        window.location.reload();
       })
       .catch((error) => console.error("Error adding project:", error));
   };

@@ -127,6 +127,7 @@ const Leaves = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
   const userName = localStorage.getItem("name");
+  const department = localStorage.getItem("department");
   const { loading, setLoading } = useLoader();
   const navigate = useNavigate();
   const [leaveResult, setLeaveResult] = useState();
@@ -140,6 +141,7 @@ const Leaves = () => {
     "durationType": "",
     "halfDayStatus": "",
     "status": "pending",
+    "department": department,
   });
   const [remainingLeaves, setRemainingLeaves] = useState();
   const [halfDay, setHalfDay] = useState(false);

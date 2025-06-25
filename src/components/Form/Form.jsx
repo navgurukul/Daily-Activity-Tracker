@@ -414,11 +414,10 @@ const Form = () => {
         totalHoursSpent: Number(c.hours),
         workDescription: c.task,
         entryDate: formData.selectedDate,
-        department: userDepartment, // original department
-        workingDepartment: formData.department || userDepartment, // current selected
         ...(department === "Residential Program" && {
           blockers: formData.blockers,
           campus: formData.campus,
+          department: department,
         }),
       })),
     };
@@ -471,6 +470,15 @@ const Form = () => {
       const entryStatus = result?.results?.[0]?.status;
 
       console.log(entryStatus, "entryStatus");
+
+      const resultItem = result?.results?.[0];
+      const EntryStatus = resultItem?.status;
+      if (EntryStatus === "failed") {
+        showSnackbar(resultItem?.reason || "Entry was skipped or not saved.", "error");
+        setFormData((prev) => ({ ...prev, contributions: [] }));
+        setLoading(false);
+        return;
+      }
 
       if (entryStatus !== "success" && entryStatus !== "updated") {
         throw new Error(

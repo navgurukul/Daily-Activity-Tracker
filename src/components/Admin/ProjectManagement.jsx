@@ -103,7 +103,7 @@ const [filteredNonResidential, setFilteredNonResidential] = useState([]);
   useEffect(() => {
   const filtered = residentialProjects.filter((project) => {
     return (
-      (project.department || "").toLowerCase().includes(filters.department.toLowerCase()) &&
+      (project.campus || "").toLowerCase().includes(filters.campus.toLowerCase()) &&
       (project.projectName || "").toLowerCase().includes(filters.projectName.toLowerCase()) &&
       (project.projectMasterEmail || "").toLowerCase().includes(filters.projectMasterEmail.toLowerCase()) &&
       (project.priorities || "").toLowerCase().includes(filters.priorities.toLowerCase()) &&
@@ -126,7 +126,6 @@ useEffect(() => {
   setFilteredNonResidential(filtered);
 }, [filters, nonResidentialProjects]);
 
-
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
@@ -135,6 +134,7 @@ useEffect(() => {
   const handleClearFilters = () => {
     setFilters({
       department: "",
+      campus: "",
       projectName: "",
       projectMasterEmail: "",
       priorities: "",
@@ -546,63 +546,71 @@ useEffect(() => {
             </button>
           </div>
         <div className="filters">
-          <h4>Filters:</h4>
-          <input
-            type="text"
-            name="department"
-            placeholder="Filter by Department"
-            value={filters.department || ""}
-            onChange={handleFilterChange}
-          />
-          <input
-            type="text"
-            name="projectName"
-            placeholder="Filter by Project Name"
-            value={filters.projectName}
-            onChange={handleFilterChange}
-          />
-          <input
-            type="text"
-            name="projectMasterEmail"
-            placeholder="Filter by PM Email"
-            value={filters.projectMasterEmail}
-            onChange={handleFilterChange}
-          />
-          <select
-            name="priorities"
-            value={filters.priorities}
-            onChange={handleFilterChange}
-          >
-            <option value="" disabled selected>
-              Select Priority
-            </option>
-            <option value="">All</option>
-            <option value="P0">P0</option>
-            <option value="P1">P1</option>
-            <option value="P2">P2</option>
-            <option value="P3">P3</option>
-          </select>
+  <h4>Filters:</h4>
 
-          <select
-            name="projectStatus"
-            value={filters.projectStatus}
-            onChange={handleFilterChange}
-          >
-            <option value="" disabled selected>
-              Select Status
-            </option>
-            <option value="">All</option>
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
-          <button
-            className="clear-filters-btn"
-            variant="contained"
-            onClick={handleClearFilters}
-          >
-            Clear Filters
-          </button>
-        </div>
+  {/* Show Campus only for Residential */}
+  {tabIndex === 0 && (
+    <input
+      type="text"
+      name="campus"
+      placeholder="Filter by Campus"
+      value={filters.campus}
+      onChange={handleFilterChange}
+    />
+  )}
+
+  {/* Show Department only for Non-Residential */}
+  {tabIndex === 1 && (
+    <input
+      type="text"
+      name="department"
+      placeholder="Filter by Department"
+      value={filters.department}
+      onChange={handleFilterChange}
+    />
+  )}
+
+  {/* Common Filters */}
+  <input
+    type="text"
+    name="projectName"
+    placeholder="Filter by Project Name"
+    value={filters.projectName}
+    onChange={handleFilterChange}
+  />
+  <input
+    type="text"
+    name="projectMasterEmail"
+    placeholder="Filter by PM Email"
+    value={filters.projectMasterEmail}
+    onChange={handleFilterChange}
+  />
+  <select
+    name="priorities"
+    value={filters.priorities}
+    onChange={handleFilterChange}
+  >
+    <option value="" disabled>Select Priority</option>
+    <option value="">All</option>
+    <option value="P0">P0</option>
+    <option value="P1">P1</option>
+    <option value="P2">P2</option>
+    <option value="P3">P3</option>
+  </select>
+  <select
+    name="projectStatus"
+    value={filters.projectStatus}
+    onChange={handleFilterChange}
+  >
+    <option value="" disabled>Select Status</option>
+    <option value="">All</option>
+    <option value="Active">Active</option>
+    <option value="Inactive">Inactive</option>
+  </select>
+  <button className="clear-filters-btn" onClick={handleClearFilters}>
+    Clear Filters
+  </button>
+</div>
         <div className="table-wrapper">
   {tabIndex === 0 ? (
     filteredResidential.length !== 0 ? (
@@ -612,7 +620,7 @@ useEffect(() => {
             {/* <th>Department Name</th> */}
             <th>Project Name</th>
             <th>Campus</th>
-            <th>Discord Channel Web Hook URL</th>
+            {/* <th>Discord Channel Web Hook URL</th> */}
             <th>POC of Project</th>
             <th>PM Email</th>
             <th>Client Name</th>
@@ -628,7 +636,7 @@ useEffect(() => {
               {/* <td>{project.department}</td> */}
               <td>{project.projectName}</td>
               <td>{project.campus}</td>
-              <td>{project.discordWebhook}</td>
+              {/* <td>{project.discordWebhook}</td> */}
               <td>{project.poc_of_project}</td>
               <td>{project.projectMasterEmail}</td>
               <td>{project.clientName}</td>

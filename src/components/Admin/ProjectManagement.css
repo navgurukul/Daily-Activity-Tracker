@@ -87,6 +87,11 @@
 }
 .table-container h2 {
   margin-bottom: 15px;
+  display: inline;
+}
+.tabs {
+  display: flex inline !important;
+  margin-left: 20px;
 }
 table {
   width: 99.5%;

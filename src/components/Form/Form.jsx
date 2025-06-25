@@ -337,7 +337,7 @@ const Form = () => {
       ...prevState,
       contributions: [
         ...prevState.contributions,
-        { project: selectedProject, ...currentContribution },
+        { project: selectedProject, ...currentContribution, department: prevState.department || userDepartment },
       ],
       blockers: formData.blockers,
       campus: formData.campus,
@@ -414,10 +414,11 @@ const Form = () => {
         totalHoursSpent: Number(c.hours),
         workDescription: c.task,
         entryDate: formData.selectedDate,
+        department: userDepartment, // original department
+        workingDepartment: c.department || userDepartment, // current selected
         ...(department === "Residential Program" && {
           blockers: formData.blockers,
           campus: formData.campus,
-          department: department,
         }),
       })),
     };

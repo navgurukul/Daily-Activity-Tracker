@@ -414,10 +414,11 @@ const Form = () => {
         totalHoursSpent: Number(c.hours),
         workDescription: c.task,
         entryDate: formData.selectedDate,
+        department: userDepartment, // original department
+        workingDepartment: formData.department || userDepartment, // current selected
         ...(department === "Residential Program" && {
           blockers: formData.blockers,
           campus: formData.campus,
-          department: department,
         }),
       })),
     };

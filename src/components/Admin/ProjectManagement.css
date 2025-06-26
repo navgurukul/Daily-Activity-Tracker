@@ -38,6 +38,7 @@
 }
 .tooltip-container {
   position: relative;
+  /* width: 255px; */
 }
 
 .custom-tooltip {
@@ -259,6 +260,10 @@ th {
   .modal-content .add-btn{
     width: 440px;
   }
+
+  .tooltip{
+    width: 255px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -295,6 +300,9 @@ th {
   }
   .modal-content .add-btn{
     width: 425px;
+  }
+  .tooltip{
+    width: 245px;
   }
 }
 
@@ -355,6 +363,11 @@ th {
     width: 232px;
     margin-left: 40px;
   }
+
+  .tooltip{
+    width: 280px;
+    margin-left: -10px;
+  }
 }
 
 @media (max-width: 375px) {
@@ -372,6 +385,12 @@ th {
   .modal-content .add-btn{
     width: 220px;
     margin-left: 25px;
+  }
+  .tooltip-container {
+    margin-left: -10px;
+  }
+  .tooltip{
+    width: 270px;
   }
 }
 

@@ -324,7 +324,6 @@ useEffect(() => {
     .catch((err) => console.error("Error fetching non-residential:", err));
 }, []);
 
-
   return (
     <div
       className="admin-container"
@@ -398,7 +397,7 @@ useEffect(() => {
   {errors.discordWebhook && <div className="error-message">{errors.discordWebhook}</div>}
 </div>
             <div className="input-wrapper">
-  <div className="tooltip-container">
+  <div className="tooltip-container tooltip">
     <textarea
       placeholder="POC of Project"
       className="input-field"

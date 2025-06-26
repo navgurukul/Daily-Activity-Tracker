@@ -222,6 +222,12 @@ const Leaves = () => {
       ...prevData,
       [name]: value,
     }));
+    if (value) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: "",
+      }));
+    }
     setRemainingLeaves(
       allLeaves[email]?.leaveRecords?.find((leave) => leave.leaveType === value)
         ?.leaveLeft

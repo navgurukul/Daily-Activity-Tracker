@@ -20,7 +20,8 @@ import {
   Button,
   Snackbar,
   Alert,
-} from "@mui/material"; 
+} from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
 import { set } from "lodash";
 // import { useLocation } from "react-router-dom";
 
@@ -80,8 +81,10 @@ const Form = () => {
   const [attemptLoading, setAttemptLoading] = useState(true);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbaropen, setSnackbaropen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [alertMessage, setAlertMessage] = useState("");
 
   const [campuses, setCampuses] = useState([]);
 
@@ -92,15 +95,20 @@ const Form = () => {
 
   const [showSaveError, setShowSaveError] = useState(false);
   const [projectNameToId, setProjectNameToId] = useState({});
-  const location=useLocation();
   
-  useEffect(()=>{
-    if(location.state?.message){
-      setSnackbarMessage(location.state.message);
-      setSnackbarSeverity('success')
-      setSnackbarOpen(true)
+  const location = useLocation();
+
+  const handleCloseSnackbar = () => {
+    setSnackbaropen(false);
+  };
+
+  useEffect(() => {
+    if (location.state?.message) {
+      setAlertMessage(location.state.message);
+    
+      setSnackbaropen(true)
     }
-  },[location.state])
+  }, [location.state])
 
   useEffect(() => {
     const fetchCampuses = async () => {
@@ -466,15 +474,19 @@ const Form = () => {
           body: JSON.stringify(newEntry),
         }
       );
-      const result = await response.json(); 
       console.log("Response of Post API:", response);
       if (!response.ok) {
         throw new Error(result.message || "Failed to save entry");
+        // console.error("Failed to save entry:");
       }
       showSnackbar("Entry successfully saved!", "success");
 
+      const result = await response.json();
+      console.log("Response from backend:", result);
+
       // Check if the response has results and the first result's status is "success"
       const entryStatus = result?.results?.[0]?.status;
+
       console.log(entryStatus, "entryStatus");
 
       const resultItem = result?.results?.[0];
@@ -488,7 +500,7 @@ const Form = () => {
 
       if (entryStatus !== "success" && entryStatus !== "updated") {
         throw new Error(
-          resultItem?.message || "Entry was skipped or not saved."
+          result?.results?.[0]?.message || "Entry was skipped or not saved."
         );
       }
 
@@ -515,7 +527,6 @@ const Form = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error posting entry:", error);
-      setLoading(false);
       showSnackbar(error.message || "Failed to save entry", "error");
     }
     setShowProjectError(false);
@@ -960,6 +971,21 @@ const Form = () => {
         >
           {snackbarMessage}
         </Alert>
+      </Snackbar>
+      <Snackbar
+        open={snackbaropen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <MuiAlert
+          elevation={6}
+          variant="filled"
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity} 
+        >
+          {alertMessage}
+        </MuiAlert>
       </Snackbar>
     </div>
   );

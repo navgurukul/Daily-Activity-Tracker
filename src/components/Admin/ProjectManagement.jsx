@@ -1,7 +1,20 @@
 import React, { useState, useEffect } from "react";
+import { Modal, Box, Typography, Button, DialogActions } from "@mui/material"
+import { handleBeforeUnload } from "../../utils/beforeUnloadHandler";
 import "./ProjectManagement.css";
 
-import { handleBeforeUnload } from "../../utils/beforeUnloadHandler";
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  maxWidth: 650,
+  minWidth: 250,
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  p: 4,
+  borderRadius: 2,
+};
 
 const API_URL =
   "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees";
@@ -77,9 +90,19 @@ const ProjectManagement = () => {
   const [tabIndex, setTabIndex] = useState(0);
 
   const [residentialProjects, setResidentialProjects] = useState([]);
-const [nonResidentialProjects, setNonResidentialProjects] = useState([]);
-const [filteredResidential, setFilteredResidential] = useState([]);
-const [filteredNonResidential, setFilteredNonResidential] = useState([]);
+  const [nonResidentialProjects, setNonResidentialProjects] = useState([]);
+  const [filteredResidential, setFilteredResidential] = useState([]);
+  const [filteredNonResidential, setFilteredNonResidential] = useState([]);
+
+  const [open, setOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+
+  const handleOpen = (project) => {
+    setSelectedProject(project);
+    setOpen(true);
+  };
+
+  const handleClose = () => setOpen(false);
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -101,30 +124,30 @@ const [filteredNonResidential, setFilteredNonResidential] = useState([]);
   }, []);
 
   useEffect(() => {
-  const filtered = residentialProjects.filter((project) => {
-    return (
-      (project.campus || "").toLowerCase().includes(filters.campus.toLowerCase()) &&
-      (project.projectName || "").toLowerCase().includes(filters.projectName.toLowerCase()) &&
-      (project.projectMasterEmail || "").toLowerCase().includes(filters.projectMasterEmail.toLowerCase()) &&
-      (project.priorities || "").toLowerCase().includes(filters.priorities.toLowerCase()) &&
-      (project.projectStatus || "").includes(filters.projectStatus)
-    );
-  });
-  setFilteredResidential(filtered);
-}, [filters, residentialProjects]);
+    const filtered = residentialProjects.filter((project) => {
+      return (
+        (project.campus || "").toLowerCase().includes(filters.campus.toLowerCase()) &&
+        (project.projectName || "").toLowerCase().includes(filters.projectName.toLowerCase()) &&
+        (project.projectMasterEmail || "").toLowerCase().includes(filters.projectMasterEmail.toLowerCase()) &&
+        (project.priorities || "").toLowerCase().includes(filters.priorities.toLowerCase()) &&
+        (project.projectStatus || "").includes(filters.projectStatus)
+      );
+    });
+    setFilteredResidential(filtered);
+  }, [filters, residentialProjects]);
 
-useEffect(() => {
-  const filtered = nonResidentialProjects.filter((project) => {
-    return (
-      (project.department || "").toLowerCase().includes(filters.department.toLowerCase()) &&
-      (project.projectName || "").toLowerCase().includes(filters.projectName.toLowerCase()) &&
-      (project.projectMasterEmail || "").toLowerCase().includes(filters.projectMasterEmail.toLowerCase()) &&
-      (project.priorities || "").toLowerCase().includes(filters.priorities.toLowerCase()) &&
-      (project.projectStatus || "").includes(filters.projectStatus)
-    );
-  });
-  setFilteredNonResidential(filtered);
-}, [filters, nonResidentialProjects]);
+  useEffect(() => {
+    const filtered = nonResidentialProjects.filter((project) => {
+      return (
+        (project.department || "").toLowerCase().includes(filters.department.toLowerCase()) &&
+        (project.projectName || "").toLowerCase().includes(filters.projectName.toLowerCase()) &&
+        (project.projectMasterEmail || "").toLowerCase().includes(filters.projectMasterEmail.toLowerCase()) &&
+        (project.priorities || "").toLowerCase().includes(filters.priorities.toLowerCase()) &&
+        (project.projectStatus || "").includes(filters.projectStatus)
+      );
+    });
+    setFilteredNonResidential(filtered);
+  }, [filters, nonResidentialProjects]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -303,26 +326,26 @@ useEffect(() => {
   };
 
   useEffect(() => {
-  fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees?ResidentialNonResi=Residential-Program")
-    .then((res) => res.json())
-    .then((data) => {
-      if (Array.isArray(data.data)) {
-        setResidentialProjects(data.data);
-      }
-    })
-    .catch((err) => console.error("Error fetching residential:", err));
-}, []);
+    fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees?ResidentialNonResi=Residential-Program")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data.data)) {
+          setResidentialProjects(data.data);
+        }
+      })
+      .catch((err) => console.error("Error fetching residential:", err));
+  }, []);
 
-useEffect(() => {
-  fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees?ResidentialNonResi=Non-Residential")
-    .then((res) => res.json())
-    .then((data) => {
-      if (Array.isArray(data.data)) {
-        setNonResidentialProjects(data.data);
-      }
-    })
-    .catch((err) => console.error("Error fetching non-residential:", err));
-}, []);
+  useEffect(() => {
+    fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees?ResidentialNonResi=Non-Residential")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data.data)) {
+          setNonResidentialProjects(data.data);
+        }
+      })
+      .catch((err) => console.error("Error fetching non-residential:", err));
+  }, []);
 
   return (
     <div
@@ -356,69 +379,69 @@ useEffect(() => {
           </div>
           {selectedDept === "Residential Program" && (
             <>
-            <div className="input-wrapper">
-            <select
-              name="campus"
-              className="input-field"
-              value={data.campus || ""}
-              onChange={(e) => setData({ ...data, campus: e.target.value })}
-              required
-            >
-              <option value="" disabled>
-                Select Campus
-              </option>
-              {campuses.map((campus, idx) => (
-                <option key={idx} value={campus}>
-                  {campus}
-                </option>
-              ))}
-            </select>
-            {errors.campus && <div className="error-message">{errors.campus}</div>}
-          </div>
-          <div className="input-wrapper">
-  <div className="tooltip-container">
-    <input
-      type="text"
-      placeholder="Discord Channel Web Hook URL"
-      className="input-field"
-      value={data.discordWebhook || ""}
-      onChange={(e) => setData({ ...data, discordWebhook: e.target.value })}
-      onFocus={() => setShowTooltip(true)}
-      onBlur={() => setShowTooltip(false)}
-      onMouseEnter={() => setShowTooltip(true)}
-      onMouseLeave={() => setShowTooltip(false)}
-    />
-    {showTooltip && (
-      <div className="custom-tooltip">
-        Get your Discord Channel Web Hook URL from your Discord channel settings
-      </div>
-    )}
-  </div>
-  {errors.discordWebhook && <div className="error-message">{errors.discordWebhook}</div>}
-</div>
-            <div className="input-wrapper">
-  <div className="tooltip-container tooltip">
-    <textarea
-      placeholder="POC of Project"
-      className="input-field"
-      value={data.poc_of_project || ""}
-      onChange={(e) => setData({ ...data, poc_of_project: e.target.value })}
-      rows="2"
-      onFocus={() => setShowTextareaTooltip(true)}
-      onBlur={() => setShowTextareaTooltip(false)}
-      onMouseEnter={() => setShowTextareaTooltip(true)}
-      onMouseLeave={() => setShowTextareaTooltip(false)}
-    />
-    {showTextareaTooltip && (
-      <div className="custom-tooltip">
-        Enter emails of POC separated by commas (e.g.: john@example.com, jane@example.com)
-      </div>
-    )}
-  </div>
-  {errors.poc_of_project && <div className="error-message">{errors.poc_of_project}</div>}
-</div>
-          </>
-            )}
+              <div className="input-wrapper">
+                <select
+                  name="campus"
+                  className="input-field"
+                  value={data.campus || ""}
+                  onChange={(e) => setData({ ...data, campus: e.target.value })}
+                  required
+                >
+                  <option value="" disabled>
+                    Select Campus
+                  </option>
+                  {campuses.map((campus, idx) => (
+                    <option key={idx} value={campus}>
+                      {campus}
+                    </option>
+                  ))}
+                </select>
+                {errors.campus && <div className="error-message">{errors.campus}</div>}
+              </div>
+              <div className="input-wrapper">
+                <div className="tooltip-container">
+                  <input
+                    type="text"
+                    placeholder="Discord Channel Web Hook URL"
+                    className="input-field"
+                    value={data.discordWebhook || ""}
+                    onChange={(e) => setData({ ...data, discordWebhook: e.target.value })}
+                    onFocus={() => setShowTooltip(true)}
+                    onBlur={() => setShowTooltip(false)}
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                  />
+                  {showTooltip && (
+                    <div className="custom-tooltip">
+                      Get your Discord Channel Web Hook URL from your Discord channel settings
+                    </div>
+                  )}
+                </div>
+                {errors.discordWebhook && <div className="error-message">{errors.discordWebhook}</div>}
+              </div>
+              <div className="input-wrapper">
+                <div className="tooltip-container tooltip">
+                  <textarea
+                    placeholder="POC of Project"
+                    className="input-field"
+                    value={data.poc_of_project || ""}
+                    onChange={(e) => setData({ ...data, poc_of_project: e.target.value })}
+                    rows="2"
+                    onFocus={() => setShowTextareaTooltip(true)}
+                    onBlur={() => setShowTextareaTooltip(false)}
+                    onMouseEnter={() => setShowTextareaTooltip(true)}
+                    onMouseLeave={() => setShowTextareaTooltip(false)}
+                  />
+                  {showTextareaTooltip && (
+                    <div className="custom-tooltip">
+                      Enter emails of POC separated by commas (e.g.: john@example.com, jane@example.com)
+                    </div>
+                  )}
+                </div>
+                {errors.poc_of_project && <div className="error-message">{errors.poc_of_project}</div>}
+              </div>
+            </>
+          )}
           <div className="input-wrapper">
             <input
               type="text"
@@ -531,176 +554,249 @@ useEffect(() => {
       <div className="table-container">
         <h2>Project List</h2>
         <div className="tabs">
-            <button
-              className={`tab-button ${tabIndex === 0 ? "active-tab" : ""}`}
-              onClick={() => setTabIndex(0)}
-            >
-               🏡 Residential Projects
-            </button>
-            <button
-              className={`tab-button ${tabIndex === 1 ? "active-tab" : ""}`}
-              onClick={() => setTabIndex(1)}
-            >
-               🏢 Non-Residential Projects
-            </button>
-          </div>
+          <button
+            className={`tab-button ${tabIndex === 0 ? "active-tab" : ""}`}
+            onClick={() => setTabIndex(0)}
+          >
+            🏡 Residential Projects
+          </button>
+          <button
+            className={`tab-button ${tabIndex === 1 ? "active-tab" : ""}`}
+            onClick={() => setTabIndex(1)}
+          >
+            🏢 Non-Residential Projects
+          </button>
+        </div>
         <div className="filters">
-  <h4>Filters:</h4>
+          <h4>Filters:</h4>
 
-  {/* Show Campus only for Residential */}
-  {tabIndex === 0 && (
-    <input
-      type="text"
-      name="campus"
-      placeholder="Filter by Campus"
-      value={filters.campus}
-      onChange={handleFilterChange}
-    />
-  )}
+          {/* Show Campus only for Residential */}
+          {tabIndex === 0 && (
+            <input
+              type="text"
+              name="campus"
+              placeholder="Filter by Campus"
+              value={filters.campus}
+              onChange={handleFilterChange}
+            />
+          )}
 
-  {/* Show Department only for Non-Residential */}
-  {tabIndex === 1 && (
-    <input
-      type="text"
-      name="department"
-      placeholder="Filter by Department"
-      value={filters.department}
-      onChange={handleFilterChange}
-    />
-  )}
+          {/* Show Department only for Non-Residential */}
+          {tabIndex === 1 && (
+            <input
+              type="text"
+              name="department"
+              placeholder="Filter by Department"
+              value={filters.department}
+              onChange={handleFilterChange}
+            />
+          )}
 
-  {/* Common Filters */}
-  <input
-    type="text"
-    name="projectName"
-    placeholder="Filter by Project Name"
-    value={filters.projectName}
-    onChange={handleFilterChange}
-  />
-  <input
-    type="text"
-    name="projectMasterEmail"
-    placeholder="Filter by PM Email"
-    value={filters.projectMasterEmail}
-    onChange={handleFilterChange}
-  />
-  <select
-    name="priorities"
-    value={filters.priorities}
-    onChange={handleFilterChange}
-  >
-    <option value="" disabled>Select Priority</option>
-    <option value="">All</option>
-    <option value="P0">P0</option>
-    <option value="P1">P1</option>
-    <option value="P2">P2</option>
-    <option value="P3">P3</option>
-  </select>
-  <select
-    name="projectStatus"
-    value={filters.projectStatus}
-    onChange={handleFilterChange}
-  >
-    <option value="" disabled>Select Status</option>
-    <option value="">All</option>
-    <option value="Active">Active</option>
-    <option value="Inactive">Inactive</option>
-  </select>
-  <button className="clear-filters-btn" onClick={handleClearFilters}>
-    Clear Filters
-  </button>
-</div>
+          {/* Common Filters */}
+          <input
+            type="text"
+            name="projectName"
+            placeholder="Filter by Project Name"
+            value={filters.projectName}
+            onChange={handleFilterChange}
+          />
+          <input
+            type="text"
+            name="projectMasterEmail"
+            placeholder="Filter by PM Email"
+            value={filters.projectMasterEmail}
+            onChange={handleFilterChange}
+          />
+          <select
+            name="priorities"
+            value={filters.priorities}
+            onChange={handleFilterChange}
+          >
+            <option value="" disabled>Select Priority</option>
+            <option value="">All</option>
+            <option value="P0">P0</option>
+            <option value="P1">P1</option>
+            <option value="P2">P2</option>
+            <option value="P3">P3</option>
+          </select>
+          <select
+            name="projectStatus"
+            value={filters.projectStatus}
+            onChange={handleFilterChange}
+          >
+            <option value="" disabled>Select Status</option>
+            <option value="">All</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+          <button className="clear-filters-btn" onClick={handleClearFilters}>
+            Clear Filters
+          </button>
+        </div>
         <div className="table-wrapper">
-  {tabIndex === 0 ? (
-    filteredResidential.length !== 0 ? (
-      <table>
-        <thead>
-          <tr>
-            {/* <th>Department Name</th> */}
-            <th>Project Name</th>
-            <th>Campus</th>
-            {/* <th>Discord Channel Web Hook URL</th> */}
-            <th>POC of Project</th>
-            <th>PM Email</th>
-            <th>Client Name</th>
-            <th>Priorities</th>
-            <th>Project Budget</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredResidential.map((project, index) => (
-            <tr key={index}>
-              {/* <td>{project.department}</td> */}
-              <td>{project.projectName}</td>
-              <td>{project.campus}</td>
-              {/* <td>{project.discordWebhook}</td> */}
-              <td>{project.poc_of_project}</td>
-              <td>{project.projectMasterEmail}</td>
-              <td>{project.clientName}</td>
-              <td>{project.priorities}</td>
-              <td>{project.projectBudget}</td>
-              <td>{project.projectStatus}</td>
-              <td>
-                <button
-                  className="editBtn"
-                  onClick={() => handleEditProject(project, index)}
-                >
-                  ✏️
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    ) : (
-      <p className="no-data">No residential projects found</p>
-    )
-  ) : filteredNonResidential.length !== 0 ? (
-    <table>
-      <thead>
-        <tr>
-          <th>Department Name</th>
-          <th>Project Name</th>
-          <th>Channel Name</th>
-          <th>Channel ID</th>
-          <th>PM Email</th>
-          <th>Client Name</th>
-          <th>Priorities</th>
-          <th>Project Budget</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {filteredNonResidential.map((project, index) => (
-          <tr key={index}>
-            <td>{project.department}</td>
-            <td>{project.projectName}</td>
-            <td>{project.channelName}</td>
-            <td>{project.channelId}</td>
-            <td>{project.projectMasterEmail}</td>
-            <td>{project.clientName}</td>
-            <td>{project.priorities}</td>
-            <td>{project.projectBudget}</td>
-            <td>{project.projectStatus}</td>
-            <td>
-              <button
-                className="editBtn"
-                onClick={() => handleEditProject(project, index)}
-              >
-                ✏️
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  ) : (
-    <p className="no-data">No non-residential projects found</p>
-  )}
-</div>
+          {tabIndex === 0 ? (
+            filteredResidential.length !== 0 ? (
+              <>
+                <table>
+                  <thead>
+                    <tr>
+                      {/* <th>Department Name</th> */}
+                      <th>Project Name</th>
+                      <th>Campus</th>
+                      {/* <th>Discord Channel Web Hook URL</th> */}
+                      {/* <th>POC of Project</th> */}
+                      <th>PM Email</th>
+                      {/* <th>Client Name</th> */}
+                      <th>Priorities</th>
+                      {/* <th>Project Budget</th> */}
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredResidential.map((project, index) => (
+                      <tr key={index} onClick={() => handleOpen(project)} style={{ cursor: "pointer" }}>
+                        {/* <td>{project.department}</td> */}
+                        <td>{project.projectName}</td>
+                        <td>{project.campus}</td>
+                        {/* <td>{project.discordWebhook}</td> */}
+                        {/* <td>{project.poc_of_project}</td> */}
+                        <td>{project.projectMasterEmail}</td>
+                        {/* <td>{project.clientName}</td> */}
+                        <td>{project.priorities}</td>
+                        {/* <td>{project.projectBudget}</td> */}
+                        <td>{project.projectStatus}</td>
+                        <td>
+                          <button
+                            className="editBtn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditProject(project, index)
+                            }}
+                          >
+                            ✏️
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <Modal open={open} onClose={handleClose}>
+                  <Box sx={style}>
+                    {selectedProject && (
+                      <>
+                        <Typography variant="h6" gutterBottom>
+                          Project Details
+                        </Typography>
+                        <Typography><strong>Project Name:</strong> {selectedProject.projectName}</Typography>
+                        <Typography><strong>Campus:</strong> {selectedProject.campus}</Typography>
+                        <Typography><strong>POC:</strong> {selectedProject.poc_of_project}</Typography>
+                        <Typography><strong>PM Email:</strong> {selectedProject.projectMasterEmail}</Typography>
+                        <Typography><strong>Client:</strong> {selectedProject.clientName}</Typography>
+                        <Typography><strong>Priorities:</strong> {selectedProject.priorities}</Typography>
+                        <Typography><strong>Budget:</strong> {selectedProject.projectBudget}</Typography>
+                        <Typography><strong>Status:</strong> {selectedProject.projectStatus}</Typography>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            mt: 3,
+                            mb: 0,
+                          }}
+                        >
+                          <Button variant="contained" color="success" onClick={handleClose}>
+                            Close
+                          </Button>
+                        </Box>
+                      </>
+                    )}
+                  </Box>
+                </Modal>
+              </>
+            ) : (
+              <p className="no-data">No residential projects found</p>
+            )
+          ) : filteredNonResidential.length !== 0 ? (
+            <>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Department Name</th>
+                    <th>Project Name</th>
+                    <th>Channel Name</th>
+                    {/* <th>Channel ID</th> */}
+                    <th>PM Email</th>
+                    {/* <th>Client Name</th> */}
+                    <th>Priorities</th>
+                    {/* <th>Project Budget</th> */}
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredNonResidential.map((project, index) => (
+                    <tr key={index} onClick={() => handleOpen(project)} style={{ cursor: "pointer" }}>
+                      <td>{project.department}</td>
+                      <td>{project.projectName}</td>
+                      <td>{project.channelName}</td>
+                      {/* <td>{project.channelId}</td> */}
+                      <td>{project.projectMasterEmail}</td>
+                      {/* <td>{project.clientName}</td> */}
+                      <td>{project.priorities}</td>
+                      {/* <td>{project.projectBudget}</td> */}
+                      <td>{project.projectStatus}</td>
+                      <td>
+                        <button
+                          className="editBtn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditProject(project, index)
+                          }}
+                        >
+                          ✏️
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <Modal open={open} onClose={handleClose}>
+                <Box sx={style}>
+                  {selectedProject && (
+                    <>
+                      <Typography variant="h6" gutterBottom>
+                        Project Details
+                      </Typography>
+                      <Typography><strong>Department:</strong> {selectedProject.department}</Typography>
+                      <Typography><strong>Project Name:</strong> {selectedProject.projectName}</Typography>
+                      <Typography><strong>Channel Name:</strong> {selectedProject.channelName}</Typography>
+                      <Typography><strong>Channel ID:</strong> {selectedProject.channelId}</Typography>
+                      <Typography><strong>PM Email:</strong> {selectedProject.projectMasterEmail}</Typography>
+                      <Typography><strong>Client:</strong> {selectedProject.clientName}</Typography>
+                      <Typography><strong>Priorities:</strong> {selectedProject.priorities}</Typography>
+                      <Typography><strong>Budget:</strong> {selectedProject.projectBudget}</Typography>
+                      <Typography><strong>Status:</strong> {selectedProject.projectStatus}</Typography>
+                      <Box
+                          sx={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            mt: 3,
+                            mb: 0,
+                          }}
+                        >
+                          <Button variant="contained" color="success" onClick={handleClose}>
+                            Close
+                          </Button>
+                        </Box>
+                    </>
+                  )}
+                </Box>
+              </Modal>
+            </>
+          ) : (
+            <p className="no-data">No non-residential projects found</p>
+          )}
+        </div>
       </div>
       {isEditMode && (
         <div className="modal-overlay">
@@ -794,7 +890,7 @@ useEffect(() => {
                     />
                   </div>
                 </>
-                  )}
+              )}
               <input
                 type="text"
                 placeholder="PM Email"

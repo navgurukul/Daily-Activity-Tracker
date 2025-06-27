@@ -146,7 +146,9 @@ const Navbar = (props) => {
       localStorage.clear();
       sessionStorage.clear();
       setEmail("");
-      return navigate("/");
+      return navigate("/",{
+        state:{message:"Logged-out successfully!"}
+      })
     }
 
     // if (button === "comp-off-application") {

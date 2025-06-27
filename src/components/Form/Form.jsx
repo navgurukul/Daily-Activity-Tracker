@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./Form.css";
 import url from "../../../public/api";
-import { json, useNavigate } from "react-router-dom";
+import { json, useLocation, useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -20,8 +20,9 @@ import {
   Button,
   Snackbar,
   Alert,
-} from "@mui/material";
+} from "@mui/material"; 
 import { set } from "lodash";
+// import { useLocation } from "react-router-dom";
 
 const Form = () => {
   const dataContext = useContext(LoginContext);
@@ -91,7 +92,15 @@ const Form = () => {
 
   const [showSaveError, setShowSaveError] = useState(false);
   const [projectNameToId, setProjectNameToId] = useState({});
-
+  const location=useLocation();
+  
+  useEffect(()=>{
+    if(location.state?.message){
+      setSnackbarMessage(location.state.message);
+      setSnackbarSeverity('success')
+      setSnackbarOpen(true)
+    }
+  },[location.state])
 
   useEffect(() => {
     const fetchCampuses = async () => {

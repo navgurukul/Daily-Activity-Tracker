@@ -466,19 +466,15 @@ const Form = () => {
           body: JSON.stringify(newEntry),
         }
       );
+      const result = await response.json(); 
       console.log("Response of Post API:", response);
       if (!response.ok) {
         throw new Error(result.message || "Failed to save entry");
-        // console.error("Failed to save entry:");
       }
       showSnackbar("Entry successfully saved!", "success");
 
-      const result = await response.json();
-      console.log("Response from backend:", result);
-
       // Check if the response has results and the first result's status is "success"
       const entryStatus = result?.results?.[0]?.status;
-
       console.log(entryStatus, "entryStatus");
 
       const resultItem = result?.results?.[0];
@@ -492,7 +488,7 @@ const Form = () => {
 
       if (entryStatus !== "success" && entryStatus !== "updated") {
         throw new Error(
-          result?.results?.[0]?.message || "Entry was skipped or not saved."
+          resultItem?.message || "Entry was skipped or not saved."
         );
       }
 
@@ -519,6 +515,7 @@ const Form = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error posting entry:", error);
+      setLoading(false);
       showSnackbar(error.message || "Failed to save entry", "error");
     }
     setShowProjectError(false);

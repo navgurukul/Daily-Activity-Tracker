@@ -4,6 +4,7 @@ import {
   PutCommand,
   UpdateCommand,
   QueryCommand,
+  GetCommand
 } from "@aws-sdk/lib-dynamodb";
 import { docClient } from "../services/dbClient.mjs";
 import { buildResponse } from "../utils/responseBuilder.mjs";
@@ -90,7 +91,7 @@ export async function handlePost(event, stage, origin) {
     console.log(entryDateStr, "     ", logicalTodayStr, "   ", today, "   ", todayDate, '  checkResult checkResult checkResult checkResult checkResult')
     // Only apply limit if entry is not for today
     if (entryDateStr !== logicalTodayStr && checkResult.Items.length > 0) {
-      return buildResponse(400, { message: "You already finished your 3 attempts" }, origin);
+      return buildResponse(200, { message: "You already finished your 3 attempts" }, origin);
     }
   } catch (queryError) {
     console.error("Query failed:", queryError);
@@ -180,7 +181,8 @@ export async function handlePost(event, stage, origin) {
   // Step 2: Process each entry
   for (const entry of entries) {
     console.log("++++++++++++++++++++++",entry);
-    const { email, projectName, totalHoursSpent, workDescription, entryDate,workingDepartment, department = null, campus = null } = entry;
+    const { projectId,email, totalHoursSpent, workDescription, entryDate,workingDepartment,department = null, campus = null } = entry;
+    let projectName = entry.projectName || null
 
     // === Restrict ANY submission for previous month after 8 PM of its last day ===
     const checkEntryDateObj = new Date(entryDate);
@@ -208,11 +210,40 @@ export async function handlePost(event, stage, origin) {
       }
     }
 
+    // Get project details By id
+    // const project_Params = {
+    //   TableName: "ProjectMaster",
+    //   Key: {
+    //     id: projectId,
+    //     status: "dev"
+    //   }
+    // };
+    
+    if(projectId){
+      const project_Params = {
+        TableName: "ProjectMaster",
+        KeyConditionExpression: "Id = :id",
+        ExpressionAttributeValues: {
+          ":id": projectId
+        }
+      };
+      const project_details = await docClient.send(new QueryCommand(project_Params));
+      projectName = project_details?.Items[0].projectName
+    }
+    // console.l/;[lp;[]['og("=================----00-0-project_Params",project_details);
+    console.log('PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP',projectName);
 
     // Validate combined total hours (DB + payload) <= 15
     const key = `${email}|${entryDate}`;
     const newTotal = (existingEntryHoursMap[key] || 0) + newEntryHoursMap[key];
-
+    console.log('NNNNNNNNNNNNNNNNNNNNNN',newTotal);
+    let workType;
+    if(newTotal < 6){
+      workType = "half-day"
+    }else{
+      workType = "full-day"
+    }
+    console.log("LLLLLLLLLLLLLLLLLLLLLLLLLL",workType);
     if (newTotal > 15) {
       results.push({
         entry,
@@ -334,32 +365,45 @@ export async function handlePost(event, stage, origin) {
       return entryDate >= start && entryDate <= end;
     });
 
+    console.log('TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT',leaveFound);
     if (leaveFound) {
-      results.push({
-        entry,
-        status: "failed",
-        reason: `Cannot log entry on ${entryDate} — user is on ${leaveFound.durationType} leave (status: ${leaveFound.status}).`,
-      });
-      continue;
+      if(leaveFound.durationType === "full-day"){
+        results.push({
+          entry,
+          status: "failed",
+          reason: `Cannot log entry on ${entryDate} — user is on ${leaveFound.durationType} leave (status: ${leaveFound.status}).`,
+        });
+        continue;
+      }
+      else if(leaveFound.durationType === "half-day" && workType === "full-day"){
+        results.push({
+          entry,
+          status: "failed",
+          // reason: `Cannot log entry on ${entryDate} — user is on ${leaveFound.durationType} leave (status: ${leaveFound.status}).`,
+          reason: `Cannot log a full-day entry on ${entryDate} — user is on half-day leave (status: ${leaveFound.status}).`
+        });
+        continue;
+      }
     }
     // Step 3: Check if an entry for this date+email+projectName exists
     const checkParams = {
       TableName: "employeeDailyActivityLogs",
       IndexName: "email-entryDate-index",
       KeyConditionExpression: "email = :email AND entryDate = :entryDate",
-      FilterExpression: "projectName = :projectName",
+      FilterExpression: "projectName = :projectName AND projectId = :projectId",
       ExpressionAttributeValues: {
         ":email": email,
         ":entryDate": entryDate,
         ":projectName": projectName,
+        ":projectId": projectId
       },
     };
 
     const existing = await docClient.send(new QueryCommand(checkParams));
+    console.log('BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB+++++++++',existing);
 
     if (existing.Items.length > 0) {
       const existingItem = existing.Items[0];
-
       const updateParams = {
     
 
@@ -373,6 +417,7 @@ export async function handlePost(event, stage, origin) {
               updatedAt = :updatedAt,
               workingDepartment = :workingDepartment,
               department = :department,
+              workType= :workType,
               campus = :campus,
               logStatus = :logStatus
         `,
@@ -382,8 +427,9 @@ export async function handlePost(event, stage, origin) {
           ":updatedAt": new Date().toISOString(),
           ":workingDepartment": entry.workingDepartment || null,
           ":department": entry.department || null,
+          ":workType": workType || null,
           ":campus": entry.campus || null,
-          ":logStatus": "pending"
+          ":logStatus": "approved"
         }
 
 
@@ -409,9 +455,11 @@ export async function handlePost(event, stage, origin) {
         totalHoursSpent,
         workDescription,
         workingDepartment :workingDepartment || null,
+        workType: workType || null,
+        projectId: projectId,
         stage,
         updatedAtDate,
-        logStatus: "pending",
+        logStatus: "approved",
         approvalEmail: "",
         updatedAt: new Date().toISOString(),
         // department:dtment || "",
@@ -443,7 +491,6 @@ export async function handlePost(event, stage, origin) {
       },
     };
     const result = await docClient.send(new QueryCommand(queryParams));
-    console.log("MMMMMMMMMMMMMMMMMMMMMMMMMMMMMm",result);
     const uniqueMismatchedDates = new Set();
 
     for (const item of result.Items) {

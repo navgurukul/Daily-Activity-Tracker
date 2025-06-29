@@ -1,20 +1,18 @@
 import { sendDailyProjectLogs } from './sendProjectLogsToSlack.mjs';
 import { sendDailyLeaveLogs } from './sendLeavesToSlack.mjs';
+import { sendDiscordLeaveNotification} from "./sendLeavesToDiscord.mjs";
 import { handler as sendDiscordNotification } from './discordNotification.mjs';  // ✅ Rename it here
 
 export const handler = async (event) => {
   try {
-    console.log("⏳ Starting daily log sending process...");
+    // console.log("⏳ Starting daily log sending process...");
     await sendDailyProjectLogs();
 
-    console.log("⏳ Sending leave summary...");
-    await sendDailyLeaveLogs();
-
-    console.log("⏳ Sending discord notification...");
-    await sendDiscordNotification();
+    console.log("⏳ Sending leave summary to discord...");
+    await sendDiscordLeaveNotification() 
 
     console.log("⏳ Sending leave summary...");
-    await sendDailyLeaveLogs();
+    await sendDailyLeaveLogs(); 
 
     console.log("⏳ Sending discord notification...");
     await sendDiscordNotification();

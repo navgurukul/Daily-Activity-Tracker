@@ -149,13 +149,16 @@ export const handler = async (event) => {
 
 
   const inpDay = new Date(body.startDate).getDate();
+  const leaveMonth = new Date(body.startDate).getMonth();
   const aaj = new Date();
   const todayDay = aaj.getDate();
+  const mont = aaj.getMonth();
   if (
     // inputMonth === todayMonth &&
     // inputYear === todayYear &&
     todayDay > 25 &&
-    inpDay <= 25
+    inpDay <= 25 && 
+    mont === leaveMonth
   ) {
 
     return {
@@ -330,17 +333,29 @@ export const handler = async (event) => {
   };
 
   const result = await docClient.query(params).promise();
-
+  console.log("TTTTTTTTTTTTTTTTTTT",result);
   // Check if any entries already exist for the requested dates
   if (result.Items && result.Items.length > 0) {
     const conflictingDates = result.Items.map(item => item.entryDate);
-    return {
-      statusCode: 400,
-      headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({
-        message: `Leave cannot be applied. Log(s) already exist for date(s): ${conflictingDates.join(', ')}`
-      })
-    };
+    const work_type = result.Items[0].workType
+    if(work_type === "full-day"){
+      return {
+        statusCode: 400,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify({
+          message: `Leave cannot be applied. Log(s) already exist for date(s): ${conflictingDates.join(', ')}`
+        })
+      };
+    }else if(work_type === "half-day" && body.durationType !== "half-day"){
+      return {
+        statusCode: 400,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify({
+          message: `You have logged half-day work on this date, so you can only apply for half-day leave.`
+        })
+      };
+      
+    }
   }
 
 
@@ -420,11 +435,12 @@ export const handler = async (event) => {
         }
       );
 
-      console.log("=====employmentData ", employmentData);
+      console.log("=====employmentData ", employmentData,employmentData?.[body.leaveType]);
 
       const allocatedLeaveStr = employmentData?.[body.leaveType];
       console.log('---------------------------------', allocatedLeaveStr);
-      if (!allocatedLeaveStr || allocatedLeaveStr === "N/A") {
+      let testLeaveType = "Add as Leave Type in the database with 0 allocations for all. Should not be visible in the UI but can be shown in the table in the Leave Application form. In the allocation column, instead of a number, there should be a message Please contact the PnC team to avail this leave type"
+      if (!allocatedLeaveStr || allocatedLeaveStr === "N/A" || allocatedLeaveStr === testLeaveType) {
         maxLeaveAllowed = 0;
       } else {
         maxLeaveAllowed = parseFloat(allocatedLeaveStr);
@@ -521,6 +537,7 @@ export const handler = async (event) => {
       leaveType: { S: body.leaveType },
       halfDayStatus: { S: body.halfDayStatus || "" },
       reasonForLeave: { S: body.reasonForLeave || "" },
+      department : {S: body.department || ""},
       startDate: { S: body.startDate },
       status: { S: "pending" },
       userEmail: { S: body.userEmail },

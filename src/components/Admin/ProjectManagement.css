@@ -21,17 +21,38 @@
 }
 .form-container h2 {
   margin-bottom: 15px;
+  margin-left: 15px;
 }
 .form-fields {
   display: flex;
   gap: 2px;
   flex-wrap: wrap;
   width: 100%;
+  margin-left: 15px;
 }
 .input-wrapper {
   display: flex;
   flex-direction: column;
   width: 32.99%;
+  position: relative;
+}
+.tooltip-container {
+  position: relative;
+  /* width: 255px; */
+}
+
+.custom-tooltip {
+  position: absolute;
+  bottom: -30px;
+  width: 90%;
+  background-color: #f0f0f0;
+  color: #333;
+  padding: 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+  z-index: 10;
+  white-space: normal;
 }
 .input-field {
   padding: 10px;
@@ -51,7 +72,8 @@
   border-radius: 5px;
   cursor: pointer;
   margin-top: 10px;
-  width: 97.5%;
+  width: 96%;
+  margin-left: 15px;
 }
 .add-btn:hover {
   background-color: #45A049;
@@ -66,6 +88,11 @@
 }
 .table-container h2 {
   margin-bottom: 15px;
+  display: inline;
+}
+.tabs {
+  display: flex inline !important;
+  margin-left: 20px;
 }
 table {
   width: 99.5%;
@@ -185,6 +212,11 @@ th {
 
 
 /* Responsiveness */
+@media (max-width: 1440px) {
+  .table-wrapper {
+    overflow-x: auto;
+  }
+}
 @media (max-width: 1024px) {
  .admin-container {
     margin-left: 80px;
@@ -192,8 +224,15 @@ th {
   .form-fields input, .form-fields select {
     width: 235px;
   }
+  .form-container h2{
+    margin-left: 5px;
+  }
+  .form-fields {
+    margin-left: 5px;
+  }
   .form-container button{
     width: 690px;
+    margin-left: 5px;
   }
 
  .filters{
@@ -220,6 +259,10 @@ th {
   }
   .modal-content .add-btn{
     width: 440px;
+  }
+
+  .tooltip{
+    width: 255px;
   }
 }
 
@@ -258,16 +301,23 @@ th {
   .modal-content .add-btn{
     width: 425px;
   }
+  .tooltip{
+    width: 245px;
+  }
 }
 
 @media (max-width: 425px) {
   .form-container{
     text-align: center;
   }
+  .form-container h2{
+    margin-left: 0;
+  }
   .form-fields{
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-left: 0;
   }
   .input-wrapper{
     width: 260px;
@@ -277,6 +327,7 @@ th {
   }
   .form-container button{
     width: 230px;
+    margin-left: 0;
   }
 
   .table-container h2{
@@ -312,6 +363,11 @@ th {
     width: 232px;
     margin-left: 40px;
   }
+
+  .tooltip{
+    width: 280px;
+    margin-left: -10px;
+  }
 }
 
 @media (max-width: 375px) {
@@ -320,6 +376,7 @@ th {
   }
   .form-container button{
     width: 220px;
+    margin-left: -10px;
   }
 
   .modal-content{
@@ -329,11 +386,17 @@ th {
     width: 220px;
     margin-left: 25px;
   }
+  .tooltip-container {
+    margin-left: -10px;
+  }
+  .tooltip{
+    width: 270px;
+  }
 }
 
 @media (max-width: 320px) {
   .form-container button{
-    width: 210px;
+    width: 220px;
   }
   .modal-content{
     width: 245px;

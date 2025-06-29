@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import LoadingSpinner from "../Loader/LoadingSpinner";
 import { useLoader } from "../context/LoadingContext";
-import { Snackbar, Alert } from "@mui/material";
+import { Snackbar, Alert, Box, Typography, Autocomplete, TextField } from "@mui/material";
 import url from "../../../public/api";
 
 const CompOff = () => {
@@ -38,6 +38,12 @@ const CompOff = () => {
 
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({
+    userEmail: "",
+    reasonForLeave: "",
+    durationType: "",
+    halfDayStatus: "",
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,14 +57,33 @@ const CompOff = () => {
     e.preventDefault();
     setLoading(true);
     handleLoading(true);
-  
+    // 🗝️ Local validation
+    const errors = {
+      userEmail: leaveData.userEmail.trim() === "" ? "Please select an email*" : "",
+      reasonForLeave: leaveData.reasonForLeave.trim() === "" ? "Please enter a reason*" : "",
+      durationType: leaveData.durationType.trim() === "" ? "Please select a duration type*" : "",
+      halfDayStatus:
+        leaveData.durationType === "half-day" && leaveData.halfDayStatus.trim() === ""
+          ? "Please select a half day status*"
+          : "",
+    };
+
+    setFieldErrors(errors);
+
+    // If any error exists, stop submit
+    if (Object.values(errors).some(Boolean)) {
+      setLoading(false);
+      handleLoading(false);
+      return; // Stop
+    }
+
     const payload = { ...leaveData };
     if (payload.durationType !== "half-day") {
       delete payload.halfDayStatus;
     }
-  
+
     const token = sessionStorage.getItem("jwtToken");
-  
+
     try {
       const response = await fetch(
         "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy/Compensatory",
@@ -71,17 +96,17 @@ const CompOff = () => {
           body: JSON.stringify(payload),
         }
       );
-  
+
       const responseData = await response.json();
       console.log(responseData, "Response from API");
-  
+
       if (!response.ok) {
         // Show the specific message from backend if available
         const errorMessage =
           responseData?.message || "Failed to submit leave request.";
         throw new Error(errorMessage);
       }
-  
+
       setSuccessMessage("Compensatory request submitted successfully!");
       setLeaveData({
         leaveType: "Compensatory Leave",
@@ -94,6 +119,7 @@ const CompOff = () => {
         halfDayStatus: "",
         status: "pending",
       });
+      setFieldErrors({});
       setTimeout(() => setSuccessMessage(""), 4000);
     } catch (error) {
       console.error("Error submitting leave:", error);
@@ -102,7 +128,7 @@ const CompOff = () => {
       setLoading(false);
       handleLoading(false);
     }
-  };  
+  };
 
   const handleLoading = (load) => {
     document.getElementById("root").style.opacity = load ? "0.8" : "1";
@@ -136,22 +162,48 @@ const CompOff = () => {
       </h1>
 
       <form onSubmit={handleSubmit} className="form-1">
-        <div>
-          <label htmlFor="userEmail">Employee Email:</label>
-          <input
-        type="email"
-        name="userEmail"
-        list="email-options"
-        value={leaveData.userEmail}
-        onChange={handleChange}
-        required
-      />
-      <datalist id="email-options">
-        {emailList.map((email, index) => (
-          <option key={index} value={email} />
-        ))}
-      </datalist>
-        </div>
+        <Box sx={{ textAlign: 'left', mb: 0 }}>
+          <Typography
+            htmlFor="userEmail"
+            sx={{ fontWeight: 'bold', mb: 1.2, color: 'black' }}
+          >
+            Employee Email:
+          </Typography>
+
+          <Autocomplete
+            options={emailList}
+            value={leaveData.userEmail}
+            onChange={(event, newValue) => {
+              handleChange({
+                target: { name: 'userEmail', value: newValue || "" },
+              });
+            }}
+            freeSolo
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                id="userEmail"
+                name="userEmail"
+                variant="outlined"
+                size="small"
+                fullWidth
+                sx={{
+                  '& .MuiInputBase-root': {
+                    height: 36,
+                  },
+                  '& .MuiInputBase-input': {
+                    border: 'none',
+                    outline: 'none',
+                  },
+                }}
+              />
+            )}
+          />
+          {fieldErrors.userEmail && (
+            <div className="error-message" style={{ marginTop: "-24px" }}>{fieldErrors.userEmail}</div>
+          )}
+        </Box>
+
 
         {/* Reason */}
         <div>
@@ -160,8 +212,10 @@ const CompOff = () => {
             name="reasonForLeave"
             value={leaveData.reasonForLeave}
             onChange={handleChange}
-            required
           />
+          {fieldErrors.reasonForLeave && (
+            <div className="error-message" style={{ marginTop: "-5px" }}>{fieldErrors.reasonForLeave}</div>
+          )}
         </div>
 
         {/* Start Date */}
@@ -195,12 +249,14 @@ const CompOff = () => {
             name="durationType"
             value={leaveData.durationType}
             onChange={handleChange}
-            required
           >
             <option value="">Select Duration</option>
             <option value="full-day">Full Day</option>
             <option value="half-day">Half Day</option>
           </select>
+          {fieldErrors.durationType && (
+            <div className="error-message" style={{ marginTop: "0px" }}>{fieldErrors.durationType}</div>
+          )}
         </div>
 
         {/* Half Day Status (only if half-day selected) */}
@@ -211,12 +267,14 @@ const CompOff = () => {
               name="halfDayStatus"
               value={leaveData.halfDayStatus}
               onChange={handleChange}
-              required
             >
               <option value="">Select Half Day Status</option>
               <option value="first-half">First Half</option>
               <option value="second-half">Second Half</option>
             </select>
+            {fieldErrors.halfDayStatus && (
+              <div className="error-message" style={{ marginTop: "0px" }}>{fieldErrors.halfDayStatus}</div>
+            )}
           </div>
         )}
 

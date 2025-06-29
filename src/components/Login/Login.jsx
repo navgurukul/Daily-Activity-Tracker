@@ -1,4 +1,3 @@
-/* global google */
 import { useState, useEffect, useContext } from "react";
 import {jwtDecode} from "jwt-decode";
 import "./Login.css";
@@ -6,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
+import { Message } from "@mui/icons-material";
+import { useLocation } from "react-router-dom";
 
 function Login() {
   const navigate = useNavigate();
@@ -13,6 +14,14 @@ function Login() {
   const { email, setEmail } = dataContext;
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+   const location=useLocation();
+    
+    useEffect(()=>{
+      if(location.state?.message){
+        setAlertMessage(location.state.message);
+        setSnackbarOpen(true)
+      }
+    },[location.state])
 
   useEffect(() => {
     // localStorage.getItem("email") ? navigate("/activity-tracker") : null;
@@ -62,7 +71,15 @@ function Login() {
           localStorage.setItem("department", department);
           setEmail(userEmail);
 
-          navigate("/activity-tracker");
+          navigate("/activity-tracker",{
+            state:{message:"Logged-in successfully!"}
+          })
+
+//           setAlertMessage('Logged-in successfully!');
+//           setSnackbarOpen(true);
+//           setTimeout(() => {
+//   navigate("/activity-tracker");
+// }, 1500);
         } catch (error) {
           console.error("Error fetching role data:", error);
           setAlertMessage("Login failed due to server error.");
@@ -113,7 +130,8 @@ function Login() {
           elevation={6}
           variant="filled"
           onClose={handleCloseSnackbar}
-          severity="warning"
+          // severity="warning"
+          severity={alertMessage.includes("successfully") ? "success" : "warning"}
         >
           {alertMessage}
         </MuiAlert>

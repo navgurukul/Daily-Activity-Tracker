@@ -126,7 +126,7 @@ td {
   padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
-  width: 100px;
+  max-width: 130px;
 }
 .delete-button,
 .edit-button {
@@ -163,6 +163,12 @@ td {
 .full-width-button {
   width: 100%;
   box-sizing: border-box;
+}
+
+.full-width-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  color: #666;
 }
 
 @media (max-width: 1024px) {

@@ -108,7 +108,7 @@ label {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.7);
+  background: transparent;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -116,9 +116,24 @@ label {
   z-index: 9999;
 }
 
+.loader-box {
+  background: white;
+  border: 2px solid green;
+  padding: 20px 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.balance-data table{
+  width: 100%;
+  min-width: 1000px;
+
 }
 
 @media (max-width: 1024px) {
@@ -133,6 +148,9 @@ label {
   .history-data{
     max-width: 765px;
     overflow: scroll;
+  }
+  .balance-data table{
+    min-width: 700px;
   }
 }
 
@@ -169,6 +187,9 @@ label {
   }
   .history-data{
     max-width: 415px;
+  }
+  .balance-data table{
+    min-width: auto;
   }
 }
 

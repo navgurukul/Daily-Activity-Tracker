@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./Form.css";
 import url from "../../../public/api";
-import { json, useNavigate } from "react-router-dom";
+import { json, useLocation, useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -21,7 +21,9 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
 import { set } from "lodash";
+// import { useLocation } from "react-router-dom";
 
 const Form = () => {
   const dataContext = useContext(LoginContext);
@@ -79,8 +81,10 @@ const Form = () => {
   const [attemptLoading, setAttemptLoading] = useState(true);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbaropen, setSnackbaropen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // 'success', 'error', 'warning', 'info'
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [alertMessage, setAlertMessage] = useState("");
 
   const [campuses, setCampuses] = useState([]);
 
@@ -90,6 +94,21 @@ const Form = () => {
   const [departments, setDepartments] = useState([]);
 
   const [showSaveError, setShowSaveError] = useState(false);
+  const [projectNameToId, setProjectNameToId] = useState({});
+  
+  const location = useLocation();
+
+  const handleCloseSnackbar = () => {
+    setSnackbaropen(false);
+  };
+
+  useEffect(() => {
+    if (location.state?.message) {
+      setAlertMessage(location.state.message);
+    
+      setSnackbaropen(true)
+    }
+  }, [location.state])
 
   useEffect(() => {
     const fetchCampuses = async () => {
@@ -175,6 +194,7 @@ const Form = () => {
 
           const projects = data.data.map((project) => {
             return {
+              projectId: project.Id,
               projectName: project.projectName,
               status: project.projectStatus,
               department: project.department,
@@ -194,10 +214,13 @@ const Form = () => {
           if (dayOfWeek === 6) {
             activeProjectNames.push("Saturday-Peer-Learning");
           }
+          const nameToIdMap = {};
           projects.forEach((project) => {
             if (project.status === "Active") {
               const dept = project.department.trim();
               const projectName = project.projectName;
+
+              nameToIdMap[projectName] = project.projectId;
 
               if (!projectByDepartment[dept]) {
                 projectByDepartment[dept] = new Set();
@@ -214,7 +237,7 @@ const Form = () => {
           });
           setProjectByDepartment(projectByDepartment);
           setProjectsLoading(false);
-
+          setProjectNameToId(nameToIdMap);
         });
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -268,12 +291,11 @@ const Form = () => {
     setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
 
     if (e.target.value !== "") {
-    setShowProjectError(false);
-  }
+      setShowProjectError(false);
+    }
   };
 
   useEffect(() => {
-    // console.log("Selected Project:", selectedProject);
     setMaxHours(15);
   }, [selectedProject]);
 
@@ -281,7 +303,7 @@ const Form = () => {
     if (showSaveError) {
       const timer = setTimeout(() => {
         setShowSaveError(false);
-      }, 3000); 
+      }, 3000);
 
       return () => clearTimeout(timer);
     }
@@ -332,7 +354,7 @@ const Form = () => {
       ...prevState,
       contributions: [
         ...prevState.contributions,
-        { project: selectedProject, ...currentContribution },
+        { project: selectedProject, ...currentContribution, department: prevState.department || userDepartment },
       ],
       blockers: formData.blockers,
       campus: formData.campus,
@@ -405,13 +427,15 @@ const Form = () => {
       entries: formData.contributions.map((c) => ({
         email: userEmail,
         projectName: c.project,
+        projectId: projectNameToId[c.project],
         totalHoursSpent: Number(c.hours),
         workDescription: c.task,
         entryDate: formData.selectedDate,
+        department: userDepartment, // original department
+        workingDepartment: c.department || userDepartment, // current selected
         ...(department === "Residential Program" && {
           blockers: formData.blockers,
           campus: formData.campus,
-          department: department,
         }),
       })),
     };
@@ -432,7 +456,7 @@ const Form = () => {
     );
     console.log("Existing Logs:", existingLogs);
 
-    if(formData.contributions.length === 0) {
+    if (formData.contributions.length === 0) {
       setShowProjectError(true);
       return;
     }
@@ -453,6 +477,7 @@ const Form = () => {
       console.log("Response of Post API:", response);
       if (!response.ok) {
         throw new Error(result.message || "Failed to save entry");
+        // console.error("Failed to save entry:");
       }
       showSnackbar("Entry successfully saved!", "success");
 
@@ -463,6 +488,15 @@ const Form = () => {
       const entryStatus = result?.results?.[0]?.status;
 
       console.log(entryStatus, "entryStatus");
+
+      const resultItem = result?.results?.[0];
+      const EntryStatus = resultItem?.status;
+      if (EntryStatus === "failed") {
+        showSnackbar(resultItem?.reason || "Entry was skipped or not saved.", "error");
+        setFormData((prev) => ({ ...prev, contributions: [] }));
+        setLoading(false);
+        return;
+      }
 
       if (entryStatus !== "success" && entryStatus !== "updated") {
         throw new Error(
@@ -485,7 +519,7 @@ const Form = () => {
       }
 
       console.log("Entry successfully sent to backend");
-      
+
       // Clear the form
       setFormData({ ...initialFormData });
       console.log("Form Data after submission:", formData);
@@ -581,29 +615,29 @@ const Form = () => {
   //   return minDate.toISOString().split("T")[0];
   // }
 
-    useEffect(() => {
-      const fetchDepartments = async () => {
-        try {
-          const res = await fetch(
-            "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
-          );
-          const data = await res.json();
-          if (data.success) {
-            const allDepartments = data.data.map((item) => item.Department);
-            const uniqueDepartments = [...new Set(allDepartments)];
-            setDepartments(uniqueDepartments);
-          }
-        } catch (err) {
-          console.error("Error fetching departments:", err);
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await fetch(
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+        );
+        const data = await res.json();
+        if (data.success) {
+          const allDepartments = data.data.map((item) => item.Department);
+          const uniqueDepartments = [...new Set(allDepartments)];
+          setDepartments(uniqueDepartments);
         }
-      };
-      fetchDepartments();
-    }, []);
+      } catch (err) {
+        console.error("Error fetching departments:", err);
+      }
+    };
+    fetchDepartments();
+  }, []);
 
-    const currentDept = formData.department || userDepartment;
+  const currentDept = formData.department || userDepartment;
 
   return (
-    <div className="form-container" style={{ overflowY: "scroll", height: "100vh", marginTop: "-20px"}}>
+    <div className="form-container" style={{ overflowY: "scroll", height: "100vh", marginTop: "-20px" }}>
       <LoadingSpinner loading={loading} className="loader-container" />
       <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
         <h3 style={{ fontSize: "32px", fontWeight: "bold", color: "#000" }}>
@@ -650,58 +684,45 @@ const Form = () => {
           <label>Employee Department:</label>
           <input
             type="text"
-            // name="department"
             value={userDepartment}
-            // onChange={handleChange}
             required
             disabled
             color="red"
-            />
-          </div>
-          <div>
-            <label>Current Working Department:</label>
-            <select
+          />
+        </div>
+        <div>
+          <label>Current Working Department:</label>
+          <select
             name="department"
             value={formData.department || userDepartment}
             onChange={(e) => {
+              const newDepartment = e.target.value;
               setFormData((prev) => ({
-              ...prev,
-              department: e.target.value,
+                ...prev,
+                department: newDepartment,
               }));
+              // Reset project and contribution when department changes
+              setSelectedProject("");
+              setCurrentContribution({ hours: "", task: "" });
             }}
-            >
+          >
             <option value="" disabled>
               Select Department
             </option>
             {departments.map((dept, idx) => (
               <option key={idx} value={dept}>
-              {dept}
+                {dept}
               </option>
             ))}
-            </select>
-          </div>
-          {/* {(formData.department || userDepartment) === "Residential Program" && (
-            <div>
-            <label>
-              Please Mention Any Blockers or Challenges You Are Facing (Minimum
-              25 characters):
-            </label>
-            <textarea
-              name="blockers"
-              value={formData.blockers}
-              onChange={handleChange}
-              minLength={25}
-              required
-            />
-          </div>
-        )} */}
+          </select>
+        </div>
+
         <div>
           <label>Select the date for which you want to update the form:</label>
           <input
             type="date"
             name="selectedDate"
             max={today}
-            // disabled={isDateDisabled}
             min={getMinDate()}
             value={formData.selectedDate}
             onChange={handleChange}
@@ -730,7 +751,6 @@ const Form = () => {
         {formData.contributions.length > 0 && (
           <div>
             <h3>Contributions Summary</h3>
-
             <table>
               <thead>
                 <tr>
@@ -801,6 +821,7 @@ const Form = () => {
                           style={{
                             display: "flex",
                             justifyContent: "center",
+                            maxWidth: "100%",
                           }}
                         >
                           <div className="button-container">
@@ -843,7 +864,6 @@ const Form = () => {
             <select disabled>
               <option value="">Loading projects...</option>
             </select>
-          // ) : currentDept in projectByDepartment ? (
           ) : Object.keys(projectByDepartment).length > 0 && currentDept in projectByDepartment ? (
             <select
               name="selectedProject"
@@ -863,10 +883,10 @@ const Form = () => {
             </select>
           )}
           {showProjectError && (
-    <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem"}}>
-      Project cannot be empty*
-    </div>
-  )}
+            <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem" }}>
+              Project cannot be empty*
+            </div>
+          )}
           <br />
           <br />
           {selectedProject && (
@@ -882,7 +902,7 @@ const Form = () => {
                 min="0"
               />
               {showHoursError && (
-                <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem"}}>
+                <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem" }}>
                   Total hours spent cannot be empty or negative*
                 </div>
               )}
@@ -894,7 +914,7 @@ const Form = () => {
                 onChange={handleContributionChange}
               />
               {showTaskError && (
-                <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem"}}>
+                <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem" }}>
                   Task cannot be empty*
                 </div>
               )}
@@ -909,11 +929,11 @@ const Form = () => {
           )}
         </div>
         {showSaveError && (
-          <p style={{ display: "flex", color: "red", marginTop: "4px"}}>
+          <p style={{ display: "flex", color: "red", marginTop: "4px" }}>
             Please save your contribution before submitting.
           </p>
         )}
-        <button type="submit" className="full-width-button">
+        <button type="submit" className="full-width-button" disabled={formData.contributions.length === 0}>
           Submit
         </button>
       </form>
@@ -951,6 +971,21 @@ const Form = () => {
         >
           {snackbarMessage}
         </Alert>
+      </Snackbar>
+      <Snackbar
+        open={snackbaropen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <MuiAlert
+          elevation={6}
+          variant="filled"
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity} 
+        >
+          {alertMessage}
+        </MuiAlert>
       </Snackbar>
     </div>
   );

@@ -191,20 +191,20 @@ const LeaveHistory = () => {
           className={`tab-button ${tabIndex === 0 ? "active-tab" : ""}`}
           onClick={() => handleTabClick(0)}
         >
-          Pending Leaves
+          ⏳ Pending Leaves
         </button>
         <button
           className={`tab-button ${tabIndex === 1 ? "active-tab" : ""}`}
           onClick={() => handleTabClick(1)}
         >
-          Approved Leaves
+          ✔️ Approved Leaves
         </button>
         
         <button
           className={`tab-button ${tabIndex === 2 ? "active-tab" : ""}`}
           onClick={() => handleTabClick(2)}
         >
-          Rejected Leaves
+          🚫 Rejected Leaves
         </button>
       </div>
       <Box sx={{ marginTop: "20px" }}>

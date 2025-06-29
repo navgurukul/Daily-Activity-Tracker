@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useContext } from "react";
 import "./LeaveManagement.css";
 import { LoginContext } from "../context/LoginContext";
-import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, } from "@mui/material";
+import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, Box, Button, Chip } from "@mui/material";
+import axios from "axios";
 
 const LeaveManagement = () => {
   const dataContext = useContext(LoginContext);
@@ -26,7 +27,13 @@ const LeaveManagement = () => {
   const [filterEmail, setFilterEmail] = useState("");
   const [filterMonth, setFilterMonth] = useState("");
 
-  const fetchLeavesData = async (status,email='', month='') => {
+
+
+  const [inputError, setInputError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const fetchLeavesData = async (status, email = '', month = '') => {
+    setLoading(true)
     try {
       const response = await fetch(
         `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?status=${status}&employeeEmail=${email}&month=${month}&limit=100&page=1`
@@ -35,8 +42,7 @@ const LeaveManagement = () => {
 
       const result = [];
       const emails = [];
-      // console.log("result: ", result);
-      // console.log("emails: ", emails);
+
 
 
 
@@ -55,9 +61,10 @@ const LeaveManagement = () => {
         setApprovedLeaves(result);
       }
 
-      setAllEmails(emails);
     } catch (err) {
       console.error(`Failed to fetch ${status} leaves`, err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,21 +78,21 @@ const LeaveManagement = () => {
     setFilterMonth("");
   }, [selectedTab]);
 
- useEffect(() => {
-  if (selectedTab === "pending") {
-    if (filterEmail || filterMonth) {
-      fetchLeavesData("pending", filterEmail, filterMonth);
-    } else {
-      fetchLeavesData("pending"); // No filters applied
+  useEffect(() => {
+    if (selectedTab === "pending") {
+      if (filterEmail || filterMonth) {
+        fetchLeavesData("pending", filterEmail, filterMonth);
+      } else {
+        fetchLeavesData("pending"); // No filters applied
+      }
+    } else if (selectedTab === "approved") {
+      if (filterEmail || filterMonth) {
+        fetchLeavesData("approved", filterEmail, filterMonth);
+      } else {
+        fetchLeavesData("approved"); // No filters applied
+      }
     }
-  } else if (selectedTab === "approved") {
-    if (filterEmail || filterMonth) {
-      fetchLeavesData("approved", filterEmail, filterMonth);
-    } else {
-      fetchLeavesData("approved"); // No filters applied
-    }
-  }
-}, [filterEmail, filterMonth, selectedTab]);
+  }, [filterEmail, filterMonth, selectedTab]);
 
 
   const handleApprove = async (leaveId) => {
@@ -136,7 +143,11 @@ const LeaveManagement = () => {
   };
 
   const fetchLeaveBalance = async () => {
-    if (!searchEmail) return;
+    if (!searchEmail) {
+      setInputError("Please select an email*")
+      return;
+    }
+    setInputError("");
 
     setLoadingBalance(true);
     setBalanceError("");
@@ -161,67 +172,76 @@ const LeaveManagement = () => {
     setLoadingBalance(false);
   };
 
-  const fetchLeaveHistory = async () => {
+  useEffect(() => {
+    const fetchEmails = async () => {
+      try {
+        const response = await axios.get(
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+        );
+        const teamIDs = Array.from(
+          new Set(
+            response.data?.data
+              ?.map((entry) => entry["Team ID"])
+              ?.filter((id) => !!id)
+          )
+        );
+        setAllEmails(teamIDs);
+      } catch (error) {
+        console.error("Error fetching emails:", error);
+        setSnackbarMessage("Failed to fetch emails");
+      }
+    };
+    fetchEmails();
+  }, []);
+
+  const fetchLeaveHistory = async (email, month) => {
+    setLoading(true)
     try {
       const response = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?limit=100&page=1"
+        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?employeeEmail=${email}&month=${month}&limit=100&page=1`
       );
       const data = await response.json();
-
       const history = [];
-
-      Object.keys(data).forEach((email) => {
-        const userLeaves = data[email];
-
+      Object.keys(data).forEach((emailKey) => {
+        const userLeaves = data[emailKey];
         const allRecords = [
           ...(userLeaves.pending || []).map((r) => ({
-            email,
+            email: emailKey,
             status: "Pending",
-            ...r,
+            ...r
           })),
           ...(userLeaves.approved || []).map((r) => ({
-            email,
+            email: emailKey,
             status: "Approved",
-            ...r,
+            ...r
           })),
           ...(userLeaves.rejected || []).map((r) => ({
-            email,
+            email: emailKey,
             status: "Rejected",
-            ...r,
+            ...r
           })),
         ];
-
         history.push(...allRecords);
       });
-
       setLeaveHistory(history);
-      setFilteredLeaveHistory(history); // Initially, no filtering
+      setFilteredLeaveHistory(history);
     } catch (error) {
       console.error("Error fetching leave history:", error);
+    } finally {
+      setLoading(false);
     }
   };
-
   useEffect(() => {
     if (selectedTab === "history") {
-      fetchLeaveHistory();
+      fetchLeaveHistory(searchEmail, filterMonth);
     }
-  }, [selectedTab]);
+  }, [selectedTab, searchEmail, filterMonth]);
 
-  // Filter leave history based on selected email
-  const filterLeaveHistoryByEmail = (email) => {
-    if (email) {
-      const filteredHistory = leaveHistory.filter(
-        (record) => record.email === email
-      );
-      setFilteredLeaveHistory(filteredHistory);
-    } else {
-      setFilteredLeaveHistory(leaveHistory); // Reset to all records when no email is selected
-    }
+  const clearFilters = () => {
+    setFilterEmail("");
+    setSearchEmail("")
+    setFilterMonth("");
   };
-
-  useEffect(() => {
-    filterLeaveHistoryByEmail(searchEmail);
-  }, [searchEmail, leaveHistory]);
 
   return (
     <div className="leave-container">
@@ -236,7 +256,7 @@ const LeaveManagement = () => {
             fetchLeavesData("pending");
           }}
         >
-          Pending Requests
+          ⏳ Pending Requests
         </button>
 
         <button
@@ -247,44 +267,62 @@ const LeaveManagement = () => {
             fetchLeavesData("approved");
           }}
         >
-          Approved Leaves
+          ✔️ Approved Leaves
         </button>
         <button
           className={`tabs_button ${selectedTab === "balance" ? "active-tab" : ""
             }`}
           onClick={() => setSelectedTab("balance")}
         >
-          Allotted Leaves
+          📋 Allotted Leaves
         </button>
         <button
           className={`tabs_button ${selectedTab === "history" ? "active-tab" : ""
             }`}
           onClick={() => setSelectedTab("history")}
         >
-          History
+          📜 History
         </button>
       </div>
 
 
       {selectedTab === "pending" && (
-        <div className="pending-data">
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px", alignItems: "center", marginTop: '5px' }}>
+        <div>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
             <Autocomplete
               options={allEmails}
               value={filterEmail}
               onChange={(e, newValue) => setFilterEmail(newValue || "")}
               renderInput={(params) => <TextField {...params} label="Filter by Email" size="small" />}
-              sx={{ minWidth: 250 }}
+              sx={{ minWidth: 260 }}
               freeSolo
+              slotProps={{
+                paper: {
+                  sx: {
+                    '& ul': {
+                      maxHeight: 250,
+                      overflowY: 'auto',
+                    },
+                  },
+                },
+              }}
             />
 
-            <FormControl size="small" sx={{ minWidth: 150 }}>
+            <FormControl size="small" sx={{ minWidth: { xs: 260, sm: 160 } }}>
               <InputLabel id="month-select-label">Month</InputLabel>
               <Select
                 labelId="month-select-label"
                 value={filterMonth}
                 label="Month"
                 onChange={(e) => setFilterMonth(e.target.value)}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 200,
+                      marginLeft: { xs: -1.5, sm: 0 },
+                    },
+                  },
+                }}
               >
                 <MenuItem value="">All</MenuItem>
                 <MenuItem value="01">January</MenuItem>
@@ -301,18 +339,35 @@ const LeaveManagement = () => {
                 <MenuItem value="12">December</MenuItem>
               </Select>
             </FormControl>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={clearFilters}
+              sx={{ width: 150 }}
+            >
+              Clear Filters
+            </Button>
           </div>
-          {isApproving && (
-            <div className="loader-overlay">
-              <CircularProgress size={24} />
-              <span style={{ marginLeft: "10px", fontWeight: "bold" }}>Approving leave...</span>
-            </div>
-          )}
-          {pendingLeaves.length === 0 ? (
-            <p>No pending leaves found.</p>
-          ) : (
-            <div style={{ sx: {overflowX: "auto"}, sm: { overflowX: "hidden" } }}>
-              <table>
+          <div className="pending-data">
+
+            {isApproving && (
+              <div className="loader-overlay">
+                <div className="loader-box">
+                  <span style={{ margin: "0px", fontWeight: "bold" }}>Approving leave...</span>
+                  <CircularProgress size={24} />
+                </div>
+              </div>
+            )}
+
+            {loading && (
+              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
+                <p>Loading...</p>
+                <CircularProgress />
+              </Box>
+            )}
+
+            <div style={{ sx: { overflowX: "auto" }, sm: { overflowX: "hidden" } }}>
+              <table style={{ minWidth: 1180 }}>
                 <thead>
                   <tr>
                     <th>Email</th>
@@ -326,51 +381,78 @@ const LeaveManagement = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {pendingLeaves.map((leave, index) => (
-                    <tr key={index}>
-                      <td>{leave.email}</td>
-                      <td>{leave.leaveType}</td>
-                      <td>{leave.startDate}</td>
-                      <td>{leave.endDate}</td>
-                      <td>{leave.leaveDuration}</td>
-                      <td>{leave.durationType}</td>
-                      <td>{leave.reasonForLeave}</td>
-                      <td>
-                        <button
-                          className="approve-button"
-                          onClick={() => handleApprove(leave.Id)}
-                        >
-                          Approve
-                        </button>
+                  {!loading && pendingLeaves.length === 0 ? (
+                    <tr>
+                      <td colSpan="8">
+                        No pending leaves found.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    pendingLeaves.map((leave, index) => (
+                      <tr key={index}>
+                        <td>{leave.email}</td>
+                        <td>{leave.leaveType}</td>
+                        <td>{leave.startDate}</td>
+                        <td>{leave.endDate}</td>
+                        <td>{leave.leaveDuration}</td>
+                        <td>{leave.durationType}</td>
+                        <td>{leave.reasonForLeave}</td>
+                        <td>
+                          <button
+                            className="approve-button"
+                            onClick={() => handleApprove(leave.Id)}
+                          >
+                            Approve
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
-          )}
+
+          </div>
         </div>
       )}
 
       {selectedTab === "approved" && (
-        <div className="approved-data">
+        <div>
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px", alignItems: "center", marginTop: '5px' }}>
             <Autocomplete
               options={allEmails}
               value={filterEmail}
               onChange={(e, newValue) => setFilterEmail(newValue || "")}
               renderInput={(params) => <TextField {...params} label="Filter by Email" size="small" />}
-              sx={{ minWidth: 250 }}
+              sx={{ minWidth: 260 }}
               freeSolo
+              slotProps={{
+                paper: {
+                  sx: {
+                    '& ul': {
+                      maxHeight: 250,
+                      overflowY: 'auto',
+                    },
+                  },
+                },
+              }}
             />
 
-            <FormControl size="small" sx={{ minWidth: 150 }}>
+            <FormControl size="small" sx={{ minWidth: { xs: 260, sm: 160 } }}>
               <InputLabel id="month-select-label">Month</InputLabel>
               <Select
                 labelId="month-select-label"
                 value={filterMonth}
                 label="Month"
                 onChange={(e) => setFilterMonth(e.target.value)}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 200,
+                      marginLeft: { xs: -1.5, sm: 0 },
+                    },
+                  },
+                }}
               >
                 <MenuItem value="">All</MenuItem>
                 <MenuItem value="01">January</MenuItem>
@@ -387,11 +469,23 @@ const LeaveManagement = () => {
                 <MenuItem value="12">December</MenuItem>
               </Select>
             </FormControl>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={clearFilters}
+              sx={{ width: 150 }}
+            >
+              Clear Filters
+            </Button>
           </div>
-          {approvedLeaves.length === 0 ? (
-            <p>No approved leaves found.</p>
-          ) : (
-            <table>
+          {loading && (
+            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
+              <p>Loading...</p>
+              <CircularProgress />
+            </Box>
+          )}
+          <div className="approved-data">
+            <table style={{ minWidth: 1180 }}>
               <thead>
                 <tr>
                   <th>Email</th>
@@ -404,20 +498,29 @@ const LeaveManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {approvedLeaves.map((leave, index) => (
-                  <tr key={index}>
-                    <td>{leave.email}</td>
-                    <td>{leave.leaveType}</td>
-                    <td>{leave.startDate}</td>
-                    <td>{leave.endDate}</td>
-                    <td>{leave.leaveDuration}</td>
-                    <td>{leave.durationType}</td>
-                    <td>{leave.reasonForLeave}</td>
+                {!loading && approvedLeaves.length === 0 ? (
+                  <tr>
+                    <td colSpan="7">
+                      <p>No approved leaves found.</p>
+                    </td>
                   </tr>
-                ))}
+
+                ) : (
+                  approvedLeaves.map((leave, index) => (
+                    <tr key={index}>
+                      <td>{leave.email}</td>
+                      <td>{leave.leaveType}</td>
+                      <td>{leave.startDate}</td>
+                      <td>{leave.endDate}</td>
+                      <td>{leave.leaveDuration}</td>
+                      <td>{leave.durationType}</td>
+                      <td>{leave.reasonForLeave}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
-          )}
+          </div>
         </div>
       )}
 
@@ -433,48 +536,81 @@ const LeaveManagement = () => {
               alignItems: "center",
             }}
           >
-            <select
-              value={searchEmail}
-              onChange={(e) => setSearchEmail(e.target.value)}
-              style={{ padding: "8px", width: "300px", fontSize: "14px" }}
-            >
-              <option value="">-- Select Email --</option>
-              {allEmails.map((email, index) => (
-                <option key={index} value={email}>
-                  {email}
-                </option>
-              ))}
-            </select>
-            <button
-              className="filter-btn"
-              onClick={fetchLeaveBalance}
-              disabled={loadingBalance || !searchEmail}
-            >
-              View Balance
-            </button>
+            <Box sx={{ display: { xs: 'block', sm: 'flex' }, alignItems: 'flex-start', gap: 2 }}>
+              <Autocomplete
+                options={allEmails}
+                value={searchEmail}
+                onChange={(event, newValue) => {
+                  setSearchEmail(newValue || "");
+                  if (!newValue) {
+                    setLeaveBalance([]);
+                    setInputError("")
+                  } else {
+                    setInputError("");
+                  }
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Filter by Email"
+                    size="small"
+                    sx={{ fontSize: "14px" }}
+                    error={Boolean(inputError)}
+                    helperText={inputError}
+                    FormHelperTextProps={{
+                      sx: {
+                        fontSize:'14px',
+                        fontWeight:'bold'
+                      },
+                    }}
+                  />
+
+                )}
+                freeSolo
+                sx={{ minWidth: 300 }}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      '& ul': {
+                        maxHeight: 250,
+                        overflowY: 'auto',
+                      },
+                    },
+                  },
+                }}
+              />
+
+
+              <button
+                className="filter-btn"
+                onClick={fetchLeaveBalance}
+                disabled={loadingBalance}
+              >
+                View Balance
+              </button>
+            </Box>
           </div>
           {loadingBalance && (
-            <div className="loading-indicator">
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
               <CircularProgress size={24} />
-              <span style={{ marginLeft: "10px" }}>Loading balance...</span>
+              <p>Loading balance...</p>
             </div>
           )}
           <div className="balance-data">
             {balanceError && <p style={{ color: "red" }}>{balanceError}</p>}
-
-            {leaveBalance.length > 0 && (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Leave Type</th>
-                    <th>Leaves Used</th>
-                    <th>Pending Leaves</th>
-                    <th>Total Allotted</th>
-                    <th>Balance</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {leaveBalance.map((record, index) => (
+            <table >
+              <thead>
+                <tr>
+                  <th>Leave Type</th>
+                  <th>Leaves Used</th>
+                  <th>Pending Leaves</th>
+                  <th>Total Allotted</th>
+                  <th>Balance</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaveBalance.length > 0 ? (
+                  leaveBalance.map((record, index) => (
                     <tr key={index}>
                       <td>{record.leaveType}</td>
                       <td>{record.usedLeaves}</td>
@@ -482,10 +618,16 @@ const LeaveManagement = () => {
                       <td>{record.totalLeavesAllotted}</td>
                       <td>{record.leaveLeft}</td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan='5'>
+                      <p>No records available</p>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
@@ -497,6 +639,7 @@ const LeaveManagement = () => {
               display: "flex",
               gap: "10px",
               alignItems: "center",
+              flexWrap: "wrap",
             }}
           >
             <Autocomplete
@@ -514,31 +657,91 @@ const LeaveManagement = () => {
                 />
               )}
               freeSolo
-              sx={{ minWidth: 300 }}
+              sx={{ minWidth: 260 }}
+              slotProps={{
+                paper: {
+                  sx: {
+                    '& ul': {
+                      maxHeight: 250,
+                      overflowY: 'auto',
+                    },
+                  },
+                },
+              }}
             />
+            <FormControl size="small" sx={{ minWidth: { xs: 260, sm: 160 } }}>
+              <InputLabel id="month-select-label">Month</InputLabel>
+              <Select
+                labelId="month-select-label"
+                value={filterMonth}
+                label="Month"
+                onChange={(e) => setFilterMonth(e.target.value)}
+                MenuProps={{
+                  PaperProps: {
+                    sx: {
+                      maxHeight: 200,
+                      marginLeft: { xs: -1.5, sm: 0 },
+                    },
+                  },
+                }}
+              >
+                <MenuItem value="">All</MenuItem>
+                <MenuItem value="01">January</MenuItem>
+                <MenuItem value="02">February</MenuItem>
+                <MenuItem value="03">March</MenuItem>
+                <MenuItem value="04">April</MenuItem>
+                <MenuItem value="05">May</MenuItem>
+                <MenuItem value="06">June</MenuItem>
+                <MenuItem value="07">July</MenuItem>
+                <MenuItem value="08">August</MenuItem>
+                <MenuItem value="09">September</MenuItem>
+                <MenuItem value="10">October</MenuItem>
+                <MenuItem value="11">November</MenuItem>
+                <MenuItem value="12">December</MenuItem>
+              </Select>
+            </FormControl>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={clearFilters}
+              sx={{ width: 150 }}
+            >
+              Clear Filters
+            </Button>
           </div>
+
+          {loading && (
+            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
+              <p>Loading...</p>
+              <CircularProgress />
+            </Box>
+          )}
+
           <div className="history-data">
-            {filteredLeaveHistory.length === 0 ? (
-              <p>No leave history found.</p>
-            ) : (
-              <table>
-                <thead>
+            <table style={{ minWidth: 1180 }}>
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Leave Type</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Duration</th>
+                  <th>Type</th>
+                  <th>Reason</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {!loading && filteredLeaveHistory.length === 0 ? (
                   <tr>
-                    <th>ID</th>
-                    <th>Email</th>
-                    <th>Leave Type</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Duration</th>
-                    <th>Type</th>
-                    <th>Reason</th>
-                    <th>Status</th>
+                    <td colSpan='8'>
+                      <p>No leave history found.</p>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredLeaveHistory.map((leave, index) => (
+
+                ) : (
+                  filteredLeaveHistory.map((leave, index) => (
                     <tr key={index}>
-                      <td>{leave.Id}</td>
                       <td>{leave.email}</td>
                       <td>{leave.leaveType}</td>
                       <td>{leave.startDate}</td>
@@ -546,12 +749,23 @@ const LeaveManagement = () => {
                       <td>{leave.leaveDuration}</td>
                       <td>{leave.durationType}</td>
                       <td>{leave.reasonForLeave}</td>
-                      <td>{leave.status}</td>
+                      <td>
+                        <Chip
+                          label={leave.status}
+                          color={
+                            leave.status === "approved"
+                              ? "success"
+                              : leave.status === "pending"
+                                ? "warning"
+                                : "error"
+                          }
+                        />
+                      </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

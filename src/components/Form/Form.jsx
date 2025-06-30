@@ -540,54 +540,47 @@ const Form = () => {
 
   // function getMinDate() {
   //   const today = new Date();
-  //   const minDate = new Date();
-  //   minDate.setDate(today.getDate() - 3);
-  //   return minDate.toISOString().split("T")[0];
+  //   const validDates = [];
+
+  //   // Check the last 3 days
+  //   for (let i = 1; i <= 3; i++) {
+  //     const date = new Date(today);
+  //     date.setDate(today.getDate() - i);
+  //     const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+
+  //     // Skip Sundays
+  //     if (day === 0) continue;
+
+  //     // Skip 2nd and 4th Saturdays
+  //     if (day === 6) {
+  //       const dateNum = date.getDate();
+  //       const month = date.getMonth();
+  //       const year = date.getFullYear();
+
+  //       // Get all Saturdays of the month
+  //       let saturdayCount = 0;
+  //       for (let d = 1; d <= 31; d++) {
+  //         const tempDate = new Date(year, month, d);
+  //         if (tempDate.getMonth() !== month) break;
+  //         if (tempDate.getDay() === 6) {
+  //           saturdayCount++;
+  //           if (d === dateNum && (saturdayCount === 2 || saturdayCount === 4)) {
+  //             continue; // skip 2nd or 4th Saturday
+  //           }
+  //         }
+  //       }
+  //     }
+
+  //     validDates.push(date);
+  //   }
+
+  //   // Return the earliest valid date
+  //   if (validDates.length > 0) {
+  //     return validDates[validDates.length - 1].toISOString().split("T")[0];
+  //   } else {
+  //     return today.toISOString().split("T")[0]; // fallback
+  //   }
   // }
-
-  function getMinDate() {
-    const today = new Date();
-    const validDates = [];
-
-    // Check the last 3 days
-    for (let i = 1; i <= 3; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-      const day = date.getDay(); // 0 = Sunday, 6 = Saturday
-
-      // Skip Sundays
-      if (day === 0) continue;
-
-      // Skip 2nd and 4th Saturdays
-      if (day === 6) {
-        const dateNum = date.getDate();
-        const month = date.getMonth();
-        const year = date.getFullYear();
-
-        // Get all Saturdays of the month
-        let saturdayCount = 0;
-        for (let d = 1; d <= 31; d++) {
-          const tempDate = new Date(year, month, d);
-          if (tempDate.getMonth() !== month) break;
-          if (tempDate.getDay() === 6) {
-            saturdayCount++;
-            if (d === dateNum && (saturdayCount === 2 || saturdayCount === 4)) {
-              continue; // skip 2nd or 4th Saturday
-            }
-          }
-        }
-      }
-
-      validDates.push(date);
-    }
-
-    // Return the earliest valid date
-    if (validDates.length > 0) {
-      return validDates[validDates.length - 1].toISOString().split("T")[0];
-    } else {
-      return today.toISOString().split("T")[0]; // fallback
-    }
-  }
 
   // Mock today's date to be 12th of the current month
   // const mockToday = new Date();
@@ -614,6 +607,44 @@ const Form = () => {
 
   //   return minDate.toISOString().split("T")[0];
   // }
+
+  function getMinDate() {
+  const today = new Date();
+  const validDates = [];
+  let i = 1; // Start with yesterday
+  while (validDates.length < 3) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
+    const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+    // Skip Sundays
+    if (day === 0) {
+      i++;
+      continue;
+    }
+    // Skip 2nd and 4th Saturdays
+    if (day === 6) {
+      const dateNum = date.getDate();
+      const month = date.getMonth();
+      const year = date.getFullYear();
+      // Count which Saturday it is in the month
+      let saturdayCount = 0;
+      for (let d = 1; d <= dateNum; d++) {
+        const tempDate = new Date(year, month, d);
+        if (tempDate.getDay() === 6) {
+          saturdayCount++;
+        }
+      }
+      if (saturdayCount === 2 || saturdayCount === 4) {
+        i++;
+        continue; // Skip 2nd or 4th Saturday
+      }
+    }
+    validDates.push(new Date(date)); // Store a copy
+    i++;
+  }
+  // Return the earliest valid date among the 3
+  return validDates[validDates.length - 1].toISOString().split("T")[0];
+}
 
   useEffect(() => {
     const fetchDepartments = async () => {

@@ -377,7 +377,16 @@ const ProjectManagement = () => {
             </select>
             {errors.department && <div className="error-message">{errors.department}</div>}
           </div>
-          {selectedDept === "Residential Program" && (
+          {/* {selectedDept ===  "Residential Program" && ( */}
+          {[
+  "Residential Program",
+  "Culture",
+  "Academics",
+  "Operations",
+  "LXD & ETC",
+  "Campus Support Staff",
+  "Campus_Security"
+].includes(selectedDept) && (
             <>
               <div className="input-wrapper">
                 <select
@@ -452,7 +461,16 @@ const ProjectManagement = () => {
             />
             {errors.projectName && <div className="error-message">{errors.projectName}</div>}
           </div>
-          {selectedDept !== "Residential Program" && (
+          {/* {selectedDept !== "Residential Program"  && ( */}
+          {![
+  "Residential Program",
+  "Culture",
+  "Academics",
+  "Operations",
+  "LXD & ETC",
+  "Campus Support Staff",
+  "Campus_Security"
+].includes(selectedDept) && (
             <>
               <div className="input-wrapper">
                 <input

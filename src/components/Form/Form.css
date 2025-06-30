@@ -70,9 +70,9 @@ button:hover {
   background-color: #21a1f1;
 }
 
-h3 {
+/* h3 {
   margin-top: 20px;
-}
+} */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -185,6 +185,9 @@ td {
   }
   .formContainer{
     margin-top: 40px !important;
+  }
+  h3 {
+    margin-top: 60px;
   }
 }
 

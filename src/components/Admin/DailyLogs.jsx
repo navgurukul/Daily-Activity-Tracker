@@ -192,7 +192,7 @@ const fetchLogs = async ({ pageToken = 1, email = "", projectName = "", month = 
           "Content-Type": "application/json",
           Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
         },
-        body: JSON.stringify([{ ...editedData, logStatus: "pending" }]),
+        body: JSON.stringify([{ ...editedData, logStatus: "approved" }]),
       }
     );
     if (response.ok) {
@@ -411,14 +411,15 @@ const fetchFilterOptions = async () => {
       height: "100%",
     }}
   >
-                      <IconButton size="small" onClick={() => handleEditClick(log)} disabled={log.logStatus === "approved"} title="Edit Log" sx={{ height:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#1976d21a"}}}><Edit /></IconButton>
-                      <IconButton size="small" onClick={() => handleApproveClick(log)} disabled={log.logStatus === "approved"} title="Approve Log" sx={{ height:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#2e7d321a"}}}><Check /></IconButton>
+                      <IconButton size="small" onClick={() => handleEditClick(log)} title="Edit Log" sx={{ height:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#1976d21a"}}}><Edit /></IconButton>
+                      {/* <IconButton size="small" onClick={() => handleApproveClick(log)} disabled={log.logStatus === "approved"} title="Approve Log" sx={{ height:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#2e7d321a"}}}><Check /></IconButton> */}
                       <IconButton
                         size="small"
                         title="Reject Log"
                         color="error"
                         onClick={() => handleRejectClick(log)}
-                        disabled={log.logStatus === "approved" || log.logStatus === "rejected"}
+                        // disabled={log.logStatus === "approved" || log.logStatus === "rejected"}
+                        disabled={log.logStatus === "rejected"}
                         sx={{ height:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#d32f2f1a"}}}
                       >
                         <Close />

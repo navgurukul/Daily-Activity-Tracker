@@ -532,7 +532,7 @@ const isEditable = role === "admin" || role === "superAdmin";
                 />
               </StyledFormControl>
             </Grid>
-            <Grid item xs={12} md={6}>
+            {/* <Grid item xs={12} md={6}>
               <StyledFormControl>
                 <TextField
                   label="Employee Name"
@@ -543,7 +543,7 @@ const isEditable = role === "admin" || role === "superAdmin";
                   fullWidth
                 />
               </StyledFormControl>
-            </Grid>
+            </Grid> */}
 
             <Grid item xs={12} md={6}>
               <StyledFormControl>

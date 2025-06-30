@@ -1,0 +1,23 @@
+.no-tab-heading {
+  color: white;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+@media (max-width: 425px) {
+  .no-tab-heading {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .no-tab-heading {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .no-tab-heading {
+    font-size: 0.96rem;
+  }
+}

@@ -138,6 +138,7 @@ const Leaves = () => {
     "startDate": getTodayDate(),
     "endDate": getTodayDate(),
     "userEmail": email,
+    "name": userName,
     "durationType": "",
     "halfDayStatus": "",
     "status": "pending",
@@ -159,6 +160,8 @@ const Leaves = () => {
     halfDayStatus: "",
   });
 
+  const role = localStorage.getItem("role");
+const isEditable = role === "admin" || role === "superAdmin";
 
   const fetchData = async () => {
     try {
@@ -215,25 +218,50 @@ const Leaves = () => {
     }
   };
 
+  // const handleChange = (e) => {
+  //   setErrorMessage("");
+  //   const { name, value } = e.target;
+  //   setLeaveData((prevData) => ({
+  //     ...prevData,
+  //     [name]: value,
+  //   }));
+  //   if (value) {
+  //     setFieldErrors((prevErrors) => ({
+  //       ...prevErrors,
+  //       [name]: "",
+  //     }));
+  //   }
+  //   setRemainingLeaves(
+  //     allLeaves[email]?.leaveRecords?.find((leave) => leave.leaveType === value)
+  //       ?.leaveLeft
+  //   );
+  //   console.log("Leave Data:", leaveData);
+  // };
+
   const handleChange = (e) => {
-    setErrorMessage("");
-    const { name, value } = e.target;
-    setLeaveData((prevData) => ({
-      ...prevData,
-      [name]: value,
+  setErrorMessage("");
+  const { name, value } = e.target;
+
+  const keyToUpdate = name === "email" ? "userEmail" : name;
+
+  setLeaveData((prevData) => ({
+    ...prevData,
+    [keyToUpdate]: value,
+  }));
+
+  if (value) {
+    setFieldErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: "",
     }));
-    if (value) {
-      setFieldErrors((prevErrors) => ({
-        ...prevErrors,
-        [name]: "",
-      }));
-    }
-    setRemainingLeaves(
-      allLeaves[email]?.leaveRecords?.find((leave) => leave.leaveType === value)
-        ?.leaveLeft
-    );
-    console.log("Leave Data:", leaveData);
-  };
+  }
+
+  const email = name === "email" ? value : leaveData.userEmail;
+
+  setRemainingLeaves(
+    allLeaves[email]?.leaveRecords?.find((leave) => leave.leaveType === leaveData.leaveType)?.leaveLeft
+  );
+};
 
   const handleHalfDayChange = (e) => {
     setHalfDay(e.target.checked);
@@ -438,7 +466,7 @@ const Leaves = () => {
                     <TableCell sx={{ fontWeight: 600 }}>Pending</TableCell>
                   </TableRow>
                 </TableHead>
-                <TableBody>
+                {/* <TableBody>
                   {leavesData.length > 0 ? (
                     leavesData.map((leave, index) => (
                       <tr key={index}>
@@ -456,7 +484,33 @@ const Leaves = () => {
                       </td>
                     </tr>
                   )}
-                </TableBody>
+                </TableBody> */}
+                <TableBody>
+  {leavesData.length > 0 ? (
+    leavesData.map((leave, index) => {
+      if (leave.leaveType === "Special Leave" && !isEditable) {
+        return null; // Skip special leave for non-admins
+      }
+
+      return (
+        <TableRow key={index}>
+          <TableCell>{leave.leaveType}</TableCell>
+          <TableCell>{leave.totalLeavesAllotted}</TableCell>
+          <TableCell>{leave.leaveLeft}</TableCell>
+          <TableCell>{leave.usedLeaves}</TableCell>
+          <TableCell>{leave.pendingLeaves}</TableCell>
+        </TableRow>
+      );
+    })
+  ) : (
+    <TableRow>
+      <TableCell colSpan={5} align="center">
+        No data available for this email
+      </TableCell>
+    </TableRow>
+  )}
+</TableBody>
+
               </Table>
             </TableContainer>
           )}
@@ -470,26 +524,26 @@ const Leaves = () => {
               <StyledFormControl>
                 <TextField
                   label="Employee Email"
-                  name="email"
+                  name="userEmail"
                   value={leaveData.userEmail}
                   onChange={handleChange}
-                  disabled
+                  disabled={!isEditable}
                   fullWidth
                 />
               </StyledFormControl>
             </Grid>
-            <Grid item xs={12} md={6}>
+            {/* <Grid item xs={12} md={6}>
               <StyledFormControl>
                 <TextField
                   label="Employee Name"
                   name="name"
-                  value={userName}
+                  value={leaveData.name}
                   onChange={handleChange}
-                  disabled
+                  disabled={!isEditable}
                   fullWidth
                 />
               </StyledFormControl>
-            </Grid>
+            </Grid> */}
 
             <Grid item xs={12} md={6}>
               <StyledFormControl>

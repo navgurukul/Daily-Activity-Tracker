@@ -30,11 +30,14 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  Autocomplete,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { styled } from "@mui/material/styles";
 
 import LoadingSpinner from "../Loader/LoadingSpinner";
+import axios from "axios";
+
 
 // Styled Components
 const StyledContainer = styled(Container)(({ theme }) => ({
@@ -153,6 +156,8 @@ const Leaves = () => {
   const [leavesData, setLeavesData] = useState([]);
   const [allLeaves, setAllLeaves] = useState({});
 
+  const [allEmails, setAllEmails] = useState([]);
+
   const [fieldErrors, setFieldErrors] = useState({
     leaveType: "",
     reasonForLeave: "",
@@ -161,7 +166,7 @@ const Leaves = () => {
   });
 
   const role = localStorage.getItem("role");
-const isEditable = role === "admin" || role === "superAdmin";
+  const isEditable = role === "admin" || role === "superAdmin";
 
   const fetchData = async () => {
     try {
@@ -205,6 +210,28 @@ const isEditable = role === "admin" || role === "superAdmin";
     }
   }, [email, navigate]);
 
+  useEffect(() => {
+    const fetchEmails = async () => {
+      try {
+        const response = await axios.get(
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+        );
+        const teamIDs = Array.from(
+          new Set(
+            response.data?.data
+              ?.map((entry) => entry["Team ID"])
+              ?.filter((id) => !!id)
+          )
+        );
+        setAllEmails(teamIDs);
+      } catch (error) {
+        console.error("Error fetching emails:", error);
+        setSnackbarMessage("Failed to fetch emails");
+      }
+    };
+    fetchEmails();
+  }, []);
+
   const fetchAvailableLeaveTypes = async () => {
     try {
       const response = await fetch(
@@ -239,29 +266,29 @@ const isEditable = role === "admin" || role === "superAdmin";
   // };
 
   const handleChange = (e) => {
-  setErrorMessage("");
-  const { name, value } = e.target;
+    setErrorMessage("");
+    const { name, value } = e.target;
 
-  const keyToUpdate = name === "email" ? "userEmail" : name;
+    const keyToUpdate = name === "email" ? "userEmail" : name;
 
-  setLeaveData((prevData) => ({
-    ...prevData,
-    [keyToUpdate]: value,
-  }));
-
-  if (value) {
-    setFieldErrors((prevErrors) => ({
-      ...prevErrors,
-      [name]: "",
+    setLeaveData((prevData) => ({
+      ...prevData,
+      [keyToUpdate]: value,
     }));
-  }
 
-  const email = name === "email" ? value : leaveData.userEmail;
+    if (value) {
+      setFieldErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: "",
+      }));
+    }
 
-  setRemainingLeaves(
-    allLeaves[email]?.leaveRecords?.find((leave) => leave.leaveType === leaveData.leaveType)?.leaveLeft
-  );
-};
+    const email = name === "email" ? value : leaveData.userEmail;
+
+    setRemainingLeaves(
+      allLeaves[email]?.leaveRecords?.find((leave) => leave.leaveType === leaveData.leaveType)?.leaveLeft
+    );
+  };
 
   const handleHalfDayChange = (e) => {
     setHalfDay(e.target.checked);
@@ -486,30 +513,30 @@ const isEditable = role === "admin" || role === "superAdmin";
                   )}
                 </TableBody> */}
                 <TableBody>
-  {leavesData.length > 0 ? (
-    leavesData.map((leave, index) => {
-      if (leave.leaveType === "Special Leave" && !isEditable) {
-        return null; // Skip special leave for non-admins
-      }
+                  {leavesData.length > 0 ? (
+                    leavesData.map((leave, index) => {
+                      if (leave.leaveType === "Special Leave" && !isEditable) {
+                        return null; // Skip special leave for non-admins
+                      }
 
-      return (
-        <TableRow key={index}>
-          <TableCell>{leave.leaveType}</TableCell>
-          <TableCell>{leave.totalLeavesAllotted}</TableCell>
-          <TableCell>{leave.leaveLeft}</TableCell>
-          <TableCell>{leave.usedLeaves}</TableCell>
-          <TableCell>{leave.pendingLeaves}</TableCell>
-        </TableRow>
-      );
-    })
-  ) : (
-    <TableRow>
-      <TableCell colSpan={5} align="center">
-        No data available for this email
-      </TableCell>
-    </TableRow>
-  )}
-</TableBody>
+                      return (
+                        <TableRow key={index}>
+                          <TableCell>{leave.leaveType}</TableCell>
+                          <TableCell>{leave.totalLeavesAllotted}</TableCell>
+                          <TableCell>{leave.leaveLeft}</TableCell>
+                          <TableCell>{leave.usedLeaves}</TableCell>
+                          <TableCell>{leave.pendingLeaves}</TableCell>
+                        </TableRow>
+                      );
+                    })
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center">
+                        No data available for this email
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
 
               </Table>
             </TableContainer>
@@ -522,13 +549,32 @@ const isEditable = role === "admin" || role === "superAdmin";
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <StyledFormControl>
-                <TextField
-                  label="Employee Email"
-                  name="userEmail"
-                  value={leaveData.userEmail}
-                  onChange={handleChange}
+                <Autocomplete
+                  options={allEmails}
+                  value={allEmails.includes(leaveData.userEmail) ? leaveData.userEmail : null}
+                  onChange={(e, newValue) => handleChange({ target: { name: "userEmail", value: newValue } })}
                   disabled={!isEditable}
-                  fullWidth
+                  freeSolo
+                  disableClearable
+                  slotProps={{
+                    paper: {
+                      sx: {
+                        '& ul': {
+                          maxHeight: 250,
+                          overflowY: 'auto',
+                        },
+                      },
+                    },
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Employee Email"
+                      name="userEmail"
+                      fullWidth
+                      variant="outlined"
+                    />
+                  )}
                 />
               </StyledFormControl>
             </Grid>

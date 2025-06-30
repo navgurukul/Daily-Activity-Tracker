@@ -19,6 +19,10 @@ async function paginatedScan(params) {
   } while (ExclusiveStartKey);
   return items;
 }
+async function isLeapYear(year) {
+  return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+}
+
 
 export async function fetchLeaveRequests() {
   return await paginatedScan({ TableName: "hrmsLeaveRequests" });
@@ -140,12 +144,23 @@ export async function handler(event, context) {
             const joiningYear = joiningDate.getFullYear();
             const joinMonth = joiningDate.getMonth();
 
+            // if (joiningYear === currentYear) {
+            //   const remainingMonths = 12 - joinMonth;
+            //   totalLeavesAllotted = Math.round(
+            //     (remainingMonths / 12) * fullYearLeave
+            //   );
+            // } 
             if (joiningYear === currentYear) {
-              const remainingMonths = 12 - joinMonth;
-              totalLeavesAllotted = Math.round(
-                (remainingMonths / 12) * fullYearLeave
-              );
-            } else {
+              const endOfYear = new Date(currentYear, 11, 31);
+              const daysLeft = Math.floor((endOfYear - joiningDate) / (1000 * 60 * 60 * 24)) + 1;
+              const totalDaysInYear = isLeapYear(currentYear) ? 366 : 365;
+            
+              totalLeavesAllotted = (daysLeft / totalDaysInYear) * fullYearLeave;
+              // Optional: Round, floor, or keep as float
+              totalLeavesAllotted = parseFloat(totalLeavesAllotted.toFixed(2));
+            }            
+            
+            else {
               totalLeavesAllotted = fullYearLeave;
             }
           } else {

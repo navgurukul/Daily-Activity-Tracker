@@ -38,7 +38,7 @@
         },
         "employmentLeavePolicy": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
-          "s3Key": "amplify-builds/employmentLeavePolicy-4a37414561764b537654-build.zip"
+          "s3Key": "amplify-builds/employmentLeavePolicy-564b61453430694f774d-build.zip"
         },
         "getLeaveRecords": {
           "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",

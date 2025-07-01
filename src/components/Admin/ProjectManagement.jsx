@@ -183,99 +183,185 @@ const ProjectManagement = () => {
       });
   }, []);
 
+  // const handleAddProject = () => {
+  //   const newErrors = {};
+  //   // Pre-validation
+  //   if (!data.department) {
+  //     newErrors.department = "Please select a department*";
+  //   }
+  //   if (!data.projectName) {
+  //     newErrors.projectName = "Please fill in the project name*";
+  //   }
+
+  //   if (data.department !== "Residential Program") {
+  //     if (!data.channelName) {
+  //       newErrors.channelName = "Please fill in the channel name*";
+  //     }
+  //     if (!data.channelId) {
+  //       newErrors.channelId = "Please fill in the channel ID*";
+  //     }
+  //     if (!data.projectMasterEmail) {
+  //       newErrors.projectMasterEmail = "Please fill in the project master email*";
+  //     }
+  //     if (!data.projectBudget) {
+  //       newErrors.projectBudget = "Please fill in the project budget*";
+  //     }
+  //   }
+  //   if (data.department === "Residential Program") {
+  //     if (!data.campus) {
+  //       newErrors.campus = "Please select a campus*";
+  //     }
+  //     if (!data.discordWebhook) {
+  //       newErrors.discordWebhook = "Please fill in the Discord channel web hook URL*";
+  //     }
+  //     if (!data.poc_of_project) {
+  //       newErrors.poc_of_project = "Please fill in the POC of project*";
+  //     }
+  //   }
+
+  //   if (!data.priorities) {
+  //     newErrors.priorities = "Please select a priority*";
+  //   }
+
+  //   if (!data.projectStatus) {
+  //     newErrors.projectStatus = "Please select a project status*";
+  //   }
+
+  //   // Check if project name already exists
+  //   // const isDuplicate = projects.some(
+  //   //   (project) =>
+  //   //     project.projectName.toLowerCase() === data.projectName.toLowerCase()
+  //   // );
+
+  //   // if (isDuplicate) {
+  //   //   newErrors.projectName = "Project name already exists";
+  //   //   return;
+  //   // }
+
+  //   if (Object.keys(newErrors).length > 0) {
+  //     setErrors(newErrors);
+  //     return;
+  //   }
+
+  //   setErrors({});
+
+  //   // Make the API call
+  //   fetch(API_URL, {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify(data),
+  //   })
+  //     .then((response) => response.json())
+  //     .then((newProject) => {
+  //       setProjects([...projects, newProject]);
+  //       setData({
+  //         department: selectedDept,
+  //         projectName: "",
+  //         channelName: "",
+  //         channelId: "",
+  //         projectMasterEmail: "",
+  //         clientName: "",
+  //         projectStatus: "active",
+  //         priorities: "",
+  //         projectBudget: "",
+  //         Id: "",
+  //         campus: "",
+  //         discordWebhook: "",
+  //         poc_of_project: "",
+  //       });
+  //       window.removeEventListener("beforeunload", handleBeforeUnload);
+  //       window.location.reload();
+  //     })
+  //     .catch((error) => console.error("Error adding project:", error));
+  // };
+
   const handleAddProject = () => {
-    const newErrors = {};
-    // Pre-validation
-    if (!data.department) {
-      newErrors.department = "Please select a department*";
+  const newErrors = {};
+  const residentialDepts = [
+    "Residential Program",
+    "Culture",
+    "Academics",
+    "Operations",
+    "LXD & ETC",
+    "Campus Support Staff",
+    "Campus_Security"
+  ];
+  // Pre-validation
+  if (!data.department) {
+    newErrors.department = "Please select a department*";
+  }
+  if (!data.projectName) {
+    newErrors.projectName = "Please fill in the project name*";
+  }
+  if (residentialDepts.includes(data.department)) {
+    if (!data.campus) {
+      newErrors.campus = "Please select a campus*";
     }
-    if (!data.projectName) {
-      newErrors.projectName = "Please fill in the project name*";
+    if (!data.discordWebhook) {
+      newErrors.discordWebhook = "Please fill in the Discord channel web hook URL*";
     }
-
-    if (data.department !== "Residential Program") {
-      if (!data.channelName) {
-        newErrors.channelName = "Please fill in the channel name*";
-      }
-      if (!data.channelId) {
-        newErrors.channelId = "Please fill in the channel ID*";
-      }
-      if (!data.projectMasterEmail) {
-        newErrors.projectMasterEmail = "Please fill in the project master email*";
-      }
-      if (!data.projectBudget) {
-        newErrors.projectBudget = "Please fill in the project budget*";
-      }
+    if (!data.poc_of_project) {
+      newErrors.poc_of_project = "Please fill in the POC of project*";
     }
-    if (data.department === "Residential Program") {
-      if (!data.campus) {
-        newErrors.campus = "Please select a campus*";
-      }
-      if (!data.discordWebhook) {
-        newErrors.discordWebhook = "Please fill in the Discord channel web hook URL*";
-      }
-      if (!data.poc_of_project) {
-        newErrors.poc_of_project = "Please fill in the POC of project*";
-      }
+  } else {
+    if (!data.channelName) {
+      newErrors.channelName = "Please fill in the channel name*";
     }
-
-    if (!data.priorities) {
-      newErrors.priorities = "Please select a priority*";
+    if (!data.channelId) {
+      newErrors.channelId = "Please fill in the channel ID*";
     }
-
-    if (!data.projectStatus) {
-      newErrors.projectStatus = "Please select a project status*";
-    }
-
-    // Check if project name already exists
-    // const isDuplicate = projects.some(
-    //   (project) =>
-    //     project.projectName.toLowerCase() === data.projectName.toLowerCase()
-    // );
-
-    // if (isDuplicate) {
-    //   newErrors.projectName = "Project name already exists";
-    //   return;
-    // }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    setErrors({});
-
-    // Make the API call
-    fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
+  }
+  if (!data.projectMasterEmail) {
+    newErrors.projectMasterEmail = "Please fill in the project master email*";
+  }
+  if (!data.projectBudget) {
+    newErrors.projectBudget = "Please fill in the project budget*";
+  }
+  if (!data.priorities) {
+    newErrors.priorities = "Please select a priority*";
+  }
+  if (!data.projectStatus) {
+    newErrors.projectStatus = "Please select a project status*";
+  }
+  if (Object.keys(newErrors).length > 0) {
+    console.log("Validation errors:", newErrors);
+    setErrors(newErrors);
+    return;
+  }
+  setErrors({});
+  // Make the API call
+  fetch(API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => response.json())
+    .then((newProject) => {
+      setProjects([...projects, newProject]);
+      setData({
+        department: selectedDept,
+        projectName: "",
+        channelName: "",
+        channelId: "",
+        projectMasterEmail: "",
+        clientName: "",
+        projectStatus: "active",
+        priorities: "",
+        projectBudget: "",
+        Id: "",
+        campus: "",
+        discordWebhook: "",
+        poc_of_project: "",
+      });
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.location.reload(); // You can remove this if you prefer smoother UX
     })
-      .then((response) => response.json())
-      .then((newProject) => {
-        setProjects([...projects, newProject]);
-        setData({
-          department: selectedDept,
-          projectName: "",
-          channelName: "",
-          channelId: "",
-          projectMasterEmail: "",
-          clientName: "",
-          projectStatus: "active",
-          priorities: "",
-          projectBudget: "",
-          Id: "",
-          campus: "",
-          discordWebhook: "",
-          poc_of_project: "",
-        });
-        window.removeEventListener("beforeunload", handleBeforeUnload);
-        window.location.reload();
-      })
-      .catch((error) => console.error("Error adding project:", error));
-  };
+    .catch((error) => console.error("Error adding project:", error));
+};
 
   const handleEditProject = (project, index) => {
     setEditData(project);

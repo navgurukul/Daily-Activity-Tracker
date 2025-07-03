@@ -163,16 +163,126 @@ const Payroll = () => {
     );
   }
 
+async function downloadCSV() {
+  try {
+    const response = await fetch('https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation', {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+      },
+    });
 
+    const result = await response.json();
+    const data = result.data;
+
+    if (!Array.isArray(data)) {
+      throw new Error("Invalid data format");
+    }
+
+    // Flatten data like your Node.js function
+    const flattened = data.map(item => ({
+      email: item.email,
+      name: item.name,
+      teamName: item.teamName,
+      'Week 1': item['Week 1'],
+      'Week 2': item['Week 2'],
+      'Week 3': item['Week 3'],
+      'Week 4': item['Week 4'],
+      'Week 5': item['Week 5'],
+      totalHours: item.totalHours,
+      totalWorkingDays: item.totalWorkingDays,
+      paidLeaves: item.paidLeaves,
+      totalCompOffLeaveTaken: item.totalCompOffLeaveTaken,
+      weekOffDays: item.weekOffDays,
+      totalPayableDays: item.totalPayableDays,
+      numOfWorkOnWeekendDays: item.numOfWorkOnWeekendDays,
+      LWP: item.LWP,
+      cycle1_totalHours: item.cycle1?.totalHours,
+      cycle1_totalWorkingDays: item.cycle1?.totalWorkingDays,
+      cycle1_paidLeaves: item.cycle1?.paidLeaves,
+      cycle1_totalCompOffLeaveTaken: item.cycle1?.totalCompOffLeaveTaken,
+      cycle1_weekOffDays: item.cycle1?.weekOffDays,
+      cycle1_totalPayableDays: item.cycle1?.totalPayableDays,
+      cycle1_LWP: item.cycle1?.LWP,
+      cycle2_totalHours: item.cycle2?.totalHours,
+      cycle2_totalWorkingDays: item.cycle2?.totalWorkingDays,
+      cycle2_paidLeaves: item.cycle2?.paidLeaves,
+      cycle2_totalCompOffLeaveTaken: item.cycle2?.totalCompOffLeaveTaken,
+      cycle2_weekOffDays: item.cycle2?.weekOffDays,
+      cycle2_totalPayableDays: item.cycle2?.totalPayableDays,
+      cycle2_LWP: item.cycle2?.LWP,
+    }));
+
+    // Generate CSV
+    const headers = Object.keys(flattened[0]);
+    const csv = [
+      headers.join(','), // header row
+      ...flattened.map(row =>
+        headers.map(h => `"${(row[h] ?? "").toString().replace(/"/g, '""')}"`).join(',')
+      )
+    ].join('\n');
+
+    // Trigger download
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'payable_data.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('❌ Error downloading CSV:', error);
+    alert('Failed to download CSV. See console for error.');
+  }
+}
 
   return (
     <Box sx={{ p: { xs: 0, sm: 3 } }}>
-      <Typography variant="h4" mb={2} fontWeight="bold" sx={{ fontSize: { xs: "1.5rem", sm: "2.15rem" } }}>
+      {/* <Typography variant="h4" mb={2} fontWeight="bold" sx={{ fontSize: { xs: "1.5rem", sm: "2.15rem" } }}>
         Employee Payable Days Overview
       </Typography>
       <Typography variant="subtitle1" mb={3} color="text.secondary">
         Track total payable days for each team member
       </Typography>
+
+      <Button
+  variant="contained"
+  onClick={downloadCSV}
+>
+  Download CSV
+</Button> */}
+<Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
+  <Box>
+    <Typography
+      variant="h4"
+      mb={0.5}
+      fontWeight="bold"
+      sx={{ fontSize: { xs: "1.5rem", sm: "2.15rem" } }}
+    >
+      Employee Payable Days Overview
+    </Typography>
+    <Typography variant="subtitle1" color="text.secondary">
+      Track total payable days for each team member
+    </Typography>
+  </Box>
+
+  <Button variant="contained" onClick={downloadCSV}
+  sx={{
+    backgroundColor: '#1976D2',
+    color: '#fff',
+    fontWeight: 'bold',
+    textTransform: 'none',
+    px: 3,
+    py: 1,
+    borderRadius: 2,
+    boxShadow: 2,
+    '&:hover': {
+      backgroundColor: '#115293',
+    }
+  }}>
+    Download CSV
+  </Button>
+</Box>
+
 
       {/* Filters */}
       <Box sx={{ display: "flex", gap: { xs: 1, sm: 2 }, flexWrap: "wrap", mb: 3, justifyContent: "center" }}>

@@ -216,6 +216,10 @@ th {
   .table-wrapper {
     overflow-x: auto;
   }
+  .form-container button{
+    max-width: 1066px;
+    margin-left: 14px;
+  }
 }
 @media (max-width: 1024px) {
  .admin-container {
@@ -231,7 +235,7 @@ th {
     margin-left: 5px;
   }
   .form-container button{
-    width: 690px;
+    max-width: 690px;
     margin-left: 5px;
   }
 
@@ -276,7 +280,7 @@ th {
   }
   
   .form-container button{
-    width: 665px;
+    max-width: 665px;
   }
   .filters{
     row-gap: 0;
@@ -326,7 +330,7 @@ th {
     width: 260px;
   }
   .form-container button{
-    width: 230px;
+    max-width: 230px;
     margin-left: 0;
   }
 
@@ -375,7 +379,7 @@ th {
     width: 250px;
   }
   .form-container button{
-    width: 220px;
+    max-width: 220px;
     margin-left: -10px;
   }
 
@@ -396,7 +400,7 @@ th {
 
 @media (max-width: 320px) {
   .form-container button{
-    width: 220px;
+   max-width: 220px;
   }
   .modal-content{
     width: 245px;

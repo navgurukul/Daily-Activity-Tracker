@@ -21,11 +21,13 @@ import {
   IconButton,
   Chip,
   CircularProgress,
+  MenuItem,
 } from "@mui/material";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import debounce from "lodash/debounce";
 import { Edit, Check, Close } from "@mui/icons-material";
+import axios from "axios";
 
 function DailyLogs() {
   const [projectName, setProjectName] = useState("");
@@ -57,64 +59,87 @@ function DailyLogs() {
   const [isRejecting, setIsRejecting] = useState(false);
 
   const [logs, setLogs] = useState([]);
-const [currentPage, setCurrentPage] = useState(1);
-const [nextPage, setNextPage] = useState(null);
-const [previousPages, setPreviousPages] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [nextPage, setNextPage] = useState(null);
+  const [previousPages, setPreviousPages] = useState([]);
+  const [allEmails, setAllEmails] = useState([]);
 
   useEffect(() => {
     debouncedFilter();
     setCurrentPage(1); // Reset to page 1 when filters change
   }, [projectName, email, month, year]);
 
-const fetchLogs = async ({ pageToken = 1, email = "", projectName = "", month = "", year = "" } = {}) => {
-  setLoading(true);
-  try {
-    let url = `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs`;
+  useEffect(() => {
+    const fetchEmails = async () => {
+      try {
+        const response = await axios.get(
+          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+        );
+        const teamIDs = Array.from(
+          new Set(
+            response.data?.data
+              ?.map((entry) => entry["Team ID"])
+              ?.filter((id) => !!id)
+          )
+        );
+        setAllEmails(teamIDs);
+      } catch (error) {
+        console.error("Error fetching emails:", error);
+        setSnackbarMessage("Failed to fetch emails");
+      }
+    };
+    fetchEmails();
+  }, []);
 
-    // If email is present, it's part of the path
-    if (email) url += `/${email}`;
+  const fetchLogs = async ({ pageToken = 1, email = "", projectName = "", month = "", year = "" } = {}) => {
+    setLoading(true);
+    try {
+      let url = `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs`;
 
-    // Add query params
-    const params = new URLSearchParams();
-    if (projectName) params.append("projectName", projectName);
-    if (month && year) {
-      params.append("month", month);
-      params.append("year", year);
+      // If email is present, it's part of the path
+      if (email) url += `/${email}`;
+
+      // Add query params
+      const params = new URLSearchParams();
+      if (projectName) params.append("projectName", projectName);
+      if (month && year) {
+        params.append("month", month);
+        params.append("year", year);
+      }
+      params.append("page", pageToken); // ✅ pagination query
+
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      const formattedLogs = Object.entries(data.data).flatMap(([email, logs]) =>
+        logs.map((log) => ({
+          Id: log.Id,
+          email,
+          date: log.entryDate,
+          project: log.projectName,
+          totalHoursSpent: log.totalHoursSpent,
+          description: log.workDescription,
+          updatedAt: log.updatedAt,
+          logStatus: log.logStatus || "pending",
+        }))
+      );
+
+      setLogs(formattedLogs);
+      setCurrentPage(data.page || 1);
+      setNextPage(data.nextPage || null);
+      console.log("currentPage:", data.page);
+      console.log("nextPage:", data.nextPage);
+
+    } catch (err) {
+      console.error("Fetch failed:", err);
+    } finally {
+      setLoading(false);
     }
-    params.append("page", pageToken); // ✅ pagination query
-
-    if (params.toString()) {
-      url += `?${params.toString()}`;
-    }
-
-    const response = await fetch(url);
-    const data = await response.json();
-
-    const formattedLogs = Object.entries(data.data).flatMap(([email, logs]) =>
-      logs.map((log) => ({
-        Id: log.Id,
-        email,
-        date: log.entryDate,
-        project: log.projectName,
-        totalHoursSpent: log.totalHoursSpent,
-        description: log.workDescription,
-        updatedAt: log.updatedAt,
-        logStatus: log.logStatus || "pending",
-      }))
-    );
-
-    setLogs(formattedLogs);
-    setCurrentPage(data.page || 1);
-    setNextPage(data.nextPage || null);
-    console.log("currentPage:", data.page);
-    console.log("nextPage:", data.nextPage);
-    
-  } catch (err) {
-    console.error("Fetch failed:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleFilter = () => {
     let url = "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs";
@@ -129,10 +154,10 @@ const fetchLogs = async ({ pageToken = 1, email = "", projectName = "", month = 
     setPreviousPages([]);
     fetchLogs({
       pageToken: 1,
-    email,
-    projectName,
-    month,
-    year
+      email,
+      projectName,
+      month,
+      year
     });
   };
 
@@ -163,58 +188,58 @@ const fetchLogs = async ({ pageToken = 1, email = "", projectName = "", month = 
   };
 
   const handleEditSubmit = async () => {
-  const dateOfLog = editLog.date;
-  // Convert edited hours to number (in case user enters string)
-  const editedHours = Number(editedData.totalHoursSpent) || 0;
-  // Calculate total hours for the same date, excluding the current editing log
-  const totalHoursForDate = logs
-    .filter((log) => log.date === dateOfLog && log.Id !== editLog.Id && log.email === editLog.email)
-    .reduce((sum, log) => sum + (Number(log.totalHoursSpent) || 0), 0);
+    const dateOfLog = editLog.date;
+    // Convert edited hours to number (in case user enters string)
+    const editedHours = Number(editedData.totalHoursSpent) || 0;
+    // Calculate total hours for the same date, excluding the current editing log
+    const totalHoursForDate = logs
+      .filter((log) => log.date === dateOfLog && log.Id !== editLog.Id && log.email === editLog.email)
+      .reduce((sum, log) => sum + (Number(log.totalHoursSpent) || 0), 0);
 
-  const newTotal = totalHoursForDate + editedHours;
-  console.log(`Total hours for ${dateOfLog} excluding current log: ${totalHoursForDate}`);
-  
-  if (newTotal > 15) {
-    setSnackbar({
-      open: true,
-      message: `You cannot log more than 15 hours for ${dateOfLog}. Total would become ${newTotal}.`,
-      error: true,
-    });
-    return;
-  }
-  // Proceed to update
-  try {
-    const response = await fetch(
-      "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
-        },
-        body: JSON.stringify([{ ...editedData, logStatus: "approved" }]),
-      }
-    );
-    if (response.ok) {
+    const newTotal = totalHoursForDate + editedHours;
+    console.log(`Total hours for ${dateOfLog} excluding current log: ${totalHoursForDate}`);
+
+    if (newTotal > 15) {
       setSnackbar({
         open: true,
-        message: "Log updated successfully",
-        error: false,
+        message: `You cannot log more than 15 hours for ${dateOfLog}. Total would become ${newTotal}.`,
+        error: true,
       });
-      setEditLog(null);
-      fetchLogs();
-    } else {
-      const errorText = await response.text();
-      throw new Error(errorText);
+      return;
     }
-  } catch (err) {
-    setSnackbar({
-      open: true,
-      message: "Error updating log: " + err.message,
-      error: true,
-    });
-  }
-};
+    // Proceed to update
+    try {
+      const response = await fetch(
+        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+          },
+          body: JSON.stringify([{ ...editedData, logStatus: "approved" }]),
+        }
+      );
+      if (response.ok) {
+        setSnackbar({
+          open: true,
+          message: "Log updated successfully",
+          error: false,
+        });
+        setEditLog(null);
+        fetchLogs();
+      } else {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        message: "Error updating log: " + err.message,
+        error: true,
+      });
+    }
+  };
 
   // Function to handle log approval
   const handleApproveClick = (log) => {
@@ -295,27 +320,27 @@ const fetchLogs = async ({ pageToken = 1, email = "", projectName = "", month = 
   }
 
   useEffect(() => {
-  fetchFilterOptions();
-}, []);
+    fetchFilterOptions();
+  }, []);
 
-const fetchFilterOptions = async () => {
-  try {
-    const response = await fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs");
-    const data = await response.json();
+  const fetchFilterOptions = async () => {
+    try {
+      const response = await fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs");
+      const data = await response.json();
 
-    const allLogs = Object.entries(data.data).flatMap(([email, logs]) =>
-      logs.map((log) => ({
-        email,
-        project: log.projectName,
-      }))
-    );
+      const allLogs = Object.entries(data.data).flatMap(([email, logs]) =>
+        logs.map((log) => ({
+          email,
+          project: log.projectName,
+        }))
+      );
 
-    setEmailsList([...new Set(allLogs.map(log => log.email))]);
-    setProjectList([...new Set(allLogs.map(log => log.project))]);
-  } catch (error) {
-    console.error("Failed to load filters:", error);
-  }
-};
+      setEmailsList([...new Set(allLogs.map(log => log.email))]);
+      setProjectList([...new Set(allLogs.map(log => log.project))]);
+    } catch (error) {
+      console.error("Failed to load filters:", error);
+    }
+  };
 
   return (
     <Box>
@@ -334,36 +359,104 @@ const fetchFilterOptions = async () => {
           sx={{ minWidth: 280 }}
         />
         <Autocomplete
-          options={emailsList}
+          options={allEmails}
           value={email}
           onChange={(e, val) => setEmail(val || "")}
-          renderInput={(params) => <TextField {...params} label="Employee Email" size="small" />}
+          renderInput={(params) => (
+            <TextField 
+              {...params} 
+              label="Employee Email" 
+              size="small" 
+            />
+          )}
           freeSolo
           sx={{ minWidth: 280 }}
+          slotProps={{
+            paper: {
+              sx: {
+                '& ul': {
+                  maxHeight: 250,
+                  overflowY: 'auto',
+                },
+              },
+            },
+          }}
         />
-        <TextField label="Month" value={month} onChange={(e) => setMonth(e.target.value)} select size="small" sx={{ minWidth: {xs:130, sm:200} }} SelectProps={{ native: true }}>
-          <option value="" disabled></option>
-          {[...Array(12)].map((_, i) => (
-            <option key={i + 1} value={String(i + 1).padStart(2, "0")}>{String(i + 1).padStart(2, "0")}</option>
+        <TextField
+          select
+          label="Month"
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+          size="small"
+          sx={{ minWidth: { xs: 130, sm: 200 } }}
+          SelectProps={{
+            MenuProps: {
+              PaperProps: {
+                style: {
+                  maxHeight: 200,
+                },
+              },
+            },
+          }}
+        >
+          {Array.from({ length: 12 }, (_, i) => (
+            <MenuItem key={i + 1} value={i + 1}>
+              {i + 1}
+            </MenuItem>
           ))}
         </TextField>
-        <TextField label="Year" value={year} onChange={(e) => setYear(e.target.value)} select size="small" sx={{ minWidth:{xs:130, sm:200}}} SelectProps={{ native: true }}>
-          <option value="" disabled></option>
-          {[2023, 2024, 2025, 2026].map((yr) => (
-            <option key={yr} value={yr}>{yr}</option>
-          ))}
+        <TextField
+          select
+          label="Year"
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          size="small" sx={{ minWidth: { xs: 130, sm: 200 } }}
+          SelectProps={{
+            MenuProps: {
+              PaperProps: {
+                style: {
+                  maxHeight: 200,
+                },
+              },
+            },
+          }}
+        >
+          {Array.from({ length: 25 }, (_, i) => {
+            const currentYear = new Date().getFullYear()
+            const year = currentYear - i;
+            return (
+              <MenuItem key={year} value={year}>
+                {year}
+              </MenuItem>
+            );
+          })}
         </TextField>
-        <Button variant="contained" color="primary" onClick={clearFilters}>Clear Filters</Button>
+        <Button
+          onClick={clearFilters}
+          sx={{
+            border: '2px solid #f44336',
+            color: '#f44336',
+            // fontWeight:'bold',
+            backgroundColor: 'white',
+            '&:hover': {
+              backgroundColor: '#b0412e',
+              color: "white",
+              borderColor: '#b0412e',
+            },
+          }}
+        >
+          Clear Filters
+        </Button>
       </Box>
 
       {isApproving && (
-        <div style={{position: "fixed", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, background: "rgba(255, 255, 255, 0.7)" }}>
-                      <CircularProgress size={24} />
-                      <span style={{ marginLeft: "10px", fontWeight: "bold" }}>Approving logs...</span>
-                    </div>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, background: "rgba(255, 255, 255, 0.7)" }}>
+          <CircularProgress size={24} />
+          <span style={{ marginLeft: "10px", fontWeight: "bold" }}>Approving logs...</span>
+        </div>
       )}
       {isRejecting && (
-        <div style={{position: "fixed", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, background: "rgba(255, 255, 255, 0.7)" }}>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, background: "rgba(255, 255, 255, 0.7)" }}>
           <CircularProgress size={24} />
           <span style={{ marginLeft: "10px", fontWeight: "bold" }}>Rejecting logs...</span>
         </div>
@@ -371,7 +464,10 @@ const fetchFilterOptions = async () => {
 
       {/* Logs Table */}
       {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center"}}>
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Loading...
+          </Typography>
           <CircularProgress />
         </Box>
       ) : logs.length > 0 ? (
@@ -402,28 +498,28 @@ const fetchFilterOptions = async () => {
                     </TableCell>
                     <TableCell>
                       <Box
-    sx={{
-      display: "flex",
-      flexDirection: "column",
-      gap: 1,
-      alignItems: "center",
-      justifyContent: "center",
-      height: "100%",
-    }}
-  >
-                      <IconButton size="small" onClick={() => handleEditClick(log)} title="Edit Log" sx={{ height:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#1976d21a"}}}><Edit /></IconButton>
-                      {/* <IconButton size="small" onClick={() => handleApproveClick(log)} disabled={log.logStatus === "approved"} title="Approve Log" sx={{ height:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#2e7d321a"}}}><Check /></IconButton> */}
-                      <IconButton
-                        size="small"
-                        title="Reject Log"
-                        color="error"
-                        onClick={() => handleRejectClick(log)}
-                        // disabled={log.logStatus === "approved" || log.logStatus === "rejected"}
-                        disabled={log.logStatus === "rejected"}
-                        sx={{ height:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#d32f2f1a"}}}
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 1,
+                          alignItems: "center",
+                          justifyContent: "center",
+                          height: "100%",
+                        }}
                       >
-                        <Close />
-                      </IconButton>
+                        <IconButton size="small" onClick={() => handleEditClick(log)} title="Edit Log" sx={{ height: '50px', width: '50px', color: "primary", "&:hover": { backgroundColor: "#1976d21a" } }}><Edit /></IconButton>
+                        {/* <IconButton size="small" onClick={() => handleApproveClick(log)} disabled={log.logStatus === "approved"} title="Approve Log" sx={{ height:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#2e7d321a"}}}><Check /></IconButton> */}
+                        <IconButton
+                          size="small"
+                          title="Reject Log"
+                          color="error"
+                          onClick={() => handleRejectClick(log)}
+                          // disabled={log.logStatus === "approved" || log.logStatus === "rejected"}
+                          disabled={log.logStatus === "rejected"}
+                          sx={{ height: '50px', width: '50px', color: "primary", "&:hover": { backgroundColor: "#d32f2f1a" } }}
+                        >
+                          <Close />
+                        </IconButton>
                       </Box>
                     </TableCell>
                   </TableRow>
@@ -432,77 +528,77 @@ const fetchFilterOptions = async () => {
             </Table>
           </TableContainer>
           <Box sx={{ display: "flex", justifyContent: "center", mt: 2, gap: 2 }}>
-  <Button
-    variant="contained"
-    disabled={previousPages.length === 0}
-    onClick={() => {
-      const prev = [...previousPages];
-      const lastPage = prev.pop();
-      setPreviousPages(prev);
-      fetchLogs({
-        pageToken: lastPage,
-        email,
-        projectName,
-        month,
-        year
-      });
-    }}
-  >
-    Previous
-  </Button>
+            <Button
+              variant="contained"
+              disabled={previousPages.length === 0}
+              onClick={() => {
+                const prev = [...previousPages];
+                const lastPage = prev.pop();
+                setPreviousPages(prev);
+                fetchLogs({
+                  pageToken: lastPage,
+                  email,
+                  projectName,
+                  month,
+                  year
+                });
+              }}
+            >
+              Previous
+            </Button>
 
-  <Button
-    variant="contained"
-    disabled={!nextPage}
-    onClick={() => {
-      setPreviousPages([...previousPages, currentPage]);
-      fetchLogs({
-        pageToken: nextPage,
-      email,
-      projectName,
-      month,
-      year
-      });
-    }}
-  >
-    Next
-  </Button>
-</Box>
+            <Button
+              variant="contained"
+              disabled={!nextPage}
+              onClick={() => {
+                setPreviousPages([...previousPages, currentPage]);
+                fetchLogs({
+                  pageToken: nextPage,
+                  email,
+                  projectName,
+                  month,
+                  year
+                });
+              }}
+            >
+              Next
+            </Button>
+          </Box>
         </>
       ) : (
         <Typography align="center" color="textSecondary">No logs found for selected filters.</Typography>
       )}
 
       {/* Edit Dialog  */}
-        <Dialog
-          open={!!editLog}
-          onClose={() => setEditLog(null)}
-          fullWidth
-          maxWidth="md" 
-          PaperProps={{
-            sx: { minHeight: 400, minWidth: 600 },
-          }}
-        >
-          <DialogTitle>Edit Log</DialogTitle>
-          <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
-            <TextField label="Approver Email" value={userEmail} disabled sx={{mt:1}} />
-            <TextField label="Project Name" value={editedData.projectName} onChange={(e) => handleEditChange("projectName", e.target.value)} />
-            <TextField label="Work Description" multiline rows={3} value={editedData.workDescription} onChange={(e) => handleEditChange("workDescription", e.target.value)} />
-            <TextField
-          label="Total Hours Spent"
-          type="number"
-          value={editedData.totalHoursSpent}
-          onChange={(e) => handleEditChange("totalHoursSpent", e.target.value)}
-          InputProps={{ inputProps: { min: 0 } }}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setEditLog(null)}>Cancel</Button>
-            <Button variant="contained" onClick={handleEditSubmit}>Update</Button>
-          </DialogActions>
-        </Dialog>
+      <Dialog
+        open={!!editLog}
+        onClose={() => setEditLog(null)}
+        fullWidth
+        maxWidth="md"
+        PaperProps={{
+          sx: { minHeight: 400, minWidth: 600 },
+        }}
+      >
+        <DialogTitle>Edit Log</DialogTitle>
+        <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+          <TextField label="Approver Email" value={userEmail} disabled sx={{ mt: 1 }} />
+          <TextField label="Project Name" value={editedData.projectName} onChange={(e) => handleEditChange("projectName", e.target.value)} />
+          <TextField label="Work Description" multiline rows={3} value={editedData.workDescription} onChange={(e) => handleEditChange("workDescription", e.target.value)} />
+          <TextField
+            label="Total Hours Spent"
+            type="number"
+            value={editedData.totalHoursSpent}
+            onChange={(e) => handleEditChange("totalHoursSpent", e.target.value)}
+            InputProps={{ inputProps: { min: 0 } }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditLog(null)}>Cancel</Button>
+          <Button variant="contained" onClick={handleEditSubmit}>Update</Button>
+        </DialogActions>
+      </Dialog>
 
-        {/* Snackbar */}
+      {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
@@ -512,36 +608,36 @@ const fetchFilterOptions = async () => {
         ContentProps={{ style: { backgroundColor: snackbar.error ? "#d32f2f" : "#4caf50" } }}
       />
       {/* Approval Modal */}
-            <Dialog
-  open={showApprovalModal}
-  onClose={() => {
-    setShowApprovalModal(false);
-    setLogToApprove(null);
-  }}
-  aria-labelledby="approval-dialog-title"
-  aria-describedby="approval-dialog-description"
->
-  <DialogTitle id="approval-dialog-title">{"Approve Log"}</DialogTitle>
-  <DialogContent>
-    <DialogContentText id="approval-dialog-description">
-      Are you sure you want to approve this log?
-    </DialogContentText>
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={handleApprove} color="primary" autoFocus>
-      Yes
-    </Button>
-    <Button
-      onClick={() => {
-        setShowApprovalModal(false);
-        setLogToApprove(null);
-      }}
-      color="primary"
-    >
-      No
-    </Button>
-  </DialogActions>
-</Dialog>
+      <Dialog
+        open={showApprovalModal}
+        onClose={() => {
+          setShowApprovalModal(false);
+          setLogToApprove(null);
+        }}
+        aria-labelledby="approval-dialog-title"
+        aria-describedby="approval-dialog-description"
+      >
+        <DialogTitle id="approval-dialog-title">{"Approve Log"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="approval-dialog-description">
+            Are you sure you want to approve this log?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleApprove} color="primary" autoFocus>
+            Yes
+          </Button>
+          <Button
+            onClick={() => {
+              setShowApprovalModal(false);
+              setLogToApprove(null);
+            }}
+            color="primary"
+          >
+            No
+          </Button>
+        </DialogActions>
+      </Dialog>
       {/* Reject Modal */}
       <Dialog
         open={showRejectModal}

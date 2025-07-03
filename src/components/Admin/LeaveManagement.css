@@ -28,7 +28,7 @@ h1 {
 
 .tabs_button {
   padding: 10px 20px;
-  border: 2px solid #ccc;
+  border: 2px solid rgb(131, 128, 128);
   border-radius: 5px;
   background-color: #f3f3f3;
   color: #333;
@@ -45,6 +45,11 @@ h1 {
   background-color: #2e7d32;
   color: white;
   border-color: #2e7d32;
+}
+
+.active-tab:hover {
+  background-color: #1b5e20;
+  border-color: #1b5e20;
 }
 
 table {

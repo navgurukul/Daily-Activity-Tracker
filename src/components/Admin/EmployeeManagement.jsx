@@ -77,7 +77,7 @@ const EmployeeManagement = () => {
       {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
           <p>Loading...</p>
-          <CircularProgress />  
+          <CircularProgress />
         </Box>
       )}
       {!loading && paginatedData.length === 0 && (
@@ -119,55 +119,55 @@ const EmployeeManagement = () => {
       </Box>
 
       <Modal
-  open={!!selectedEmployee}
-  onClose={() => setSelectedEmployee(null)}
-  aria-labelledby="employee-detail-modal"
->
-  <Box
-    sx={{
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      width: { xs: "88vw", sm: "85vw", md: 600, lg: 700 },
-      bgcolor: "background.paper",
-      borderRadius: 3,
-      boxShadow: 24,
-      p: 0,
-      maxHeight: "80vh",
-      display: "flex",
-      flexDirection: "column",
-    }}
-  >
-    {/* Scrollable content */}
-    <Box
-      sx={{
-        p: { xs: 2, sm: 3, md: 4 },
-        overflowY: "auto",
-        flex: 1,
-      }}
-    >
-      <Typography variant="h6" fontWeight="bold" gutterBottom>
-        {selectedEmployee?.["First and Last Name"]}
-      </Typography>
-      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }} />
+        open={!!selectedEmployee}
+        onClose={() => setSelectedEmployee(null)}
+        aria-labelledby="employee-detail-modal"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: { xs: "88vw", sm: "85vw", md: 600, lg: 700 },
+            bgcolor: "background.paper",
+            borderRadius: 3,
+            boxShadow: 24,
+            p: 0,
+            maxHeight: "80vh",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* Scrollable content */}
+          <Box
+            sx={{
+              p: { xs: 2, sm: 3, md: 4 },
+              overflowY: "auto",
+              flex: 1,
+            }}
+          >
+            <Typography variant="h6" fontWeight="bold" gutterBottom>
+              {selectedEmployee?.["First and Last Name"]}
+            </Typography>
+            <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }} />
 
-      {Object.entries(selectedEmployee || {}).map(([key, value]) => (
-        <Box key={key} sx={{ mb: 1 }}>
-          <Typography variant="subtitle2" color="text.secondary">
-            {key}
-          </Typography>
-          <Typography variant="body1">{value || "—"}</Typography>
+            {Object.entries(selectedEmployee || {}).map(([key, value]) => (
+              <Box key={key} sx={{ mb: 1 }}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  {key}
+                </Typography>
+                <Typography variant="body1">{value || "—"}</Typography>
+              </Box>
+            ))}
+          </Box>
+
+          {/* Fixed Dialog Actions */}
+          <DialogActions sx={{ borderTop: 1, borderColor: "divider" }}>
+            <Button variant="contained" color="success" onClick={() => setSelectedEmployee(null)}>Close</Button>
+          </DialogActions>
         </Box>
-      ))}
-    </Box>
-
-    {/* Fixed Dialog Actions */}
-    <DialogActions sx={{ borderTop: 1, borderColor: "divider"}}>
-      <Button onClick={() => setSelectedEmployee(null)}>Close</Button>
-    </DialogActions>
-  </Box>
-</Modal>
+      </Modal>
     </Box>
   );
 };

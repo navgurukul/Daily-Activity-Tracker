@@ -340,10 +340,17 @@ const LeaveManagement = () => {
               </Select>
             </FormControl>
             <Button
-              variant="contained"
-              color="primary"
               onClick={clearFilters}
-              sx={{ width: 150 }}
+              sx={{
+                border: '2px solid #f44336',
+                color: '#f44336',
+                backgroundColor: 'white',
+                '&:hover': {
+                  backgroundColor: '#b0412e',
+                  color: "white",
+                  borderColor: '#b0412e',
+                },
+              }}
             >
               Clear Filters
             </Button>
@@ -417,7 +424,7 @@ const LeaveManagement = () => {
       )}
 
       {selectedTab === "approved" && (
-        <div>
+        <>
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px", alignItems: "center", marginTop: '5px' }}>
             <Autocomplete
               options={allEmails}
@@ -478,50 +485,48 @@ const LeaveManagement = () => {
               Clear Filters
             </Button>
           </div>
-          {loading && (
+          {loading ? (
             <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
               <p>Loading...</p>
               <CircularProgress />
             </Box>
-          )}
-          <div className="approved-data">
-            <table style={{ minWidth: 1180 }}>
-              <thead>
-                <tr>
-                  <th>Email</th>
-                  <th>Leave Type</th>
-                  <th>From</th>
-                  <th>To</th>
-                  <th>Duration</th>
-                  <th>Type</th>
-                  <th>Reason</th>
-                </tr>
-              </thead>
-              <tbody>
-                {!loading && approvedLeaves.length === 0 ? (
-                  <tr>
-                    <td colSpan="7">
-                      <p>No approved leaves found.</p>
-                    </td>
-                  </tr>
-
-                ) : (
-                  approvedLeaves.map((leave, index) => (
-                    <tr key={index}>
-                      <td>{leave.email}</td>
-                      <td>{leave.leaveType}</td>
-                      <td>{leave.startDate}</td>
-                      <td>{leave.endDate}</td>
-                      <td>{leave.leaveDuration}</td>
-                      <td>{leave.durationType}</td>
-                      <td>{leave.reasonForLeave}</td>
+          ) : (
+            <div className="approved-data">
+              {approvedLeaves.length === 0 ? (
+                <p style={{ fontSize:'17px', textAlign: "center" }}>No approved leaves found.</p>
+              ) : (
+                <table style={{ minWidth: 1180 }}>
+                  <thead>
+                    <tr>
+                      <th>Email</th>
+                      <th>Leave Type</th>
+                      <th>From</th>
+                      <th>To</th>
+                      <th>Duration</th>
+                      <th>Type</th>
+                      <th>Reason</th>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                  </thead>
+                  <tbody>
+                    {approvedLeaves.map((leave, index) => (
+                      <tr key={index}>
+                        <td>{leave.email}</td>
+                        <td>{leave.leaveType}</td>
+                        <td>{leave.startDate}</td>
+                        <td>{leave.endDate}</td>
+                        <td>{leave.leaveDuration}</td>
+                        <td>{leave.durationType}</td>
+                        <td>{leave.reasonForLeave}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+
+
+        </>
       )}
 
       {selectedTab === "balance" && (
@@ -559,8 +564,8 @@ const LeaveManagement = () => {
                     helperText={inputError}
                     FormHelperTextProps={{
                       sx: {
-                        fontSize:'14px',
-                        fontWeight:'bold'
+                        fontSize: '14px',
+                        fontWeight: 'bold'
                       },
                     }}
                   />

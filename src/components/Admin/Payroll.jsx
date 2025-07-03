@@ -237,19 +237,6 @@ async function downloadCSV() {
 
   return (
     <Box sx={{ p: { xs: 0, sm: 3 } }}>
-      {/* <Typography variant="h4" mb={2} fontWeight="bold" sx={{ fontSize: { xs: "1.5rem", sm: "2.15rem" } }}>
-        Employee Payable Days Overview
-      </Typography>
-      <Typography variant="subtitle1" mb={3} color="text.secondary">
-        Track total payable days for each team member
-      </Typography>
-
-      <Button
-  variant="contained"
-  onClick={downloadCSV}
->
-  Download CSV
-</Button> */}
 <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
   <Box>
     <Typography
@@ -370,7 +357,8 @@ async function downloadCSV() {
           }}
         >
           {Array.from({ length: 25 }, (_, i) => {
-            const year = 2025 - i;
+            const currentYear = new Date().getFullYear()
+            const year = currentYear - i;
             return (
               <MenuItem key={year} value={year}>
                 {year}
@@ -399,16 +387,15 @@ async function downloadCSV() {
             setSortOrder("asc");
           }}
           sx={{
-            width: { xs: 140, sm: 152 },
-            padding: 0,
-            color: "#FFFFFF",
-            backgroundColor: "#1976D2",
-            borderColor: "#1976D2",
-            "&:hover": {
-              backgroundColor: "#115293",
-              borderColor: "#115293",
-            },
-          }}
+                border: '2px solid #f44336',
+                color: '#f44336',
+                backgroundColor: 'white',
+                '&:hover': {
+                  backgroundColor: '#b0412e',
+                  color: "white",
+                  borderColor: '#b0412e',
+                },
+              }}
         >
           Clear Filters
         </Button>

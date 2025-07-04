@@ -16,9 +16,6 @@ const style = {
   borderRadius: 2,
 };
 
-const API_URL =
-  "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees";
-
 const ProjectManagement = () => {
   const [data, setData] = useState({
     department: "",
@@ -97,6 +94,8 @@ const ProjectManagement = () => {
   const [open, setOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const handleOpen = (project) => {
     setSelectedProject(project);
     setOpen(true);
@@ -108,7 +107,7 @@ const ProjectManagement = () => {
     const fetchDepartments = async () => {
       try {
         const res = await fetch(
-          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
         );
         const data = await res.json();
         if (data.success) {
@@ -167,7 +166,7 @@ const ProjectManagement = () => {
 
   useEffect(() => {
     fetch(
-      "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees"
+      `${API_BASE_URL}/employees`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -332,7 +331,7 @@ const ProjectManagement = () => {
   }
   setErrors({});
   // Make the API call
-  fetch(API_URL, {
+  fetch(`${API_BASE_URL}/employees`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -371,7 +370,7 @@ const ProjectManagement = () => {
   };
 
   const handleUpdateProject = () => {
-    fetch(`${API_URL}`, {
+    fetch(`${API_BASE_URL}/employees`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -412,7 +411,7 @@ const ProjectManagement = () => {
   };
 
   useEffect(() => {
-    fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees?ResidentialNonResi=Residential-Program")
+    fetch(`${API_BASE_URL}/employees?ResidentialNonResi=Residential-Program`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.data)) {
@@ -423,7 +422,7 @@ const ProjectManagement = () => {
   }, []);
 
   useEffect(() => {
-    fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees?ResidentialNonResi=Non-Residential")
+    fetch(`${API_BASE_URL}/employees?ResidentialNonResi=Non-Residential`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data.data)) {

@@ -168,10 +168,12 @@ const Leaves = () => {
   const role = localStorage.getItem("role");
   const isEditable = role === "admin" || role === "superAdmin";
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const fetchData = async () => {
     try {
       const response = await fetch(
-        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy?email=${email}`
+        `${API_BASE_URL}/employmentLeavePolicy?email=${email}`
       );
       const data = await response.json();
       console.log("Data:", data);
@@ -214,7 +216,7 @@ const Leaves = () => {
     const fetchEmails = async () => {
       try {
         const response = await axios.get(
-          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
         );
         const teamIDs = Array.from(
           new Set(
@@ -235,7 +237,7 @@ const Leaves = () => {
   const fetchAvailableLeaveTypes = async () => {
     try {
       const response = await fetch(
-        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=leaveTypes`
+        `${API_BASE_URL}/employeeSheetRecords?sheet=leaveTypes`
       );
       const result = await response.json();
       setLeaveResult(result.leaveTypes);
@@ -386,7 +388,7 @@ const Leaves = () => {
 
     try {
       const response = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy",
+        `${API_BASE_URL}/employmentLeavePolicy`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

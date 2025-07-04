@@ -23,6 +23,8 @@ const CycleSummary = ({ selectedDate }) => {
   const [error, setError] = useState(null);
   const [openCycle, setOpenCycle] = useState(null); // 'cycle1' or 'cycle2' or null
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
     const fetchData = async () => {
       // const token = localStorage.getItem("jwtToken");
@@ -39,7 +41,7 @@ const CycleSummary = ({ selectedDate }) => {
 
       try {
         const response = await fetch(
-          `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation?email=${email}&year=${year}&month=${month}`,
+          `${API_BASE_URL}/payableDaysCalculation?email=${email}&year=${year}&month=${month}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

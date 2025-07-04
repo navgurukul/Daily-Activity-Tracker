@@ -48,6 +48,8 @@ const RoleUpdateForm = () => {
   const [previousPage, setPreviousPage] = useState([]);
   const [currentPage, setCurrentPage] = useState(null);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const fetchFilteredUsers = async (page = 1) => {
     setLoading(true);
     const queryParams = new URLSearchParams();
@@ -56,7 +58,7 @@ const RoleUpdateForm = () => {
     if (page > 1) queryParams.append("page", page);
     try {
       const res = await fetch(
-        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?${queryParams.toString()}`
+        `${API_BASE_URL}/accessControl?${queryParams.toString()}`,
       );
       const data = await res.json();
       setUsers(data.items || []);
@@ -84,7 +86,7 @@ const RoleUpdateForm = () => {
     const fetchEmails = async () => {
       try {
         const response = await axios.get(
-          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`,
         );
         const teamIDs = Array.from(
           new Set(
@@ -125,12 +127,11 @@ const RoleUpdateForm = () => {
 
     try {
       const res = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl",
+        `${API_BASE_URL}/accessControl`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
             Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
           },
           body: JSON.stringify(payload),
@@ -175,11 +176,10 @@ const RoleUpdateForm = () => {
     let url = "";
 
     if (option === "email") {
-      url = `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?email=${encodeURIComponent(
-        email
+      url = `${API_BASE_URL}/accessControl?email=${encodeURIComponent(email
       )}`;
     } else if (option === "id") {
-      url = `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?Id=${id}`;
+      url = `${API_BASE_URL}/accessControl?Id=${id}`;
     } else {
       setSnackbarMessage("Invalid option. Use 'email' or 'id'.");
       setSnackbarSeverity("error");

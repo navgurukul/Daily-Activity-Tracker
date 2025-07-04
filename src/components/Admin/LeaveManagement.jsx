@@ -32,11 +32,13 @@ const LeaveManagement = () => {
   const [inputError, setInputError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const fetchLeavesData = async (status, email = '', month = '') => {
     setLoading(true)
     try {
       const response = await fetch(
-        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?status=${status}&employeeEmail=${email}&month=${month}&limit=100&page=1`
+        `${API_BASE_URL}/leave-records?status=${status}&employeeEmail=${email}&month=${month}&limit=100&page=1`
       );
       const data = await response.json();
 
@@ -99,12 +101,11 @@ const LeaveManagement = () => {
     setIsApproving(true);
     try {
       const approveResponse = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy",
+        `${API_BASE_URL}/employmentLeavePolicy`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
             Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
           },
           body: JSON.stringify({
@@ -125,7 +126,6 @@ const LeaveManagement = () => {
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
       } else {
-        // setSnackbarMessage("Approval failed. Please try again.");
         setSnackbarMessage(
           approveResult?.message || "Approval failed. Please try again."
         );
@@ -155,7 +155,7 @@ const LeaveManagement = () => {
 
     try {
       const response = await fetch(
-        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy?email=${searchEmail}`
+        `${API_BASE_URL}/employmentLeavePolicy?email=${searchEmail}`
       );
       const result = await response.json();
 
@@ -176,7 +176,7 @@ const LeaveManagement = () => {
     const fetchEmails = async () => {
       try {
         const response = await axios.get(
-          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
         );
         const teamIDs = Array.from(
           new Set(
@@ -198,7 +198,7 @@ const LeaveManagement = () => {
     setLoading(true)
     try {
       const response = await fetch(
-        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?employeeEmail=${email}&month=${month}&limit=100&page=1`
+        `${API_BASE_URL}/leave-records?employeeEmail=${email}&month=${month}&limit=100&page=1`
       );
       const data = await response.json();
       const history = [];

@@ -64,6 +64,9 @@ function DailyLogs() {
   const [previousPages, setPreviousPages] = useState([]);
   const [allEmails, setAllEmails] = useState([]);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const ACTIVITY_LOGS_URL = `${API_BASE_URL}/activityLogs`;
+
   useEffect(() => {
     debouncedFilter();
     setCurrentPage(1); // Reset to page 1 when filters change
@@ -73,7 +76,7 @@ function DailyLogs() {
     const fetchEmails = async () => {
       try {
         const response = await axios.get(
-          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
         );
         const teamIDs = Array.from(
           new Set(
@@ -94,7 +97,7 @@ function DailyLogs() {
   const fetchLogs = async ({ pageToken = 1, email = "", projectName = "", month = "", year = "" } = {}) => {
     setLoading(true);
     try {
-      let url = `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs`;
+      let url = ACTIVITY_LOGS_URL;
 
       // If email is present, it's part of the path
       if (email) url += `/${email}`;
@@ -142,7 +145,7 @@ function DailyLogs() {
   };
 
   const handleFilter = () => {
-    let url = "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs";
+    let url = ACTIVITY_LOGS_URL;
     const params = new URLSearchParams();
     if (email) url += `/${email}`;
     if (projectName) params.append("projectName", projectName);
@@ -210,7 +213,7 @@ function DailyLogs() {
     // Proceed to update
     try {
       const response = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
+        ACTIVITY_LOGS_URL,
         {
           method: "PUT",
           headers: {
@@ -259,12 +262,11 @@ function DailyLogs() {
 
     try {
       const response = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
+        ACTIVITY_LOGS_URL,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
             Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
           },
           body: JSON.stringify([{ Id: logToApprove.Id, approvalEmail: userEmail, logStatus: "approved" }]),
@@ -292,12 +294,11 @@ function DailyLogs() {
 
     try {
       const response = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
+        ACTIVITY_LOGS_URL,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
             Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
           },
           body: JSON.stringify([{ Id: logToReject.Id, approvalEmail: userEmail, logStatus: "rejected" }]),
@@ -325,7 +326,7 @@ function DailyLogs() {
 
   const fetchFilterOptions = async () => {
     try {
-      const response = await fetch("https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs");
+      const response = await fetch(ACTIVITY_LOGS_URL);
       const data = await response.json();
 
       const allLogs = Object.entries(data.data).flatMap(([email, logs]) =>

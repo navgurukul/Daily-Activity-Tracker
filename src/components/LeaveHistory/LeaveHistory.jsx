@@ -46,11 +46,13 @@ const LeaveHistory = () => {
     fetchLeaveData(key, pages[key], selectedMonths[key]);
   }, [email, tabIndex, pages, selectedMonths]);
   const tabKeys = ["pending", "approved", "rejected"];
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const fetchLeaveData = async (statusKey, page, month = "") => {
     if (!email) return;
     try {
       const response = await fetch(
-        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?status=${statusKey}&employeeEmail=${email}&month=${month}&limit=5&page=${page}`
+        `${API_BASE_URL}/leave-records?status=${statusKey}&employeeEmail=${email}&month=${month}&limit=5&page=${page}`
       );
       const data = await response.json();
       const records = data[email]?.[statusKey] || [];

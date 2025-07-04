@@ -16,6 +16,8 @@ const CompOff = () => {
 
   const [emailList, setEmailList] = useState([]);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const getTodayDate = () => {
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -86,7 +88,7 @@ const CompOff = () => {
 
     try {
       const response = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeavePolicy/Compensatory",
+        `${API_BASE_URL}/employmentLeavePolicy/Compensatory`,
         {
           method: "POST",
           headers: {
@@ -138,7 +140,7 @@ const CompOff = () => {
     const fetchEmails = async () => {
       try {
         const response = await fetch(
-          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
         );
         const result = await response.json();
         if (result.success) {

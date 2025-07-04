@@ -3,6 +3,7 @@ import "./LeaveManagement.css";
 import { LoginContext } from "../context/LoginContext";
 import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, Box, Button, Chip } from "@mui/material";
 import axios from "axios";
+import AdjustLeaveModal from "./AdjustLeaveModal"; // NEW IMPORT
 
 const LeaveManagement = () => {
   const dataContext = useContext(LoginContext);
@@ -27,10 +28,11 @@ const LeaveManagement = () => {
   const [filterEmail, setFilterEmail] = useState("");
   const [filterMonth, setFilterMonth] = useState("");
 
-
-
   const [inputError, setInputError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // NEW STATE FOR MODAL
+  const [adjustModalOpen, setAdjustModalOpen] = useState(false);
 
   const fetchLeavesData = async (status, email = '', month = '') => {
     setLoading(true)
@@ -42,9 +44,6 @@ const LeaveManagement = () => {
 
       const result = [];
       const emails = [];
-
-
-
 
       Object.keys(data).forEach((email) => {
         emails.push(email);
@@ -93,7 +92,6 @@ const LeaveManagement = () => {
       }
     }
   }, [filterEmail, filterMonth, selectedTab]);
-
 
   const handleApprove = async (leaveId) => {
     setIsApproving(true);
@@ -172,6 +170,18 @@ const LeaveManagement = () => {
     setLoadingBalance(false);
   };
 
+  // NEW FUNCTION FOR HANDLING SUCCESSFUL LEAVE ADJUSTMENT
+  const handleAdjustSuccess = (message) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity("success");
+    setSnackbarOpen(true);
+    
+    // Refresh leave balance data if user is still selected
+    if (searchEmail) {
+      fetchLeaveBalance();
+    }
+  };
+
   useEffect(() => {
     const fetchEmails = async () => {
       try {
@@ -231,6 +241,7 @@ const LeaveManagement = () => {
       setLoading(false);
     }
   };
+  
   useEffect(() => {
     if (selectedTab === "history") {
       fetchLeaveHistory(searchEmail, filterMonth);
@@ -245,7 +256,7 @@ const LeaveManagement = () => {
 
   return (
     <div className="leave-container">
-      <h1>Leave Dashboard</h1>
+      <h1>Leave Dashboard </h1>
 
       <div className="tab">
         <button
@@ -284,7 +295,6 @@ const LeaveManagement = () => {
           📜 History
         </button>
       </div>
-
 
       {selectedTab === "pending" && (
         <div>
@@ -539,6 +549,7 @@ const LeaveManagement = () => {
               gap: "10px",
               flexWrap: "wrap",
               alignItems: "center",
+              justifyContent: "space-between" // UPDATED to space between
             }}
           >
             <Box sx={{ display: { xs: 'block', sm: 'flex' }, alignItems: 'flex-start', gap: 2 }}>
@@ -585,7 +596,6 @@ const LeaveManagement = () => {
                 }}
               />
 
-
               <button
                 className="filter-btn"
                 onClick={fetchLeaveBalance}
@@ -594,13 +604,31 @@ const LeaveManagement = () => {
                 View Balance
               </button>
             </Box>
+
+            {/* NEW ADJUST LEAVES BUTTON */}
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => setAdjustModalOpen(true)}
+              sx={{ 
+                backgroundColor: "#ff9800",
+                "&:hover": {
+                  backgroundColor: "#f57c00"
+                },
+                 textTransform: "none" 
+              }}
+            >
+              Adjust Leaves
+            </Button>
           </div>
+          
           {loadingBalance && (
             <div style={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
               <CircularProgress size={24} />
               <p>Loading balance...</p>
             </div>
           )}
+          
           <div className="balance-data">
             {balanceError && <p style={{ color: "red" }}>{balanceError}</p>}
             <table >
@@ -634,6 +662,15 @@ const LeaveManagement = () => {
               </tbody>
             </table>
           </div>
+
+          {/* NEW MODAL COMPONENT */}
+          <AdjustLeaveModal
+            open={adjustModalOpen}
+            onClose={() => setAdjustModalOpen(false)}
+            allEmails={allEmails}
+            adminEmail={email}
+            onSuccess={handleAdjustSuccess}
+          />
         </div>
       )}
 

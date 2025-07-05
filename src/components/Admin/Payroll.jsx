@@ -379,7 +379,6 @@ async function downloadCSV() {
           <MenuItem value="desc">High to Low</MenuItem>
         </TextField>
         <Button
-          variant="outlined"
           onClick={() => {
             setNameFilter("");
             setEmailFilter("");
@@ -388,6 +387,7 @@ async function downloadCSV() {
             setSortOrder("asc");
           }}
           sx={{
+            width:{xs:140, sm:150,} ,
                 border: '2px solid #f44336',
                 color: '#f44336',
                 backgroundColor: 'white',
@@ -519,7 +519,7 @@ async function downloadCSV() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Close</Button>
+          <Button variant="contained" color="success" onClick={handleClose}>Close</Button>
         </DialogActions>
       </Dialog>
     </Box>

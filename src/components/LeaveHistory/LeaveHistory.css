@@ -1,10 +1,10 @@
-.Tabs {
+.leave-tab {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
 }
 
-.tab-button {
+.leave-tab-button {
   padding: 10px 20px;
   border: 2px solid #ccc;
   border-radius: 5px;
@@ -15,7 +15,7 @@
   transition: all 0.2s ease-in-out;
 }
 
-.tab-button:hover {
+.leave-tab-button:hover {
   background-color: #e0e0e0;
 }
 
@@ -23,6 +23,11 @@
   background-color: #2e7d32;
   color: white;
   border-color: #2e7d32;
+}
+
+.active-tab:hover {
+  background-color: #1b5e20;
+  border-color: #1b5e20;
 }
 
 .main_container {
@@ -43,22 +48,29 @@
     margin-top: 70px;
   }
 }
+
 @media (max-width: 425px) {
   .main_container {
     padding: 5px;
     margin-right: 0px;
     margin-left: 0px;
   }
+
+  .leave-tab-button {
+    padding: 10px 5px;
+    font-size: small;
+  }
 }
 
 @media (max-width: 320px) {
   .main_container {
     width: 333px;
-    margin-right: 5px;
     padding: 0;
+    margin-left: 2px;
   }
-  .Tabs {
+
+  .leave-tab {
     gap: 5px;
+    margin-right: 4px;
   }
-  
 }

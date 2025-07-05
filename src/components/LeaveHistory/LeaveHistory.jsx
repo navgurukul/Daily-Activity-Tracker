@@ -137,7 +137,7 @@ const LeaveHistory = () => {
   };
   const renderLeaveCategory = (leaves, statusKey) => (
     <>
-      <FormControl sx={{ minWidth: 155, mb: 1 , ml:{xs:1, sm:0}}}>
+      <FormControl sx={{ minWidth: 155, mb: 1, ml: { xs: 1, sm: 0 } }}>
         <InputLabel>Month</InputLabel>
         <Select
           value={selectedMonths[statusKey]}
@@ -159,51 +159,57 @@ const LeaveHistory = () => {
           <MenuItem value="12">December</MenuItem>
         </Select>
       </FormControl>
-      <TableContainer component={Paper} sx={{ width:{md:'99%'} , overflowX: { xs: "auto",   sm: "hidden", }}}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Leave Type</TableCell>
-              <TableCell>Start Date</TableCell>
-              <TableCell>End Date</TableCell>
-              <TableCell>Duration</TableCell>
-              <TableCell>Reason</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {leaves.length > 0 ? (
-              leaves.map((leave, index) => renderTableRow(leave, index))
-            ) : (
-              <TableRow>
+      {leaves.length > 0 ? (
+        <>
+          <TableContainer component={Paper} sx={{ width: { md: '99%' }, overflowX: { xs: "auto", sm: "hidden", } }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Leave Type</TableCell>
+                  <TableCell>Start Date</TableCell>
+                  <TableCell>End Date</TableCell>
+                  <TableCell>Duration</TableCell>
+                  <TableCell>Reason</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {leaves.map((leave, index) => renderTableRow(leave, index))}
+                {/* <TableRow>
                 <TableCell colSpan={5} align="center">
                   No records available
                 </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      {renderPagination(pages[statusKey], hasMore[statusKey])}
+              </TableRow> */}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          {renderPagination(pages[statusKey], hasMore[statusKey])}
+        </>
+      ) : (
+
+        <p style={{ textAlign: 'center' }}>No records available</p>
+
+      )}
+
     </>
   );
   return (
     <div className="main_container">
-      <div className="tabs">
+      <div className="leave-tab">
         <button
-          className={`tab-button ${tabIndex === 0 ? "active-tab" : ""}`}
+          className={`leave-tab-button ${tabIndex === 0 ? "active-tab" : ""}`}
           onClick={() => handleTabClick(0)}
         >
           ⏳ Pending Leaves
         </button>
         <button
-          className={`tab-button ${tabIndex === 1 ? "active-tab" : ""}`}
+          className={`leave-tab-button ${tabIndex === 1 ? "active-tab" : ""}`}
           onClick={() => handleTabClick(1)}
         >
           ✔️ Approved Leaves
         </button>
-        
+
         <button
-          className={`tab-button ${tabIndex === 2 ? "active-tab" : ""}`}
+          className={`leave-tab-button ${tabIndex === 2 ? "active-tab" : ""}`}
           onClick={() => handleTabClick(2)}
         >
           🚫 Rejected Leaves

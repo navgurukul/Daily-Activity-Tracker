@@ -26,7 +26,7 @@ h1 {
   margin-bottom: 20px;
 }
 
-.tabs_button {
+.tab_button {
   padding: 10px 20px;
   border: 2px solid rgb(131, 128, 128);
   border-radius: 5px;
@@ -37,7 +37,7 @@ h1 {
   transition: all 0.2s ease-in-out;
 }
 
-.tabs_button:hover {
+.tab_button:hover {
   background-color: #e0e0e0;
 }
 
@@ -106,6 +106,15 @@ label {
   padding: 8px;
   font-size: 14px;
 }
+.balance-tab {
+  width: 100%;
+  margin-bottom: 15px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
 
 .loader-overlay {
   position: fixed;
@@ -129,6 +138,10 @@ label {
   display: flex;
   align-items: center;
 }
+
+.adjust-leaves-button{
+    margin-left: 50px !important;
+  }
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
@@ -182,7 +195,7 @@ label {
     flex-wrap: wrap;
     justify-content: center;
   }
-  .tabs_button{
+  .tab_button{
     width: 200px;
   }
   .balance-tab select{
@@ -196,6 +209,14 @@ label {
   .balance-data table{
     min-width: auto;
   }
+  .filter-btn{
+    margin-top: 5px;
+  }
+
+  .balance-tab {
+    justify-content: left;
+  }
+ 
 }
 
 @media (max-width: 375px) {

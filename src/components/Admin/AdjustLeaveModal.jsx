@@ -166,6 +166,9 @@ successMessage = `Successfully allotted ${days} ${dayText} of ${formData.leaveTy
       PaperProps={{
         sx: { borderRadius: 2 }
       }}
+      sx={{
+        margin: -1,
+      }}
     >
       <DialogTitle sx={{ pb: 1 }}>
         Adjust Leave Balance

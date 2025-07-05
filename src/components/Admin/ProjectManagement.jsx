@@ -656,15 +656,15 @@ const ProjectManagement = () => {
 
       <div className="table-container">
         <h2>Project List</h2>
-        <div className="tabs">
+        <div className="Project-tab">
           <button
-            className={`tab-button ${tabIndex === 0 ? "active-tab" : ""}`}
+            className={`Project-tab-button ${tabIndex === 0 ? "active-tab" : ""}`}
             onClick={() => setTabIndex(0)}
           >
             🏡 Residential Projects
           </button>
           <button
-            className={`tab-button ${tabIndex === 1 ? "active-tab" : ""}`}
+            className={`Project-tab-button ${tabIndex === 1 ? "active-tab" : ""}`}
             onClick={() => setTabIndex(1)}
           >
             🏢 Non-Residential Projects
@@ -733,7 +733,7 @@ const ProjectManagement = () => {
             <option value="Inactive">Inactive</option>
           </select>
           <button className="clear-filters-btn" onClick={handleClearFilters}>
-            Clear Filters
+            CLEAR FILTERS
           </button>
         </div>
         <div className="table-wrapper">

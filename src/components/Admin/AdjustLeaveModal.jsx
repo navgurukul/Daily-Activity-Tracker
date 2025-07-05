@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Dialog,
@@ -77,12 +78,18 @@ const AdjustLeaveModal = ({
       newErrors.leaveType = "Please select a leave type";
     }
     
-    if (!formData.amount || formData.amount <= 0) {
-      newErrors.amount = "Please enter a valid number of days greater than 0";
+    if (formData.amount === "" || formData.amount < 0) {
+      newErrors.amount = "Please enter a valid number of days (0 or greater)";
     }
     
     if (formData.amount > 365) {
       newErrors.amount = "Number of days cannot exceed 365";
+    }
+    
+    // Validate half-day increments (0.5 steps) - but allow 0
+    const amount = parseFloat(formData.amount);
+    if (amount > 0 && (amount * 2) % 1 !== 0) {
+      newErrors.amount = "Please enter days in 0.5 increments (e.g., 0, 0.5, 1, 1.5, 2)";
     }
     
     setErrors(newErrors);
@@ -104,9 +111,9 @@ const AdjustLeaveModal = ({
 
       // Only add the relevant field based on action type
       if (formData.actionType === "increase") {
-        payload.leaveIncrease = parseInt(formData.amount);
+        payload.leaveIncrease = parseFloat(formData.amount);
       } else {
-        payload.leaveDecrease = parseInt(formData.amount);
+        payload.leaveDecrease = parseFloat(formData.amount);
       }
 
       const response = await fetch(
@@ -124,7 +131,9 @@ const AdjustLeaveModal = ({
       const result = await response.json();
 
       if (response.ok) {
-        const successMessage = `Successfully ${formData.actionType}d ${formData.amount} day(s) of ${formData.leaveType} for ${formData.userEmail}`;
+        const days = parseFloat(formData.amount);
+        const dayText = days === 1 ? "day" : "days";
+        const successMessage = `Successfully ${formData.actionType}d ${days} ${dayText} of ${formData.leaveType} for ${formData.userEmail}`;
         onSuccess(successMessage);
         handleClose();
       } else {
@@ -246,7 +255,11 @@ const AdjustLeaveModal = ({
             onChange={(e) => handleInputChange("amount", e.target.value)}
             error={Boolean(errors.amount)}
             helperText={errors.amount || "Enter the number of leave days to adjust"}
-            inputProps={{ min: 1, max: 365 }}
+            inputProps={{ 
+              min: 0, 
+              max: 365, 
+              step: 0.5 
+            }}
             required
           />
 
@@ -276,7 +289,7 @@ const AdjustLeaveModal = ({
         >
           {loading 
             ? "Processing..." 
-            : `${formData.actionType === "increase" ? "Increase" : "Decrease"} ${formData.amount || 0} Day(s)`
+            : `${formData.actionType === "increase" ? "Increase" : "Decrease"} ${formData.amount || 0} ${parseFloat(formData.amount) === 1 ? "Day" : "Days"}`
           }
         </Button>
       </DialogActions>

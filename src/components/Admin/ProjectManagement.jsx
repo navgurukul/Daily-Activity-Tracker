@@ -734,7 +734,7 @@ const ProjectManagement = () => {
             <option value="Inactive">Inactive</option>
           </select>
           <button className="clear-filters-btn" onClick={handleClearFilters}>
-            Clear Filters
+            CLEAR FILTERS
           </button>
         </div>
         <div className="table-wrapper">

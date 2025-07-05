@@ -296,7 +296,7 @@ const LeaveManagement = () => {
       </div>
 
       {selectedTab === "pending" && (
-        <div>
+        <>
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
             <Autocomplete
               options={allEmails}
@@ -354,6 +354,7 @@ const LeaveManagement = () => {
                 border: '2px solid #f44336',
                 color: '#f44336',
                 backgroundColor: 'white',
+                width: 150,
                 '&:hover': {
                   backgroundColor: '#b0412e',
                   color: "white",
@@ -364,47 +365,39 @@ const LeaveManagement = () => {
               Clear Filters
             </Button>
           </div>
-          <div className="pending-data">
-
-            {isApproving && (
-              <div className="loader-overlay">
-                <div className="loader-box">
-                  <span style={{ margin: "0px", fontWeight: "bold" }}>Approving leave...</span>
-                  <CircularProgress size={24} />
+          {loading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
+              <p>Loading...</p>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <div className="pending-data">
+              {isApproving && (
+                <div className="loader-overlay">
+                  <div className="loader-box">
+                    <span style={{ margin: "0px", fontWeight: "bold" }}>Approving leave...</span>
+                    <CircularProgress size={24} />
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {loading && (
-              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
-                <p>Loading...</p>
-                <CircularProgress />
-              </Box>
-            )}
-
-            <div style={{ sx: { overflowX: "auto" }, sm: { overflowX: "hidden" } }}>
-              <table style={{ minWidth: 1180 }}>
-                <thead>
-                  <tr>
-                    <th>Email</th>
-                    <th>Leave Type</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Duration</th>
-                    <th>Type</th>
-                    <th>Reason</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {!loading && pendingLeaves.length === 0 ? (
+              )}
+              {pendingLeaves.length === 0 ? (
+                <p style={{ fontSize: '17px', textAlign: "center" }}>No pending leaves found.</p>
+              ) : (
+                <table style={{ minWidth: 1180 }}>
+                  <thead>
                     <tr>
-                      <td colSpan="8">
-                        No pending leaves found.
-                      </td>
+                      <th>Email</th>
+                      <th>Leave Type</th>
+                      <th>From</th>
+                      <th>To</th>
+                      <th>Duration</th>
+                      <th>Type</th>
+                      <th>Reason</th>
+                      <th>Action</th>
                     </tr>
-                  ) : (
-                    pendingLeaves.map((leave, index) => (
+                  </thead>
+                  <tbody>
+                    {pendingLeaves.map((leave, index) => (
                       <tr key={index}>
                         <td>{leave.email}</td>
                         <td>{leave.leaveType}</td>
@@ -422,14 +415,13 @@ const LeaveManagement = () => {
                           </button>
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
-
-          </div>
-        </div>
+          )}
+        </>
       )}
 
       {selectedTab === "approved" && (
@@ -486,10 +478,18 @@ const LeaveManagement = () => {
               </Select>
             </FormControl>
             <Button
-              variant="contained"
-              color="primary"
               onClick={clearFilters}
-              sx={{ width: 150 }}
+              sx={{
+                width: 150,
+                border: '2px solid #F44336',
+                color: '#F44336',
+                backgroundColor: 'white',
+                '&:hover': {
+                  backgroundColor: '#B0412E',
+                  color: "white",
+                  borderColor: '#B0412E',
+                },
+              }}
             >
               Clear Filters
             </Button>
@@ -539,7 +539,7 @@ const LeaveManagement = () => {
       )}
 
       {selectedTab === "balance" && (
-        <div>
+        <>
           <div className="balance-tab"
             style={{
               width: "100%",
@@ -621,45 +621,44 @@ const LeaveManagement = () => {
             </Button>
           </div>
           
-          {loadingBalance && (
-            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
-              <CircularProgress size={24} />
-              <p>Loading balance...</p>
-            </div>
-          )}
-          
           <div className="balance-data">
-            {balanceError && <p style={{ color: "red" }}>{balanceError}</p>}
-            <table >
-              <thead>
-                <tr>
-                  <th>Leave Type</th>
-                  <th>Leaves Used</th>
-                  <th>Pending Leaves</th>
-                  <th>Total Allotted</th>
-                  <th>Balance</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leaveBalance.length > 0 ? (
-                  leaveBalance.map((record, index) => (
-                    <tr key={index}>
-                      <td>{record.leaveType}</td>
-                      <td>{record.usedLeaves}</td>
-                      <td>{record.pendingLeaves}</td>
-                      <td>{record.totalLeavesAllotted}</td>
-                      <td>{record.leaveLeft}</td>
-                    </tr>
-                  ))
+            {loadingBalance ? (
+              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
+                <CircularProgress size={24} />
+                <p>Loading balance...</p>
+              </Box>
+            ) : (
+              <div>
+                {balanceError ? (
+                  <p style={{ color: "red", textAlign: "center" }}>{balanceError}</p>
+                ) : leaveBalance.length === 0 ? (
+                  <p style={{ fontSize: '17px', textAlign: "center" }}>No records available</p>
                 ) : (
-                  <tr>
-                    <td colSpan='5'>
-                      <p>No records available</p>
-                    </td>
-                  </tr>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Leave Type</th>
+                        <th>Leaves Used</th>
+                        <th>Pending Leaves</th>
+                        <th>Total Allotted</th>
+                        <th>Balance</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {leaveBalance.map((record, index) => (
+                        <tr key={index}>
+                          <td>{record.leaveType}</td>
+                          <td>{record.usedLeaves}</td>
+                          <td>{record.pendingLeaves}</td>
+                          <td>{record.totalLeavesAllotted}</td>
+                          <td>{record.leaveLeft}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 )}
-              </tbody>
-            </table>
+              </div>
+            )}
           </div>
 
           {/* NEW MODAL COMPONENT */}
@@ -670,11 +669,11 @@ const LeaveManagement = () => {
             adminEmail={email}
             onSuccess={handleAdjustSuccess}
           />
-        </div>
+        </>
       )}
 
       {selectedTab === "history" && (
-        <div>
+        <>
           <div
             style={{
               display: "flex",
@@ -742,73 +741,78 @@ const LeaveManagement = () => {
               </Select>
             </FormControl>
             <Button
-              variant="contained"
-              color="primary"
               onClick={clearFilters}
-              sx={{ width: 150 }}
+              sx={{
+                width: 150,
+                border: '2px solid #F44336',
+                color: '#F44336',
+                backgroundColor: 'white',
+                '&:hover': {
+                  backgroundColor: '#B0412E',
+                  color: "white",
+                  borderColor: '#B0412E',
+                },
+              }}
             >
               Clear Filters
             </Button>
           </div>
 
-          {loading && (
-            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
-              <p>Loading...</p>
-              <CircularProgress />
-            </Box>
-          )}
-
           <div className="history-data">
-            <table style={{ minWidth: 1180 }}>
-              <thead>
-                <tr>
-                  <th>Email</th>
-                  <th>Leave Type</th>
-                  <th>From</th>
-                  <th>To</th>
-                  <th>Duration</th>
-                  <th>Type</th>
-                  <th>Reason</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {!loading && filteredLeaveHistory.length === 0 ? (
-                  <tr>
-                    <td colSpan='8'>
-                      <p>No leave history found.</p>
-                    </td>
-                  </tr>
-
+            {loading ? (
+              <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
+                <p>Loading...</p>
+                <CircularProgress />
+              </Box>
+            ) : (
+              <div>
+                {filteredLeaveHistory.length === 0 ? (
+                  <p style={{ fontSize: "17px", textAlign: "center" }}>No leave history found.</p>
                 ) : (
-                  filteredLeaveHistory.map((leave, index) => (
-                    <tr key={index}>
-                      <td>{leave.email}</td>
-                      <td>{leave.leaveType}</td>
-                      <td>{leave.startDate}</td>
-                      <td>{leave.endDate}</td>
-                      <td>{leave.leaveDuration}</td>
-                      <td>{leave.durationType}</td>
-                      <td>{leave.reasonForLeave}</td>
-                      <td>
-                        <Chip
-                          label={leave.status}
-                          color={
-                            leave.status === "approved"
-                              ? "success"
-                              : leave.status === "pending"
-                                ? "warning"
-                                : "error"
-                          }
-                        />
-                      </td>
-                    </tr>
-                  ))
+                  <table style={{ minWidth: 1180 }}>
+                    <thead>
+                      <tr>
+                        <th>Email</th>
+                        <th>Leave Type</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Duration</th>
+                        <th>Type</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredLeaveHistory.map((leave, index) => (
+                        <tr key={index}>
+                          <td>{leave.email}</td>
+                          <td>{leave.leaveType}</td>
+                          <td>{leave.startDate}</td>
+                          <td>{leave.endDate}</td>
+                          <td>{leave.leaveDuration}</td>
+                          <td>{leave.durationType}</td>
+                          <td>{leave.reasonForLeave}</td>
+                          <td>
+                            <Chip
+                              label={leave.status}
+                              color={
+                                leave.status === "approved"
+                                  ? "success"
+                                  : leave.status === "pending"
+                                    ? "warning"
+                                    : "error"
+                              }
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 )}
-              </tbody>
-            </table>
+              </div>
+            )}
           </div>
-        </div>
+        </>
       )}
       <Snackbar
         open={snackbarOpen}

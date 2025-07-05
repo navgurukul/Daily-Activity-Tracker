@@ -284,9 +284,17 @@ const RoleUpdateForm = () => {
                   <MenuItem value="superAdmin">Super Admin</MenuItem>
                 </TextField>
                 <Button
-                  variant="outlined"
                   onClick={handleClearFilters}
-                  style={{ border: "2px solid #f44336", color: "#f44336" }}
+                  sx={{
+                    border: '2px solid #f44336',
+                    color: '#f44336',
+                    backgroundColor: 'white',
+                    '&:hover': {
+                      backgroundColor: '#b0412e',
+                      color: "white",
+                      borderColor: '#b0412e',
+                    },
+                  }}
                 >
                   Clear Filters
                 </Button>
@@ -476,37 +484,37 @@ const RoleUpdateForm = () => {
                 </Button>
               </div>
               <Box>
-  <TableContainer component={Paper} elevation={1} sx={{overflowX: "hidden"}}>
-    <Table>
-      <TableHead>
-        <TableRow>
-          <TableCell><strong>Role</strong></TableCell>
-          <TableCell><strong>Access Description</strong></TableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        <TableRow>
-          <TableCell>Admin</TableCell>
-          <TableCell>
-            Can add or remove other admins and project managers. Also view the payable days overview for all employees.
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Project Manager</TableCell>
-          <TableCell>
-            Can manage and assign projects, but cannot manage admins or super admins. Can only view their own payable days overview.
-          </TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell>Super Admin</TableCell>
-          <TableCell>
-            Full access including system-wide settings.
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
-  </TableContainer>
-</Box>
+                <TableContainer component={Paper} elevation={1} sx={{ overflowX: "hidden" }}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell><strong>Role</strong></TableCell>
+                        <TableCell><strong>Access Description</strong></TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>Admin</TableCell>
+                        <TableCell>
+                          Can add or remove other admins and project managers. Also view the payable days overview for all employees.
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Project Manager</TableCell>
+                        <TableCell>
+                          Can manage and assign projects, but cannot manage admins or super admins. Can only view their own payable days overview.
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Super Admin</TableCell>
+                        <TableCell>
+                          Full access including system-wide settings.
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
             </div>
           )}
           <Snackbar

@@ -826,9 +826,9 @@ const Leaves = () => {
                   textTransform: "none",
                   fontSize: "1rem",
                   fontWeight: 600,
-                  backgroundColor: "#2563eb",
+                  backgroundColor: "#4CAF50",
                   "&:hover": {
-                    backgroundColor: "#1d4ed8",
+                    backgroundColor: '#45A049',
                   },
                   boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
                 }}

@@ -111,12 +111,7 @@ const AdjustLeaveModal = ({
       IncreaseOrDecreaseBy: adminEmail,
     };
 
-    // Only add the relevant field based on action type
-    if (formData.actionType === "increase") {
-      payload.leaveIncrease = parseFloat(formData.amount);
-    } else {
-      payload.leaveDecrease = parseFloat(formData.amount);
-    }
+    payload.allotedLeaves = parseFloat(formData.amount);
     
     const response = await fetch(
       `${API_BASE_URL}/employmentLeaveUpgrade`,
@@ -136,12 +131,8 @@ const AdjustLeaveModal = ({
       const days = parseFloat(formData.amount);
       let successMessage;
       
-      if (days === 0) {
-        successMessage = `Successfully processed 0 day adjustment for ${formData.leaveType} of ${formData.userEmail}`;
-      } else {
-        const dayText = days === 1 ? "day" : "days";
-        successMessage = `Successfully ${formData.actionType}d ${days} ${dayText} of ${formData.leaveType} for ${formData.userEmail}`;
-      }
+      const dayText = days === 1 ? "day" : "days";
+successMessage = `Successfully allotted ${days} ${dayText} of ${formData.leaveType} to ${formData.userEmail}`;
       
       onSuccess(successMessage);
       handleClose();
@@ -234,30 +225,9 @@ const AdjustLeaveModal = ({
             )}
           </FormControl>
 
-          {/* Action Type */}
-          <FormControl>
-            <FormLabel component="legend">Action *</FormLabel>
-            <RadioGroup
-              row
-              value={formData.actionType}
-              onChange={(e) => handleInputChange("actionType", e.target.value)}
-            >
-              <FormControlLabel 
-                value="increase" 
-                control={<Radio />} 
-                label="Increase Leaves" 
-              />
-              <FormControlLabel 
-                value="decrease" 
-                control={<Radio />} 
-                label="Decrease Leaves" 
-              />
-            </RadioGroup>
-          </FormControl>
-
           {/* Number of Days */}
           <TextField
-            label="Number of Days *"
+            label="Alloted Days *"
             type="number"
             value={formData.amount}
             onChange={(e) => handleInputChange("amount", e.target.value)}
@@ -296,9 +266,9 @@ const AdjustLeaveModal = ({
           sx={{ textTransform: "none" }}
         >
           {loading 
-            ? "Processing..." 
-            : `${formData.actionType === "increase" ? "Increase" : "Decrease"} ${formData.amount || 0} ${parseFloat(formData.amount) === 1 ? "Day" : "Days"}`
-          }
+  ? "Processing..." 
+  : `Allot ${formData.amount || 0} ${parseFloat(formData.amount) === 1 ? "Day" : "Days"}`
+}
         </Button>
       </DialogActions>
     </Dialog>

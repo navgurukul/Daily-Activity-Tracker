@@ -22,12 +22,14 @@ const EmployeeManagement = () => {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
     const fetchEmployeeData = async () => {
       setLoading(true);
       try {
         const response = await fetch(
-          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
         );
         const data = await response.json();
         setEmployeeData(data.data);

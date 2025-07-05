@@ -98,6 +98,8 @@ const Form = () => {
   
   const location = useLocation();
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const handleCloseSnackbar = () => {
     setSnackbaropen(false);
   };
@@ -114,7 +116,7 @@ const Form = () => {
     const fetchCampuses = async () => {
       try {
         const res = await fetch(
-          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/campuses"
+          `${API_BASE_URL}/campuses`
         );
         const data = await res.json();
         const parsedBody = JSON.parse(data.body);
@@ -186,7 +188,7 @@ const Form = () => {
     initPreviousEntries();
     try {
       fetch(
-        `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employees`
+        `${API_BASE_URL}/employees`
       )
         .then((response) => response.json())
         .then((data) => {
@@ -465,7 +467,7 @@ const Form = () => {
     try {
       console.log("Ready to send to backend", newEntry);
       const response = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs",
+        `${API_BASE_URL}/activityLogs`,
         {
           method: "POST",
           headers: {
@@ -650,7 +652,7 @@ const Form = () => {
     const fetchDepartments = async () => {
       try {
         const res = await fetch(
-          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
         );
         const data = await res.json();
         if (data.success) {

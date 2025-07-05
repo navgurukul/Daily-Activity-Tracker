@@ -39,6 +39,9 @@ const AdjustLeaveModal = ({
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
+  
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const leaveTypes = [
     "Exam Leave",
     "Casual Leave", 
@@ -96,56 +99,62 @@ const AdjustLeaveModal = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
-    
-    setLoading(true);
-    setSubmitError("");
-    
-    try {
-      const payload = {
-        userEmail: formData.userEmail,
-        leaveType: formData.leaveType,
-        IncreaseOrDecreaseBy: adminEmail,
-      };
+ const handleSubmit = async () => {
+  if (!validateForm()) return;
+  
+  setLoading(true);
+  setSubmitError("");
+  
+  try {
+    const payload = {
+      userEmail: formData.userEmail,
+      leaveType: formData.leaveType,
+      IncreaseOrDecreaseBy: adminEmail,
+    };
 
-      // Only add the relevant field based on action type
-      if (formData.actionType === "increase") {
-        payload.leaveIncrease = parseFloat(formData.amount);
-      } else {
-        payload.leaveDecrease = parseFloat(formData.amount);
-      }
-
-      const response = await fetch(
-        "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employmentLeaveUpgrade",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      const result = await response.json();
-
-      if (response.ok) {
-        const days = parseFloat(formData.amount);
-        const dayText = days === 1 ? "day" : "days";
-        const successMessage = `Successfully ${formData.actionType}d ${days} ${dayText} of ${formData.leaveType} for ${formData.userEmail}`;
-        onSuccess(successMessage);
-        handleClose();
-      } else {
-        setSubmitError(result?.message || "Failed to adjust leave balance. Please try again.");
-      }
-    } catch (error) {
-      setSubmitError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
+    // Only add the relevant field based on action type
+    if (formData.actionType === "increase") {
+      payload.leaveIncrease = parseFloat(formData.amount);
+    } else {
+      payload.leaveDecrease = parseFloat(formData.amount);
     }
-  };
+    
+    const response = await fetch(
+      `${API_BASE_URL}/employmentLeaveUpgrade`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
 
+    const result = await response.json();
+
+    if (response.ok) {
+      const days = parseFloat(formData.amount);
+      let successMessage;
+      
+      if (days === 0) {
+        successMessage = `Successfully processed 0 day adjustment for ${formData.leaveType} of ${formData.userEmail}`;
+      } else {
+        const dayText = days === 1 ? "day" : "days";
+        successMessage = `Successfully ${formData.actionType}d ${days} ${dayText} of ${formData.leaveType} for ${formData.userEmail}`;
+      }
+      
+      onSuccess(successMessage);
+      handleClose();
+    } else {
+      setSubmitError(result?.message || "Failed to adjust leave balance. Please try again.");
+    }
+  } catch (error) {
+    setSubmitError("Something went wrong. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
   const handleClose = () => {
     setFormData({
       userEmail: "",

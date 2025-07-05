@@ -29,6 +29,8 @@ const MonthlyDashboard = () => {
   const selectedMonth = selectedDate.getMonth();
   const selectedYear = selectedDate.getFullYear();
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const getDaysInMonth = () => {
     const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
     // Get only current month's days
@@ -62,12 +64,12 @@ const MonthlyDashboard = () => {
         const email = sessionStorage.getItem("email");
         const [activityRes, leaveRes] = await Promise.all([
           fetch(
-            `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/activityLogs/${email}?month=${String(
+            `${API_BASE_URL}/activityLogs/${email}?month=${String(
               selectedMonth + 1
             ).padStart(2, "0")}&year=${selectedYear}`
           ),
           fetch(
-            `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/leave-records?employeeEmail=${email}`
+            `${API_BASE_URL}/leave-records?employeeEmail=${email}`
           ),
         ]);
         const [activityData, leaveData] = await Promise.all([

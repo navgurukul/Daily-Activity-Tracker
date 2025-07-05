@@ -5,13 +5,15 @@ function LoginProvider({ children }) {
   const [email, setEmail] = useState(sessionStorage.getItem("email") || "");
   const [userRoles, setUserRoles] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     const checkIfAdminUser = async () => {
       try {
         // const userEmail = localStorage.getItem("email") ?? "";
         const userEmail = sessionStorage.getItem("email") ?? "";
         if (!userEmail) return;
-        const roleUrl = `https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/accessControl?email=${userEmail}`;
+        const roleUrl = `${API_BASE_URL}/accessControl?email=${userEmail}`;
         const res = await fetch(roleUrl);
         const data = await res.json();
         const roles =

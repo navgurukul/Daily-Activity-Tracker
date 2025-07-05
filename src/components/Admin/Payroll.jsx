@@ -41,9 +41,10 @@ const Payroll = () => {
   const [allEmails, setAllEmails] = useState([]);
   const [allNames, setAllNames] = useState([]);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
     const fetchPayrollData = async () => {
-      // const token = localStorage.getItem("jwtToken");
       const token = sessionStorage.getItem("jwtToken");
 
       if (!token) {
@@ -54,7 +55,7 @@ const Payroll = () => {
 
       try {
         let url =
-          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation";
+          `${API_BASE_URL}/payableDaysCalculation`;
         const queryParams = new URLSearchParams();
         if (emailFilter) queryParams.append("email", emailFilter);
         if (monthFilter) queryParams.append("month", parseInt(monthFilter) - 1);
@@ -85,7 +86,7 @@ const Payroll = () => {
     const fetchEmailsAndNames = async () => {
       try {
         const response = await axios.get(
-          "https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/employeeSheetRecords?sheet=pncdata"
+          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
         );
         const teamIDs = Array.from(
           new Set(
@@ -163,13 +164,13 @@ const Payroll = () => {
     );
   }
 
-  async function downloadCSV() {
-    try {
-      const response = await fetch('https://u9dz98q613.execute-api.ap-south-1.amazonaws.com/dev/payableDaysCalculation', {
-        headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
-        },
-      });
+async function downloadCSV() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/payableDaysCalculation`, {
+      headers: {
+        Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+      },
+    });
 
       const result = await response.json();
       const data = result.data;

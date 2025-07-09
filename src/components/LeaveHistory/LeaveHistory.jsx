@@ -15,6 +15,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  CircularProgress,
 } from "@mui/material";
 import { LoginContext } from "../context/LoginContext";
 import ArrowBackIcon from "@mui/icons-material/KeyboardArrowLeft";
@@ -38,6 +39,13 @@ const LeaveHistory = () => {
     pending: "",
     rejected: "",
   });
+
+  const [loading, setLoading] = useState({
+    approved: false,
+    pending: false,
+    rejected: false,
+  });
+
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
   console.log("User email:", email);
@@ -50,6 +58,7 @@ const LeaveHistory = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const fetchLeaveData = async (statusKey, page, month = "") => {
     if (!email) return;
+    setLoading((prev) => ({ ...prev, [statusKey]: true }));
     try {
       const response = await fetch(
         `${API_BASE_URL}/leave-records?status=${statusKey}&employeeEmail=${email}&month=${month}&limit=5&page=${page}`
@@ -63,6 +72,8 @@ const LeaveHistory = () => {
       }));
     } catch (error) {
       console.error("Error fetching leave records:", error);
+    } finally {
+      setLoading((prev) => ({ ...prev, [statusKey]: false }));
     }
   };
   const handleTabClick = (index) => {
@@ -159,7 +170,12 @@ const LeaveHistory = () => {
           <MenuItem value="12">December</MenuItem>
         </Select>
       </FormControl>
-      {leaves.length > 0 ? (
+      {loading[statusKey] ? (
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
+          <p>Loading...</p>
+          <CircularProgress />
+        </Box>
+      ) : leaves.length > 0 ? (
         <>
           <TableContainer component={Paper} sx={{ width: { md: '99%' }, overflowX: { xs: "auto", sm: "hidden", } }}>
             <Table>

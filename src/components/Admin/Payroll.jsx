@@ -32,7 +32,7 @@ const Payroll = () => {
   const rowsPerPage = 9;
 
   // Filters and Sorting
-  const [nameFilter, setNameFilter] = useState("");
+  // const [nameFilter, setNameFilter] = useState("");
   const [emailFilter, setEmailFilter] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [monthFilter, setMonthFilter] = useState("");
@@ -274,7 +274,7 @@ async function downloadCSV() {
 
       {/* Filters */}
       <Box sx={{ display: "flex", gap: { xs: 1, sm: 2 }, flexWrap: "wrap", mb: 3, justifyContent: "center" }}>
-        <Autocomplete
+        {/* <Autocomplete
           options={allNames}  // your fetched names array
           value={nameFilter}
           onChange={(event, newValue) => setNameFilter(newValue || "")}
@@ -293,7 +293,7 @@ async function downloadCSV() {
               maxHeight: 200,
             },
           }}
-        />
+        /> */}
         <Autocomplete
           options={allEmails}
           value={emailFilter}

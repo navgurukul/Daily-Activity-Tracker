@@ -51,13 +51,7 @@
   flex-wrap: wrap;
 }
 
-.filter-section .MuiFormControl-root {
-  width: 300px;
-}
 
-.filter-section .MuiTextField-root {
-  width: 200px;
-}
 
 .filter-role {
   margin-bottom: 20px;
@@ -67,13 +61,6 @@
   flex-wrap: wrap;
 }
 
-.filter-role .MuiFormControl-root {
-  width: 300px;
-}
-
-.filter-role .MuiTextField-root {
-  width: 200px;
-}
 
 
 /* Responsiveness */
@@ -123,17 +110,6 @@
     justify-content: center;
   }
 
-  .filter-section .MuiFormControl-root {
-    width: 260px;
-  }
-
-  .filter-section .MuiTextField-root {
-    width: 260px;
-  }
-
-  .filter-section button {
-    width: 260px;
-  }
 
   .assign-role h2 {
     text-align: center;
@@ -143,17 +119,6 @@
     justify-content: center;
   }
 
-  .filter-role .MuiFormControl-root {
-    width: 260px;
-  }
-
-  .filter-role .MuiTextField-root {
-    width: 260px;
-  }
-
-  .filter-role button {
-    width: 260px;
-  }
 }
 
 @media (max-width: 375px) {
@@ -178,31 +143,6 @@
     justify-content: center;
   }
 
-  .filter-section .MuiFormControl-root {
-    width: 260px;
-  }
-
-  .filter-section .MuiTextField-root {
-    width: 260px;
-  }
-
-  .filter-section button {
-    width: 260px;
-  }
-
-
-  .filter-role .MuiFormControl-root {
-    width: 260px;
-  }
-
-  .filter-role .MuiTextField-root {
-    width: 260px;
-  }
-
-  .filter-role button {
-    width: 260px;
-  }
-
 }
 
 @media (max-width: 320px) {
@@ -225,29 +165,5 @@
 
   .filter-section {
     justify-content: center;
-  }
-
-  .filter-section .MuiFormControl-root {
-    width: 260px;
-  }
-
-  .filter-section .MuiTextField-root {
-    width: 260px;
-  }
-
-  .filter-section button {
-    width: 260px;
-  }
-
-  .filter-role .MuiFormControl-root {
-    width: 260px;
-  }
-
-  .filter-role .MuiTextField-root {
-    width: 260px;
-  }
-
-  .filter-role button {
-    width: 260px;
-  }
+  } 
 }

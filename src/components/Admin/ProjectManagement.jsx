@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Modal, Box, Typography, Button, DialogActions } from "@mui/material"
 import { handleBeforeUnload } from "../../utils/beforeUnloadHandler";
 import "./ProjectManagement.css";
@@ -277,90 +277,90 @@ const ProjectManagement = () => {
   // };
 
   const handleAddProject = () => {
-  const newErrors = {};
-  const residentialDepts = [
-    "Residential Program",
-    "Culture",
-    "Academics",
-    "Operations",
-    "LXD & ETC",
-    "Campus Support Staff",
-    "Campus_Security"
-  ];
-  // Pre-validation
-  if (!data.department) {
-    newErrors.department = "Please select a department*";
-  }
-  if (!data.projectName) {
-    newErrors.projectName = "Please fill in the project name*";
-  }
-  if (residentialDepts.includes(data.department)) {
-    if (!data.campus) {
-      newErrors.campus = "Please select a campus*";
+    const newErrors = {};
+    const residentialDepts = [
+      "Residential Program",
+      "Culture",
+      "Academics",
+      "Operations",
+      "LXD & ETC",
+      "Campus Support Staff",
+      "Campus_Security"
+    ];
+    // Pre-validation
+    if (!data.department) {
+      newErrors.department = "Please select a department*";
     }
-    if (!data.discordWebhook) {
-      newErrors.discordWebhook = "Please fill in the Discord channel web hook URL*";
+    if (!data.projectName) {
+      newErrors.projectName = "Please fill in the project name*";
     }
-    if (!data.poc_of_project) {
-      newErrors.poc_of_project = "Please fill in the POC of project*";
+    if (residentialDepts.includes(data.department)) {
+      if (!data.campus) {
+        newErrors.campus = "Please select a campus*";
+      }
+      if (!data.discordWebhook) {
+        newErrors.discordWebhook = "Please fill in the Discord channel web hook URL*";
+      }
+      if (!data.poc_of_project) {
+        newErrors.poc_of_project = "Please fill in the POC of project*";
+      }
+    } else {
+      if (!data.channelName) {
+        newErrors.channelName = "Please fill in the channel name*";
+      }
+      if (!data.channelId) {
+        newErrors.channelId = "Please fill in the channel ID*";
+      }
     }
-  } else {
-    if (!data.channelName) {
-      newErrors.channelName = "Please fill in the channel name*";
+    if (!data.projectMasterEmail) {
+      newErrors.projectMasterEmail = "Please fill in the project master email*";
     }
-    if (!data.channelId) {
-      newErrors.channelId = "Please fill in the channel ID*";
+    if (!data.projectBudget) {
+      newErrors.projectBudget = "Please fill in the project budget*";
     }
-  }
-  if (!data.projectMasterEmail) {
-    newErrors.projectMasterEmail = "Please fill in the project master email*";
-  }
-  if (!data.projectBudget) {
-    newErrors.projectBudget = "Please fill in the project budget*";
-  }
-  if (!data.priorities) {
-    newErrors.priorities = "Please select a priority*";
-  }
-  if (!data.projectStatus) {
-    newErrors.projectStatus = "Please select a project status*";
-  }
-  if (Object.keys(newErrors).length > 0) {
-    console.log("Validation errors:", newErrors);
-    setErrors(newErrors);
-    return;
-  }
-  setErrors({});
-  // Make the API call
-  fetch(`${API_BASE_URL}/employees`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  })
-    .then((response) => response.json())
-    .then((newProject) => {
-      setProjects([...projects, newProject]);
-      setData({
-        department: selectedDept,
-        projectName: "",
-        channelName: "",
-        channelId: "",
-        projectMasterEmail: "",
-        clientName: "",
-        projectStatus: "active",
-        priorities: "",
-        projectBudget: "",
-        Id: "",
-        campus: "",
-        discordWebhook: "",
-        poc_of_project: "",
-      });
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-      window.location.reload(); // You can remove this if you prefer smoother UX
+    if (!data.priorities) {
+      newErrors.priorities = "Please select a priority*";
+    }
+    if (!data.projectStatus) {
+      newErrors.projectStatus = "Please select a project status*";
+    }
+    if (Object.keys(newErrors).length > 0) {
+      console.log("Validation errors:", newErrors);
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+    // Make the API call
+    fetch(`${API_BASE_URL}/employees`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
     })
-    .catch((error) => console.error("Error adding project:", error));
-};
+      .then((response) => response.json())
+      .then((newProject) => {
+        setProjects([...projects, newProject]);
+        setData({
+          department: selectedDept,
+          projectName: "",
+          channelName: "",
+          channelId: "",
+          projectMasterEmail: "",
+          clientName: "",
+          projectStatus: "active",
+          priorities: "",
+          projectBudget: "",
+          Id: "",
+          campus: "",
+          discordWebhook: "",
+          poc_of_project: "",
+        });
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+        window.location.reload(); // You can remove this if you prefer smoother UX
+      })
+      .catch((error) => console.error("Error adding project:", error));
+  };
 
   const handleEditProject = (project, index) => {
     setEditData(project);
@@ -464,78 +464,78 @@ const ProjectManagement = () => {
           </div>
           {/* {selectedDept ===  "Residential Program" && ( */}
           {[
-  "Residential Program",
-  "Culture",
-  "Academics",
-  "Operations",
-  "LXD & ETC",
-  "Campus Support Staff",
-  "Campus_Security"
-].includes(selectedDept) && (
-            <>
-              <div className="input-wrapper">
-                <select
-                  name="campus"
-                  className="input-field"
-                  value={data.campus || ""}
-                  onChange={(e) => setData({ ...data, campus: e.target.value })}
-                  required
-                >
-                  <option value="" disabled>
-                    Select Campus
-                  </option>
-                  {campuses.map((campus, idx) => (
-                    <option key={idx} value={campus}>
-                      {campus}
+            "Residential Program",
+            "Culture",
+            "Academics",
+            "Operations",
+            "LXD & ETC",
+            "Campus Support Staff",
+            "Campus_Security"
+          ].includes(selectedDept) && (
+              <>
+                <div className="input-wrapper">
+                  <select
+                    name="campus"
+                    className="input-field"
+                    value={data.campus || ""}
+                    onChange={(e) => setData({ ...data, campus: e.target.value })}
+                    required
+                  >
+                    <option value="" disabled>
+                      Select Campus
                     </option>
-                  ))}
-                </select>
-                {errors.campus && <div className="error-message">{errors.campus}</div>}
-              </div>
-              <div className="input-wrapper">
-                <div className="tooltip-container">
-                  <input
-                    type="text"
-                    placeholder="Discord Channel Web Hook URL"
-                    className="input-field"
-                    value={data.discordWebhook || ""}
-                    onChange={(e) => setData({ ...data, discordWebhook: e.target.value })}
-                    onFocus={() => setShowTooltip(true)}
-                    onBlur={() => setShowTooltip(false)}
-                    onMouseEnter={() => setShowTooltip(true)}
-                    onMouseLeave={() => setShowTooltip(false)}
-                  />
-                  {showTooltip && (
-                    <div className="custom-tooltip">
-                      Get your Discord Channel Web Hook URL from your Discord channel settings
-                    </div>
-                  )}
+                    {campuses.map((campus, idx) => (
+                      <option key={idx} value={campus}>
+                        {campus}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.campus && <div className="error-message">{errors.campus}</div>}
                 </div>
-                {errors.discordWebhook && <div className="error-message">{errors.discordWebhook}</div>}
-              </div>
-              <div className="input-wrapper">
-                <div className="tooltip-container tooltip">
-                  <textarea
-                    placeholder="POC of Project"
-                    className="input-field"
-                    value={data.poc_of_project || ""}
-                    onChange={(e) => setData({ ...data, poc_of_project: e.target.value })}
-                    rows="2"
-                    onFocus={() => setShowTextareaTooltip(true)}
-                    onBlur={() => setShowTextareaTooltip(false)}
-                    onMouseEnter={() => setShowTextareaTooltip(true)}
-                    onMouseLeave={() => setShowTextareaTooltip(false)}
-                  />
-                  {showTextareaTooltip && (
-                    <div className="custom-tooltip">
-                      Enter emails of POC separated by commas (e.g.: john@example.com, jane@example.com)
-                    </div>
-                  )}
+                <div className="input-wrapper">
+                  <div className="tooltip-container">
+                    <input
+                      type="text"
+                      placeholder="Discord Channel Web Hook URL"
+                      className="input-field"
+                      value={data.discordWebhook || ""}
+                      onChange={(e) => setData({ ...data, discordWebhook: e.target.value })}
+                      onFocus={() => setShowTooltip(true)}
+                      onBlur={() => setShowTooltip(false)}
+                      onMouseEnter={() => setShowTooltip(true)}
+                      onMouseLeave={() => setShowTooltip(false)}
+                    />
+                    {showTooltip && (
+                      <div className="custom-tooltip">
+                        Get your Discord Channel Web Hook URL from your Discord channel settings
+                      </div>
+                    )}
+                  </div>
+                  {errors.discordWebhook && <div className="error-message">{errors.discordWebhook}</div>}
                 </div>
-                {errors.poc_of_project && <div className="error-message">{errors.poc_of_project}</div>}
-              </div>
-            </>
-          )}
+                <div className="input-wrapper">
+                  <div className="tooltip-container tooltip">
+                    <textarea
+                      placeholder="POC of Project"
+                      className="input-field"
+                      value={data.poc_of_project || ""}
+                      onChange={(e) => setData({ ...data, poc_of_project: e.target.value })}
+                      rows="2"
+                      onFocus={() => setShowTextareaTooltip(true)}
+                      onBlur={() => setShowTextareaTooltip(false)}
+                      onMouseEnter={() => setShowTextareaTooltip(true)}
+                      onMouseLeave={() => setShowTextareaTooltip(false)}
+                    />
+                    {showTextareaTooltip && (
+                      <div className="custom-tooltip">
+                        Enter emails of POC separated by commas (e.g.: john@example.com, jane@example.com)
+                      </div>
+                    )}
+                  </div>
+                  {errors.poc_of_project && <div className="error-message">{errors.poc_of_project}</div>}
+                </div>
+              </>
+            )}
           <div className="input-wrapper">
             <input
               type="text"
@@ -548,41 +548,41 @@ const ProjectManagement = () => {
           </div>
           {/* {selectedDept !== "Residential Program"  && ( */}
           {![
-  "Residential Program",
-  "Culture",
-  "Academics",
-  "Operations",
-  "LXD & ETC",
-  "Campus Support Staff",
-  "Campus_Security"
-].includes(selectedDept) && (
-            <>
-              <div className="input-wrapper">
-                <input
-                  type="text"
-                  placeholder="Slack Channel Name"
-                  className="input-field"
-                  value={data.channelName}
-                  onChange={(e) =>
-                    setData({ ...data, channelName: e.target.value })
-                  }
-                />
-                {errors.channelName && <div className="error-message">{errors.channelName}</div>}
-              </div>
-              <div className="input-wrapper">
-                <input
-                  type="text"
-                  placeholder="Slack Channel ID"
-                  className="input-field"
-                  value={data.channelId}
-                  onChange={(e) =>
-                    setData({ ...data, channelId: e.target.value })
-                  }
-                />
-                {errors.channelId && <div className="error-message">{errors.channelId}</div>}
-              </div>
-            </>
-          )}
+            "Residential Program",
+            "Culture",
+            "Academics",
+            "Operations",
+            "LXD & ETC",
+            "Campus Support Staff",
+            "Campus_Security"
+          ].includes(selectedDept) && (
+              <>
+                <div className="input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Slack Channel Name"
+                    className="input-field"
+                    value={data.channelName}
+                    onChange={(e) =>
+                      setData({ ...data, channelName: e.target.value })
+                    }
+                  />
+                  {errors.channelName && <div className="error-message">{errors.channelName}</div>}
+                </div>
+                <div className="input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Slack Channel ID"
+                    className="input-field"
+                    value={data.channelId}
+                    onChange={(e) =>
+                      setData({ ...data, channelId: e.target.value })
+                    }
+                  />
+                  {errors.channelId && <div className="error-message">{errors.channelId}</div>}
+                </div>
+              </>
+            )}
           <div className="input-wrapper">
             <input
               type="text"
@@ -880,17 +880,17 @@ const ProjectManagement = () => {
                       <Typography><strong>Budget:</strong> {selectedProject.projectBudget}</Typography>
                       <Typography><strong>Status:</strong> {selectedProject.projectStatus}</Typography>
                       <Box
-                          sx={{
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            mt: 3,
-                            mb: 0,
-                          }}
-                        >
-                          <Button variant="contained" color="success" onClick={handleClose}>
-                            Close
-                          </Button>
-                        </Box>
+                        sx={{
+                          display: "flex",
+                          justifyContent: "flex-end",
+                          mt: 3,
+                          mb: 0,
+                        }}
+                      >
+                        <Button variant="contained" color="success" onClick={handleClose}>
+                          Close
+                        </Button>
+                      </Box>
                     </>
                   )}
                 </Box>
@@ -902,16 +902,24 @@ const ProjectManagement = () => {
         </div>
       </div>
       {isEditMode && (
-        <div className="modal-overlay">
+        <div className="modal-overlay"
+          onClick={(e) => {
+            if (e.currentTarget === e.target) {
+              setIsEditMode(false);
+            }
+          }}
+        >
           <div className="modal-content">
             <button
               className="close-button"
-              onClick={() => setIsEditMode(false)}
+              onClick={() => {
+                setIsEditMode(false)
+              }}
             >
               &times;
             </button>
             <h2>Edit Project</h2>
-            <div className="form-fields">
+            <div className="update-form-fields">
               <input
                 type="text"
                 placeholder="Project Name"
@@ -1053,7 +1061,7 @@ const ProjectManagement = () => {
                 <option value="Inactive">Inactive</option>
               </select>
             </div>
-            <button className="add-btn" onClick={handleUpdateProject}>
+            <button className="update-btn" onClick={handleUpdateProject}>
               Update Project
             </button>
           </div>

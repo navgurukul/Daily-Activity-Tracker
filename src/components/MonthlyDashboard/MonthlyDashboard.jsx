@@ -112,6 +112,7 @@ const MonthlyDashboard = () => {
   if (loading) {
     return (
       <Box className="loading-container">
+         <p>Loading...</p>
         <CircularProgress />
       </Box>
     );

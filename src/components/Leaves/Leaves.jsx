@@ -285,12 +285,27 @@ const Leaves = () => {
       }));
     }
 
-    const email = name === "email" ? value : leaveData.userEmail;
+    // const email = name === "email" ? value : leaveData.userEmail;
 
-    setRemainingLeaves(
-      allLeaves[email]?.leaveRecords?.find((leave) => leave.leaveType === leaveData.leaveType)?.leaveLeft
-    );
+    // setRemainingLeaves(
+    //   allLeaves[email]?.leaveRecords?.find((leave) => leave.leaveType === leaveData.leaveType)?.leaveLeft
+    // );
   };
+
+useEffect(() => {
+  const email = leaveData.userEmail;
+  const type = leaveData.leaveType;
+
+  if (email && type && Array.isArray(allLeaves)) {
+    const userData = allLeaves.find((user) => user.userEmail === email);
+    const matchedLeave = userData?.leaveRecords?.find(
+      (leave) => leave.leaveType?.toLowerCase() === type.toLowerCase()
+    );
+    setRemainingLeaves(matchedLeave?.leaveLeft ?? undefined);
+  } else {
+    setRemainingLeaves(undefined);
+  }
+}, [leaveData.userEmail, leaveData.leaveType, allLeaves]);
 
   const handleHalfDayChange = (e) => {
     setHalfDay(e.target.checked);

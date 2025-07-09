@@ -8,7 +8,6 @@ import {
   FormControl,
   InputLabel,
   Box,
-  Typography,
   Snackbar,
   Alert,
   Dialog,
@@ -21,36 +20,29 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Autocomplete,
+  Typography,
 } from "@mui/material";
 import axios from "axios";
 import "./RoleUpdateForm.css";
-
 const RoleUpdateForm = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-
   const [email, setEmail] = useState("");
   const [teamIds, setTeamIds] = useState([]);
-  const [selectedRole, setSelectedRole] = useState("admin");
-
+  const [selectedRole, setSelectedRole] = useState("");
   const [filterEmail, setFilterEmail] = useState("");
   const [filterRole, setFilterRole] = useState("");
-
   const [tabIndex, setTabIndex] = useState(0);
-
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState({ email: "", id: "" });
-
   const [nextPage, setNextPage] = useState(null);
   const [previousPage, setPreviousPage] = useState([]);
   const [currentPage, setCurrentPage] = useState(null);
-
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
   const fetchFilteredUsers = async (page = 1) => {
     setLoading(true);
     const queryParams = new URLSearchParams();
@@ -82,7 +74,6 @@ const RoleUpdateForm = () => {
       controller.abort();
     };
   }, [filterEmail, filterRole]);
-
   useEffect(() => {
     const fetchEmails = async () => {
       try {
@@ -104,14 +95,12 @@ const RoleUpdateForm = () => {
     };
     fetchEmails();
   }, []);
-
   const formatRole = (role) => {
     if (!role) return "";
     return role
       .replace(/([A-Z])/g, " $1") // Insert space before capital letters
       .replace(/^./, (str) => str.toUpperCase()); // Capitalize first letter
   };
-
   const handleAssignRole = async (e) => {
     e.preventDefault();
     if (!email) {
@@ -120,12 +109,10 @@ const RoleUpdateForm = () => {
       setSnackbarOpen(true);
       return;
     }
-
     const payload = {
       email,
       roles: [selectedRole],
     };
-
     try {
       const res = await fetch(
         `${API_BASE_URL}/accessControl`,
@@ -138,19 +125,17 @@ const RoleUpdateForm = () => {
           body: JSON.stringify(payload),
         }
       );
-
       if (res.ok) {
         const data = await res.json();
         const roleDisplay = formatRole(selectedRole);
         setSnackbarMessage(
           `Successfully assigned the "${roleDisplay}" role to "${email}".`
         );
-        // setSnackbarMessage(data.message || "Role assigned successfully");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
         setFilterEmail("");
         setEmail("");
-        setFilterRole("");
+        setSelectedRole("")
         fetchFilteredUsers();
       } else {
         const data = await res.json();
@@ -165,17 +150,14 @@ const RoleUpdateForm = () => {
       setSnackbarOpen(true);
     }
   };
-
   const handleDelete = (emailToDelete, idToDelete) => {
     setDeleteTarget({ email: emailToDelete, id: idToDelete });
     setDeleteDialogOpen(true);
   };
-
   const confirmDelete = async (option) => {
     setDeleteDialogOpen(false);
     const { email, id } = deleteTarget;
     let url = "";
-
     if (option === "email") {
       url = `${API_BASE_URL}/accessControl?email=${encodeURIComponent(email
       )}`;
@@ -187,7 +169,6 @@ const RoleUpdateForm = () => {
       setSnackbarOpen(true);
       return;
     }
-
     try {
       const res = await fetch(url, {
         method: "DELETE",
@@ -197,7 +178,6 @@ const RoleUpdateForm = () => {
           Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
         },
       });
-
       if (res.ok) {
         setSnackbarMessage("Deleted successfully");
         setSnackbarSeverity("success");
@@ -216,12 +196,15 @@ const RoleUpdateForm = () => {
       setSnackbarOpen(true);
     }
   };
-
   const handleClearFilters = () => {
     setFilterEmail("");
     setFilterRole("");
   };
-
+  const roles = [
+    { label: "Admin", value: "admin" },
+    { label: "Project Manager", value: "projectManager" },
+    { label: "Super Admin", value: "superAdmin" },
+  ];
   return (
     <div style={{ overflowY: "scroll", height: "100vh" }}>
       <div className="main">
@@ -240,53 +223,52 @@ const RoleUpdateForm = () => {
               🛡️ Assign Roles
             </button>
           </div>
-
           {tabIndex === 0 && (
             <div className="all-users">
               <h2>All Users</h2>
               <div className="filter-section">
-                <FormControl size="small">
-                  <InputLabel>Filter by Email</InputLabel>
-                  <Select
-                    value={filterEmail}
-                    onChange={(e) => setFilterEmail(e.target.value)}
-                    label="Filter by Email"
-                    size="small"
-                    MenuProps={{
-                      PaperProps: {
-                        style: {
-                          maxHeight: 400,
-                          width: 200,
-                          padding: 0,
-                          fontSize: "0.8rem",
-                        },
+                <Autocomplete
+                  options={teamIds}
+                  value={filterEmail}
+                  onChange={(event, value) => setFilterEmail(value || "")}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Filter by Email"
+                      size="small"
+                    />
+                  )}
+                  freeSolo
+                  sx={{ minWidth: 300 }}
+                  slotProps={{
+                    paper: {
+                      sx: {
+                        '& ul': {
+                          maxHeight: 300,
+                          overflow: 'auto',
+                        }
                       },
-                    }}
-                  >
-                    <MenuItem value="">All</MenuItem>
-                    {teamIds.map((email, i) => (
-                      <MenuItem key={i} value={email}>
-                        {email}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <TextField
-                  label="Filter by Role"
-                  variant="outlined"
-                  select
-                  value={filterRole}
-                  onChange={(e) => setFilterRole(e.target.value)}
-                  size="small"
-                >
-                  <MenuItem value="">All</MenuItem>
-                  <MenuItem value="admin">Admin</MenuItem>
-                  <MenuItem value="projectManager">Project Manager</MenuItem>
-                  <MenuItem value="superAdmin">Super Admin</MenuItem>
-                </TextField>
+                    }
+                  }}
+                />
+                <Autocomplete
+                  options={roles}
+                  value={roles.find((role) => role.value === filterRole) || ""}
+                  onChange={(event, newValue) => setFilterRole(newValue?.value || "")}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Filter by Role"
+                      size="small"
+                    />
+                  )}
+                  freeSolo
+                  sx={{ minWidth: { xs: 300, sm: 200 } }}
+                />
                 <Button
                   onClick={handleClearFilters}
                   sx={{
+                    minWidth: { xs: 300, sm: 150 },
                     border: '2px solid #f44336',
                     color: '#f44336',
                     backgroundColor: 'white',
@@ -300,7 +282,6 @@ const RoleUpdateForm = () => {
                   Clear Filters
                 </Button>
               </div>
-
               {loading ? (
                 <Box sx={{ display: "flex", justifyContent: "center", marginTop: "50px" }}>
                   <Typography variant="h6" sx={{ mb: 2 }}>
@@ -412,7 +393,6 @@ const RoleUpdateForm = () => {
                     >
                       Previous
                     </Button>
-
                     <Button
                       variant="contained"
                       disabled={!nextPage}
@@ -434,47 +414,49 @@ const RoleUpdateForm = () => {
               )}
             </div>
           )}
-
           {tabIndex === 1 && (
             <div className="assign-role">
               <h2>Assign Role</h2>
               <div className="filter-role">
-                <FormControl size="small">
-                  <InputLabel>Select Email</InputLabel>
-                  <Select
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    label="Select Email"
-                    size="small"
-                    MenuProps={{
-                      PaperProps: {
-                        style: {
-                          maxHeight: 400,
-                          width: 200,
-                          padding: 0,
-                          fontSize: "0.8rem",
-                        },
+                <Autocomplete
+                  options={teamIds}
+                  value={email}
+                  onChange={(event, value) => setEmail(value || "")}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Select Email"
+                      size="small"
+                    />
+                  )}
+                  freeSolo
+                  sx={{ minWidth: 300 }}
+                  slotProps={{
+                    paper: {
+                      sx: {
+                        '& ul': {
+                          maxHeight: 300,
+                          overflow: 'auto',
+                        }
                       },
-                    }}
-                  >
-                    {teamIds.map((id) => (
-                      <MenuItem key={id} value={id}>
-                        {id}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-                <TextField
-                  label="Select Role"
-                  select
-                  value={selectedRole}
-                  onChange={(e) => setSelectedRole(e.target.value)}
-                  size="small"
-                >
-                  <MenuItem value="admin">Admin</MenuItem>
-                  <MenuItem value="projectManager">Project Manager</MenuItem>
-                  <MenuItem value="superAdmin">Super Admin</MenuItem>
-                </TextField>
+                    }
+                  }}
+                />
+                <Autocomplete
+                  options={roles}
+                  key={selectedRole}
+                  value={roles.find((role) => role.value === selectedRole) || null}
+                  onChange={(event, newValue) => setSelectedRole(newValue ? newValue.value : "")} 
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Select Role"
+                      size="small"
+                    />
+                  )}
+                  freeSolo
+                  sx={{ minWidth: { xs: 300, sm: 200 } }}
+                />
                 <Button
                   variant="contained"
                   onClick={handleAssignRole}
@@ -541,5 +523,4 @@ const RoleUpdateForm = () => {
     </div>
   );
 };
-
 export default RoleUpdateForm;

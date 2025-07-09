@@ -157,6 +157,8 @@ const Leaves = () => {
   const [allLeaves, setAllLeaves] = useState({});
 
   const [allEmails, setAllEmails] = useState([]);
+  const [leavesLoading, setLeavesLoading] = useState(false);
+
 
   const [fieldErrors, setFieldErrors] = useState({
     leaveType: "",
@@ -171,6 +173,7 @@ const Leaves = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const fetchData = async () => {
+    setLeavesLoading(true);
     try {
       const response = await fetch(
         `${API_BASE_URL}/employmentLeavePolicy?email=${email}`
@@ -182,6 +185,8 @@ const Leaves = () => {
       }
     } catch (error) {
       console.error("Error fetching leave data:", error);
+    } finally {
+      setLeavesLoading(false);
     }
   };
 
@@ -247,26 +252,6 @@ const Leaves = () => {
     }
   };
 
-  // const handleChange = (e) => {
-  //   setErrorMessage("");
-  //   const { name, value } = e.target;
-  //   setLeaveData((prevData) => ({
-  //     ...prevData,
-  //     [name]: value,
-  //   }));
-  //   if (value) {
-  //     setFieldErrors((prevErrors) => ({
-  //       ...prevErrors,
-  //       [name]: "",
-  //     }));
-  //   }
-  //   setRemainingLeaves(
-  //     allLeaves[email]?.leaveRecords?.find((leave) => leave.leaveType === value)
-  //       ?.leaveLeft
-  //   );
-  //   console.log("Leave Data:", leaveData);
-  // };
-
   const handleChange = (e) => {
     setErrorMessage("");
     const { name, value } = e.target;
@@ -284,18 +269,11 @@ const Leaves = () => {
         [name]: "",
       }));
     }
-
-    // const email = name === "email" ? value : leaveData.userEmail;
-
-    // setRemainingLeaves(
-    //   allLeaves[email]?.leaveRecords?.find((leave) => leave.leaveType === leaveData.leaveType)?.leaveLeft
-    // );
   };
 
-useEffect(() => {
+  useEffect(() => {
   const email = leaveData.userEmail;
   const type = leaveData.leaveType;
-
   if (email && type && Array.isArray(allLeaves)) {
     const userData = allLeaves.find((user) => user.userEmail === email);
     const matchedLeave = userData?.leaveRecords?.find(
@@ -305,6 +283,7 @@ useEffect(() => {
   } else {
     setRemainingLeaves(undefined);
   }
+  
 }, [leaveData.userEmail, leaveData.leaveType, allLeaves]);
 
   const handleHalfDayChange = (e) => {
@@ -504,33 +483,23 @@ useEffect(() => {
                 <TableHead>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 600 }}>Leave Type</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>Alloted</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Allotted</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Balance</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Booked</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Pending</TableCell>
                   </TableRow>
                 </TableHead>
-                {/* <TableBody>
-                  {leavesData.length > 0 ? (
-                    leavesData.map((leave, index) => (
-                      <tr key={index}>
-                        <td>{leave.leaveType}</td>
-                        <td>{leave.totalLeavesAllotted}</td>
-                        <td>{leave.leaveLeft}</td>
-                        <td>{leave.usedLeaves}</td>
-                        <td>{leave.pendingLeaves}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="5" style={{ textAlign: "center" }}>
-                        No data available for this email
-                      </td>
-                    </tr>
-                  )}
-                </TableBody> */}
                 <TableBody>
-                  {leavesData.length > 0 ? (
+                  {leavesLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center">
+                        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 1 }}>
+                          <p>Loading...</p>
+                          <CircularProgress size={24} />
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ) : leavesData.length > 0 ? (
                     leavesData.map((leave, index) => {
                       if (leave.leaveType === "Special Leave" && !isEditable) {
                         return null; // Skip special leave for non-admins

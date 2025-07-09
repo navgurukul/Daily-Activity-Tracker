@@ -297,7 +297,7 @@ const LeaveManagement = () => {
 
       {selectedTab === "pending" && (
         <>
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center", justifyContent:'center' }}>
             <Autocomplete
               options={allEmails}
               value={filterEmail}
@@ -426,7 +426,7 @@ const LeaveManagement = () => {
 
       {selectedTab === "approved" && (
         <>
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px", alignItems: "center", marginTop: '5px' }}>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px", alignItems: "center", marginTop: '5px', justifyContent:'center' }}>
             <Autocomplete
               options={allEmails}
               value={filterEmail}
@@ -548,6 +548,7 @@ const LeaveManagement = () => {
               gap: "10px",
               flexWrap: "wrap",
               alignItems: "center",
+              justifyContent:'center'
             }}
           >
             <Box sx={{ display: { xs: 'block', sm: 'flex' }, alignItems: 'flex-start', gap: 2 }}>
@@ -677,6 +678,7 @@ const LeaveManagement = () => {
               display: "flex",
               gap: "10px",
               alignItems: "center",
+              justifyContent:'center',
               flexWrap: "wrap",
             }}
           >

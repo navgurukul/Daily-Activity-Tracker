@@ -264,7 +264,6 @@ const RoleUpdateForm = () => {
                     />
                   )}
                   freeSolo
-                  disableClearable
                   sx={{ minWidth: { xs: 300, sm: 200 } }}
                 />
                 <Button

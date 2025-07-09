@@ -482,7 +482,7 @@ function DailyLogs() {
                   <TableCell>Project</TableCell>
                   <TableCell>Hours</TableCell>
                   <TableCell>Description</TableCell>
-                  <TableCell>Status</TableCell>
+                  {/* <TableCell>Status</TableCell> */}
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -494,9 +494,9 @@ function DailyLogs() {
                     <TableCell>{log.project}</TableCell>
                     <TableCell>{log.totalHoursSpent}</TableCell>
                     <TableCell>{log.description}</TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <Chip label={log.logStatus} color={log.logStatus === "approved" ? "success" : log.logStatus === "rejected" ? "error" : "warning"} size="small" />
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>
                       <Box
                         sx={{

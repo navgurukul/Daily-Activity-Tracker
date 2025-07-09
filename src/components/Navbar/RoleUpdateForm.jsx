@@ -8,6 +8,7 @@ import {
   FormControl,
   InputLabel,
   Box,
+  Typography,
   Snackbar,
   Alert,
   Dialog,
@@ -301,13 +302,12 @@ const RoleUpdateForm = () => {
               </div>
 
               {loading ? (
-                <CircularProgress
-                  style={{
-                    display: "block",
-                    margin: "0 auto",
-                    marginTop: "100px",
-                  }}
-                />
+                <Box sx={{ display: "flex", justifyContent: "center", marginTop: "50px" }}>
+                  <Typography variant="h6" sx={{ mb: 2 }}>
+                    Loading...
+                  </Typography>
+                  <CircularProgress />
+                </Box>
               ) : users.length === 0 ? (
                 <div
                   style={{

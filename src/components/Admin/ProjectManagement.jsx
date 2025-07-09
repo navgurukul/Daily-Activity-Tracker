@@ -129,7 +129,7 @@ const ProjectManagement = () => {
         (project.projectName || "").toLowerCase().includes(filters.projectName.toLowerCase()) &&
         (project.projectMasterEmail || "").toLowerCase().includes(filters.projectMasterEmail.toLowerCase()) &&
         (project.priorities || "").toLowerCase().includes(filters.priorities.toLowerCase()) &&
-        (project.projectStatus || "").includes(filters.projectStatus)
+        (project.projectStatus || "").toLowerCase().includes(filters.projectStatus.toLowerCase())
       );
     });
     setFilteredResidential(filtered);
@@ -142,7 +142,7 @@ const ProjectManagement = () => {
         (project.projectName || "").toLowerCase().includes(filters.projectName.toLowerCase()) &&
         (project.projectMasterEmail || "").toLowerCase().includes(filters.projectMasterEmail.toLowerCase()) &&
         (project.priorities || "").toLowerCase().includes(filters.priorities.toLowerCase()) &&
-        (project.projectStatus || "").includes(filters.projectStatus)
+        (project.projectStatus || "").toLowerCase().includes(filters.projectStatus.toLowerCase())
       );
     });
     setFilteredNonResidential(filtered);

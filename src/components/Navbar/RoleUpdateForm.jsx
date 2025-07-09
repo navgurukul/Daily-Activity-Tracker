@@ -253,6 +253,7 @@ const RoleUpdateForm = () => {
                 />
                 <Autocomplete
                   options={roles}
+                  key={filterRole}
                   value={roles.find((role) => role.value === filterRole) || ""}
                   onChange={(event, newValue) => setFilterRole(newValue?.value || "")}
                   renderInput={(params) => (
@@ -263,6 +264,7 @@ const RoleUpdateForm = () => {
                     />
                   )}
                   freeSolo
+                  disableClearable
                   sx={{ minWidth: { xs: 300, sm: 200 } }}
                 />
                 <Button
@@ -420,6 +422,7 @@ const RoleUpdateForm = () => {
               <div className="filter-role">
                 <Autocomplete
                   options={teamIds}
+                  key={email}
                   value={email}
                   onChange={(event, value) => setEmail(value || "")}
                   renderInput={(params) => (

@@ -32,7 +32,6 @@ const Payroll = () => {
   const rowsPerPage = 9;
 
   // Filters and Sorting
-  // const [nameFilter, setNameFilter] = useState("");
   const [emailFilter, setEmailFilter] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [monthFilter, setMonthFilter] = useState("");
@@ -135,7 +134,6 @@ const Payroll = () => {
   const filteredData = payrollData
     .filter(
       (person) =>
-        person.name.toLowerCase().includes(nameFilter.toLowerCase()) &&
         person.email.toLowerCase().includes(emailFilter.toLowerCase())
     )
     .sort((a, b) => {
@@ -274,26 +272,6 @@ async function downloadCSV() {
 
       {/* Filters */}
       <Box sx={{ display: "flex", gap: { xs: 1, sm: 2 }, flexWrap: "wrap", mb: 3, justifyContent: "center" }}>
-        {/* <Autocomplete
-          options={allNames}  // your fetched names array
-          value={nameFilter}
-          onChange={(event, newValue) => setNameFilter(newValue || "")}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label="Filter by Name"
-              variant="outlined"
-              size="small"
-              sx={{ width: { xs: 300, sm: 320 } }}
-            />
-          )}
-          freeSolo
-          ListboxProps={{
-            style: {
-              maxHeight: 200,
-            },
-          }}
-        /> */}
         <Autocomplete
           options={allEmails}
           value={emailFilter}
@@ -380,7 +358,6 @@ async function downloadCSV() {
         </TextField>
         <Button
           onClick={() => {
-            setNameFilter("");
             setEmailFilter("");
             setMonthFilter("");
             setYearFilter("");

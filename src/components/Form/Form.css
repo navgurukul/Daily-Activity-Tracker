@@ -126,11 +126,10 @@ td {
   padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
-  max-width: 130px;
 }
 .delete-button,
 .edit-button {
-  max-width: 130px;
+  max-width: 130px !important;
   padding: 5px;
   border-radius: 4px;
   border: none;
@@ -163,6 +162,7 @@ td {
 .full-width-button {
   width: 100%;
   box-sizing: border-box;
+  margin: 0 !important;
 }
 
 .full-width-button:disabled {
@@ -174,6 +174,16 @@ td {
 @media (max-width: 1024px) {
   .full-width-button{
     max-width: 100%;
+  }
+  .delete-button,
+  .edit-button {
+    max-width: 50px !important;
+    margin-left: 0 !important;
+  }
+  .edit-button,
+  .save-button {
+    max-width: 50px !important;
+    margin-left: 0 !important;
   }
 }
 
@@ -189,6 +199,8 @@ td {
   h3 {
     margin-top: 60px;
   }
+
+  
 }
 
 @media (max-width: 600px) {
@@ -214,10 +226,11 @@ td {
 @media (max-width:425px){
   .delete-button,
   .edit-button {
-    max-width: 50px;
+    max-width: 50px !important;
+    margin-left: 0 !important;
   }
   .save-button{
-    max-width: 50px;
+    max-width: 50px !important;
     height: 35px;
     margin-top: 31px;
   }

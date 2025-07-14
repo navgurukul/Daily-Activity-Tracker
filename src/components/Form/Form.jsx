@@ -486,6 +486,15 @@ const Form = () => {
       const result = await response.json();
       console.log("Response from backend:", result);
 
+      if (result.message === 'You already finished your 3 attempts') {
+        setSnackbarMessage('You have 0 attempts remaining for backdated entries!');
+        setSnackbarSeverity('warning');
+        setSnackbarOpen(true);
+        setFormData((prev) => ({ ...prev, contributions: [] }));
+        setLoading(false);
+        return;
+      }
+
       // Check if the response has results and the first result's status is "success"
       const entryStatus = result?.results?.[0]?.status;
 

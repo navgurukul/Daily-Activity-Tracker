@@ -143,14 +143,14 @@ const Form = () => {
     // let email = localStorage.getItem("email") ?? "";
     let email = sessionStorage.getItem("email") ?? "";
     setAttemptLoading(true);
-    fetch(`${url}?email=${email}&type=attempts`)
-      .then((response) => response.json())
-      .then((data) => {
-        setAttempt(data.attemptsLeft);
-        localStorage.setItem("attemptsLeft", data.attemptsLeft);
-        setIsDateDisabled(false);
-        setAttemptLoading(false);
-      });
+    // fetch(`${url}?email=${email}&type=attempts`)
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     setAttempt(data.attemptsLeft);
+    //     localStorage.setItem("attemptsLeft", data.attemptsLeft);
+    //     setIsDateDisabled(false);
+    //     setAttemptLoading(false);
+    //   });
 
     const initPreviousEntries = () => {
       const storedData = JSON.parse(

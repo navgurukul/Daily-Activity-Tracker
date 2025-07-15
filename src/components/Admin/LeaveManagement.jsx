@@ -174,7 +174,7 @@ const LeaveManagement = () => {
     setSnackbarMessage(message);
     setSnackbarSeverity("success");
     setSnackbarOpen(true);
-    
+
     // Refresh leave balance data if user is still selected
     if (searchEmail) {
       fetchLeaveBalance();
@@ -240,7 +240,7 @@ const LeaveManagement = () => {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
     if (selectedTab === "history") {
       fetchLeaveHistory(searchEmail, filterMonth);
@@ -252,6 +252,60 @@ const LeaveManagement = () => {
     setSearchEmail("")
     setFilterMonth("");
   };
+
+  const handleApproveAll = async () => {
+  setIsApproving(true);
+
+  const approverEmail = email;
+  const token = sessionStorage.getItem("jwtToken");
+
+  const leaveData = pendingLeaves.map((leave) => ({
+    Id: leave.Id,
+    approverEmail,
+    status: "approved",
+  }));
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/employmentLeavePolicy`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          isBulkUpload: true,
+          leaveData,
+        }),
+      }
+    );
+
+    const result = await response.json();
+    console.log("Bulk approval response:", result);
+
+    if (response.ok) {
+      setApprovedLeaves((prev) => [...prev, ...pendingLeaves]);
+      setPendingLeaves([]);
+
+      setSnackbarMessage("All leaves approved successfully.");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } else {
+      setSnackbarMessage(result?.message || "Bulk approval failed.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+
+  } catch (error) {
+    console.error("Bulk approval error:", error);
+    setSnackbarMessage("Something went wrong during bulk approval.");
+    setSnackbarSeverity("error");
+    setSnackbarOpen(true);
+  } finally {
+    setIsApproving(false);
+  }
+};
 
   return (
     <div className="leave-container">
@@ -297,7 +351,7 @@ const LeaveManagement = () => {
 
       {selectedTab === "pending" && (
         <>
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center", justifyContent:'center' }}>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center", justifyContent: 'center' }}>
             <Autocomplete
               options={allEmails}
               value={filterEmail}
@@ -383,41 +437,63 @@ const LeaveManagement = () => {
               {pendingLeaves.length === 0 ? (
                 <p style={{ fontSize: '17px', textAlign: "center" }}>No pending leaves found.</p>
               ) : (
-                <table style={{ minWidth: 1180 }}>
-                  <thead>
-                    <tr>
-                      <th>Email</th>
-                      <th>Leave Type</th>
-                      <th>From</th>
-                      <th>To</th>
-                      <th>Duration</th>
-                      <th>Type</th>
-                      <th>Reason</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pendingLeaves.map((leave, index) => (
-                      <tr key={index}>
-                        <td>{leave.email}</td>
-                        <td>{leave.leaveType}</td>
-                        <td>{leave.startDate}</td>
-                        <td>{leave.endDate}</td>
-                        <td>{leave.leaveDuration}</td>
-                        <td>{leave.durationType}</td>
-                        <td>{leave.reasonForLeave}</td>
-                        <td>
-                          <button
-                            className="approve-button"
-                            onClick={() => handleApprove(leave.Id)}
-                          >
-                            Approve
-                          </button>
-                        </td>
+                <>
+                  <div style={{ textAlign:'end', marginTop:'10px', marginBottom:'-12px', minWidth: 1180 }}>
+                    <Button 
+                    variant="contained"
+                    onClick={handleApproveAll}
+                      sx={{
+                        backgroundColor: '#1976D2',
+                        color: '#fff',
+                        fontWeight: 'bold',
+                        textTransform: 'none',
+                        px: 3,
+                        py: 1,
+                        borderRadius: 2,
+                        boxShadow: 2,
+                        '&:hover': {
+                          backgroundColor: '#115293',
+                        }
+                      }}>
+                      Approve All
+                    </Button>
+                  </div>
+                  <table style={{ minWidth: 1180 }}>
+                    <thead>
+                      <tr>
+                        <th>Email</th>
+                        <th>Leave Type</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Duration</th>
+                        <th>Type</th>
+                        <th>Reason</th>
+                        <th>Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {pendingLeaves.map((leave, index) => (
+                        <tr key={index}>
+                          <td>{leave.email}</td>
+                          <td>{leave.leaveType}</td>
+                          <td>{leave.startDate}</td>
+                          <td>{leave.endDate}</td>
+                          <td>{leave.leaveDuration}</td>
+                          <td>{leave.durationType}</td>
+                          <td>{leave.reasonForLeave}</td>
+                          <td>
+                            <button
+                              className="approve-button"
+                              onClick={() => handleApprove(leave.Id)}
+                            >
+                              Approve
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
               )}
             </div>
           )}
@@ -426,7 +502,7 @@ const LeaveManagement = () => {
 
       {selectedTab === "approved" && (
         <>
-          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px", alignItems: "center", marginTop: '5px', justifyContent:'center' }}>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px", alignItems: "center", marginTop: '5px', justifyContent: 'center' }}>
             <Autocomplete
               options={allEmails}
               value={filterEmail}
@@ -502,7 +578,7 @@ const LeaveManagement = () => {
           ) : (
             <div className="approved-data">
               {approvedLeaves.length === 0 ? (
-                <p style={{ fontSize:'17px', textAlign: "center" }}>No approved leaves found.</p>
+                <p style={{ fontSize: '17px', textAlign: "center" }}>No approved leaves found.</p>
               ) : (
                 <table style={{ minWidth: 1180 }}>
                   <thead>
@@ -548,7 +624,7 @@ const LeaveManagement = () => {
               gap: "10px",
               flexWrap: "wrap",
               alignItems: "center",
-              justifyContent:'center'
+              justifyContent: 'center'
             }}
           >
             <Box sx={{ display: { xs: 'block', sm: 'flex' }, alignItems: 'flex-start', gap: 2 }}>
@@ -603,23 +679,23 @@ const LeaveManagement = () => {
                 View Balance
               </button>
               <Button
-              className="adjust-leaves-button"
-              variant="contained"
-              color="secondary"
-              onClick={() => setAdjustModalOpen(true)}
-              sx={{ 
-                backgroundColor: "#ff9800",
-                "&:hover": {
-                  backgroundColor: "#f57c00"
-                },
-                 textTransform: "none" 
-              }}
-            >
-              Adjust Leaves
-            </Button>
+                className="adjust-leaves-button"
+                variant="contained"
+                color="secondary"
+                onClick={() => setAdjustModalOpen(true)}
+                sx={{
+                  backgroundColor: "#ff9800",
+                  "&:hover": {
+                    backgroundColor: "#f57c00"
+                  },
+                  textTransform: "none"
+                }}
+              >
+                Adjust Leaves
+              </Button>
             </Box>
           </div>
-          
+
           <div className="balance-data">
             {loadingBalance ? (
               <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
@@ -678,7 +754,7 @@ const LeaveManagement = () => {
               display: "flex",
               gap: "10px",
               alignItems: "center",
-              justifyContent:'center',
+              justifyContent: 'center',
               flexWrap: "wrap",
             }}
           >
@@ -757,6 +833,7 @@ const LeaveManagement = () => {
               Clear Filters
             </Button>
           </div>
+
 
           <div className="history-data">
             {loading ? (

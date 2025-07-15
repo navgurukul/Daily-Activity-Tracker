@@ -816,7 +816,7 @@ const Form = () => {
                             onChange={handleEditContributionChange}
                           />
                         </td>
-                        <td>
+                        <td className="task-column">
                           <textarea
                             name="task"
                             value={editContribution.task}
@@ -851,13 +851,8 @@ const Form = () => {
                       <>
                         <td>{contribution.project}</td>
                         <td>{contribution.hours}</td>
-                        <td
-                          style={{
-                            height: "auto",
-                            maxWidth: "100px",
-                          }}
-                        >
-                          {contribution.task}
+                        <td className="task-cell">
+                          <div className="task-content">{contribution.task}</div>
                         </td>
                         <td
                           style={{

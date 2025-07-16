@@ -109,8 +109,9 @@ const Form = () => {
       setAlertMessage(location.state.message);
     
       setSnackbaropen(true)
+      navigate(location.pathname, {replace: true});
     }
-  }, [location.state])
+  }, [location.state, location.pathname, navigate]);
 
   useEffect(() => {
     const fetchCampuses = async () => {

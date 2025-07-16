@@ -421,7 +421,6 @@ const RoleUpdateForm = () => {
               <div className="filter-role">
                 <Autocomplete
                   options={teamIds}
-                  key={email}
                   value={email}
                   onChange={(event, value) => setEmail(value || "")}
                   renderInput={(params) => (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Modal, Box, Typography, Button, DialogActions } from "@mui/material"
+import { Modal, Box, Typography, Button, DialogActions, CircularProgress } from "@mui/material"
 import { handleBeforeUnload } from "../../utils/beforeUnloadHandler";
 import "./ProjectManagement.css";
 
@@ -49,7 +49,6 @@ const ProjectManagement = () => {
   });
 
   const [projects, setProjects] = useState([]);
-
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
   const [errors, setErrors] = useState({});
@@ -81,18 +80,18 @@ const ProjectManagement = () => {
     "Support Team Updates",
     "Raigarh"
   ]);
+  
   const [showTooltip, setShowTooltip] = useState(false);
   const [showTextareaTooltip, setShowTextareaTooltip] = useState(false);
-
   const [tabIndex, setTabIndex] = useState(0);
-
   const [residentialProjects, setResidentialProjects] = useState([]);
   const [nonResidentialProjects, setNonResidentialProjects] = useState([]);
   const [filteredResidential, setFilteredResidential] = useState([]);
   const [filteredNonResidential, setFilteredNonResidential] = useState([]);
-
   const [open, setOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [loading, setLoading] = useState(true);
+
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -182,100 +181,6 @@ const ProjectManagement = () => {
       });
   }, []);
 
-  // const handleAddProject = () => {
-  //   const newErrors = {};
-  //   // Pre-validation
-  //   if (!data.department) {
-  //     newErrors.department = "Please select a department*";
-  //   }
-  //   if (!data.projectName) {
-  //     newErrors.projectName = "Please fill in the project name*";
-  //   }
-
-  //   if (data.department !== "Residential Program") {
-  //     if (!data.channelName) {
-  //       newErrors.channelName = "Please fill in the channel name*";
-  //     }
-  //     if (!data.channelId) {
-  //       newErrors.channelId = "Please fill in the channel ID*";
-  //     }
-  //     if (!data.projectMasterEmail) {
-  //       newErrors.projectMasterEmail = "Please fill in the project master email*";
-  //     }
-  //     if (!data.projectBudget) {
-  //       newErrors.projectBudget = "Please fill in the project budget*";
-  //     }
-  //   }
-  //   if (data.department === "Residential Program") {
-  //     if (!data.campus) {
-  //       newErrors.campus = "Please select a campus*";
-  //     }
-  //     if (!data.discordWebhook) {
-  //       newErrors.discordWebhook = "Please fill in the Discord channel web hook URL*";
-  //     }
-  //     if (!data.poc_of_project) {
-  //       newErrors.poc_of_project = "Please fill in the POC of project*";
-  //     }
-  //   }
-
-  //   if (!data.priorities) {
-  //     newErrors.priorities = "Please select a priority*";
-  //   }
-
-  //   if (!data.projectStatus) {
-  //     newErrors.projectStatus = "Please select a project status*";
-  //   }
-
-  //   // Check if project name already exists
-  //   // const isDuplicate = projects.some(
-  //   //   (project) =>
-  //   //     project.projectName.toLowerCase() === data.projectName.toLowerCase()
-  //   // );
-
-  //   // if (isDuplicate) {
-  //   //   newErrors.projectName = "Project name already exists";
-  //   //   return;
-  //   // }
-
-  //   if (Object.keys(newErrors).length > 0) {
-  //     setErrors(newErrors);
-  //     return;
-  //   }
-
-  //   setErrors({});
-
-  //   // Make the API call
-  //   fetch(API_URL, {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify(data),
-  //   })
-  //     .then((response) => response.json())
-  //     .then((newProject) => {
-  //       setProjects([...projects, newProject]);
-  //       setData({
-  //         department: selectedDept,
-  //         projectName: "",
-  //         channelName: "",
-  //         channelId: "",
-  //         projectMasterEmail: "",
-  //         clientName: "",
-  //         projectStatus: "active",
-  //         priorities: "",
-  //         projectBudget: "",
-  //         Id: "",
-  //         campus: "",
-  //         discordWebhook: "",
-  //         poc_of_project: "",
-  //       });
-  //       window.removeEventListener("beforeunload", handleBeforeUnload);
-  //       window.location.reload();
-  //     })
-  //     .catch((error) => console.error("Error adding project:", error));
-  // };
-
   const handleAddProject = () => {
     const newErrors = {};
     const residentialDepts = [
@@ -357,7 +262,7 @@ const ProjectManagement = () => {
           poc_of_project: "",
         });
         window.removeEventListener("beforeunload", handleBeforeUnload);
-        window.location.reload(); // You can remove this if you prefer smoother UX
+        window.location.reload(); 
       })
       .catch((error) => console.error("Error adding project:", error));
   };
@@ -385,7 +290,6 @@ const ProjectManagement = () => {
         const updatedProjects = [...projects];
         updatedProjects[editingIndex] = updatedProject;
         setProjects(updatedProjects);
-        // setFeedbackMessage(updatedProject.message);
         setEditData({
           department: selectedDept,
           projectName: "",
@@ -418,7 +322,8 @@ const ProjectManagement = () => {
           setResidentialProjects(data.data);
         }
       })
-      .catch((err) => console.error("Error fetching residential:", err));
+      .catch((err) => console.error("Error fetching residential:", err))
+      .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -429,7 +334,8 @@ const ProjectManagement = () => {
           setNonResidentialProjects(data.data);
         }
       })
-      .catch((err) => console.error("Error fetching non-residential:", err));
+      .catch((err) => console.error("Error fetching non-residential:", err))
+      // .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -462,7 +368,6 @@ const ProjectManagement = () => {
             </select>
             {errors.department && <div className="error-message">{errors.department}</div>}
           </div>
-          {/* {selectedDept ===  "Residential Program" && ( */}
           {[
             "Residential Program",
             "Culture",
@@ -546,7 +451,6 @@ const ProjectManagement = () => {
             />
             {errors.projectName && <div className="error-message">{errors.projectName}</div>}
           </div>
-          {/* {selectedDept !== "Residential Program"  && ( */}
           {![
             "Residential Program",
             "Culture",
@@ -737,37 +641,106 @@ const ProjectManagement = () => {
           </button>
         </div>
         <div className="table-wrapper">
-          {tabIndex === 0 ? (
-            filteredResidential.length !== 0 ? (
+          {loading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
+              <p>Loading...</p>
+              <CircularProgress />
+            </Box>
+          ) : (
+            tabIndex === 0 ? (
+              filteredResidential.length !== 0 ? (
+                <>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Project Name</th>
+                        <th>Campus</th>
+                        <th>PM Email</th>
+                        <th>Priorities</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredResidential.map((project, index) => (
+                        <tr key={index} onClick={() => handleOpen(project)} style={{ cursor: "pointer" }}>
+                          <td>{project.projectName}</td>
+                          <td>{project.campus}</td>
+                          <td>{project.projectMasterEmail}</td>
+                          <td>{project.priorities}</td>
+                          <td>{project.projectStatus}</td>
+                          <td>
+                            <button
+                              className="editBtn"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditProject(project, index)
+                              }}
+                            >
+                              ✏️
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <Modal open={open} onClose={handleClose}>
+                    <Box sx={style}>
+                      {selectedProject && (
+                        <>
+                          <Typography variant="h6" gutterBottom>
+                            Project Details
+                          </Typography>
+                          <Typography><strong>Project Name:</strong> {selectedProject.projectName}</Typography>
+                          <Typography><strong>Campus:</strong> {selectedProject.campus}</Typography>
+                          <Typography><strong>POC:</strong> {selectedProject.poc_of_project}</Typography>
+                          <Typography><strong>PM Email:</strong> {selectedProject.projectMasterEmail}</Typography>
+                          <Typography><strong>Client:</strong> {selectedProject.clientName}</Typography>
+                          <Typography><strong>Priorities:</strong> {selectedProject.priorities}</Typography>
+                          <Typography><strong>Budget:</strong> {selectedProject.projectBudget}</Typography>
+                          <Typography><strong>Status:</strong> {selectedProject.projectStatus}</Typography>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              mt: 3,
+                              mb: 0,
+                            }}
+                          >
+                            <Button variant="contained" color="success" onClick={handleClose}>
+                              Close
+                            </Button>
+                          </Box>
+                        </>
+                      )}
+                    </Box>
+                  </Modal>
+                </>
+              ) : (
+                <p className="no-data">No residential projects found</p>
+              )
+            ) : filteredNonResidential.length !== 0 ? (
               <>
                 <table>
                   <thead>
                     <tr>
-                      {/* <th>Department Name</th> */}
+                      <th>Department Name</th>
                       <th>Project Name</th>
-                      <th>Campus</th>
-                      {/* <th>Discord Channel Web Hook URL</th> */}
-                      {/* <th>POC of Project</th> */}
+                      <th>Channel Name</th>
                       <th>PM Email</th>
-                      {/* <th>Client Name</th> */}
                       <th>Priorities</th>
-                      {/* <th>Project Budget</th> */}
                       <th>Status</th>
                       <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredResidential.map((project, index) => (
+                    {filteredNonResidential.map((project, index) => (
                       <tr key={index} onClick={() => handleOpen(project)} style={{ cursor: "pointer" }}>
-                        {/* <td>{project.department}</td> */}
+                        <td>{project.department}</td>
                         <td>{project.projectName}</td>
-                        <td>{project.campus}</td>
-                        {/* <td>{project.discordWebhook}</td> */}
-                        {/* <td>{project.poc_of_project}</td> */}
+                        <td>{project.channelName}</td>
                         <td>{project.projectMasterEmail}</td>
-                        {/* <td>{project.clientName}</td> */}
                         <td>{project.priorities}</td>
-                        {/* <td>{project.projectBudget}</td> */}
                         <td>{project.projectStatus}</td>
                         <td>
                           <button
@@ -791,9 +764,10 @@ const ProjectManagement = () => {
                         <Typography variant="h6" gutterBottom>
                           Project Details
                         </Typography>
+                        <Typography><strong>Department:</strong> {selectedProject.department}</Typography>
                         <Typography><strong>Project Name:</strong> {selectedProject.projectName}</Typography>
-                        <Typography><strong>Campus:</strong> {selectedProject.campus}</Typography>
-                        <Typography><strong>POC:</strong> {selectedProject.poc_of_project}</Typography>
+                        <Typography><strong>Channel Name:</strong> {selectedProject.channelName}</Typography>
+                        <Typography><strong>Channel ID:</strong> {selectedProject.channelId}</Typography>
                         <Typography><strong>PM Email:</strong> {selectedProject.projectMasterEmail}</Typography>
                         <Typography><strong>Client:</strong> {selectedProject.clientName}</Typography>
                         <Typography><strong>Priorities:</strong> {selectedProject.priorities}</Typography>
@@ -817,87 +791,8 @@ const ProjectManagement = () => {
                 </Modal>
               </>
             ) : (
-              <p className="no-data">No residential projects found</p>
+              <p className="no-data">No non-residential projects found</p>
             )
-          ) : filteredNonResidential.length !== 0 ? (
-            <>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Department Name</th>
-                    <th>Project Name</th>
-                    <th>Channel Name</th>
-                    {/* <th>Channel ID</th> */}
-                    <th>PM Email</th>
-                    {/* <th>Client Name</th> */}
-                    <th>Priorities</th>
-                    {/* <th>Project Budget</th> */}
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredNonResidential.map((project, index) => (
-                    <tr key={index} onClick={() => handleOpen(project)} style={{ cursor: "pointer" }}>
-                      <td>{project.department}</td>
-                      <td>{project.projectName}</td>
-                      <td>{project.channelName}</td>
-                      {/* <td>{project.channelId}</td> */}
-                      <td>{project.projectMasterEmail}</td>
-                      {/* <td>{project.clientName}</td> */}
-                      <td>{project.priorities}</td>
-                      {/* <td>{project.projectBudget}</td> */}
-                      <td>{project.projectStatus}</td>
-                      <td>
-                        <button
-                          className="editBtn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditProject(project, index)
-                          }}
-                        >
-                          ✏️
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <Modal open={open} onClose={handleClose}>
-                <Box sx={style}>
-                  {selectedProject && (
-                    <>
-                      <Typography variant="h6" gutterBottom>
-                        Project Details
-                      </Typography>
-                      <Typography><strong>Department:</strong> {selectedProject.department}</Typography>
-                      <Typography><strong>Project Name:</strong> {selectedProject.projectName}</Typography>
-                      <Typography><strong>Channel Name:</strong> {selectedProject.channelName}</Typography>
-                      <Typography><strong>Channel ID:</strong> {selectedProject.channelId}</Typography>
-                      <Typography><strong>PM Email:</strong> {selectedProject.projectMasterEmail}</Typography>
-                      <Typography><strong>Client:</strong> {selectedProject.clientName}</Typography>
-                      <Typography><strong>Priorities:</strong> {selectedProject.priorities}</Typography>
-                      <Typography><strong>Budget:</strong> {selectedProject.projectBudget}</Typography>
-                      <Typography><strong>Status:</strong> {selectedProject.projectStatus}</Typography>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "flex-end",
-                          mt: 3,
-                          mb: 0,
-                        }}
-                      >
-                        <Button variant="contained" color="success" onClick={handleClose}>
-                          Close
-                        </Button>
-                      </Box>
-                    </>
-                  )}
-                </Box>
-              </Modal>
-            </>
-          ) : (
-            <p className="no-data">No non-residential projects found</p>
           )}
         </div>
       </div>

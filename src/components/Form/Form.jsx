@@ -52,6 +52,8 @@ const Form = () => {
   // const [projectData, setProjectData] = useState([]);
   // const [residentialProjectData, setResidentialProjectData] = useState([]);
   const [projectByDepartment, setProjectByDepartment] = useState({});
+  const [projectByCampus, setProjectByCampus] = useState({});
+  const [filteredProjects, setFilteredProjects] = useState([]);
   const [projectsLoading, setProjectsLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState("");
   const [currentContribution, setCurrentContribution] = useState({
@@ -141,111 +143,134 @@ const Form = () => {
   };
 
   useEffect(() => {
-    // let email = localStorage.getItem("email") ?? "";
-    let email = sessionStorage.getItem("email") ?? "";
-    setAttemptLoading(true);
-    // fetch(`${url}?email=${email}&type=attempts`)
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     setAttempt(data.attemptsLeft);
-    //     localStorage.setItem("attemptsLeft", data.attemptsLeft);
-    //     setIsDateDisabled(false);
-    //     setAttemptLoading(false);
-    //   });
+  let email = sessionStorage.getItem("email") ?? "";
+  setAttemptLoading(true);
 
-    const initPreviousEntries = () => {
-      const storedData = JSON.parse(
-        localStorage.getItem("previousEntriesDone")
-      );
-      const today = new Date();
-      const firstDayOfMonth = new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        1
-      );
+  const initPreviousEntries = () => {
+    const storedData = JSON.parse(localStorage.getItem("previousEntriesDone"));
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-      if (storedData) {
-        // Check if it's the first day of the month
-        if (
-          new Date(storedData.lastUpdated).getTime() < firstDayOfMonth.getTime()
-        ) {
-          localStorage.setItem(
-            "previousEntriesDone",
-            JSON.stringify({ count: 0, lastUpdated: today })
-          );
-          setPreviousEntriesDone(0);
-        } else {
-          setPreviousEntriesDone(storedData.count);
-        }
-      } else {
+    if (storedData) {
+      if (new Date(storedData.lastUpdated).getTime() < firstDayOfMonth.getTime()) {
         localStorage.setItem(
           "previousEntriesDone",
           JSON.stringify({ count: 0, lastUpdated: today })
         );
         setPreviousEntriesDone(0);
+      } else {
+        setPreviousEntriesDone(storedData.count);
       }
-    };
-
-    initPreviousEntries();
-    try {
-      fetch(
-        `${API_BASE_URL}/employees`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Fetched data:", data.data);
-
-          const projects = data.data.map((project) => {
-            return {
-              projectId: project.Id,
-              projectName: project.projectName,
-              status: project.projectStatus,
-              department: project.department,
-            };
-          });
-
-          const activeProjectNames = projects
-            .map(
-              (project) => project.status === "Active" && project.projectName
-            )
-            .filter(Boolean);
-
-          const today = new Date();
-          const dayOfWeek = today.getDay();
-
-          // Check if today is Saturday (0 = Sunday, 6 = Saturday)
-          if (dayOfWeek === 6) {
-            activeProjectNames.push("Saturday-Peer-Learning");
-          }
-          const nameToIdMap = {};
-          projects.forEach((project) => {
-            if (project.status === "Active") {
-              const dept = project.department.trim();
-              const projectName = project.projectName;
-
-              nameToIdMap[projectName] = project.projectId;
-
-              if (!projectByDepartment[dept]) {
-                projectByDepartment[dept] = new Set();
-              }
-              projectByDepartment[dept].add(projectName);
-            }
-          });
-
-          // Convert Sets to Arrays
-          Object.keys(projectByDepartment).forEach((dept) => {
-            projectByDepartment[dept] = Array.from(
-              projectByDepartment[dept]
-            );
-          });
-          setProjectByDepartment(projectByDepartment);
-          setProjectsLoading(false);
-          setProjectNameToId(nameToIdMap);
-        });
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    } else {
+      localStorage.setItem(
+        "previousEntriesDone",
+        JSON.stringify({ count: 0, lastUpdated: today })
+      );
+      setPreviousEntriesDone(0);
     }
-  }, []);
+  };
+
+  initPreviousEntries();
+
+  try {
+    fetch(`${API_BASE_URL}/employees`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Fetched data:", data.data);
+
+        const projectByDepartment = {}; // move declaration here
+        const projectByCampus = {}; // <- new state object
+        const nameToIdMap = {};
+        const projects = data.data.map((project) => {
+          return {
+            projectId: project.Id,
+            projectName: project.projectName,
+            status: project.projectStatus,
+            department: project.department,
+            campus: project.campus, // <- assuming this exists in API response
+          };
+        });
+
+        const activeProjectNames = projects
+          .map((project) => project.status === "Active" && project.projectName)
+          .filter(Boolean);
+
+        const today = new Date();
+        const dayOfWeek = today.getDay();
+        if (dayOfWeek === 6) {
+          activeProjectNames.push("Saturday-Peer-Learning");
+        }
+
+        projects.forEach((project) => {
+          if (project.status === "Active") {
+            const dept = project.department.trim();
+            const campus = (project.campus || "Unknown").trim();
+            const projectName = project.projectName;
+
+            // Department-based mapping
+            if (!projectByDepartment[dept]) {
+              projectByDepartment[dept] = new Set();
+            }
+            projectByDepartment[dept].add(projectName);
+
+            // Campus-based mapping
+            if (!projectByCampus[campus]) {
+              projectByCampus[campus] = new Set();
+            }
+            projectByCampus[campus].add(projectName);
+
+            // Name to ID mapping
+            nameToIdMap[projectName] = project.projectId;
+          }
+        });
+
+        // Convert Sets to Arrays
+        Object.keys(projectByDepartment).forEach((dept) => {
+          projectByDepartment[dept] = Array.from(projectByDepartment[dept]);
+        });
+
+        Object.keys(projectByCampus).forEach((campus) => {
+          projectByCampus[campus] = Array.from(projectByCampus[campus]);
+        });
+
+        setProjectByDepartment(projectByDepartment);
+        setProjectByCampus(projectByCampus); // ✅ Set campus data
+        console.log("Project By Department:", projectByDepartment);
+        console.log("Project By Campus:", projectByCampus);
+        
+        setProjectNameToId(nameToIdMap);
+        setProjectsLoading(false);
+      });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}, []);
+
+useEffect(() => {
+  const currentDept = formData.department || userDepartment;
+  const currentCampus = formData.campus || "";
+
+  if (
+    currentDept &&
+    projectByDepartment[currentDept] &&
+    currentCampus &&
+    projectByCampus[currentCampus]
+  ) {
+    const deptProjects = projectByDepartment[currentDept];
+    const campusProjects = projectByCampus[currentCampus];
+    console.log("Department Projects:", deptProjects);
+    console.log("Campus Projects:", campusProjects);
+
+    const filtered = deptProjects.filter((p) => campusProjects.includes(p));
+    setFilteredProjects(filtered);
+  } 
+  else if (currentDept !== "Residential Program" && projectByDepartment[currentDept]) {
+    setFilteredProjects(projectByDepartment[currentDept]);
+  }
+   else {
+    setFilteredProjects([]);
+  }
+}, [formData.department, formData.campus, projectByDepartment, projectByCampus]);
 
   document.querySelectorAll('input[type="number"]').forEach(function (input) {
     input.addEventListener("wheel", function (event) {
@@ -435,6 +460,7 @@ const Form = () => {
         workDescription: c.task,
         entryDate: formData.selectedDate,
         department: userDepartment, // original department
+        campus: formData.campus || "", // current selected campus
         workingDepartment: c.department || userDepartment, // current selected
         ...(department === "Residential Program" && {
           blockers: formData.blockers,
@@ -678,6 +704,7 @@ const Form = () => {
   }, []);
 
   const currentDept = formData.department || userDepartment;
+  const currentCampus = formData.campus || "";
 
   return (
     <div className="form-container" style={{ overflowY: "scroll", height: "100vh", marginTop: "-20px" }}>
@@ -903,18 +930,34 @@ const Form = () => {
               <option value="">Loading projects...</option>
             </select>
           ) : Object.keys(projectByDepartment).length > 0 && currentDept in projectByDepartment ? (
+            // <select
+            //   name="selectedProject"
+            //   value={selectedProject}
+            //   onChange={handleProjectSelect}
+            // >
+            //   <option value="">--Select a project--</option>
+            //   {projectByDepartment[currentDept].map((project, index) => (
+            //     <option key={index} value={project}>
+            //       {project}
+            //     </option>
+            //   ))}
+            // </select>
             <select
-              name="selectedProject"
-              value={selectedProject}
-              onChange={handleProjectSelect}
-            >
-              <option value="">--Select a project--</option>
-              {projectByDepartment[currentDept].map((project, index) => (
-                <option key={index} value={project}>
-                  {project}
-                </option>
-              ))}
-            </select>
+  name="selectedProject"
+  value={selectedProject}
+  onChange={handleProjectSelect}
+>
+  <option value="">--Select a project--</option>
+  {filteredProjects.length > 0 ? (
+    filteredProjects.map((project, index) => (
+      <option key={index} value={project}>
+        {project}
+      </option>
+    ))
+  ) : (
+    <option disabled>No projects available</option>
+  )}
+</select>
           ) : (
             <select disabled>
               <option value="">No projects available for your department</option>

@@ -3,7 +3,7 @@ import "./LeaveManagement.css";
 import { LoginContext } from "../context/LoginContext";
 import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, Box, Button, Chip } from "@mui/material";
 import axios from "axios";
-import AdjustLeaveModal from "./AdjustLeaveModal"; // NEW IMPORT
+import AdjustLeaveModal from "./AdjustLeaveModal"; 
 
 const LeaveManagement = () => {
   const dataContext = useContext(LoginContext);

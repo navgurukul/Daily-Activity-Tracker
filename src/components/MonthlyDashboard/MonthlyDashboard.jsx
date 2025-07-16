@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Paper,
   Typography,
@@ -20,23 +20,111 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
+// Shared utility function to get leave status attributes
+const getLeaveStatusAttributes = (status) => {
+  switch (status) {
+    case "approved":
+      return {
+        icon: "✓",
+        color: "#4caf50",
+        style: {
+          backgroundColor: "#4caf50 !important",
+          color: "white !important",
+        }
+      };
+    case "pending":
+      return {
+        icon: "⏰",
+        color: "#ff9800",
+        style: {
+          backgroundColor: "#ff9800 !important",
+          color: "white !important",
+        }
+      };
+    case "rejected":
+      return {
+        icon: "✗",
+        color: "#f44336",
+        style: {
+          backgroundColor: "#f44336 !important",
+          color: "white !important",
+        }
+      };
+    default:
+      return {
+        icon: "",
+        color: "#9e9e9e",
+        style: {
+          backgroundColor: "#9e9e9e !important",
+          color: "white !important",
+        }
+      };
+  }
+};
+
+// Static styles to avoid recreation
+const leavePreviewStyles = {
+  backgroundColor: "#fff3e0",
+  borderRadius: "6px",
+  padding: "8px",
+  marginBottom: "8px",
+};
+
+const leaveTypeStyles = {
+  display: "block",
+  fontSize: "11px",
+  color: "#e65100",
+  fontWeight: "500",
+};
+
+const chipContainerStyles = {
+  display: "flex",
+  alignItems: "center",
+  gap: "4px",
+  color: "white",
+  padding: "2px 6px",
+  borderRadius: "4px",
+  fontSize: "10px",
+  fontWeight: "500",
+  textTransform: "capitalize",
+  width: "fit-content",
+  marginBottom: "4px",
+};
+
+const leaveDetailHeaderStyles = {
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  marginBottom: "8px",
+};
+
+const approvalDetailsStyles = {
+  display: "block",
+  marginTop: "8px",
+  color: "#666",
+};
+
 const MonthlyDashboard = () => {
   const [employeeData, setEmployeeData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  
   const selectedMonth = selectedDate.getMonth();
   const selectedYear = selectedDate.getFullYear();
-
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const getDaysInMonth = () => {
-    const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
-    // Get only current month's days
-    const currentMonthDays = Array.from({ length: daysInMonth }, (_, i) => {
+  // Memoized email getter
+  const email = useMemo(() => {
+    return sessionStorage.getItem("email") ?? "";
+  }, []);
+
+  // Memoized days calculation
+  const daysInMonth = useMemo(() => {
+    const daysCount = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+    return Array.from({ length: daysCount }, (_, i) => {
       const date = new Date(selectedYear, selectedMonth, i + 1);
-      // console.log(date);
       return (
         date.getFullYear() +
         "-" +
@@ -45,23 +133,54 @@ const MonthlyDashboard = () => {
         String(date.getDate()).padStart(2, "0")
       );
     });
-    return currentMonthDays;
-  };
-  // console.log(getDaysInMonth());
-  // let email = localStorage.getItem("email") ?? "";
-  let email = sessionStorage.getItem("email") ?? "";
-  const getMonthAndYear = () => {
+  }, [selectedMonth, selectedYear]);
+
+  // Memoized month and year string
+  const currentMonthYear = useMemo(() => {
     return new Date(selectedYear, selectedMonth).toLocaleString("default", {
       month: "long",
       year: "numeric",
     });
-  };
-  const currentMonthYear = getMonthAndYear();
+  }, [selectedMonth, selectedYear]);
+
+  // Memoized data getter function
+  const getDataForDate = useCallback((date) => {
+    if (!employeeData) return { activities: [], leaves: [] };
+    
+    const activities = employeeData.activities?.filter(
+      (activity) => activity.entryDate === date
+    ) || [];
+    
+    const allLeaves = [
+      ...(employeeData.leaves?.approved || []),
+      ...(employeeData.leaves?.pending || []),
+      ...(employeeData.leaves?.rejected || []),
+    ];
+    
+    const leaves = allLeaves.filter((leave) => {
+      const fromDate = leave.startDate;
+      const toDate = leave.endDate;
+      return fromDate && toDate && date >= fromDate && date <= toDate;
+    });
+    
+    return { activities, leaves };
+  }, [employeeData]);
+
+  // Memoized day selection handler
+  const handleDaySelect = useCallback((date, activities, leaves) => {
+    if (activities.length > 0 || leaves.length > 0) {
+      setSelectedDay({ date, activities, leaves });
+    }
+  }, []);
+
+  // Memoized dialog close handler
+  const handleDialogClose = useCallback(() => {
+    setSelectedDay(null);
+  }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // const email = localStorage.getItem("email");
-        const email = sessionStorage.getItem("email");
         const [activityRes, leaveRes] = await Promise.all([
           fetch(
             `${API_BASE_URL}/activityLogs/${email}?month=${String(
@@ -70,12 +189,15 @@ const MonthlyDashboard = () => {
           ),
           fetch(`${API_BASE_URL}/leave-records?employeeEmail=${email}`),
         ]);
+        
         const [activityData, leaveData] = await Promise.all([
           activityRes.json(),
           leaveRes.json(),
         ]);
+        
         const userActivities = activityData.data[email] || [];
         const userLeaves = leaveData[email] || [];
+        
         setEmployeeData({
           activities: userActivities,
           leaves: userLeaves,
@@ -87,26 +209,10 @@ const MonthlyDashboard = () => {
         setLoading(false);
       }
     };
+    
     fetchData();
-  }, [selectedMonth, selectedYear]);
-  const getDataForDate = (date) => {
-    if (!employeeData) return { activities: [], leaves: [] };
-    const activities =
-      employeeData.activities?.filter(
-        (activity) => activity.entryDate === date
-      ) || [];
-    const allLeaves = [
-      ...(employeeData.leaves?.approved || []),
-      ...(employeeData.leaves?.pending || []),
-      ...(employeeData.leaves?.rejected || []),
-    ];
-    const leaves = allLeaves.filter((leave) => {
-      const fromDate = leave.startDate;
-      const toDate = leave.endDate;
-      return fromDate && toDate && date >= fromDate && date <= toDate;
-    });
-    return { activities, leaves };
-  };
+  }, [selectedMonth, selectedYear, email, API_BASE_URL]);
+
   if (loading) {
     return (
       <Box className="loading-container">
@@ -115,9 +221,11 @@ const MonthlyDashboard = () => {
       </Box>
     );
   }
+
   if (error) {
     return <Alert severity="error">{error}</Alert>;
   }
+
   return (
     <Paper
       className="dashboard-container"
@@ -150,9 +258,10 @@ const MonthlyDashboard = () => {
               {day}
             </div>
           ))}
-          {getDaysInMonth().map((date, index) => {
+          {daysInMonth.map((date, index) => {
             const { activities, leaves } = getDataForDate(date);
             const dayOfWeek = new Date(date).getDay();
+            
             if (index === 0) {
               const emptyCells = Array(dayOfWeek).fill(null);
               return [
@@ -164,84 +273,64 @@ const MonthlyDashboard = () => {
                   date={date}
                   activities={activities}
                   leaves={leaves}
-                  onSelect={() =>
-                    activities.length > 0 || leaves.length > 0
-                      ? setSelectedDay({ date, activities, leaves })
-                      : null
-                  }
+                  onSelect={handleDaySelect}
                 />,
               ];
             }
+            
             return (
               <DayCell
                 key={date}
                 date={date}
                 activities={activities}
                 leaves={leaves}
-                onSelect={() =>
-                  activities.length > 0 || leaves.length > 0
-                    ? setSelectedDay({ date, activities, leaves })
-                    : null
-                }
+                onSelect={handleDaySelect}
               />
             );
           })}
         </div>
       </div>
+      
       {selectedDay && (
         <DayDetailsDialog
           selectedDay={selectedDay}
-          onClose={() => setSelectedDay(null)}
+          onClose={handleDialogClose}
         />
       )}
     </Paper>
   );
 };
 
-const DayCell = ({ date, activities = [], leaves = [], onSelect }) => {
-  const isToday =
-    new Date(date).toISOString().split("T")[0] ===
-    new Date().toISOString().split("T")[0];
-  const totalHours = activities.reduce(
-    (sum, act) => sum + Number(act["totalHoursSpent"] || 0),
-    0
-  );
+const DayCell = React.memo(({ date, activities = [], leaves = [], onSelect }) => {
+  const isToday = useMemo(() => {
+    return new Date(date).toISOString().split("T")[0] ===
+           new Date().toISOString().split("T")[0];
+  }, [date]);
+
+  const totalHours = useMemo(() => {
+    return activities.reduce(
+      (sum, act) => sum + Number(act["totalHoursSpent"] || 0),
+      0
+    );
+  }, [activities]);
+
   const hasData = activities.length > 0 || leaves.length > 0;
   const maxDisplayItems = 2;
 
+  const handleClick = useCallback(() => {
+    onSelect(date, activities, leaves);
+  }, [date, activities, leaves, onSelect]);
 
-  const getLeaveStatusIcon = (status) => {
-    switch (status) {
-      case "approved":
-        return "✓";
-      case "pending":
-        return "⏰";
-      case "rejected":
-        return "✗";
-      default:
-        return "";
-    }
-  };
-
-  const getLeaveStatusColor = (status) => {
-    switch (status) {
-      case "approved":
-        return "#4caf50";
-      case "pending":
-        return "#ff9800";
-      case "rejected":
-        return "#f44336";
-      default:
-        return "#9e9e9e";
-    }
-  };
+  const leaveStatusAttributes = useMemo(() => {
+    return leaves.length > 0 ? getLeaveStatusAttributes(leaves[0].status) : null;
+  }, [leaves]);
 
   return (
     <Card
       className={`day-cell ${isToday ? "today" : ""} ${
         hasData ? "has-activities" : ""
       }`}
-      onClick={onSelect}
+      onClick={handleClick}
     >
       <CardContent className="day-content">
         <div className="day-header">
@@ -249,26 +338,15 @@ const DayCell = ({ date, activities = [], leaves = [], onSelect }) => {
             {new Date(date).getDate()}
           </Typography>
           <div className="chips-container">
-         
-            {leaves.length > 0 && (
+            {leaves.length > 0 && leaveStatusAttributes && (
               <div
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                  backgroundColor: getLeaveStatusColor(leaves[0].status),
-                  color: "white",
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                  fontSize: "10px",
-                  fontWeight: "500",
-                  textTransform: "capitalize",
-                  width: "fit-content",
-                  marginBottom: "4px",
+                  ...chipContainerStyles,
+                  backgroundColor: leaveStatusAttributes.color,
                 }}
               >
                 <span style={{ fontSize: "10px" }}>
-                  {getLeaveStatusIcon(leaves[0].status)}
+                  {leaveStatusAttributes.icon}
                 </span>
                 <span>{leaves[0].status}</span>
               </div>
@@ -283,24 +361,11 @@ const DayCell = ({ date, activities = [], leaves = [], onSelect }) => {
           </div>
         </div>
         <div className="activities-preview">
-
           {leaves.length > 0 && (
-            <div
-              style={{
-                backgroundColor: "#fff3e0",
-                borderRadius: "6px",
-                padding: "8px",
-                marginBottom: "8px",
-              }}
-            >
+            <div style={leavePreviewStyles}>
               <Typography
                 variant="caption"
-                style={{
-                  display: "block",
-                  fontSize: "11px",
-                  color: "#e65100",
-                  fontWeight: "500",
-                }}
+                style={leaveTypeStyles}
               >
                 {leaves[0]["leaveType"]}
               </Typography>
@@ -323,43 +388,24 @@ const DayCell = ({ date, activities = [], leaves = [], onSelect }) => {
       </CardContent>
     </Card>
   );
-};
+});
 
-const DayDetailsDialog = ({ selectedDay, onClose }) => {
-  const formatDate = (dateString) => {
+const DayDetailsDialog = React.memo(({ selectedDay, onClose }) => {
+  const formatDate = useCallback((dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
       month: "long",
       day: "numeric",
     });
-  };
+  }, []);
 
-  //  Helper function to get chip style based on leave status
-  const getLeaveStatusStyle = (status) => {
-    switch (status) {
-      case "approved":
-        return {
-          backgroundColor: "#4caf50 !important",
-          color: "white !important",
-        };
-      case "pending":
-        return {
-          backgroundColor: "#ff9800 !important",
-          color: "white !important",
-        };
-      case "rejected":
-        return {
-          backgroundColor: "#f44336 !important",
-          color: "white !important",
-        };
-      default:
-        return {
-          backgroundColor: "#9e9e9e !important",
-          color: "white !important",
-        };
-    }
-  };
+  const totalHours = useMemo(() => {
+    return selectedDay.activities.reduce(
+      (sum, act) => sum + (act["totalHoursSpent"] || 0),
+      0
+    );
+  }, [selectedDay.activities]);
 
   return (
     <Dialog
@@ -373,12 +419,7 @@ const DayDetailsDialog = ({ selectedDay, onClose }) => {
         <div>
           {formatDate(selectedDay.date)}
           <Typography variant="subtitle1">
-            Total Hours:{" "}
-            {selectedDay.activities.reduce(
-              // (sum, act) => sum + (act["Time Spent"] || 0),
-              (sum, act) => sum + (act["totalHoursSpent"] || 0),
-              0
-            )}
+            Total Hours: {totalHours}
             {selectedDay.leaves.length > 0 &&
               ` | Leaves: ${selectedDay.leaves.length}`}
           </Typography>
@@ -393,54 +434,44 @@ const DayDetailsDialog = ({ selectedDay, onClose }) => {
             <Typography variant="h6" className="section-title">
               Leaves
             </Typography>
-            {selectedDay.leaves.map((leave, index) => (
-              <Card key={`leave-${index}`} className="leave-detail-card">
-                <CardContent>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    <Typography variant="subtitle1" className="leave-type">
-                      {leave["leaveType"]}
-                    </Typography>
-                    
+            {selectedDay.leaves.map((leave, index) => {
+              const statusAttributes = getLeaveStatusAttributes(leave.status);
+              return (
+                <Card key={`leave-${index}`} className="leave-detail-card">
+                  <CardContent>
+                    <div style={leaveDetailHeaderStyles}>
+                      <Typography variant="subtitle1" className="leave-type">
+                        {leave["leaveType"]}
+                      </Typography>
+                      <Chip
+                        label={leave.status}
+                        size="small"
+                        sx={statusAttributes.style}
+                      />
+                    </div>
                     <Chip
-                      label={leave.status}
-                      size="small"
-                      sx={getLeaveStatusStyle(leave.status)}
+                      label={`${leave["leaveDuration"]} day${
+                        leave["leaveDuration"] > 1 ? "s" : ""
+                      }`}
+                      className="days-chip"
                     />
-                  </div>
-                  <Chip
-                    label={`${leave["leaveDuration"]} day${
-                      leave["leaveDuration"] > 1 ? "s" : ""
-                    }`}
-                    className="days-chip"
-                  />
-                  <Typography className="leave-reason">
-                    {leave["reasonForLeave"]}
-                  </Typography>
-                  {/* NEW: Show approval details for approved leaves */}
-                  {leave.status === "approved" && leave.approvalDate && (
-                    <Typography
-                      variant="caption"
-                      style={{
-                        display: "block",
-                        marginTop: "8px",
-                        color: "#666",
-                      }}
-                    >
-                      Approved on:{" "}
-                      {new Date(leave.approvalDate).toLocaleDateString()}
-                      {leave.approvalEmail && ` by ${leave.approvalEmail}`}
+                    <Typography className="leave-reason">
+                      {leave["reasonForLeave"]}
                     </Typography>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+                    {leave.status === "approved" && leave.approvalDate && (
+                      <Typography
+                        variant="caption"
+                        style={approvalDetailsStyles}
+                      >
+                        Approved on:{" "}
+                        {new Date(leave.approvalDate).toLocaleDateString()}
+                        {leave.approvalEmail && ` by ${leave.approvalEmail}`}
+                      </Typography>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
         {selectedDay.activities.length > 0 && (
@@ -471,6 +502,9 @@ const DayDetailsDialog = ({ selectedDay, onClose }) => {
       </DialogContent>
     </Dialog>
   );
-};
+});
+
+DayCell.displayName = 'DayCell';
+DayDetailsDialog.displayName = 'DayDetailsDialog';
 
 export default MonthlyDashboard;

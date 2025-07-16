@@ -68,9 +68,7 @@ const MonthlyDashboard = () => {
               selectedMonth + 1
             ).padStart(2, "0")}&year=${selectedYear}`
           ),
-          fetch(
-            `${API_BASE_URL}/leave-records?employeeEmail=${email}`
-          ),
+          fetch(`${API_BASE_URL}/leave-records?employeeEmail=${email}`),
         ]);
         const [activityData, leaveData] = await Promise.all([
           activityRes.json(),
@@ -112,7 +110,7 @@ const MonthlyDashboard = () => {
   if (loading) {
     return (
       <Box className="loading-container">
-         <p>Loading...</p>
+        <p>Loading...</p>
         <CircularProgress />
       </Box>
     );
@@ -125,9 +123,7 @@ const MonthlyDashboard = () => {
       className="dashboard-container"
       style={{ overflowY: "scroll", height: "90vh" }}
     >
-      <div
-        className="dashboard-header-container"
-      >
+      <div className="dashboard-header-container">
         <div className="dashboard-header">
           <Typography variant="h4" sx={{ marginBottom: 2 }}>
             Monthly Activity Dashboard
@@ -143,26 +139,40 @@ const MonthlyDashboard = () => {
           </LocalizationProvider>
         </div>
         <div style={{ minWidth: 290 }}>
-          <CycleSummary selectedDate={selectedDate}/>
+          <CycleSummary selectedDate={selectedDate} />
         </div>
       </div>
 
-<div className="calender">
-      <div className="calendar-grid">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-          <div key={day} className="weekday-header">
-            {day}
-          </div>
-        ))}
-        {getDaysInMonth().map((date, index) => {
-          const { activities, leaves } = getDataForDate(date);
-          const dayOfWeek = new Date(date).getDay();
-          if (index === 0) {
-            const emptyCells = Array(dayOfWeek).fill(null);
-            return [
-              ...emptyCells.map((_, i) => (
-                <div key={`empty-${i}`} className="empty-cell" />
-              )),
+      <div className="calender">
+        <div className="calendar-grid">
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+            <div key={day} className="weekday-header">
+              {day}
+            </div>
+          ))}
+          {getDaysInMonth().map((date, index) => {
+            const { activities, leaves } = getDataForDate(date);
+            const dayOfWeek = new Date(date).getDay();
+            if (index === 0) {
+              const emptyCells = Array(dayOfWeek).fill(null);
+              return [
+                ...emptyCells.map((_, i) => (
+                  <div key={`empty-${i}`} className="empty-cell" />
+                )),
+                <DayCell
+                  key={date}
+                  date={date}
+                  activities={activities}
+                  leaves={leaves}
+                  onSelect={() =>
+                    activities.length > 0 || leaves.length > 0
+                      ? setSelectedDay({ date, activities, leaves })
+                      : null
+                  }
+                />,
+              ];
+            }
+            return (
               <DayCell
                 key={date}
                 date={date}
@@ -173,24 +183,10 @@ const MonthlyDashboard = () => {
                     ? setSelectedDay({ date, activities, leaves })
                     : null
                 }
-              />,
-            ];
-          }
-          return (
-            <DayCell
-              key={date}
-              date={date}
-              activities={activities}
-              leaves={leaves}
-              onSelect={() =>
-                activities.length > 0 || leaves.length > 0
-                  ? setSelectedDay({ date, activities, leaves })
-                  : null
-              }
-            />
-          );
-        })}
-      </div>
+              />
+            );
+          })}
+        </div>
       </div>
       {selectedDay && (
         <DayDetailsDialog
@@ -201,6 +197,7 @@ const MonthlyDashboard = () => {
     </Paper>
   );
 };
+
 const DayCell = ({ date, activities = [], leaves = [], onSelect }) => {
   const isToday =
     new Date(date).toISOString().split("T")[0] ===
@@ -211,6 +208,34 @@ const DayCell = ({ date, activities = [], leaves = [], onSelect }) => {
   );
   const hasData = activities.length > 0 || leaves.length > 0;
   const maxDisplayItems = 2;
+
+
+  const getLeaveStatusIcon = (status) => {
+    switch (status) {
+      case "approved":
+        return "✓";
+      case "pending":
+        return "⏰";
+      case "rejected":
+        return "✗";
+      default:
+        return "";
+    }
+  };
+
+  const getLeaveStatusColor = (status) => {
+    switch (status) {
+      case "approved":
+        return "#4caf50";
+      case "pending":
+        return "#ff9800";
+      case "rejected":
+        return "#f44336";
+      default:
+        return "#9e9e9e";
+    }
+  };
+
   return (
     <Card
       className={`day-cell ${isToday ? "today" : ""} ${
@@ -224,12 +249,29 @@ const DayCell = ({ date, activities = [], leaves = [], onSelect }) => {
             {new Date(date).getDate()}
           </Typography>
           <div className="chips-container">
+         
             {leaves.length > 0 && (
-              <Chip
-                label={`Leave${leaves.length > 1 ? "s" : ""}`}
-                size="small"
-                className="leave-chip"
-              />
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  backgroundColor: getLeaveStatusColor(leaves[0].status),
+                  color: "white",
+                  padding: "2px 6px",
+                  borderRadius: "4px",
+                  fontSize: "10px",
+                  fontWeight: "500",
+                  textTransform: "capitalize",
+                  width: "fit-content",
+                  marginBottom: "4px",
+                }}
+              >
+                <span style={{ fontSize: "10px" }}>
+                  {getLeaveStatusIcon(leaves[0].status)}
+                </span>
+                <span>{leaves[0].status}</span>
+              </div>
             )}
             {totalHours > 0 && (
               <Chip
@@ -241,23 +283,37 @@ const DayCell = ({ date, activities = [], leaves = [], onSelect }) => {
           </div>
         </div>
         <div className="activities-preview">
+
+          {leaves.length > 0 && (
+            <div
+              style={{
+                backgroundColor: "#fff3e0",
+                borderRadius: "6px",
+                padding: "8px",
+                marginBottom: "8px",
+              }}
+            >
+              <Typography
+                variant="caption"
+                style={{
+                  display: "block",
+                  fontSize: "11px",
+                  color: "#e65100",
+                  fontWeight: "500",
+                }}
+              >
+                {leaves[0]["leaveType"]}
+              </Typography>
+            </div>
+          )}
+
           {activities.slice(0, maxDisplayItems).map((activity, idx) => (
             <div key={idx} className="activity-preview-item">
               <Typography variant="caption" className="project-name">
-                {/* {activity["Project Name"]} */}
                 {activity["projectName"]}
               </Typography>
             </div>
           ))}
-          {leaves
-            .slice(0, !activities.length ? maxDisplayItems : 1)
-            .map((leave, idx) => (
-              <div key={`leave-${idx}`} className="leave-preview-item">
-                <Typography variant="caption" className="leave-type">
-                  {leave["leaveType"]}
-                </Typography>
-              </div>
-            ))}
           {activities.length + leaves.length > maxDisplayItems && (
             <Typography variant="caption" className="more-activities">
               +{activities.length + leaves.length - maxDisplayItems} more
@@ -268,6 +324,7 @@ const DayCell = ({ date, activities = [], leaves = [], onSelect }) => {
     </Card>
   );
 };
+
 const DayDetailsDialog = ({ selectedDay, onClose }) => {
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -277,6 +334,33 @@ const DayDetailsDialog = ({ selectedDay, onClose }) => {
       day: "numeric",
     });
   };
+
+  //  Helper function to get chip style based on leave status
+  const getLeaveStatusStyle = (status) => {
+    switch (status) {
+      case "approved":
+        return {
+          backgroundColor: "#4caf50 !important",
+          color: "white !important",
+        };
+      case "pending":
+        return {
+          backgroundColor: "#ff9800 !important",
+          color: "white !important",
+        };
+      case "rejected":
+        return {
+          backgroundColor: "#f44336 !important",
+          color: "white !important",
+        };
+      default:
+        return {
+          backgroundColor: "#9e9e9e !important",
+          color: "white !important",
+        };
+    }
+  };
+
   return (
     <Dialog
       open={true}
@@ -312,9 +396,24 @@ const DayDetailsDialog = ({ selectedDay, onClose }) => {
             {selectedDay.leaves.map((leave, index) => (
               <Card key={`leave-${index}`} className="leave-detail-card">
                 <CardContent>
-                  <Typography variant="subtitle1" className="leave-type">
-                    {leave["leaveType"]}
-                  </Typography>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    <Typography variant="subtitle1" className="leave-type">
+                      {leave["leaveType"]}
+                    </Typography>
+                    
+                    <Chip
+                      label={leave.status}
+                      size="small"
+                      sx={getLeaveStatusStyle(leave.status)}
+                    />
+                  </div>
                   <Chip
                     label={`${leave["leaveDuration"]} day${
                       leave["leaveDuration"] > 1 ? "s" : ""
@@ -324,6 +423,21 @@ const DayDetailsDialog = ({ selectedDay, onClose }) => {
                   <Typography className="leave-reason">
                     {leave["reasonForLeave"]}
                   </Typography>
+                  {/* NEW: Show approval details for approved leaves */}
+                  {leave.status === "approved" && leave.approvalDate && (
+                    <Typography
+                      variant="caption"
+                      style={{
+                        display: "block",
+                        marginTop: "8px",
+                        color: "#666",
+                      }}
+                    >
+                      Approved on:{" "}
+                      {new Date(leave.approvalDate).toLocaleDateString()}
+                      {leave.approvalEmail && ` by ${leave.approvalEmail}`}
+                    </Typography>
+                  )}
                 </CardContent>
               </Card>
             ))}
@@ -358,4 +472,5 @@ const DayDetailsDialog = ({ selectedDay, onClose }) => {
     </Dialog>
   );
 };
+
 export default MonthlyDashboard;

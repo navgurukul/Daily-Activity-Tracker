@@ -250,6 +250,15 @@ useEffect(() => {
   const currentDept = formData.department || userDepartment;
   const currentCampus = formData.campus || "";
 
+  // Clear campus if department is not "Residential Program"
+  if (currentDept !== "Residential Program" && formData.campus) {
+    setFormData((prev) => ({
+      ...prev,
+      campus: "",
+    }));
+    return; // prevent filtering until formData updates
+  }
+
   if (
     currentDept &&
     projectByDepartment[currentDept] &&

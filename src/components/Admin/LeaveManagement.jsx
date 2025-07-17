@@ -3,7 +3,7 @@ import "./LeaveManagement.css";
 import { LoginContext } from "../context/LoginContext";
 import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, Box, Button, Chip } from "@mui/material";
 import axios from "axios";
-import AdjustLeaveModal from "./AdjustLeaveModal"; 
+import AdjustLeaveModal from "./AdjustLeaveModal";
 
 const LeaveManagement = () => {
   const dataContext = useContext(LoginContext);
@@ -30,6 +30,8 @@ const LeaveManagement = () => {
 
   const [inputError, setInputError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectedLeave, setSelectedLeave] = useState([]);
+
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   // NEW STATE FOR MODAL
@@ -253,59 +255,76 @@ const LeaveManagement = () => {
     setFilterMonth("");
   };
 
-  const handleApproveAll = async () => {
-  setIsApproving(true);
-
-  const approverEmail = email;
-  const token = sessionStorage.getItem("jwtToken");
-
-  const leaveData = pendingLeaves.map((leave) => ({
-    Id: leave.Id,
-    approverEmail,
-    status: "approved",
-  }));
-
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/employmentLeavePolicy`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          isBulkUpload: true,
-          leaveData,
-        }),
-      }
+  const handleCheckbox = (leaveId) => {
+    setSelectedLeave((prevSelected) =>
+      prevSelected.includes(leaveId)
+        ? prevSelected.filter((id) => id !== leaveId)
+        : [...prevSelected, leaveId]
     );
+  };
 
-    const result = await response.json();
-    console.log("Bulk approval response:", result);
 
-    if (response.ok) {
-      setApprovedLeaves((prev) => [...prev, ...pendingLeaves]);
-      setPendingLeaves([]);
-
-      setSnackbarMessage("All leaves approved successfully.");
-      setSnackbarSeverity("success");
+  const handleApproveAll = async () => {
+    if (selectedLeave.length === 0) {
+      setSnackbarMessage("Please select leave to approve.");
+      setSnackbarSeverity("warning");
       setSnackbarOpen(true);
-    } else {
-      setSnackbarMessage(result?.message || "Bulk approval failed.");
+      return;
+    }
+    setIsApproving(true);
+
+    const approverEmail = email;
+    const token = sessionStorage.getItem("jwtToken");
+    
+    const leaveData = pendingLeaves
+    .filter((leave) => selectedLeave.includes(leave.Id))
+    .map((leave) => ({
+      Id: leave.Id,
+      approverEmail,
+      status: "approved",
+    }));
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/employmentLeavePolicy`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            isBulkUpload: true,
+            leaveData,
+          }),
+        }
+      );
+
+      const result = await response.json();
+      console.log("Bulk approval response:", result);
+
+      if (response.ok) {
+        setApprovedLeaves((prev) => [...prev, ...pendingLeaves]);
+        setPendingLeaves([]);
+
+        setSnackbarMessage("Selected leaves approved successfully.");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+      } else {
+        setSnackbarMessage(result?.message || "Bulk approval failed.");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      }
+
+    } catch (error) {
+      console.error("Bulk approval error:", error);
+      setSnackbarMessage("Something went wrong during bulk approval.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
+    } finally {
+      setIsApproving(false);
     }
-
-  } catch (error) {
-    console.error("Bulk approval error:", error);
-    setSnackbarMessage("Something went wrong during bulk approval.");
-    setSnackbarSeverity("error");
-    setSnackbarOpen(true);
-  } finally {
-    setIsApproving(false);
-  }
-};
+  };
 
   return (
     <div className="leave-container">
@@ -438,10 +457,10 @@ const LeaveManagement = () => {
                 <p style={{ fontSize: '17px', textAlign: "center" }}>No pending leaves found.</p>
               ) : (
                 <>
-                  <div style={{ textAlign:'end', marginTop:'10px', marginBottom:'-12px', minWidth: 1180 }}>
-                    <Button 
-                    variant="contained"
-                    onClick={handleApproveAll}
+                  <div style={{ textAlign: 'end', marginTop: '10px', marginBottom: '-12px', minWidth: 1180 }}>
+                    <Button
+                      variant="contained"
+                      onClick={handleApproveAll}
                       sx={{
                         backgroundColor: '#1976D2',
                         color: '#fff',
@@ -455,12 +474,13 @@ const LeaveManagement = () => {
                           backgroundColor: '#115293',
                         }
                       }}>
-                      Approve All
+                      Approve Selected Leaves
                     </Button>
                   </div>
                   <table style={{ minWidth: 1180 }}>
                     <thead>
                       <tr>
+                        <th>Select</th>
                         <th>Email</th>
                         <th>Leave Type</th>
                         <th>From</th>
@@ -474,6 +494,13 @@ const LeaveManagement = () => {
                     <tbody>
                       {pendingLeaves.map((leave, index) => (
                         <tr key={index}>
+                          <td>
+                            <input 
+                              type="checkbox" 
+                              checked={selectedLeave.includes(leave.Id)}
+                              onChange={()=>handleCheckbox(leave.Id)}
+                            />
+                          </td>
                           <td>{leave.email}</td>
                           <td>{leave.leaveType}</td>
                           <td>{leave.startDate}</td>
@@ -609,8 +636,6 @@ const LeaveManagement = () => {
               )}
             </div>
           )}
-
-
         </>
       )}
 
@@ -655,7 +680,6 @@ const LeaveManagement = () => {
                       },
                     }}
                   />
-
                 )}
                 freeSolo
                 sx={{ minWidth: 300 }}
@@ -833,7 +857,6 @@ const LeaveManagement = () => {
               Clear Filters
             </Button>
           </div>
-
 
           <div className="history-data">
             {loading ? (

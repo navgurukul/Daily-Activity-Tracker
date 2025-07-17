@@ -162,6 +162,8 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import { Message } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
 function Login() {
   const navigate = useNavigate();
@@ -169,9 +171,11 @@ function Login() {
   const { email, setEmail } = dataContext;
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const location = useLocation();
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
   useEffect(() => {
     if (location.state?.message) {
@@ -187,7 +191,20 @@ function Login() {
       : navigate("/");
   }, []);
 
+  // Auto-show login button after any alert message appears
+  useEffect(() => {
+    if (alertMessage && snackbarOpen) {
+      const timer = setTimeout(() => {
+        setIsLoading(false); // Ensure login button shows
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [alertMessage, snackbarOpen]);
+
   const handleCallbackResponse = async (response) => {
+    setLoading(true);
+
     let jwtToken = response.credential;
     console.log("Encoded JWT ID token: " + jwtToken);
     // sessionStorage.setItem("bearerToken", jwtToken);
@@ -215,9 +232,8 @@ function Login() {
           data.message &&
           data.message.toLowerCase().includes("email not present in pnc")
         ) {
-          setAlertMessage(
-            "Access denied: User not found in system "
-          );
+          setLoading(false);
+          setAlertMessage("Access denied: User not found in system ");
           setSnackbarOpen(true);
           return; // Stop execution here
         }
@@ -244,15 +260,18 @@ function Login() {
         localStorage.setItem("department", department);
         setEmail(userEmail);
 
+        // Note: loading will automatically stop when navigation happens
         navigate("/activity-tracker", {
           state: { message: "Logged-in successfully!" },
         });
       } catch (error) {
         console.error("Error fetching role data:", error);
+        setLoading(false); // Stop loading
         setAlertMessage("Login failed due to server error.");
         setSnackbarOpen(true);
       }
     } else {
+      setLoading(false);
       setAlertMessage(" Please use your Navgurukul email id ");
       setSnackbarOpen(true);
     }
@@ -260,8 +279,7 @@ function Login() {
 
   useEffect(() => {
     google?.accounts.id.initialize({
-      client_id:
-        "34917283366-b806koktimo2pod1cjas8kn2lcpn7bse.apps.googleusercontent.com",
+      client_id: GOOGLE_CLIENT_ID,
       callback: handleCallbackResponse,
     });
 
@@ -282,8 +300,35 @@ function Login() {
         <h2 id="learn-heading">
           Login to Fill Activity Tracker and Leaves Application{" "}
         </h2>
+
+        {/* Always show login button */}
         <div id="signInDiv" className="custom-google-button"></div>
+
+        {/* Show loader below button when loading */}
+        {loading && (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            sx={{ mt: 3, mb: 3 }}
+          >
+            <div className="segmented-loader"></div>
+            <Typography
+              variant="body1"
+              sx={{
+                color: "#757575",
+                fontSize: "16px",
+                fontWeight: 500,
+                mt: 2,
+              }}
+            >
+              Authenticating your account...
+            </Typography>
+          </Box>
+        )}
       </div>
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
@@ -294,7 +339,6 @@ function Login() {
           elevation={6}
           variant="filled"
           onClose={handleCloseSnackbar}
-          // severity="warning"
           severity={
             alertMessage.includes("successfully") ? "success" : "warning"
           }

@@ -304,8 +304,13 @@ const LeaveManagement = () => {
       console.log("Bulk approval response:", result);
 
       if (response.ok) {
-        setApprovedLeaves((prev) => [...prev, ...pendingLeaves]);
-        setPendingLeaves([]);
+        // setApprovedLeaves((prev) => [...prev, ...pendingLeaves]);
+        // setPendingLeaves([]);
+        const newlyApproved = pendingLeaves.filter((leave) => selectedLeave.includes(leave.Id));
+        const stillPending = pendingLeaves.filter((leave) => !selectedLeave.includes(leave.Id));
+
+        setApprovedLeaves((prev) => [...prev, ...newlyApproved]);
+        setPendingLeaves(stillPending);
 
         setSnackbarMessage("Selected leaves approved successfully.");
         setSnackbarSeverity("success");

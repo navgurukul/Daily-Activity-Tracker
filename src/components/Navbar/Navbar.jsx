@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useContext } from "react";
 import "./Navbar.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import PropTypes from "prop-types";
 import AppBar from "@mui/material/AppBar";
@@ -48,6 +49,7 @@ const drawerWidth = 240;
 const Navbar = (props) => {
   const { window } = props;
   const navigate = useNavigate();
+  const location = useLocation(); // Added for active tab detection
   
   // ============== ALL EXISTING STATE PRESERVED ==============
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -71,6 +73,11 @@ const Navbar = (props) => {
     canSeeAccessControl, 
     canSeeProjectManagement 
   } = dataContext;
+
+  // ============== HELPER FUNCTION TO CHECK ACTIVE TAB ==============
+  const isActiveTab = (route) => {
+    return location.pathname === `/${route}` || location.pathname === route;
+  };
 
   // ============== DEBUG LOGGING FOR ROLE PERMISSIONS ==============
   useEffect(() => {
@@ -141,7 +148,7 @@ const Navbar = (props) => {
     navigate('/activity-tracker')
   }
 
-  // ============== ENHANCED DRAWER WITH ROLE-BASED NAVIGATION ==============
+  // ============== ENHANCED DRAWER WITH ROLE-BASED NAVIGATION AND ACTIVE TAB STYLING ==============
   const drawer = (
     <div style={{ marginTop: "1rem", padding: "none" }}>
       <h1
@@ -175,11 +182,24 @@ const Navbar = (props) => {
             disablePadding
             style={{ marginTop: "0.5rem" }}
           >
-            <ListItemButton onClick={() => handleClick(item.route)}>
+            <ListItemButton 
+              onClick={() => handleClick(item.route)}
+              sx={{
+                backgroundColor: isActiveTab(item.route) ? "#e0e0e0" : "transparent", // Grey background for active tab
+                "&:hover": {
+                  backgroundColor: isActiveTab(item.route) ? "#e0e0e0" : "#f5f5f5",
+                }
+              }}
+            >
               <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
                 {item.icon}
               </ListItemIcon>
-              <ListItemText primary={item.text} />
+              <ListItemText 
+                primary={item.text} 
+                sx={{
+                  color: isActiveTab(item.route) ? "#4caf50" : "inherit" // Green color for active tab text
+                }}
+              />
             </ListItemButton>
           </ListItem>
         ))}
@@ -194,11 +214,24 @@ const Navbar = (props) => {
             {/* Project Management - Visible to Project Manager and above */}
             {canSeeProjectManagement() && (
               <ListItem disablePadding>
-                <ListItemButton onClick={() => handleClick("project-management")}>
+                <ListItemButton 
+                  onClick={() => handleClick("project-management")}
+                  sx={{
+                    backgroundColor: isActiveTab("project-management") ? "#e0e0e0" : "transparent", // Grey background for active tab
+                    "&:hover": {
+                      backgroundColor: isActiveTab("project-management") ? "#e0e0e0" : "#f5f5f5",
+                    }
+                  }}
+                >
                   <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
                     <MenuBookIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Project Management" />
+                  <ListItemText 
+                    primary="Project Management" 
+                    sx={{
+                      color: isActiveTab("project-management") ? "#4caf50" : "inherit" // Green color for active tab text
+                    }}
+                  />
                 </ListItemButton>
               </ListItem>
             )}
@@ -206,11 +239,24 @@ const Navbar = (props) => {
             {/* Admin Panel - Visible only to Admin and Super Admin */}
             {canSeeAdminPanel() && (
               <ListItem disablePadding>
-                <ListItemButton onClick={() => handleClick("admin")}>
+                <ListItemButton 
+                  onClick={() => handleClick("admin")}
+                  sx={{
+                    backgroundColor: isActiveTab("admin") ? "#e0e0e0" : "transparent", // Grey background for active tab
+                    "&:hover": {
+                      backgroundColor: isActiveTab("admin") ? "#e0e0e0" : "#f5f5f5",
+                    }
+                  }}
+                >
                   <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
                     <AdminPanelSettingsIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Admin" />
+                  <ListItemText 
+                    primary="Admin" 
+                    sx={{
+                      color: isActiveTab("admin") ? "#4caf50" : "inherit" // Green color for active tab text
+                    }}
+                  />
                 </ListItemButton>
               </ListItem>
             )}
@@ -218,11 +264,24 @@ const Navbar = (props) => {
             {/* Access Control - Visible only to Admin and Super Admin */}
             {canSeeAccessControl() && (
               <ListItem disablePadding>
-                <ListItemButton onClick={() => handleClick("role-update")}>
+                <ListItemButton 
+                  onClick={() => handleClick("role-update")}
+                  sx={{
+                    backgroundColor: isActiveTab("role-update") ? "#e0e0e0" : "transparent", // Grey background for active tab
+                    "&:hover": {
+                      backgroundColor: isActiveTab("role-update") ? "#e0e0e0" : "#f5f5f5",
+                    }
+                  }}
+                >
                   <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
                     <ManageAccountsIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Access Control" />
+                  <ListItemText 
+                    primary="Access Control" 
+                    sx={{
+                      color: isActiveTab("role-update") ? "#4caf50" : "inherit" // Green color for active tab text
+                    }}
+                  />
                 </ListItemButton>
               </ListItem>
             )}

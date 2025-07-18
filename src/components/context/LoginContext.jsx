@@ -1,6 +1,4 @@
 
-
-
 import React, { createContext, useEffect, useState } from "react";
 
 const LoginContext = createContext();
@@ -45,7 +43,7 @@ function LoginProvider({ children }) {
    * Check if user can see Admin Panel (Super Admin and Admin only)
    */
 const canSeeAdminPanel = () => {
-  return userRole === 'super_admin' || userRole === 'admin' || userRole === 'project_manager';
+  return userRole === 'super_admin' || userRole === 'admin' ;
 };
 
   /**
@@ -59,7 +57,7 @@ const canSeeAdminPanel = () => {
    * Check if user can see Project Management (Project Manager and above)
    */
 const canSeeProjectManagement = () => {
-  return userRole === 'super_admin' || userRole === 'admin';
+  return userRole === 'super_admin' || userRole === 'admin' || userRole === 'project_manager';
 };
   // ============== ROLE UPDATE FUNCTION ==============
   /**

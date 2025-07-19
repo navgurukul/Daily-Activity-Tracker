@@ -248,38 +248,36 @@ const Form = () => {
 
 useEffect(() => {
   const currentDept = formData.department || userDepartment;
-  const currentCampus = formData.campus || "";
-
-  // Clear campus if department is not "Residential Program"
-  if (currentDept !== "Residential Program" && formData.campus) {
-    setFormData((prev) => ({
-      ...prev,
-      campus: "",
-    }));
-    return; // prevent filtering until formData updates
-  }
-
-  if (
-    currentDept &&
-    projectByDepartment[currentDept] &&
-    currentCampus &&
-    projectByCampus[currentCampus]
-  ) {
-    const deptProjects = projectByDepartment[currentDept];
-    const campusProjects = projectByCampus[currentCampus];
-    console.log("Department Projects:", deptProjects);
-    console.log("Campus Projects:", campusProjects);
-
-    const filtered = deptProjects.filter((p) => campusProjects.includes(p));
-    setFilteredProjects(filtered);
-  } 
-  else if (currentDept !== "Residential Program" && projectByDepartment[currentDept]) {
-    setFilteredProjects(projectByDepartment[currentDept]);
-  }
-   else {
+  if (!currentDept) {
     setFilteredProjects([]);
+    return;
   }
-}, [formData.department, formData.campus, projectByDepartment, projectByCampus]);
+  const fetchDepartmentProjects = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/employees?department=${encodeURIComponent(currentDept)}`);
+      const data = await response.json();
+      if (data?.data?.length > 0) {
+        const activeProjects = data.data.filter(
+          (project) => project.projectStatus === "Active"
+        );
+        let filtered = activeProjects.map((p) => p.projectName);
+        // Optional: If you still want to filter by campus (e.g. if Culture department has multiple campuses)
+        if (formData.campus) {
+          filtered = activeProjects
+            .filter((p) => p.campus?.trim() === formData.campus.trim())
+            .map((p) => p.projectName);
+        }
+        setFilteredProjects(filtered);
+      } else {
+        setFilteredProjects([]);
+      }
+    } catch (error) {
+      console.error("Error fetching department projects:", error);
+      setFilteredProjects([]);
+    }
+  };
+  fetchDepartmentProjects();
+}, [formData.department, userDepartment, formData.campus]);
 
   document.querySelectorAll('input[type="number"]').forEach(function (input) {
     input.addEventListener("wheel", function (event) {
@@ -808,7 +806,14 @@ useEffect(() => {
           />
         </div>
 
-        {(formData.department || userDepartment) === "Residential Program" && (
+        {((formData.department || userDepartment) === "Residential Program"
+      || formData.department === "Culture"
+      || formData.department === "Academics"
+      || formData.department === "Operations"
+      || formData.department === "LXD & ETC"
+      || formData.department === "Campus Support Staff"
+      || formData.department === "Campus_Security"
+      ) && (
           <div>
             <label>Please select your campus :</label>
             <select

@@ -186,8 +186,7 @@ const PersonalHistory = () => {
         </Box>
       ) : leaves.length > 0 ? (
         <>
-          <div style={{ overflowX: 'auto', width: '100%' }}>
-  <TableContainer component={Paper} sx={{ minWidth: 800, overflowX: { xs: "auto", sm: "hidden" } }}>
+          <TableContainer component={Paper} sx={{ width: { md: '99%' }, overflowX: { xs: "auto", sm: "hidden", } }}>
             <Table>
               <TableHead>
                 <TableRow>
@@ -203,7 +202,6 @@ const PersonalHistory = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          </div>
           {renderPagination(pages[statusKey], hasMore[statusKey])}
         </>
       ) : (

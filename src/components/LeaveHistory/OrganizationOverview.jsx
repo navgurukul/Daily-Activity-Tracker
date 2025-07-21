@@ -169,7 +169,9 @@ const OrganizationOverview = () => {
           {approvedLeaves.length === 0 ? (
             <p style={{ fontSize: '17px', textAlign: "center" }}>No approved leaves found.</p>
           ) : (
-            <TableContainer component={Paper} sx={{ width: { md: '99%' }, overflowX: { xs: "auto", sm: "hidden" } }}>
+            <div style={{ overflowX: 'auto', width: '100%' }}>
+                          {/* <TableContainer component={Paper} sx={{ width: { md: '99%' }, overflowX: { xs: "auto", sm: "hidden" } }}> */}
+  <TableContainer component={Paper} sx={{ minWidth: 800, overflowX: { xs: "auto", sm: "hidden" } }}>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -197,6 +199,7 @@ const OrganizationOverview = () => {
                 </TableBody>
               </Table>
             </TableContainer>
+          </div>
           )}
         </div>
       )}

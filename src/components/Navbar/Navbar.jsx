@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useContext } from "react";
 import "./Navbar.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import PropTypes from "prop-types";
 import AppBar from "@mui/material/AppBar";
@@ -44,17 +45,13 @@ import ApprovalIcon from "@mui/icons-material/Approval";
 import WysiwygIcon from "@mui/icons-material/Wysiwyg";
 
 const drawerWidth = 240;
-// const AUTHORIZED_EMAILS = [
-//   "amruta@navgurukul.org",
-//   "shivansh@navgurukul.org",
-//   "arunesh@navgurukul.org",
-//   "activitytracker@samyarth.org"
-
-// ];
 
 const Navbar = (props) => {
   const { window } = props;
   const navigate = useNavigate();
+  const location = useLocation(); // Added for active tab detection
+  
+  // ============== ALL EXISTING STATE PRESERVED ==============
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
@@ -65,23 +62,35 @@ const Navbar = (props) => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
+  // ============== ENHANCED CONTEXT WITH ROLE FUNCTIONS ==============
   const dataContext = useContext(LoginContext);
-  const { email, setEmail, isAdmin } = dataContext;
+  const { 
+    email, 
+    setEmail, 
+    isAdmin, // Your existing isAdmin preserved
+    userRole, // New standardized role
+    canSeeAdminPanel, 
+    canSeeAccessControl, 
+    canSeeProjectManagement 
+  } = dataContext;
 
-  // const isAuthorizedEmail = () => {
-  //   const userEmail = localStorage.getItem("email");
-  //   return AUTHORIZED_EMAILS.includes(userEmail);
-  // };
+  // ============== HELPER FUNCTION TO CHECK ACTIVE TAB ==============
+  const isActiveTab = (route) => {
+    return location.pathname === `/${route}` || location.pathname === route;
+  };
 
-  // const adminEmails = [
-  //   "amitkumar@navgurukul.org",
-  //   "puran@navgurukul.org",
-  //   "amruta@navgurukul.org",
-  //   "ujjwal@navgurukul.org",
-  // ];
-  // const userEmail = localStorage.getItem("email");
-  // const isAdmin = adminEmails.includes(userEmail);
+  // ============== DEBUG LOGGING FOR ROLE PERMISSIONS ==============
+  useEffect(() => {
+    console.log("=== NAVBAR ROLE DEBUG ===");
+    console.log("Current user role:", userRole);
+    console.log("Can see admin panel:", canSeeAdminPanel());
+    console.log("Can see access control:", canSeeAccessControl());
+    console.log("Can see project management:", canSeeProjectManagement());
+    console.log("Is Admin (legacy):", isAdmin);
+    console.log("========================");
+  }, [email, userRole]);
 
+  // ============== ALL EXISTING useEffects PRESERVED ==============
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -99,6 +108,7 @@ const Navbar = (props) => {
     };
   }, []);
 
+  // ============== ALL EXISTING FUNCTIONS PRESERVED ==============
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
   };
@@ -119,27 +129,6 @@ const Navbar = (props) => {
     setError("");
   };
 
-  // const handlePasswordSubmit = () => {
-  //   if (password === "Think4Big$123") {
-  //     if (isAuthorizedEmail()) {
-  //       sessionStorage.setItem("isAuth", "true");
-  //       handlePasswordDialogClose();
-  //       navigate("comp-off-application");
-  //       setError("");
-  //       setSnackbarSeverity("success");
-  //       setSnackbarMessage("Successfully authenticated!");
-  //       setSnackbarOpen(true);
-  //     } else {
-  //       setError("You are not authorized to access this feature");
-  //       setSnackbarSeverity("error");
-  //       setSnackbarMessage("You are not authorized to access this feature");
-  //       setSnackbarOpen(true);
-  //     }
-  //   } else {
-  //     setError("Incorrect password");
-  //   }
-  // };
-
   const handleClick = (button) => {
     console.log("Handleclick", button);
     if (button === "logout") {
@@ -151,19 +140,6 @@ const Navbar = (props) => {
       })
     }
 
-    // if (button === "comp-off-application") {
-    //   if (!isAuthorizedEmail()) {
-    //     setSnackbarSeverity("info");
-    //     setSnackbarMessage(
-    //       "Comp-off requests need to be approved by Amruta. Please reach out to amruta@navgurukul.org before raising a request."
-    //     );
-    //     setSnackbarOpen(true);
-    //     return;
-    //   }
-    //   handlePasswordDialogOpen();
-    //   return;
-    // }
-
     navigate(`/${button}`);
     handleDrawerClose();
   };
@@ -172,6 +148,7 @@ const Navbar = (props) => {
     navigate('/activity-tracker')
   }
 
+  // ============== ENHANCED DRAWER WITH ROLE-BASED NAVIGATION AND ACTIVE TAB STYLING ==============
   const drawer = (
     <div style={{ marginTop: "1rem", padding: "none" }}>
       <h1
@@ -190,127 +167,134 @@ const Navbar = (props) => {
         Daily Tracker
       </h1>
       <Divider />
+      
+      {/* ============== BASIC NAVIGATION ITEMS (AVAILABLE TO ALL USERS) ============== */}
       <List>
         {[
-          // ...(isAdmin
-          //   ? [{ text: "Admin", icon: <AdminPanelSettingsIcon /> }]
-          //   : []),
-          // { text: "Project Management", icon: <MenuBookIcon /> },
-          // { text: "Admin", icon: <ParkIcon /> },
-          { text: "Activity Tracker", icon: <PostAddIcon /> },
-          { text: "Leave Application", icon: <ApprovalIcon /> },
-          {
-            text: "Comp-off Application",
-            icon: <WysiwygIcon />,
-            // disabled: !isAuthorizedEmail(),
-          },
-          { text: "Monthly Activity-Dashboard", icon: <DashboardIcon /> },
-          { text: "Leave History", icon: <SupportIcon /> },
+          { text: "Activity Tracker", icon: <PostAddIcon />, route: "activity-tracker" },
+          { text: "Leave Application", icon: <ApprovalIcon />, route: "leave-application" },
+          { text: "Comp-off Application", icon: <WysiwygIcon />, route: "comp-off-application" },
+          { text: "Monthly Activity-Dashboard", icon: <DashboardIcon />, route: "monthly-activity-dashboard" },
+          { text: "Leave History", icon: <SupportIcon />, route: "leave-history" },
         ].map((item, index) => (
           <ListItem
             key={item.text}
             disablePadding
             style={{ marginTop: "0.5rem" }}
           >
-            <ListItemButton
-              onClick={() =>
-                handleClick(item.text.toLowerCase().replace(" ", "-"))
-              }
-              // disabled={item.disabled}
+            <ListItemButton 
+              onClick={() => handleClick(item.route)}
               sx={{
-                opacity: item.disabled ? 0.5 : 1,
-                "&.Mui-disabled": {
-                  opacity: 0.5,
-                },
+                backgroundColor: isActiveTab(item.route) ? "#e0e0e0" : "transparent", // Grey background for active tab
+                "&:hover": {
+                  backgroundColor: isActiveTab(item.route) ? "#e0e0e0" : "#f5f5f5",
+                }
               }}
             >
-              <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
+              <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText 
+                primary={item.text} 
+                sx={{
+                  color: isActiveTab(item.route) ? "#4caf50" : "inherit" // Green color for active tab text
+                }}
+              />
             </ListItemButton>
           </ListItem>
         ))}
       </List>
-      {/* <Divider /> */}
-      {/* <List>
-        {[
-          {
-            text: "Tracker-Feedback",
-            href: "https://docs.google.com/spreadsheets/d/1pfmdircPsvsxOZpTn7H9Scf3D3xtBwzSAPLqlw-oUyI/edit?gid=0#gid=0",
-          },
-          {
-            text: "Tracker Reports",
-            href: "https://docs.google.com/spreadsheets/d/1i8251CwxKATAhjLgDgMcbhJ6T4KMy1EaCOAuxRV2irQ/edit?gid=1381214364#gid=1381214364",
-          },
-          {
-            text: "Support",
-            href: "https://docs.google.com/forms/d/e/1FAIpQLScRduzs5MEtojOnVix2rvdJGlPcUAtLqelP5aM_mC5fCcBFfA/viewform",
-          },
-        ].map((item, index) => (
-          <ListItem
-            key={item.text}
-            disablePadding
-            style={{ marginTop: "0.5rem" }}
-          >
-            <ListItemButton component="a" href={item.href} target="_blank">
-              {index === 2 ? (
-                <ListItemIcon>
-                  <SupportIcon />
-                </ListItemIcon>
-              ) : (
-                <ListItemIcon>
-                  {index % 2 === 0 ? <FeedbackIcon /> : <MenuBookIcon />}
-                </ListItemIcon>
-              )}
-              <ListItemText primary={item.text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List> */}
-      <Divider />
-      {isAdmin && (
-      <List>
-        <ListItem disablePadding>
-          <ListItemButton
-            onClick={() => handleClick("admin")}
-            // sx={{ marginTop: "0.5rem" }}
-          >
-            <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
-              <AdminPanelSettingsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Admin" />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton
-            onClick={() => handleClick("project-management")}
-            // sx={{ marginTop: "0.5rem" }}
-          >
-            <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
-              <MenuBookIcon />
-            </ListItemIcon>
-            <ListItemText primary="Project Management" />
-          </ListItemButton>
-        </ListItem>
-        <ListItem disablePadding>
-          <ListItemButton
-            sx={{ marginTop: "auto" }}
-            onClick={() => handleClick("role-update")}
-          >
-            <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
-              <ManageAccountsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Access Control" />
-          </ListItemButton>
-        </ListItem>
-      </List>
+
+      {/* ============== ROLE-BASED ADMIN NAVIGATION ITEMS ============== */}
+      {/* Show admin section only if user has any elevated permissions */}
+      {(canSeeAdminPanel() || canSeeAccessControl() || canSeeProjectManagement()) && (
+        <>
+          <Divider />
+          <List>
+            {/* Project Management - Visible to Project Manager and above */}
+            {canSeeProjectManagement() && (
+              <ListItem disablePadding>
+                <ListItemButton 
+                  onClick={() => handleClick("project-management")}
+                  sx={{
+                    backgroundColor: isActiveTab("project-management") ? "#e0e0e0" : "transparent", // Grey background for active tab
+                    "&:hover": {
+                      backgroundColor: isActiveTab("project-management") ? "#e0e0e0" : "#f5f5f5",
+                    }
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
+                    <MenuBookIcon />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary="Project Management" 
+                    sx={{
+                      color: isActiveTab("project-management") ? "#4caf50" : "inherit" // Green color for active tab text
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            )}
+
+            {/* Admin Panel - Visible only to Admin and Super Admin */}
+            {canSeeAdminPanel() && (
+              <ListItem disablePadding>
+                <ListItemButton 
+                  onClick={() => handleClick("admin")}
+                  sx={{
+                    backgroundColor: isActiveTab("admin") ? "#e0e0e0" : "transparent", // Grey background for active tab
+                    "&:hover": {
+                      backgroundColor: isActiveTab("admin") ? "#e0e0e0" : "#f5f5f5",
+                    }
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
+                    <AdminPanelSettingsIcon />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary="Admin" 
+                    sx={{
+                      color: isActiveTab("admin") ? "#4caf50" : "inherit" // Green color for active tab text
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            )}
+
+            {/* Access Control - Visible only to Admin and Super Admin */}
+            {canSeeAccessControl() && (
+              <ListItem disablePadding>
+                <ListItemButton 
+                  onClick={() => handleClick("role-update")}
+                  sx={{
+                    backgroundColor: isActiveTab("role-update") ? "#e0e0e0" : "transparent", // Grey background for active tab
+                    "&:hover": {
+                      backgroundColor: isActiveTab("role-update") ? "#e0e0e0" : "#f5f5f5",
+                    }
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
+                    <ManageAccountsIcon />
+                  </ListItemIcon>
+                  <ListItemText 
+                    primary="Access Control" 
+                    sx={{
+                      color: isActiveTab("role-update") ? "#4caf50" : "inherit" // Green color for active tab text
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            )}
+          </List>
+        </>
       )}
+
+      {/* ============== EXISTING LOGOUT SECTION PRESERVED ============== */}
       <Divider />
       <List
         style={{
           position: "absolute",
           width: "100%",
-          // top: "0px",
-          // bottom: "20px",
         }}
       >
         <ListItem disablePadding>
@@ -325,12 +309,33 @@ const Navbar = (props) => {
           </ListItemButton>
         </ListItem>
       </List>
+
+      {/* ============== DEBUG INFO (REMOVE IN PRODUCTION) ============== */}
+      {/* Uncomment below for debugging role permissions during development */}
+      {/*
+      <div style={{ 
+        position: "fixed", 
+        bottom: "10px", 
+        left: "10px",
+        fontSize: "10px", 
+        color: "#666",
+        backgroundColor: "rgba(255,255,255,0.9)",
+        padding: "5px",
+        borderRadius: "3px"
+      }}>
+        Role: {userRole} | 
+        Admin Panel: {canSeeAdminPanel() ? "✓" : "✗"} | 
+        Access Control: {canSeeAccessControl() ? "✓" : "✗"} |
+        Project Mgmt: {canSeeProjectManagement() ? "✓" : "✗"}
+      </div>
+      */}
     </div>
   );
 
   const container =
     window !== undefined ? () => window().document.body : undefined;
 
+  // ============== ALL EXISTING JSX STRUCTURE COMPLETELY PRESERVED ============== 
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -401,6 +406,7 @@ const Navbar = (props) => {
         </Drawer>
       </Box>
 
+      {/* ============== ALL EXISTING DIALOGS AND SNACKBARS PRESERVED ============== */}
       <Dialog open={openPasswordDialog} onClose={handlePasswordDialogClose}>
         <DialogTitle>Enter Password</DialogTitle>
         <DialogContent>
@@ -428,11 +434,6 @@ const Navbar = (props) => {
                 </InputAdornment>
               ),
             }}
-            // onKeyPress={(e) => {
-            //   if (e.key === "Enter") {
-            //     handlePasswordSubmit();
-            //   }
-            // }}
           />
         </DialogContent>
         <DialogActions>

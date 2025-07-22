@@ -42,6 +42,8 @@ const RoleUpdateForm = () => {
   const [nextPage, setNextPage] = useState(null);
   const [previousPage, setPreviousPage] = useState([]);
   const [currentPage, setCurrentPage] = useState(null);
+  const [emailError, setEmailError] = useState(false);
+const [roleError, setRoleError] = useState(false);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const fetchFilteredUsers = async (page = 1) => {
     setLoading(true);
@@ -101,55 +103,104 @@ const RoleUpdateForm = () => {
       .replace(/([A-Z])/g, " $1") // Insert space before capital letters
       .replace(/^./, (str) => str.toUpperCase()); // Capitalize first letter
   };
-  const handleAssignRole = async (e) => {
-    e.preventDefault();
-    if (!email) {
-      setSnackbarMessage("Please select an email");
-      setSnackbarSeverity("warning");
-      setSnackbarOpen(true);
-      return;
-    }
-    const payload = {
-      email,
-      roles: [selectedRole],
-    };
-    try {
-      const res = await fetch(
-        `${API_BASE_URL}/accessControl`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        const roleDisplay = formatRole(selectedRole);
-        setSnackbarMessage(
-          `Successfully assigned the "${roleDisplay}" role to "${email}".`
-        );
-        setSnackbarSeverity("success");
+
+const handleAssignRole = async (e) => {
+  e.preventDefault();
+
+  let hasError = false;
+
+  if (!email) {
+    setEmailError(true);
+    hasError = true;
+  } else {
+    setEmailError(false);
+  }
+
+  if (!selectedRole) {
+    setRoleError(true);
+    hasError = true;
+  } else {
+    setRoleError(false);
+  }
+
+  if (hasError) {
+    setSnackbarMessage("Please fill all required fields");
+    setSnackbarSeverity("warning");
+    setSnackbarOpen(true);
+    return;
+  }
+
+  const roleDisplay = formatRole(selectedRole);
+
+  // 🔍 Check if role is already assigned
+  try {
+    const resCheck = await fetch(`${API_BASE_URL}/accessControl?email=${email}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+      },
+    });
+
+    if (resCheck.ok) {
+      const userData = await resCheck.json();
+      // const existingRoles = userData.role || [];
+      const existingRoles = userData.items?.map(item => item.role) || [];
+      
+      if (existingRoles.includes(selectedRole)) {
+        setSnackbarMessage(`"${roleDisplay}" role is already assigned to "${email}".`);
+        setSnackbarSeverity("info");
         setSnackbarOpen(true);
-        setFilterEmail("");
-        setEmail("");
-        setSelectedRole("")
-        fetchFilteredUsers();
-      } else {
-        const data = await res.json();
-        setSnackbarMessage(data.message || "Failed to assign role");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
+        return;
       }
-    } catch (err) {
-      console.error("Error assigning role:", err);
-      setSnackbarMessage("Something went wrong");
+    } else {
+      console.warn("Failed to fetch existing roles for user.");
+    }
+  } catch (error) {
+    console.error("Error checking existing roles:", error);
+  }
+
+  // 🟢 Proceed to assign role
+  const payload = {
+    email,
+    roles: [selectedRole],
+  };
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/accessControl`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      setSnackbarMessage(
+        `Successfully assigned the "${roleDisplay}" role to "${email}".`
+      );
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+      setFilterEmail("");
+      setEmail("");
+      setSelectedRole("");
+      fetchFilteredUsers();
+    } else {
+      const data = await res.json();
+      setSnackbarMessage(data.message || "Failed to assign role");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
-  };
+  } catch (err) {
+    console.error("Error assigning role:", err);
+    setSnackbarMessage("Something went wrong");
+    setSnackbarSeverity("error");
+    setSnackbarOpen(true);
+  }
+};
+  
   const handleDelete = (emailToDelete, idToDelete) => {
     setDeleteTarget({ email: emailToDelete, id: idToDelete });
     setDeleteDialogOpen(true);
@@ -422,12 +473,19 @@ const RoleUpdateForm = () => {
                 <Autocomplete
                   options={teamIds}
                   value={email}
-                  onChange={(event, value) => setEmail(value || "")}
+                  onChange={(event, value) => 
+                  {
+                    setEmail(value || "")
+                    setEmailError(!value);
+                  }
+                  }
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       label="Select Email"
                       size="small"
+                      error={emailError}
+                      helperText={emailError ? "Email is required" : " "}
                     />
                   )}
                   freeSolo
@@ -447,12 +505,17 @@ const RoleUpdateForm = () => {
                   options={roles}
                   key={selectedRole}
                   value={roles.find((role) => role.value === selectedRole) || null}
-                  onChange={(event, newValue) => setSelectedRole(newValue ? newValue.value : "")} 
+                  onChange={(event, newValue) => {
+    setSelectedRole(newValue ? newValue.value : "");
+    setRoleError(false);
+  }}
                   renderInput={(params) => (
                     <TextField
                       {...params}
                       label="Select Role"
                       size="small"
+                      error={roleError}
+                      helperText={roleError ? "Role is required" : " "}
                     />
                   )}
                   freeSolo
@@ -461,7 +524,7 @@ const RoleUpdateForm = () => {
                 <Button
                   variant="contained"
                   onClick={handleAssignRole}
-                  style={{ backgroundColor: "#4CAF50", color: "white" }}
+                  style={{ backgroundColor: "#4CAF50", color: "white", display: "flex", alignSelf: "flex-start" }}
                 >
                   Assign Role
                 </Button>

@@ -30,7 +30,7 @@ const getLeaveStatusAttributes = (status) => {
         style: {
           backgroundColor: "#4caf50 !important",
           color: "white !important",
-        }
+        },
       };
     case "pending":
       return {
@@ -39,7 +39,7 @@ const getLeaveStatusAttributes = (status) => {
         style: {
           backgroundColor: "#ff9800 !important",
           color: "white !important",
-        }
+        },
       };
     case "rejected":
       return {
@@ -48,7 +48,7 @@ const getLeaveStatusAttributes = (status) => {
         style: {
           backgroundColor: "#f44336 !important",
           color: "white !important",
-        }
+        },
       };
     default:
       return {
@@ -57,7 +57,7 @@ const getLeaveStatusAttributes = (status) => {
         style: {
           backgroundColor: "#9e9e9e !important",
           color: "white !important",
-        }
+        },
       };
   }
 };
@@ -110,7 +110,7 @@ const MonthlyDashboard = () => {
   const [error, setError] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  
+
   const selectedMonth = selectedDate.getMonth();
   const selectedYear = selectedDate.getFullYear();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -144,27 +144,31 @@ const MonthlyDashboard = () => {
   }, [selectedMonth, selectedYear]);
 
   // Memoized data getter function
-  const getDataForDate = useCallback((date) => {
-    if (!employeeData) return { activities: [], leaves: [] };
-    
-    const activities = employeeData.activities?.filter(
-      (activity) => activity.entryDate === date
-    ) || [];
-    
-    const allLeaves = [
-      ...(employeeData.leaves?.approved || []),
-      ...(employeeData.leaves?.pending || []),
-      ...(employeeData.leaves?.rejected || []),
-    ];
-    
-    const leaves = allLeaves.filter((leave) => {
-      const fromDate = leave.startDate;
-      const toDate = leave.endDate;
-      return fromDate && toDate && date >= fromDate && date <= toDate;
-    });
-    
-    return { activities, leaves };
-  }, [employeeData]);
+  const getDataForDate = useCallback(
+    (date) => {
+      if (!employeeData) return { activities: [], leaves: [] };
+
+      const activities =
+        employeeData.activities?.filter(
+          (activity) => activity.entryDate === date
+        ) || [];
+
+      const allLeaves = [
+        ...(employeeData.leaves?.approved || []),
+        ...(employeeData.leaves?.pending || []),
+        ...(employeeData.leaves?.rejected || []),
+      ];
+
+      const leaves = allLeaves.filter((leave) => {
+        const fromDate = leave.startDate;
+        const toDate = leave.endDate;
+        return fromDate && toDate && date >= fromDate && date <= toDate;
+      });
+
+      return { activities, leaves };
+    },
+    [employeeData]
+  );
 
   // Memoized day selection handler
   const handleDaySelect = useCallback((date, activities, leaves) => {
@@ -189,15 +193,15 @@ const MonthlyDashboard = () => {
           ),
           fetch(`${API_BASE_URL}/leave-records?employeeEmail=${email}`),
         ]);
-        
+
         const [activityData, leaveData] = await Promise.all([
           activityRes.json(),
           leaveRes.json(),
         ]);
-        
+
         const userActivities = activityData.data[email] || [];
         const userLeaves = leaveData[email] || [];
-        
+
         setEmployeeData({
           activities: userActivities,
           leaves: userLeaves,
@@ -209,7 +213,7 @@ const MonthlyDashboard = () => {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, [selectedMonth, selectedYear, email, API_BASE_URL]);
 
@@ -261,7 +265,7 @@ const MonthlyDashboard = () => {
           {daysInMonth.map((date, index) => {
             const { activities, leaves } = getDataForDate(date);
             const dayOfWeek = new Date(date).getDay();
-            
+
             if (index === 0) {
               const emptyCells = Array(dayOfWeek).fill(null);
               return [
@@ -277,7 +281,7 @@ const MonthlyDashboard = () => {
                 />,
               ];
             }
-            
+
             return (
               <DayCell
                 key={date}
@@ -290,7 +294,7 @@ const MonthlyDashboard = () => {
           })}
         </div>
       </div>
-      
+
       {selectedDay && (
         <DayDetailsDialog
           selectedDay={selectedDay}
@@ -301,94 +305,97 @@ const MonthlyDashboard = () => {
   );
 };
 
-const DayCell = React.memo(({ date, activities = [], leaves = [], onSelect }) => {
-  const isToday = useMemo(() => {
-    return new Date(date).toISOString().split("T")[0] ===
-           new Date().toISOString().split("T")[0];
-  }, [date]);
+const DayCell = React.memo(
+  ({ date, activities = [], leaves = [], onSelect }) => {
+    const isToday = useMemo(() => {
+      return (
+        new Date(date).toISOString().split("T")[0] ===
+        new Date().toISOString().split("T")[0]
+      );
+    }, [date]);
 
-  const totalHours = useMemo(() => {
-    return activities.reduce(
-      (sum, act) => sum + Number(act["totalHoursSpent"] || 0),
-      0
-    );
-  }, [activities]);
+    const totalHours = useMemo(() => {
+      return activities.reduce(
+        (sum, act) => sum + Number(act["totalHoursSpent"] || 0),
+        0
+      );
+    }, [activities]);
 
-  const hasData = activities.length > 0 || leaves.length > 0;
-  const maxDisplayItems = 2;
+    const hasData = activities.length > 0 || leaves.length > 0;
+    const maxDisplayItems = 2;
 
-  const handleClick = useCallback(() => {
-    onSelect(date, activities, leaves);
-  }, [date, activities, leaves, onSelect]);
+    const handleClick = useCallback(() => {
+      onSelect(date, activities, leaves);
+    }, [date, activities, leaves, onSelect]);
 
-  const leaveStatusAttributes = useMemo(() => {
-    return leaves.length > 0 ? getLeaveStatusAttributes(leaves[0].status) : null;
-  }, [leaves]);
+    const leaveStatusAttributes = useMemo(() => {
+      return leaves.length > 0
+        ? getLeaveStatusAttributes(leaves[0].status)
+        : null;
+    }, [leaves]);
 
-  return (
-    <Card
-      className={`day-cell ${isToday ? "today" : ""} ${
-        hasData ? "has-activities" : ""
-      }`}
-      onClick={handleClick}
-    >
-      <CardContent className="day-content">
-        <div className="day-header">
-          <Typography variant="body2" className="date-number">
-            {new Date(date).getDate()}
-          </Typography>
-          <div className="chips-container">
-            {leaves.length > 0 && leaveStatusAttributes && (
-              <div
-                style={{
-                  ...chipContainerStyles,
-                  backgroundColor: leaveStatusAttributes.color,
-                }}
-              >
-                <span style={{ fontSize: "10px" }}>
-                  {leaveStatusAttributes.icon}
-                </span>
-                <span>{leaves[0].status}</span>
+    return (
+      <Card
+        className={`day-cell ${isToday ? "today" : ""} ${
+          hasData ? "has-activities" : ""
+        }`}
+        onClick={handleClick}
+      >
+        <CardContent className="day-content">
+          <div className="day-header">
+            <Typography variant="body2" className="date-number">
+              {new Date(date).getDate()}
+            </Typography>
+            <div className="chips-container">
+              {leaves.length > 0 && leaveStatusAttributes && (
+                <div
+                  style={{
+                    ...chipContainerStyles,
+                    backgroundColor: leaveStatusAttributes.color,
+                  }}
+                >
+                  <span style={{ fontSize: "10px" }}>
+                    {leaveStatusAttributes.icon}
+                  </span>
+                  <span>{leaves[0].status}</span>
+                </div>
+              )}
+              {totalHours > 0 && (
+                <Chip
+                  label={`${totalHours}h`}
+                  size="small"
+                  className="hours-chip"
+                />
+              )}
+            </div>
+          </div>
+          <div className="activities-preview">
+            {leaves.length > 0 && (
+              <div style={leavePreviewStyles}>
+                <Typography variant="caption" style={leaveTypeStyles}>
+                  {leaves[0]["leaveType"]}
+                </Typography>
               </div>
             )}
-            {totalHours > 0 && (
-              <Chip
-                label={`${totalHours}h`}
-                size="small"
-                className="hours-chip"
-              />
+
+            {activities.slice(0, maxDisplayItems).map((activity, idx) => (
+              <div key={idx} className="activity-preview-item">
+                <Typography variant="caption" className="project-name">
+                  {activity["projectName"]}
+                </Typography>
+              </div>
+            ))}
+            {activities.length + leaves.length > maxDisplayItems && (
+              <Typography variant="caption" className="more-activities">
+                +{activities.length + leaves.length - maxDisplayItems} more
+              </Typography>
             )}
           </div>
-        </div>
-        <div className="activities-preview">
-          {leaves.length > 0 && (
-            <div style={leavePreviewStyles}>
-              <Typography
-                variant="caption"
-                style={leaveTypeStyles}
-              >
-                {leaves[0]["leaveType"]}
-              </Typography>
-            </div>
-          )}
-
-          {activities.slice(0, maxDisplayItems).map((activity, idx) => (
-            <div key={idx} className="activity-preview-item">
-              <Typography variant="caption" className="project-name">
-                {activity["projectName"]}
-              </Typography>
-            </div>
-          ))}
-          {activities.length + leaves.length > maxDisplayItems && (
-            <Typography variant="caption" className="more-activities">
-              +{activities.length + leaves.length - maxDisplayItems} more
-            </Typography>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-});
+        </CardContent>
+      </Card>
+    );
+  }
+);
 
 const DayDetailsDialog = React.memo(({ selectedDay, onClose }) => {
   const formatDate = useCallback((dateString) => {
@@ -450,11 +457,14 @@ const DayDetailsDialog = React.memo(({ selectedDay, onClose }) => {
                       />
                     </div>
                     <Chip
-                      label={`${leave["leaveDuration"]} day${
-                        leave["leaveDuration"] > 1 ? "s" : ""
-                      }`}
+                      label={
+                        leave["durationType"] === "full-day"
+                          ? "1 day"
+                          : "0.5 day"
+                      }
                       className="days-chip"
                     />
+
                     <Typography className="leave-reason">
                       {leave["reasonForLeave"]}
                     </Typography>
@@ -504,7 +514,7 @@ const DayDetailsDialog = React.memo(({ selectedDay, onClose }) => {
   );
 });
 
-DayCell.displayName = 'DayCell';
-DayDetailsDialog.displayName = 'DayDetailsDialog';
+DayCell.displayName = "DayCell";
+DayDetailsDialog.displayName = "DayDetailsDialog";
 
 export default MonthlyDashboard;

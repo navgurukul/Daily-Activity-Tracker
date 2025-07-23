@@ -286,6 +286,21 @@ const Leaves = () => {
   
 }, [leaveData.userEmail, leaveData.leaveType, allLeaves]);
 
+  // NEW: Half-day date synchronization useEffect
+  useEffect(() => {
+    // Only sync dates when durationType is "half-day"
+    if (leaveData.durationType === "half-day") {
+      // Auto-set end date to match start date for half-day leaves
+      if (leaveData.startDate && leaveData.startDate !== leaveData.endDate) {
+        setLeaveData(prevData => ({
+          ...prevData,
+          endDate: prevData.startDate
+        }));
+      }
+    }
+    // For "full-day" or empty durationType, do nothing - allow independent date selection
+  }, [leaveData.durationType, leaveData.startDate]);
+
   const handleHalfDayChange = (e) => {
     setHalfDay(e.target.checked);
   };
@@ -564,18 +579,6 @@ const Leaves = () => {
                 />
               </StyledFormControl>
             </Grid>
-            {/* <Grid item xs={12} md={6}>
-              <StyledFormControl>
-                <TextField
-                  label="Employee Name"
-                  name="name"
-                  value={leaveData.name}
-                  onChange={handleChange}
-                  disabled={!isEditable}
-                  fullWidth
-                />
-              </StyledFormControl>
-            </Grid> */}
 
             <Grid item xs={12} md={6}>
               <StyledFormControl>
@@ -661,31 +664,6 @@ const Leaves = () => {
               </StyledFormControl>
             </Grid>
 
-            {/* {leaveData.leaveType &&
-              ![
-                "Casual Leave",
-                "Wellness Leave",
-                "Festival Leave",
-                "Compensatory Leave",
-              ].includes(leaveData.leaveType) &&
-              leaveData.reasonForLeave?.length < 25 && (
-                <Grid item xs={12}>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: "#ef4444",
-                      fontSize: "0.875rem",
-                      fontWeight: 500,
-                      mt: -2,
-                      mb: 2,
-                      ml: 1,
-                      textAlign: "left",
-                    }}
-                  >
-                    Please provide a reason with at least 25 characters.
-                  </Typography>
-                </Grid>
-              )} */}
             <Grid item xs={12} md={6}>
               <StyledFormControl>
                 <TextField
@@ -718,6 +696,7 @@ const Leaves = () => {
                   value={leaveData.endDate}
                   onChange={handleChange}
                   required
+                  disabled={leaveData.durationType === "half-day"}
                   InputLabelProps={{ shrink: true }}
                   sx={{
                     "& .MuiInputBase-root": {
@@ -731,6 +710,25 @@ const Leaves = () => {
                 />
               </StyledFormControl>
             </Grid>
+
+            {leaveData.durationType === "half-day" && (
+              <Grid item xs={12}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    color: "#6b7280",
+                    fontSize: "0.875rem",
+                    fontStyle: "italic",
+                    display: "block",
+                    textAlign: "center",
+                    mt: -1
+                  }}
+                >
+                  Half day leaves can only be applied for single day
+                </Typography>
+              </Grid>
+            )}
+
             <Grid item xs={12} md={6}>
               <StyledFormControl>
                 <InputLabel>Duration Type</InputLabel>
@@ -814,7 +812,6 @@ const Leaves = () => {
                   "&:hover": {
                     backgroundColor: "#45A049",
                   },
-                  // boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
                 }}
               >
                 Submit

@@ -1028,7 +1028,7 @@ useEffect(() => {
             Please save your contribution before submitting.
           </p>
         )}
-        <button type="submit" className="full-width-button" disabled={formData.contributions.length === 0}>
+        <button type="submit" className="full-width-button" disabled={formData.contributions.length === 0 || editIndex !== null}>
           Submit
         </button>
       </form>

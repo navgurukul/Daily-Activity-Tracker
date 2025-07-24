@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import "./LeaveManagement.css";
 import { LoginContext } from "../context/LoginContext";
-import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, Box, Button, Chip } from "@mui/material";
+import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, Box, Button, Chip, FormControlLabel, Checkbox } from "@mui/material";
 import axios from "axios";
 import AdjustLeaveModal from "./AdjustLeaveModal";
 
@@ -472,14 +472,21 @@ const LeaveManagement = () => {
               ) : (
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px', marginTop: '10px', marginBottom: '-12px', minWidth: 1180 }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <input 
-                       type="checkbox" 
-        checked={selectedLeave.length === pendingLeaves.length && pendingLeaves.length > 0}
-        onChange={(e) => handleSelectAll(e.target.checked)}
-      />
-      <label style={{ margin: '0 0 0 8px',whiteSpace: 'nowrap' }}>Select All</label>
-    </div>
+    <FormControlLabel
+  control={
+    <Checkbox
+      checked={selectedLeave.length === pendingLeaves.length && pendingLeaves.length > 0}
+      onChange={(e) => handleSelectAll(e.target.checked)}
+      sx={{
+        color: '#1976D2',
+        '&.Mui-checked': {
+          color: '#72ce47ff',
+        },
+      }}
+    />
+  }
+  label="Select All"
+/>
                     <Button
                       variant="contained"
                       onClick={handleApproveAll}
@@ -510,7 +517,7 @@ const LeaveManagement = () => {
                         <th>Duration</th>
                         <th>Type</th>
                         <th>Reason</th>
-                        <th>Action</th>
+                        {/* <th>Action</th> */}
                       </tr>
                     </thead>
                     <tbody>
@@ -530,14 +537,14 @@ const LeaveManagement = () => {
                           <td>{leave.leaveDuration}</td>
                           <td>{leave.durationType}</td>
                           <td>{leave.reasonForLeave}</td>
-                          <td>
+                          {/* <td>
                             <button
                               className="approve-button"
                               onClick={() => handleApprove(leave.Id)}
                             >
                               Approve
                             </button>
-                          </td>
+                          </td> */}
                         </tr>
                       ))}
                     </tbody>

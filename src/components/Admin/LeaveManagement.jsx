@@ -331,6 +331,15 @@ const LeaveManagement = () => {
     }
   };
 
+  const handleSelectAll = (isChecked) => {
+  if (isChecked) {
+    const allIds = pendingLeaves.map(leave => leave.Id);
+    setSelectedLeave(allIds);
+  } else {
+    setSelectedLeave([]);
+  }
+};
+
   return (
     <div className="leave-container">
       <h1>Leave Dashboard </h1>
@@ -462,7 +471,15 @@ const LeaveManagement = () => {
                 <p style={{ fontSize: '17px', textAlign: "center" }}>No pending leaves found.</p>
               ) : (
                 <>
-                  <div style={{ textAlign: 'end', marginTop: '10px', marginBottom: '-12px', minWidth: 1180 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px', marginTop: '10px', marginBottom: '-12px', minWidth: 1180 }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <input 
+                       type="checkbox" 
+        checked={selectedLeave.length === pendingLeaves.length && pendingLeaves.length > 0}
+        onChange={(e) => handleSelectAll(e.target.checked)}
+      />
+      <label style={{ margin: '0 0 0 8px',whiteSpace: 'nowrap' }}>Select All</label>
+    </div>
                     <Button
                       variant="contained"
                       onClick={handleApproveAll}
@@ -471,7 +488,7 @@ const LeaveManagement = () => {
                         color: '#fff',
                         fontWeight: 'bold',
                         textTransform: 'none',
-                        px: 3,
+                        px: 2,
                         py: 1,
                         borderRadius: 2,
                         boxShadow: 2,

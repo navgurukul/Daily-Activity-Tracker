@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Modal, Box, Typography, Button, DialogActions, CircularProgress } from "@mui/material"
+import { Modal, Box, Typography, Button, DialogActions, CircularProgress, FormControl, TextField, InputLabel, Select, MenuItem, Tooltip, FormHelperText } from "@mui/material"
 import { handleBeforeUnload } from "../../utils/beforeUnloadHandler";
 import "./ProjectManagement.css";
 
@@ -91,6 +91,18 @@ const ProjectManagement = () => {
   const [open, setOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const [validationMsgOnEdit, setValidationMsgOnEdit] = useState({
+  channelName: "",
+  channelId: "",
+  campus: "",
+  discordWebhook: "",
+  pocOfProject: "",
+  pmEmail: "",
+  priorities: "",
+  budget: "",
+  status: "",
+});
 
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -313,6 +325,27 @@ const ProjectManagement = () => {
       })
       .catch((err) => console.error("Error updating project:", err));
   };
+
+const isFormValid = () => {
+  const isResidential = selectedDept !== "Residential Program";
+  return (
+    editData.projectName.trim() !== "" &&
+    editData.projectMasterEmail.trim() !== "" &&
+    editData.priorities !== "" &&
+    editData.projectStatus !== "" &&
+    Object.values(validationMsgOnEdit).every((error) => error === "") &&
+    (isResidential
+      ? editData.channelName.trim() !== "" &&
+        editData.channelId.trim() !== ""
+      : editData.campus !== "" &&
+        editData.discordWebhook.trim() !== "" &&
+        editData.poc_of_project.trim() !== "") &&
+        editData.pmEmail.trim() !== "" &&
+    editData.priorities !== "" &&
+    editData.projectBudget !== "" &&
+    Number(editData.projectBudget) >= 0
+  );
+};
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/employees?ResidentialNonResi=Residential-Program`)
@@ -814,149 +847,242 @@ const ProjectManagement = () => {
               &times;
             </button>
             <h2>Edit Project</h2>
-            <div className="update-form-fields">
-              <input
-                type="text"
-                placeholder="Project Name"
-                className="input-field"
-                value={editData.projectName}
-                onChange={(e) =>
-                  setEditData({ ...editData, projectName: e.target.value })
-                }
-                disabled
-              />
-              {selectedDept !== "Residential Program" && (
-                <>
-                  <input
-                    type="text"
-                    placeholder="Slack Channel Name"
-                    className="input-field"
-                    value={editData.channelName}
-                    onChange={(e) =>
-                      setEditData({ ...editData, channelName: e.target.value })
-                    }
-                  />
-                  <input
-                    type="text"
-                    placeholder="Slack Channel ID"
-                    className="input-field"
-                    value={editData.channelId}
-                    onChange={(e) =>
-                      setEditData({ ...editData, channelId: e.target.value })
-                    }
-                  />
-                </>
-              )}
-              {selectedDept === "Residential Program" && (
-                <>
-                  <select
-                    name="campus"
-                    className="input-field"
-                    value={editData.campus || ""}
-                    onChange={(e) =>
-                      setEditData({ ...editData, campus: e.target.value })
-                    }
-                    required
-                  >
-                    <option value="" disabled>
-                      Select Campus
-                    </option>
-                    {campuses.map((campus, idx) => (
-                      <option key={idx} value={campus}>
-                        {campus}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="tooltip-container">
-                    <input
-                      type="text"
-                      placeholder="Discord Channel Web Hook URL"
-                      className="input-field"
-                      value={editData.discordWebhook || ""}
-                      onChange={(e) =>
-                        setEditData({
-                          ...editData,
-                          discordWebhook: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="tooltip-container">
-                    <textarea
-                      placeholder="POC of Project"
-                      className="input-field"
-                      value={editData.poc_of_project || ""}
-                      onChange={(e) =>
-                        setEditData({
-                          ...editData,
-                          poc_of_project: e.target.value,
-                        })
-                      }
-                      rows="1"
-                    />
-                  </div>
-                </>
-              )}
-              <input
-                type="text"
-                placeholder="PM Email"
-                className="input-field"
-                value={editData.projectMasterEmail}
-                onChange={(e) =>
-                  setEditData({
-                    ...editData,
-                    projectMasterEmail: e.target.value,
-                  })
-                }
-              />
-              <input
-                type="text"
-                placeholder="Client Name"
-                className="input-field"
-                value={editData.clientName}
-                onChange={(e) =>
-                  setEditData({ ...editData, clientName: e.target.value })
-                }
-              />
-              <select
-                className="input-field"
-                value={editData.priorities}
-                onChange={(e) =>
-                  setEditData({ ...editData, priorities: e.target.value })
-                }
-              >
-                <option value="" disabled selected>
-                  Select Priority
-                </option>
-                <option value="P0">P0-Very High</option>
-                <option value="P1">P1-High</option>
-                <option value="P2">P2-Moderate</option>
-                <option value="P3">P3-Low</option>
-              </select>
-              <input
-                type="number"
-                placeholder="Project Budget"
-                className="input-field"
-                value={editData.projectBudget}
-                onChange={(e) =>
-                  setEditData({ ...editData, projectBudget: e.target.value })
-                }
-              />
-              <select
-                className="input-field"
-                value={editData.projectStatus}
-                onChange={(e) =>
-                  setEditData({ ...editData, projectStatus: e.target.value })
-                }
-              >
-                <option value="" disabled selected>
-                  Select Status
-                </option>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
-            <button className="update-btn" onClick={handleUpdateProject}>
+            <Box className="update-form-fields" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+
+  <TextField
+    label="Project Name"
+    variant="outlined"
+    fullWidth
+    value={editData.projectName}
+    disabled
+  />
+
+  {selectedDept !== "Residential Program" && (
+    <>
+      <TextField
+        label="Slack Channel Name"
+        variant="outlined"
+        fullWidth
+        value={editData.channelName}
+        onChange={(e) => {
+          const value = e.target.value;
+          setEditData({ ...editData, channelName: value });
+          setValidationMsgOnEdit((prev) => ({
+      ...prev,
+      channelName: value.trim() === "" ? "Channel name can't be empty" : "",
+    }));
+        }}
+        error={!!validationMsgOnEdit.channelName}
+        helperText={validationMsgOnEdit.channelName}
+      />
+      <TextField
+        label="Slack Channel ID"
+        variant="outlined"
+        fullWidth
+        value={editData.channelId}
+        onChange={(e) => {
+          const value = e.target.value;
+          setEditData({ ...editData, channelId: value });
+          setValidationMsgOnEdit((prev) => ({
+            ...prev,
+            channelId: value.trim() === "" ? "Channel ID can't be empty" : "",
+          }));
+        }}
+        error={!!validationMsgOnEdit.channelId}
+        helperText={validationMsgOnEdit.channelId}
+      />
+    </>
+  )}
+
+  {selectedDept === "Residential Program" && (
+    <>
+      <FormControl fullWidth error={!!validationMsgOnEdit.campus}>
+        <InputLabel>Campus</InputLabel>
+        <Select
+          value={editData.campus || ""}
+          label="Campus"
+          onChange={(e) => {
+            const value = e.target.value;
+            setEditData({ ...editData, campus: value });
+            setValidationMsgOnEdit((prev) => ({
+              ...prev,
+              campus: value.trim() === "" ? "Campus can't be empty" : "",
+            }));
+          }}
+          onBlur={() => {
+            if (editData.campus.trim() === "") {
+              setValidationMsgOnEdit((prev) => ({
+                ...prev,
+                campus: "Campus can't be empty",
+              }));
+            }
+          }}
+          required
+        >
+          {campuses.map((campus, idx) => (
+            <MenuItem key={idx} value={campus}>
+              {campus}
+            </MenuItem>
+          ))}
+        </Select>
+        {!!validationMsgOnEdit.campus && (
+          <FormHelperText>{validationMsgOnEdit.campus}</FormHelperText>
+        )}
+      </FormControl>
+
+      <TextField
+        label="Discord Channel Webhook URL"
+        variant="outlined"
+        fullWidth
+        value={editData.discordWebhook || ""}
+        onChange={(e) => {
+          const value = e.target.value;
+          setEditData({ ...editData, discordWebhook: value });
+          setValidationMsgOnEdit((prev) => ({
+            ...prev,
+            discordWebhook: value.trim() === "" ? "Discord webhook can't be empty" : "",
+          }));
+        }}
+        error={!!validationMsgOnEdit.discordWebhook}
+        helperText={validationMsgOnEdit.discordWebhook}
+      />
+
+      <TextField
+        label="POC of Project"
+        variant="outlined"
+        fullWidth
+        multiline
+        rows={1}
+        value={editData.poc_of_project || ""}
+        onChange={(e) => {
+          const value = e.target.value;
+          setEditData({ ...editData, poc_of_project: value });
+          setValidationMsgOnEdit((prev) => ({
+            ...prev,
+            pocOfProject: value.trim() === "" ? "POC of project can't be empty" : "",
+          }));
+        }}
+        error={!!validationMsgOnEdit.pocOfProject}
+        helperText={validationMsgOnEdit.pocOfProject}
+      />
+    </>
+  )}
+
+  <TextField
+    label="PM Email"
+    variant="outlined"
+    fullWidth
+    value={editData.projectMasterEmail}
+    onChange={(e) => {
+      const value = e.target.value;
+      setEditData({ ...editData, projectMasterEmail: value });
+      setValidationMsgOnEdit((prev) => ({
+        ...prev,
+        pmEmail: value.trim() === "" ? "PM email can't be empty" : "",
+      }));
+    }}
+    error={!!validationMsgOnEdit.pmEmail}
+    helperText={validationMsgOnEdit.pmEmail}
+  />
+
+  <TextField
+    label="Client Name"
+    variant="outlined"
+    fullWidth
+    value={editData.clientName}
+    onChange={(e) =>
+      setEditData({ ...editData, clientName: e.target.value })
+    }
+  />
+
+  <FormControl fullWidth error={!!validationMsgOnEdit.priority}>
+    <InputLabel>Priority</InputLabel>
+    <Select
+      value={editData.priorities}
+      label="Priority"
+      onChange={(e) => {
+        const value = e.target.value;
+        setEditData({ ...editData, priorities: value });
+        setValidationMsgOnEdit((prev) => ({
+          ...prev,
+          priorities: value.trim() === "" ? "Priority can't be empty" : "",
+        }));
+      }}
+      onBlur={() => {
+        if (editData.priorities.trim() === "") {
+          setValidationMsgOnEdit((prev) => ({
+            ...prev,
+            priorities: "Priority can't be empty",
+          }));
+        }
+      }}
+    >
+      <MenuItem value="P0">P0 - Very High</MenuItem>
+      <MenuItem value="P1">P1 - High</MenuItem>
+      <MenuItem value="P2">P2 - Moderate</MenuItem>
+      <MenuItem value="P3">P3 - Low</MenuItem>
+    </Select>
+    {!!validationMsgOnEdit.priorities && (
+      <FormHelperText>{validationMsgOnEdit.priorities}</FormHelperText>
+    )}
+  </FormControl>
+
+  <TextField
+    label="Project Budget"
+    variant="outlined"
+    type="number"
+    fullWidth
+    value={editData.projectBudget}
+    onChange={(e) => {
+      const value = e.target.value;
+      setEditData({ ...editData, projectBudget: value });
+      setValidationMsgOnEdit((prev) => ({
+        ...prev,
+        projectBudget: value.trim() === "" ? "Project budget can't be empty" : "",
+      }));
+    }}
+    error={!!validationMsgOnEdit.projectBudget}
+    helperText={validationMsgOnEdit.projectBudget}
+  />
+
+  <FormControl fullWidth error={!!validationMsgOnEdit.projectStatus}>
+  <InputLabel>Status</InputLabel>
+  <Select
+    value={editData.projectStatus}
+    label="Status"
+    onChange={(e) => {
+      const value = e.target.value;
+      setEditData({ ...editData, projectStatus: value });
+      setValidationMsgOnEdit((prev) => ({
+        ...prev,
+        projectStatus: value.trim() === "" ? "Project status can't be empty" : "",
+      }));
+    }}
+    onBlur={() => {
+      if (editData.projectStatus.trim() === "") {
+        setValidationMsgOnEdit((prev) => ({
+          ...prev,
+          projectStatus: "Project status can't be empty",
+        }));
+      }
+    }}
+  >
+    <MenuItem value="">Select Status</MenuItem>
+    <MenuItem value="Active">Active</MenuItem>
+    <MenuItem value="Inactive">Inactive</MenuItem>
+  </Select>
+  {!!validationMsgOnEdit.projectStatus && (
+    <FormHelperText>{validationMsgOnEdit.projectStatus}</FormHelperText>
+  )}
+</FormControl>
+
+</Box>
+            <button className="update-btn" onClick={handleUpdateProject}
+            disabled={!isFormValid()}
+  style={{
+    opacity: !isFormValid() ? 0.6 : 1,
+    cursor: !isFormValid() ? 'not-allowed' : 'pointer'
+  }}>
               Update Project
             </button>
           </div>

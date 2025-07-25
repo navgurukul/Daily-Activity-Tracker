@@ -716,9 +716,9 @@ const Leaves = () => {
                 <Typography
                   variant="caption"
                   sx={{
-                    color: "#6b7280",
+                    color: "red",
                     fontSize: "0.875rem",
-                    fontStyle: "italic",
+                    // fontStyle: "italic",
                     display: "block",
                     textAlign: "center",
                     mt: -1

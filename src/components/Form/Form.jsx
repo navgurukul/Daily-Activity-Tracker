@@ -20,10 +20,20 @@ import {
   Button,
   Snackbar,
   Alert,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  TextField,
+  Box,
 } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import { set } from "lodash";
-// import { useLocation } from "react-router-dom";
+
 
 const Form = () => {
   const dataContext = useContext(LoginContext);
@@ -583,76 +593,6 @@ useEffect(() => {
       : (document.getElementById("root").style.opacity = "1");
   };
 
-  // function getMinDate() {
-  //   const today = new Date();
-  //   const validDates = [];
-
-  //   // Check the last 3 days
-  //   for (let i = 1; i <= 3; i++) {
-  //     const date = new Date(today);
-  //     date.setDate(today.getDate() - i);
-  //     const day = date.getDay(); // 0 = Sunday, 6 = Saturday
-
-  //     // Skip Sundays
-  //     if (day === 0) continue;
-
-  //     // Skip 2nd and 4th Saturdays
-  //     if (day === 6) {
-  //       const dateNum = date.getDate();
-  //       const month = date.getMonth();
-  //       const year = date.getFullYear();
-
-  //       // Get all Saturdays of the month
-  //       let saturdayCount = 0;
-  //       for (let d = 1; d <= 31; d++) {
-  //         const tempDate = new Date(year, month, d);
-  //         if (tempDate.getMonth() !== month) break;
-  //         if (tempDate.getDay() === 6) {
-  //           saturdayCount++;
-  //           if (d === dateNum && (saturdayCount === 2 || saturdayCount === 4)) {
-  //             continue; // skip 2nd or 4th Saturday
-  //           }
-  //         }
-  //       }
-  //     }
-
-  //     validDates.push(date);
-  //   }
-
-  //   // Return the earliest valid date
-  //   if (validDates.length > 0) {
-  //     return validDates[validDates.length - 1].toISOString().split("T")[0];
-  //   } else {
-  //     return today.toISOString().split("T")[0]; // fallback
-  //   }
-  // }
-
-  // Mock today's date to be 12th of the current month
-  // const mockToday = new Date();
-  // mockToday.setDate(5);
-  // const today = mockToday.toISOString().split("T")[0];
-
-  // function getMinDate() {
-  //   const minDate = new Date(mockToday);
-  //   minDate.setDate(mockToday.getDate() - 2);
-
-  //   // now calculate excluding weekends (Sundays + 2nd & 4th Saturday)
-  //   let daysCounted = 0;
-  //   while (daysCounted < 3) {
-  //     minDate.setDate(minDate.getDate() - 1);
-  //     const day = minDate.getDay(); // 0 = Sunday, 6 = Saturday
-  //     const date = minDate.getDate();
-  //     const week = Math.floor((date - 1) / 7) + 1;
-
-  //     if (day === 0 || (day === 6 && (week === 2 || week === 4))) {
-  //       continue; // skip weekend
-  //     }
-  //     daysCounted++;
-  //   }
-
-  //   return minDate.toISOString().split("T")[0];
-  // }
-
   function getMinDate() {
   const today = new Date();
   const validDates = [];
@@ -835,97 +775,234 @@ useEffect(() => {
         {formData.contributions.length > 0 && (
           <div>
             <h3>Contributions Summary</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Project</th>
-                  <th>Hours</th>
-                  <th>Task</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {formData.contributions.map((contribution, index) => (
-                  <tr key={index} style={{ height: "auto" }}>
-                    {editIndex === index ? (
-                      <>
-                        <td>{contribution.project}</td>
-                        <td>
-                          <input
+            <TableContainer 
+              component={Paper} 
+              sx={{ 
+                width: '100%',
+                maxWidth: '100%',
+                overflow: 'hidden',
+                boxShadow: 'none',
+                border: '1px solid #ddd',
+                margin: 0,
+                padding: 0
+              }}
+            >
+              <Table 
+                sx={{ 
+                  width: '100%',
+                  tableLayout: 'fixed',
+                  margin: 0,
+                  padding: 0,
+                  '& .MuiTableCell-root': {
+                    border: '1px solid #ddd',
+                    padding: { xs: '6px 4px', sm: '8px 6px' },
+                    overflow: 'hidden'
+                  }
+                }}
+                size="small"
+              >
+                <TableHead sx={{ margin: 0, padding: 0 }}>
+                  <TableRow sx={{ backgroundColor: '#f5f5f5', margin: 0, padding: 0 }}>
+                    <TableCell 
+                      sx={{ 
+                        fontWeight: 'bold',
+                        width: { xs: '22%', sm: '18%' },
+                        fontSize: { xs: '12px', sm: '14px' }
+                      }}
+                    >
+                      Project
+                    </TableCell>
+                    <TableCell 
+                      sx={{ 
+                        fontWeight: 'bold',
+                        width: { xs: '12%', sm: '10%' },
+                        textAlign: 'center',
+                        fontSize: { xs: '12px', sm: '14px' }
+                      }}
+                    >
+                      Hours
+                    </TableCell>
+                    <TableCell 
+                      sx={{ 
+                        fontWeight: 'bold',
+                        width: { xs: '48%', sm: '55%' },
+                        fontSize: { xs: '12px', sm: '14px' }
+                      }}
+                    >
+                      Task
+                    </TableCell>
+                    <TableCell 
+                      sx={{ 
+                        fontWeight: 'bold',
+                        width: { xs: '18%', sm: '17%' },
+                        textAlign: 'center',
+                        fontSize: { xs: '12px', sm: '14px' }
+                      }}
+                    >
+                      Action
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {formData.contributions.map((contribution, index) => (
+                    <TableRow key={index}>
+                      <TableCell 
+                        sx={{ 
+                          fontSize: { xs: '11px', sm: '13px' },
+                          wordBreak: 'break-word',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                      >
+                        {contribution.project}
+                      </TableCell>
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        {editIndex === index ? (
+                          <TextField
                             type="number"
                             name="hours"
                             value={editContribution.hours}
                             onChange={handleEditContributionChange}
+                            size="small"
+                            sx={{
+                              width: '50px',
+                              '& .MuiInputBase-input': {
+                                textAlign: 'center',
+                                fontSize: { xs: '11px', sm: '13px' },
+                                padding: '4px'
+                              }
+                            }}
                           />
-                        </td>
-                        <td className="task-column">
-                          <textarea
+                        ) : (
+                          <span style={{ fontSize: window.innerWidth < 600 ? '11px' : '13px' }}>
+                            {contribution.hours}
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editIndex === index ? (
+                          <TextField
                             name="task"
                             value={editContribution.task}
                             onChange={handleEditContributionChange}
+                            multiline
+                            minRows={2}
+                            maxRows={4}
+                            size="small"
+                            sx={{
+                              width: '100%',
+                              '& .MuiInputBase-input': {
+                                fontSize: { xs: '11px', sm: '13px' },
+                                padding: '4px'
+                              }
+                            }}
                           />
-                        </td>
-                        <td
-                          style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            flexDirection: "column",
+                        ) : (
+                          <Box
+                            sx={{
+                              minHeight: '80px',
+                              maxHeight: '120px',
+                              overflowY: 'auto',
+                              overflowX: 'hidden',
+                              wordBreak: 'break-word',
+                              fontSize: { xs: '11px', sm: '13px' },
+                              lineHeight: 1.4,
+                              padding: '8px 4px',
+                              display: 'flex',
+                              alignItems: 'flex-start'
+                            }}
+                          >
+                            {contribution.task}
+                          </Box>
+                        )}
+                      </TableCell>
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        <Box 
+                          sx={{ 
+                            display: 'flex',
+                            gap: '2px',
+                            alignItems: 'center',
+                            justifyContent: 'center'
                           }}
                         >
-                          <button
-                            type="button"
-                            className="save-button"
-                            onClick={() => handleSaveEdit(index)}
-                          >
-                            <SaveIcon className="icon-white" />
-                          </button>
-                          <button
-                            type="button"
-                            className="delete-button"
-                            onClick={() => handleDelete(index)}
-                          >
-                            <DeleteIcon className="icon-white" />
-                          </button>
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td>{contribution.project}</td>
-                        <td>{contribution.hours}</td>
-                        <td className="task-cell">
-                          <div className="task-content">{contribution.task}</div>
-                        </td>
-                        <td
-                          style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            maxWidth: "100%",
-                          }}
-                        >
-                          <div className="button-container">
-                            <button
-                              className="edit-button"
-                              type="button"
-                              onClick={() => handleEdit(index)}
-                            >
-                              <EditIcon className="icon-white" />
-                            </button>
-                            <button
-                              className="delete-button"
-                              type="button"
-                              onClick={() => handleDelete(index)}
-                            >
-                              <DeleteIcon className="icon-white" />
-                            </button>
-                          </div>
-                        </td>
-                      </>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                          {editIndex === index ? (
+                            <>
+                              <IconButton
+                                onClick={() => handleSaveEdit(index)}
+                                size="small"
+                                sx={{
+                                  color: '#666',
+                                  padding: '2px',
+                                  minWidth: 'auto',
+                                  width: '24px',
+                                  height: '24px',
+                                  '&:hover': {
+                                    color: '#4CAF50'
+                                  }
+                                }}
+                              >
+                                <SaveIcon sx={{ fontSize: '20px' }} />
+                              </IconButton>
+                              <IconButton
+                                onClick={() => handleDelete(index)}
+                                size="small"
+                                sx={{
+                                  color: '#666',
+                                  padding: '2px',
+                                  minWidth: 'auto',
+                                  width: '25px',
+                                  height: '25px',
+                                  '&:hover': {
+                                    color: '#f44336'
+                                  }
+                                }}
+                              >
+                                <DeleteIcon sx={{ fontSize: '20px' }} />
+                              </IconButton>
+                            </>
+                          ) : (
+                            <>
+                              <IconButton
+                                onClick={() => handleEdit(index)}
+                                size="small"
+                                sx={{
+                                  color: '#666',
+                                  padding: '2px',
+                                  minWidth: 'auto',
+                                  width: '25px',
+                                  height: '25px',
+                                  '&:hover': {
+                                    color: '#4CAF50'
+                                  }
+                                }}
+                              >
+                                <EditIcon sx={{ fontSize: '20px' }} />
+                              </IconButton>
+                              <IconButton
+                                onClick={() => handleDelete(index)}
+                                size="small"
+                                sx={{
+                                  color: '#666',
+                                  padding: '2px',
+                                  minWidth: 'auto',
+                                  width: '25px',
+                                  height: '25px',
+                                  '&:hover': {
+                                    color: '#f44336'
+                                  }
+                                }}
+                              >
+                                <DeleteIcon sx={{ fontSize: '16px' }} />
+                              </IconButton>
+                            </>
+                          )}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
             <br />
 
             <p
@@ -944,34 +1021,22 @@ useEffect(() => {
               <option value="">Loading projects...</option>
             </select>
           ) : Object.keys(projectByDepartment).length > 0 && currentDept in projectByDepartment ? (
-            // <select
-            //   name="selectedProject"
-            //   value={selectedProject}
-            //   onChange={handleProjectSelect}
-            // >
-            //   <option value="">--Select a project--</option>
-            //   {projectByDepartment[currentDept].map((project, index) => (
-            //     <option key={index} value={project}>
-            //       {project}
-            //     </option>
-            //   ))}
-            // </select>
             <select
-  name="selectedProject"
-  value={selectedProject}
-  onChange={handleProjectSelect}
->
-  <option value="">--Select a project--</option>
-  {filteredProjects.length > 0 ? (
-    filteredProjects.map((project, index) => (
-      <option key={index} value={project}>
-        {project}
-      </option>
-    ))
-  ) : (
-    <option disabled>No projects available</option>
-  )}
-</select>
+              name="selectedProject"
+              value={selectedProject}
+              onChange={handleProjectSelect}
+            >
+              <option value="">--Select a project--</option>
+              {filteredProjects.length > 0 ? (
+                filteredProjects.map((project, index) => (
+                  <option key={index} value={project}>
+                    {project}
+                  </option>
+                ))
+              ) : (
+                <option disabled>No projects available</option>
+              )}
+            </select>
           ) : (
             <select disabled>
               <option value="">No projects available for your department</option>

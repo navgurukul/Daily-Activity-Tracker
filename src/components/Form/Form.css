@@ -70,27 +70,6 @@ button:hover {
   background-color: #21a1f1;
 }
 
-/* h3 {
-  margin-top: 20px;
-} */
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-td {
-  max-width: 300px;
-  word-wrap: break-word;
-  white-space: normal;
-}
-
 .App-header {
   background-color: #282c34;
   padding: 20px;
@@ -101,79 +80,8 @@ td {
   margin: 0;
 }
 
-.task-cell {
-  padding: 0;
-  max-width: 150px;
-  text-align: center;
-}
-.task-content{
-  max-height: 100px;
-  max-width: 100%;
-  margin-left: 2px;
-  margin-right: 2px;
-  margin-top: 0;
-  margin-bottom: 0;
-  word-break: break-word;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.delete-button,
-.save-button {
-  background-color: #8f0a00;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.button-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 #green-button {
   color: #4caf50;
-}
-.delete-button {
-  background-color: #8f0a00;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.delete-button,
-.edit-button {
-  max-width: 130px !important;
-  padding: 5px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  color: white;
-  height: 30px;
-}
-
-.edit-button,
-.save-button {
-  background-color: #4caf50;
-  margin-bottom: 18px;
-  max-width: 130px;
-  height: 30px;
-  width: 130px;
-  padding: 7px;
-}
-.save-button{
-  max-width: 130px;
-  height: 30px;
-  margin-top: 20px;
-}
-.delete-button:hover {
-  background-color: #d32f2f;
-}
-.icon-white {
-  color: white;
 }
 
 .full-width-button {
@@ -192,16 +100,6 @@ td {
   .full-width-button{
     max-width: 100%;
   }
-  .delete-button,
-  .edit-button {
-    max-width: 50px !important;
-    margin-left: 0 !important;
-  }
-  .edit-button,
-  .save-button {
-    max-width: 50px !important;
-    margin-left: 0 !important;
-  }
 }
 
 @media (max-width: 768px) {
@@ -216,41 +114,16 @@ td {
   h3 {
     margin-top: 60px;
   }
-
-  
 }
 
-@media (max-width: 600px) {
-  .delete-button,
-  .edit-button {
-    width: 100%;
-
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-  .save-button, .edit-button {
-    height: 35px;
-    box-sizing: border-box;
-  }
-
-}
 @media (max-width: 700px) {
   .from-1 {
     width: 90%;
     max-width: 300px;
   }
 }
+
 @media (max-width:425px){
-  .delete-button,
-  .edit-button {
-    max-width: 50px !important;
-    margin-left: 0 !important;
-  }
-  .save-button{
-    max-width: 50px !important;
-    height: 35px;
-    margin-top: 31px;
-  }
   .full-width-button{
     max-width: 300px;
   }
@@ -262,8 +135,5 @@ td {
     margin-left: 4px;
     width: 86%;
     max-width: 270px;
-  }
-  .task-cell {
-    max-width: 60px; 
   }
 }

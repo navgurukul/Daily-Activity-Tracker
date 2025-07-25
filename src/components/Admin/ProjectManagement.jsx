@@ -354,20 +354,19 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 const isFormValid = () => {
   const isResidential = selectedDept !== "Residential Program";
   return (
-    editData.projectName.trim() !== "" &&
-    editData.projectMasterEmail.trim() !== "" &&
-    editData.priorities !== "" &&
-    editData.projectStatus !== "" &&
+    (editData.projectName?.trim() || "") !== "" &&
+    (editData.projectMasterEmail?.trim() || "") !== "" &&
+    (editData.priorities || "") !== "" &&
+    (editData.projectStatus || "") !== "" &&
     Object.values(validationMsgOnEdit).every((error) => error === "") &&
     (isResidential
-      ? editData.channelName.trim() !== "" &&
-        editData.channelId.trim() !== ""
-      : editData.campus !== "" &&
-        editData.discordWebhook.trim() !== "" &&
-        editData.poc_of_project.trim() !== "") &&
-        editData.pmEmail.trim() !== "" &&
-    editData.priorities !== "" &&
-    editData.projectBudget !== "" &&
+      ? (editData.channelName?.trim() || "") !== "" &&
+        (editData.channelId?.trim() || "") !== ""
+      : (editData.campus || "") !== "" &&
+        (editData.discordWebhook?.trim() || "") !== "" &&
+        (editData.poc_of_project?.trim() || "") !== "") &&
+    (editData.projectMasterEmail?.trim() || "") !== "" &&
+    (editData.projectBudget || "") !== "" &&
     Number(editData.projectBudget) >= 0
   );
 };

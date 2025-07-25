@@ -65,19 +65,50 @@
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  margin-right: 15px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
 .add-btn {
-  background-color: #4CAF50;
+  background-color: rgb(69, 160, 73);
   color: white;
-  padding: 10px 15px;
+  padding: 10px 24px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-top: 10px;
-  width: 96%;
-  margin-left: 15px;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 120px;
+  transition: all 0.2s ease;
 }
+
 .add-btn:hover {
   background-color: #45A049;
+}
+
+.btn-cancel {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 10px 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 120px;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+  background-color: #e5e7eb;
 }
 
 /* Table Section */
@@ -263,9 +294,9 @@ th {
   .table-wrapper {
     overflow-x: auto;
   }
-  .form-container button{
+  .form-actions {
     max-width: 1066px;
-    margin-left: 14px;
+    margin-right: 14px;
   }
 }
 @media (max-width: 1024px) {
@@ -281,9 +312,9 @@ th {
   .form-fields {
     margin-left: 5px;
   }
-  .form-container button{
+  .form-actions {
     max-width: 690px;
-    margin-left: 5px;
+    margin-right: 5px;
   }
 
  .filters{
@@ -329,7 +360,7 @@ th {
     width: 225px;
   }
   
-  .form-container button{
+  .form-actions {
     max-width: 665px;
   }
   .filters{
@@ -379,9 +410,10 @@ th {
   .form-fields input, .form-fields select{
     width: 260px;
   }
-  .form-container button{
-    max-width: 230px;
-    margin-left: 0;
+  .form-actions {
+    max-width: 100%;
+    justify-content: center;
+    margin-right: 0;
   }
 
   .table-container h2{
@@ -441,9 +473,9 @@ th {
   .form-fields input, .form-fields select{
     width: 250px;
   }
-  .form-container button{
-    max-width: 220px;
-    margin-left: -10px;
+  .form-actions {
+    max-width: 100%;
+    margin-right: 0;
   }
 
   .modal-content{
@@ -469,8 +501,8 @@ th {
 }
 
 @media (max-width: 320px) {
-  .form-container button{
-   max-width: 220px;
+  .form-actions {
+    max-width: 100%;
   }
   .modal-content{
     width: 245px;

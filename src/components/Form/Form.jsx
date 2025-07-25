@@ -657,7 +657,7 @@ useEffect(() => {
     <div className="form-container" style={{ overflowY: "scroll", height: "100vh", marginTop: "-20px" }}>
       <LoadingSpinner loading={loading} className="loader-container" />
       <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
-        <h3 style={{ fontSize: "32px", fontWeight: "bold", color: "#000" }}>
+        <h3 style={{ fontSize: "30px", fontWeight: "bold", color: "#000" }}>
           Welcome Back, <span style={{ color: "#2E7D32" }}>{userName}</span>
         </h3>
         <h1

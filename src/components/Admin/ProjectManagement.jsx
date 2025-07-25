@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Modal, Box, Typography, Button, DialogActions, CircularProgress, FormControl, TextField, InputLabel, Select, MenuItem, Tooltip, FormHelperText } from "@mui/material"
+import { Modal, Box, Typography, Button, DialogActions, CircularProgress, FormControl, TextField, InputLabel, Select, MenuItem, Tooltip, FormHelperText, Snackbar } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
 import { handleBeforeUnload } from "../../utils/beforeUnloadHandler";
 import "./ProjectManagement.css";
 
@@ -104,6 +105,12 @@ const ProjectManagement = () => {
   status: "",
 });
 
+const [snackbarOpen, setSnackbarOpen] = useState(false);
+const [snackbarMessage, setSnackbarMessage] = useState("");
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -176,6 +183,17 @@ const ProjectManagement = () => {
   };
 
   useEffect(() => {
+  setFilters({
+    campus: "",
+    department: "",
+    projectName: "",
+    projectMasterEmail: "",
+    priorities: "",
+    projectStatus: "",
+  });
+}, [tabIndex]);
+
+  useEffect(() => {
     fetch(
       `${API_BASE_URL}/employees`
     )
@@ -234,6 +252,8 @@ const ProjectManagement = () => {
     }
     if (!data.projectBudget) {
       newErrors.projectBudget = "Please fill in the project budget*";
+    } else if (isNaN(data.projectBudget) || Number(data.projectBudget) < 0) {
+      newErrors.projectBudget = "Please enter a valid project budget*";
     }
     if (!data.priorities) {
       newErrors.priorities = "Please select a priority*";
@@ -257,7 +277,8 @@ const ProjectManagement = () => {
     })
       .then((response) => response.json())
       .then((newProject) => {
-        setProjects([...projects, newProject]);
+        setSnackbarMessage("Project added successfully!");
+        setSnackbarOpen(true);
         setData({
           department: selectedDept,
           projectName: "",
@@ -273,8 +294,9 @@ const ProjectManagement = () => {
           discordWebhook: "",
           poc_of_project: "",
         });
+        fetchResidentialProjects();
+        fetchNonResidentialProjects();
         window.removeEventListener("beforeunload", handleBeforeUnload);
-        window.location.reload(); 
       })
       .catch((error) => console.error("Error adding project:", error));
   };
@@ -299,6 +321,8 @@ const ProjectManagement = () => {
         return res.json();
       })
       .then((updatedProject) => {
+        setSnackbarMessage("Project updated successfully!");
+        setSnackbarOpen(true);
         const updatedProjects = [...projects];
         updatedProjects[editingIndex] = updatedProject;
         setProjects(updatedProjects);
@@ -320,8 +344,9 @@ const ProjectManagement = () => {
         });
         setIsEditMode(false);
         setEditingIndex(null);
+        fetchResidentialProjects();
+        fetchNonResidentialProjects();
         window.removeEventListener("beforeunload", handleBeforeUnload);
-        window.location.reload();
       })
       .catch((err) => console.error("Error updating project:", err));
   };
@@ -347,28 +372,32 @@ const isFormValid = () => {
   );
 };
 
-  useEffect(() => {
-    fetch(`${API_BASE_URL}/employees?ResidentialNonResi=Residential-Program`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data.data)) {
-          setResidentialProjects(data.data);
-        }
-      })
-      .catch((err) => console.error("Error fetching residential:", err))
-      .finally(() => setLoading(false));
-  }, []);
+  const fetchResidentialProjects = () => {
+  fetch(`${API_BASE_URL}/employees?ResidentialNonResi=Residential-Program`)
+    .then((res) => res.json())
+    .then((data) => {
+      if (Array.isArray(data.data)) {
+        setResidentialProjects(data.data);
+      }
+    })
+    .catch((err) => console.error("Error fetching residential:", err))
+    .finally(() => setLoading(false));
+};
+
+const fetchNonResidentialProjects = () => {
+  fetch(`${API_BASE_URL}/employees?ResidentialNonResi=Non-Residential`)
+    .then((res) => res.json())
+    .then((data) => {
+      if (Array.isArray(data.data)) {
+        setNonResidentialProjects(data.data);
+      }
+    })
+    .catch((err) => console.error("Error fetching non-residential:", err));
+};
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/employees?ResidentialNonResi=Non-Residential`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data.data)) {
-          setNonResidentialProjects(data.data);
-        }
-      })
-      .catch((err) => console.error("Error fetching non-residential:", err))
-      // .finally(() => setLoading(false));
+    fetchResidentialProjects();
+    fetchNonResidentialProjects();
   }, []);
 
   return (
@@ -590,6 +619,16 @@ const isFormValid = () => {
           Add Project
         </button>
       </div>
+      <Snackbar
+  open={snackbarOpen}
+  autoHideDuration={3000}
+  onClose={() => setSnackbarOpen(false)}
+  anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+>
+  <Alert onClose={() => setSnackbarOpen(false)} severity="success" sx={{ width: "100%" }}>
+    {snackbarMessage}
+  </Alert>
+</Snackbar>
 
       <div className="table-container">
         <h2>Project List</h2>

@@ -117,7 +117,7 @@ const MonthlyDashboard = () => {
 
   // Memoized email getter
   const email = useMemo(() => {
-    return sessionStorage.getItem("email") ?? "";
+    return localStorage.getItem("email") ?? "";
   }, []);
 
   // Memoized days calculation

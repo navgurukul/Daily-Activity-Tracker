@@ -192,7 +192,7 @@ function Login() {
 
   useEffect(() => {
     // ============== YOUR EXISTING NAVIGATION LOGIC PRESERVED ==============
-    sessionStorage.getItem("email")
+    localStorage.getItem("email")
       ? navigate("/activity-tracker")
       : navigate("/");
   }, []);
@@ -220,7 +220,7 @@ function Login() {
     const userName = decoded?.name;
 
     // ============== ALL EXISTING JWT LOGIC PRESERVED ==============
-    sessionStorage.setItem("jwtToken", jwtToken);
+    localStorage.setItem("jwtToken", jwtToken);
 
     // ============== ALL EXISTING EMAIL VALIDATION PRESERVED ==============
     const username = userEmail.split("@")[0];
@@ -262,7 +262,7 @@ function Login() {
         const department = userRecord?.Department || "Not Available";
 
         // ============== ALL EXISTING STORAGE PRESERVED + ENHANCED ==============
-        sessionStorage.setItem("email", userEmail);
+        localStorage.setItem("email", userEmail);
         localStorage.setItem("name", userName);
         localStorage.setItem("role", rawRole); // Store the role for context to pick up
         localStorage.setItem("department", department);

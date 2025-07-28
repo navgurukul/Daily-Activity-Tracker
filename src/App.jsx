@@ -37,7 +37,7 @@ function App() {
   }, []);
 
   const ProtectedRoute = ({ children }) => {
-  const email = sessionStorage.getItem("email");
+  const email = localStorage.getItem("email");
   return email ? children : <Navigate to="/" replace />;
 };
 

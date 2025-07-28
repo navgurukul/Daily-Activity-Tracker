@@ -36,7 +36,7 @@ function DailyLogs() {
   const [year, setYear] = useState("");
   const [emailsList, setEmailsList] = useState([]);
   const [projectList, setProjectList] = useState([]);
-  const userEmail = sessionStorage.getItem("email");
+  const userEmail = localStorage.getItem("email");
   const [editLog, setEditLog] = useState(null);
   const [editedData, setEditedData] = useState({
     Id: "",
@@ -218,7 +218,7 @@ function DailyLogs() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
           },
           body: JSON.stringify([{ ...editedData, logStatus: "approved" }]),
         }
@@ -267,7 +267,7 @@ function DailyLogs() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
           },
           body: JSON.stringify([{ Id: logToApprove.Id, approvalEmail: userEmail, logStatus: "approved" }]),
         }
@@ -299,7 +299,7 @@ function DailyLogs() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
           },
           body: JSON.stringify([{ Id: logToReject.Id, approvalEmail: userEmail, logStatus: "rejected" }]),
         }

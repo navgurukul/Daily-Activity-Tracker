@@ -106,7 +106,7 @@ const LeaveManagement = () => {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
           },
           body: JSON.stringify({
             Id: leaveId,
@@ -275,8 +275,8 @@ const LeaveManagement = () => {
     setIsApproving(true);
 
     const approverEmail = email;
-    const token = sessionStorage.getItem("jwtToken");
-    
+    const token = localStorage.getItem("jwtToken");
+
     const leaveData = pendingLeaves
     .filter((leave) => selectedLeave.includes(leave.Id))
     .map((leave) => ({

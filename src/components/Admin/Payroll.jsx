@@ -44,7 +44,7 @@ const Payroll = () => {
 
   useEffect(() => {
     const fetchPayrollData = async () => {
-      const token = sessionStorage.getItem("jwtToken");
+      const token = localStorage.getItem("jwtToken");
 
       if (!token) {
         console.error("JWT token not found in local storage.");
@@ -166,7 +166,7 @@ async function downloadCSV() {
   try {
     const response = await fetch(`${API_BASE_URL}/payableDaysCalculation`, {
       headers: {
-        Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+        Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
       },
     });
 

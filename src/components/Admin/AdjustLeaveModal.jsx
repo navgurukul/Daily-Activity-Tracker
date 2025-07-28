@@ -119,7 +119,7 @@ const AdjustLeaveModal = ({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
         },
         body: JSON.stringify(payload),
       }

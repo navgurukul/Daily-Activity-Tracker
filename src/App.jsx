@@ -21,6 +21,8 @@ import ProjectManagement from "./components/Admin/ProjectManagement";
 
 import Unauthorized from "./components/Unauthorized/Unauthorized";
 
+import { Box, CircularProgress } from "@mui/material";
+
 function App() {
   const dataContext = useContext(LoginContext);
   const { email, isAdmin, loading } = dataContext;
@@ -91,7 +93,17 @@ function App() {
             path="/admin"
             element={
               loading ? (
-                <div>Loading...</div>
+                <Box
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "400px",
+                  }}
+                >
+                  Loading...
+                  <CircularProgress style={{ marginLeft: "10px" }} />
+                </Box>
               ) : (
                 <ProtectedRoute>
                   {isAdmin ? <AdminDashboard /> : <Navigate to="/unauthorized" replace />}
@@ -111,7 +123,17 @@ function App() {
             path="/role-update"
             element={
               loading ? (
-                <div>Loading...</div>
+                <Box
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "400px",
+                  }}
+                >
+                  Loading...
+                  <CircularProgress style={{ marginLeft: "10px" }} />
+                </Box>
               ) : (
                 <ProtectedRoute>
                   {isAdmin ? <RoleUpdateForm /> : <Navigate to="/unauthorized" replace />}
@@ -123,7 +145,17 @@ function App() {
             path="/project-management"
             element={
               loading ? (
-                <div>Loading...</div>
+                <Box
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "400px",
+                  }}
+                >
+                  Loading...
+                  <CircularProgress style={{ marginLeft: "10px" }} />
+                </Box>
               ) : (
                 <ProtectedRoute>
                   {isAdmin ? <ProjectManagement /> : <Navigate to="/unauthorized" replace />}

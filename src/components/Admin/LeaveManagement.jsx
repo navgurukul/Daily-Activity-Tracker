@@ -32,6 +32,7 @@ const LeaveManagement = () => {
   const [loading, setLoading] = useState(false);
   const [selectedLeave, setSelectedLeave] = useState([]);
 
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   // NEW STATE FOR MODAL
@@ -337,6 +338,68 @@ const LeaveManagement = () => {
     setSelectedLeave(allIds);
   } else {
     setSelectedLeave([]);
+  }
+};
+
+const downloadCSV = async () => {
+  setIsDownloading(true); // show loader
+
+  let currentPage = 1;
+  const totalPages = 45;
+  let allUsers = [];
+
+  try {
+    while (currentPage <= totalPages) {
+      const response = await fetch(`${API_BASE_URL}/employmentLeavePolicy?page=${currentPage}`);
+      const result = await response.json();
+
+      if (result.success) {
+        const pageData = result.data || [];
+        if (pageData.length > 0) {
+          allUsers.push(...pageData);
+        }
+      }
+      currentPage++;
+    }
+
+    if (allUsers.length === 0) {
+      alert('No data found.');
+      return;
+    }
+
+    const rows = [];
+    allUsers.forEach((user) => {
+      user.leaveRecords.forEach((record) => {
+        rows.push({
+          Email: user.userEmail,
+          LeaveType: record.leaveType,
+          UsedLeaves: record.usedLeaves,
+          PendingLeaves: record.pendingLeaves,
+          AllottedLeaves: record.totalLeavesAllotted,
+          LeaveLeft: record.leaveLeft,
+        });
+      });
+    });
+
+    const header = ['Email', 'LeaveType', 'UsedLeaves', 'PendingLeaves', 'AllottedLeaves', 'LeaveLeft'];
+    const csvContent = [
+      header.join(','),
+      ...rows.map(row => header.map(field => `"${row[field]}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'leave_data.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    console.error('Error downloading:', error);
+    alert('Error occurred during download.');
+  } finally {
+    setIsDownloading(false); // hide loader
   }
 };
 
@@ -746,8 +809,43 @@ const LeaveManagement = () => {
               >
                 Adjust Leaves
               </Button>
+              <Button variant="contained" onClick={downloadCSV}
+  sx={{
+    backgroundColor: '#1976D2',
+    color: '#fff',
+    fontWeight: 'bold',
+    textTransform: 'none',
+    px: 3,
+    py: 1,
+    borderRadius: 2,
+    boxShadow: 2,
+    '&:hover': {
+      backgroundColor: '#115293',
+    }
+  }}>
+    Download CSV
+  </Button>
             </Box>
           </div>
+
+          {isDownloading && (
+  <div style={{
+    position: 'fixed',
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    zIndex: 9999,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  }}>
+    <CircularProgress size={60} thickness={5} />
+    <p style={{ marginTop: 20, fontSize: 18, color: '#333', textAlign: 'center' }}>
+      Downloading leave records…<br />
+      This may take more than a minute. Please wait patiently.
+    </p>
+  </div>
+)}
 
           <div className="balance-data">
             {loadingBalance ? (

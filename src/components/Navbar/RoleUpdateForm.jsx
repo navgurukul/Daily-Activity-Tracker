@@ -138,7 +138,7 @@ const handleAssignRole = async (e) => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+        Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
       },
     });
 
@@ -171,7 +171,7 @@ const handleAssignRole = async (e) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+        Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
       },
       body: JSON.stringify(payload),
     });
@@ -226,7 +226,7 @@ const handleAssignRole = async (e) => {
         headers: {
           "Content-Type": "application/json",
           // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-          Authorization: `Bearer ${sessionStorage.getItem("jwtToken")}`,
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
         },
       });
       if (res.ok) {

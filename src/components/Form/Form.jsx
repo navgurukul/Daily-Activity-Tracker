@@ -153,7 +153,7 @@ const Form = () => {
   };
 
   useEffect(() => {
-  let email = sessionStorage.getItem("email") ?? "";
+  let email = localStorage.getItem("email") ?? "";
   setAttemptLoading(true);
 
   const initPreviousEntries = () => {

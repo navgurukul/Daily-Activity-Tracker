@@ -5,7 +5,7 @@ const LoginContext = createContext();
 
 function LoginProvider({ children }) {
   // ============== EXISTING STATE PRESERVED (EXACTLY AS YOUR CODE) ==============
-  const [email, setEmail] = useState(sessionStorage.getItem("email") || "");
+  const [email, setEmail] = useState(localStorage.getItem("email") || "");
   const [userRoles, setUserRoles] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -78,7 +78,7 @@ const canSeeProjectManagement = () => {
     const checkIfAdminUser = async () => {
       try {
         // ============== YOUR EXISTING LOGIC EXACTLY PRESERVED ==============
-        const userEmail = sessionStorage.getItem("email") ?? "";
+        const userEmail = localStorage.getItem("email") ?? "";
         if (!userEmail) return;
         const roleUrl = `${API_BASE_URL}/accessControl?email=${userEmail}`;
         const res = await fetch(roleUrl);

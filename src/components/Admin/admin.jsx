@@ -21,7 +21,7 @@ const admin = () => {
   };
   return (
     <div className="admin-container">
-      <h1 className="admin-title">Admin - Project Tracker</h1>
+      <h1 className="admin-title">Admin - Project Tracker </h1>
       {/* Form to Add New Project */}
       <div className="form-container">
         <h2>Add New Project</h2>

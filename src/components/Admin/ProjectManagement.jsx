@@ -1,5 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Modal, Box, Typography, Button, DialogActions, CircularProgress, FormControl, TextField, InputLabel, Select, MenuItem, Tooltip, FormHelperText, Snackbar } from "@mui/material";
+import {
+  Modal,
+  Box,
+  Typography,
+  Button,
+  DialogActions,
+  CircularProgress,
+  FormControl,
+  TextField,
+  InputLabel,
+  Select,
+  MenuItem,
+  Tooltip,
+  FormHelperText,
+  Snackbar,
+} from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import { handleBeforeUnload } from "../../utils/beforeUnloadHandler";
 import AddProjectModal from "./AddProjectModal";
@@ -64,9 +79,9 @@ const ProjectManagement = () => {
     "Pune",
     "Team Channels",
     "Support Team Updates",
-    "Raigarh"
+    "Raigarh",
   ]);
-  
+
   const [open, setOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -123,11 +138,21 @@ const ProjectManagement = () => {
   useEffect(() => {
     const filtered = projects.filter((project) => {
       return (
-        (project.department || "").toLowerCase().includes(filters.department.toLowerCase()) &&
-        (project.campus || "").toLowerCase().includes(filters.campus.toLowerCase()) &&
-        (project.projectName || "").toLowerCase().includes(filters.projectName.toLowerCase()) &&
-        (project.projectMasterEmail || "").toLowerCase().includes(filters.projectMasterEmail.toLowerCase()) &&
-        (project.projectStatus || "").toLowerCase().includes(filters.projectStatus.toLowerCase())
+        (project.department || "")
+          .toLowerCase()
+          .includes(filters.department.toLowerCase()) &&
+        (project.campus || "")
+          .toLowerCase()
+          .includes(filters.campus.toLowerCase()) &&
+        (project.projectName || "")
+          .toLowerCase()
+          .includes(filters.projectName.toLowerCase()) &&
+        (project.projectMasterEmail || "")
+          .toLowerCase()
+          .includes(filters.projectMasterEmail.toLowerCase()) &&
+        (project.projectStatus || "")
+          .toLowerCase()
+          .includes(filters.projectStatus.toLowerCase())
       );
     });
     setFilteredProjects(filtered);
@@ -266,20 +291,21 @@ const ProjectManagement = () => {
   // FIXED: Simplified validation logic
   const isFormValid = () => {
     const isNonResidential = selectedDept !== "Residential Program";
-    
+
     console.log("Form validation check:", {
       projectName: editData.projectName,
       projectMasterEmail: editData.projectMasterEmail,
       projectBudget: editData.projectBudget,
       projectStatus: editData.projectStatus,
       selectedDept: selectedDept,
-      isNonResidential: isNonResidential
+      isNonResidential: isNonResidential,
     });
-    
+
     // Basic required fields check
     if (!editData.projectName?.trim()) return false;
     if (!editData.projectMasterEmail?.trim()) return false;
-    if (!editData.projectBudget || Number(editData.projectBudget) < 0) return false;
+    if (!editData.projectBudget || Number(editData.projectBudget) < 0)
+      return false;
     if (!editData.projectStatus) return false;
 
     // Type-specific validation - MADE CHANNELID OPTIONAL
@@ -291,7 +317,9 @@ const ProjectManagement = () => {
     // Note: Removed channelId requirement for Non-Residential projects
 
     // Check if there are validation errors
-    const hasErrors = Object.values(validationMsgOnEdit).some((error) => error !== "");
+    const hasErrors = Object.values(validationMsgOnEdit).some(
+      (error) => error !== ""
+    );
     if (hasErrors) return false;
 
     return true;
@@ -303,38 +331,49 @@ const ProjectManagement = () => {
       style={{ overflowY: "scroll", height: "90vh" }}
     >
       {/* Header with Add Project Button */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "30px",
+        }}
+      >
         <div>
-          <h1 className="admin-title" style={{ textAlign: 'left', margin: 0 }}>Project Dashboard</h1>
-          <p style={{ color: '#666', margin: '5px 0 0 0', fontSize: '16px' }}>Manage and track all your projects</p>
+          <h1 className="admin-title" style={{ textAlign: "left", margin: 0 }}>
+            Project Dashboard
+          </h1>
+          <p style={{ color: "#666", margin: "5px 0 0 0", fontSize: "16px" }}>
+            Manage and track all your projects
+          </p>
         </div>
         <button
           onClick={() => setIsAddModalOpen(true)}
           style={{
-            background: 'linear-gradient(135deg, #4CAF50, #45a049)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            padding: '12px 20px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            boxShadow: '0 2px 8px rgba(76, 175, 80, 0.3)',
-            transition: 'all 0.2s ease'
+            background: "linear-gradient(135deg, #4CAF50, #45a049)",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            padding: "12px 20px",
+            fontSize: "14px",
+            fontWeight: "600",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            boxShadow: "0 2px 8px rgba(76, 175, 80, 0.3)",
+            transition: "all 0.2s ease",
           }}
           onMouseOver={(e) => {
-            e.target.style.transform = 'translateY(-1px)';
-            e.target.style.boxShadow = '0 4px 12px rgba(76, 175, 80, 0.4)';
+            e.target.style.transform = "translateY(-1px)";
+            e.target.style.boxShadow = "0 4px 12px rgba(76, 175, 80, 0.4)";
           }}
           onMouseOut={(e) => {
-            e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = '0 2px 8px rgba(76, 175, 80, 0.3)';
+            e.target.style.transform = "translateY(0)";
+            e.target.style.boxShadow = "0 2px 8px rgba(76, 175, 80, 0.3)";
           }}
         >
-          <span style={{ fontSize: '16px', fontWeight: 'bold' }}>+</span>
+          <span style={{ fontSize: "16px", fontWeight: "bold" }}>+</span>
           Add Project
         </button>
       </div>
@@ -346,21 +385,25 @@ const ProjectManagement = () => {
         onSubmit={handleAddProjectSubmit}
         departments={departments}
       />
-      
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={() => setSnackbarOpen(false)}
         anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       >
-        <Alert onClose={() => setSnackbarOpen(false)} severity="success" sx={{ width: "100%" }}>
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>
 
       <div className="table-container">
         <h2>All Projects</h2>
-        
+
         {/* Updated Filters - Show all filter options */}
         <div className="filters">
           <h4>Filters:</h4>
@@ -375,13 +418,13 @@ const ProjectManagement = () => {
           />
 
           {/* Campus Filter */}
-          <input
+          {/* <input
             type="text"
             name="campus"
             placeholder="Filter by Campus"
             value={filters.campus}
             onChange={handleFilterChange}
-          />
+          /> */}
 
           {/* Common Filters */}
           <input
@@ -403,7 +446,9 @@ const ProjectManagement = () => {
             value={filters.projectStatus}
             onChange={handleFilterChange}
           >
-            <option value="" disabled>Select Status</option>
+            <option value="" disabled>
+              Select Status
+            </option>
             <option value="">All</option>
             <option value="Active">Active</option>
             <option value="InActive">InActive</option>
@@ -416,7 +461,15 @@ const ProjectManagement = () => {
         {/* Single Unified Table */}
         <div className="table-wrapper">
           {loading ? (
-            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                mt: 5,
+                gap: 1,
+              }}
+            >
               <p>Loading...</p>
               <CircularProgress />
             </Box>
@@ -434,10 +487,12 @@ const ProjectManagement = () => {
                 </thead>
                 <tbody>
                   {filteredProjects.map((project, index) => (
-                    <tr key={index} onClick={() => handleOpen(project)} style={{ cursor: "pointer" }}>
-                      <td>
-                        {project.campus || project.department}
-                      </td>
+                    <tr
+                      key={index}
+                      onClick={() => handleOpen(project)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <td>{project.campus || project.department}</td>
                       <td>{project.projectName}</td>
                       <td>{project.projectMasterEmail}</td>
                       <td>{project.projectStatus}</td>
@@ -466,40 +521,50 @@ const ProjectManagement = () => {
                         Project Details
                       </Typography>
                       <Typography>
-                        <strong>Type:</strong> {selectedProject.department === "Residential Program" ? "Residential" : "Non-Residential"}
+                        <strong>Type:</strong>{" "}
+                        {selectedProject.department === "Residential Program"
+                          ? "Residential"
+                          : "Non-Residential"}
                       </Typography>
-                      
-                      {/* Show different fields based on project type */}
-                      {selectedProject.department === "Residential Program" ? (
-                        <>
-                          <Typography><strong>Campus:</strong> {selectedProject.campus}</Typography>
-                          <Typography><strong>POC:</strong> {selectedProject.poc_of_project}</Typography>
-                        </>
-                      ) : (
-                        <>
-                          <Typography><strong>Department:</strong> {selectedProject.department}</Typography>
-                          <Typography><strong>Channel ID:</strong> {selectedProject.channelId}</Typography>
-                        </>
-                      )}
-                      
-                      <Typography><strong>Project Name:</strong> {selectedProject.projectName}</Typography>
-                      <Typography><strong>PM Email:</strong> {selectedProject.projectMasterEmail}</Typography>
+
                       <Typography>
-                        <strong>Discord Webhook:</strong> 
-                        <span style={{ 
-                          wordBreak: 'break-all', 
-                          fontSize: '12px',
-                          color: '#666',
-                          display: 'block',
-                          marginTop: '4px',
-                          lineHeight: '1.4',
-                          whiteSpace: 'normal'
-                        }}>
-                          {selectedProject.discordWebhook || 'Not provided'}
+                        <strong>Department:</strong>{" "}
+                        {selectedProject.department}
+                      </Typography>
+
+                      <Typography>
+                        <strong>Project Name:</strong>{" "}
+                        {selectedProject.projectName}
+                      </Typography>
+                      <Typography>
+                        <strong>PM Email:</strong>{" "}
+                        {selectedProject.projectMasterEmail}
+                      </Typography>
+                      <Typography>
+                        <strong>Channel ID:</strong> {selectedProject.channelId}
+                      </Typography>
+                      <Typography>
+                        <strong>Discord Webhook:</strong>
+                        <span
+                          style={{
+                            wordBreak: "break-all",
+                            fontSize: "12px",
+                            color: "#666",
+                            display: "block",
+                            marginTop: "4px",
+                            lineHeight: "1.4",
+                            whiteSpace: "normal",
+                          }}
+                        >
+                          {selectedProject.discordWebhook || "Not provided"}
                         </span>
                       </Typography>
-                      <Typography><strong>Budget:</strong> {selectedProject.projectBudget}</Typography>
-                      <Typography><strong>Status:</strong> {selectedProject.projectStatus}</Typography>
+                      <Typography>
+                        <strong>Budget:</strong> {selectedProject.projectBudget}
+                      </Typography>
+                      <Typography>
+                        <strong>Status:</strong> {selectedProject.projectStatus}
+                      </Typography>
                       <Box
                         sx={{
                           display: "flex",
@@ -508,7 +573,11 @@ const ProjectManagement = () => {
                           mb: 0,
                         }}
                       >
-                        <Button variant="contained" color="success" onClick={handleClose}>
+                        <Button
+                          variant="contained"
+                          color="success"
+                          onClick={handleClose}
+                        >
                           Close
                         </Button>
                       </Box>
@@ -522,10 +591,10 @@ const ProjectManagement = () => {
           )}
         </div>
       </div>
-      
+
       {/* EDIT PROJECT MODAL - BOTH ISSUES FIXED */}
       {isEditMode && (
-        <div 
+        <div
           className="modal-overlay edit-modal"
           onClick={(e) => {
             if (e.currentTarget === e.target) {
@@ -533,33 +602,32 @@ const ProjectManagement = () => {
             }
           }}
         >
-          <div 
-            className="modal-content edit-modal" 
-            style={{ 
-              maxHeight: '90vh', 
-              overflowY: 'auto',
-              position: 'relative'
+          <div
+            className="modal-content edit-modal"
+            style={{
+              maxHeight: "90vh",
+              overflowY: "auto",
+              position: "relative",
             }}
           >
             <button
               className="close-button"
               onClick={() => {
-                setIsEditMode(false)
+                setIsEditMode(false);
               }}
             >
               &times;
             </button>
             <h2>Edit Project</h2>
-            <Box 
-              className="update-form-fields" 
-              sx={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
+            <Box
+              className="update-form-fields"
+              sx={{
+                display: "flex",
+                flexDirection: "column",
                 gap: 2,
-                position: 'relative'
+                position: "relative",
               }}
             >
-
               {/* Project Name - Disabled */}
               <TextField
                 label="Project Name"
@@ -595,18 +663,18 @@ const ProjectManagement = () => {
                       MenuProps={{
                         anchorOrigin: {
                           vertical: "bottom",
-                          horizontal: "left"
+                          horizontal: "left",
                         },
                         transformOrigin: {
                           vertical: "top",
-                          horizontal: "left"
+                          horizontal: "left",
                         },
                         PaperProps: {
                           style: {
                             maxHeight: 200,
-                            zIndex: 9999
-                          }
-                        }
+                            zIndex: 9999,
+                          },
+                        },
                       }}
                       onChange={(e) => {
                         const value = e.target.value;
@@ -624,7 +692,9 @@ const ProjectManagement = () => {
                       ))}
                     </Select>
                     {!!validationMsgOnEdit.campus && (
-                      <FormHelperText>{validationMsgOnEdit.campus}</FormHelperText>
+                      <FormHelperText>
+                        {validationMsgOnEdit.campus}
+                      </FormHelperText>
                     )}
                   </FormControl>
 
@@ -640,7 +710,10 @@ const ProjectManagement = () => {
                       setEditData({ ...editData, poc_of_project: value });
                       setValidationMsgOnEdit((prev) => ({
                         ...prev,
-                        pocOfProject: value.trim() === "" ? "POC of project can't be empty" : "",
+                        pocOfProject:
+                          value.trim() === ""
+                            ? "POC of project can't be empty"
+                            : "",
                       }));
                     }}
                     error={!!validationMsgOnEdit.pocOfProject}
@@ -660,7 +733,8 @@ const ProjectManagement = () => {
                   setEditData({ ...editData, projectMasterEmail: value });
                   setValidationMsgOnEdit((prev) => ({
                     ...prev,
-                    pmEmail: value.trim() === "" ? "PM email can't be empty" : "",
+                    pmEmail:
+                      value.trim() === "" ? "PM email can't be empty" : "",
                   }));
                 }}
                 error={!!validationMsgOnEdit.pmEmail}
@@ -691,7 +765,10 @@ const ProjectManagement = () => {
                   setEditData({ ...editData, projectBudget: value });
                   setValidationMsgOnEdit((prev) => ({
                     ...prev,
-                    projectBudget: value.trim() === "" ? "Project budget can't be empty" : "",
+                    projectBudget:
+                      value.trim() === ""
+                        ? "Project budget can't be empty"
+                        : "",
                   }));
                 }}
                 error={!!validationMsgOnEdit.projectBudget}
@@ -699,7 +776,10 @@ const ProjectManagement = () => {
               />
 
               {/* STATUS DROPDOWN - COMPLETELY FIXED */}
-              <FormControl fullWidth error={!!validationMsgOnEdit.projectStatus}>
+              <FormControl
+                fullWidth
+                error={!!validationMsgOnEdit.projectStatus}
+              >
                 <InputLabel>Status</InputLabel>
                 <Select
                   value={editData.projectStatus || ""}
@@ -707,26 +787,27 @@ const ProjectManagement = () => {
                   MenuProps={{
                     anchorOrigin: {
                       vertical: "bottom",
-                      horizontal: "left"
+                      horizontal: "left",
                     },
                     transformOrigin: {
-                      vertical: "top", 
-                      horizontal: "left"
+                      vertical: "top",
+                      horizontal: "left",
                     },
                     PaperProps: {
                       style: {
                         maxHeight: 200,
-                        zIndex: 9999
-                      }
+                        zIndex: 9999,
+                      },
                     },
-                    disablePortal: true
+                    disablePortal: true,
                   }}
                   onChange={(e) => {
                     const value = e.target.value;
                     setEditData({ ...editData, projectStatus: value });
                     setValidationMsgOnEdit((prev) => ({
                       ...prev,
-                      projectStatus: value === "" ? "Project status can't be empty" : "",
+                      projectStatus:
+                        value === "" ? "Project status can't be empty" : "",
                     }));
                   }}
                 >
@@ -734,31 +815,31 @@ const ProjectManagement = () => {
                   <MenuItem value="InActive">InActive</MenuItem>
                 </Select>
                 {!!validationMsgOnEdit.projectStatus && (
-                  <FormHelperText>{validationMsgOnEdit.projectStatus}</FormHelperText>
+                  <FormHelperText>
+                    {validationMsgOnEdit.projectStatus}
+                  </FormHelperText>
                 )}
               </FormControl>
-
             </Box>
-            <button 
-              className="update-btn" 
+            <button
+              className="update-btn"
               onClick={handleUpdateProject}
               disabled={!isFormValid()}
               style={{
                 opacity: !isFormValid() ? 0.6 : 1,
-                cursor: !isFormValid() ? 'not-allowed' : 'pointer',
-                marginTop: '20px',
-                backgroundColor: isFormValid() ? '#4CAF50' : '#ccc',
-                color: 'white',
-                border: 'none',
-                padding: '12px 24px',
-                borderRadius: '6px',
-                fontSize: '16px',
-                fontWeight: '600'
+                cursor: !isFormValid() ? "not-allowed" : "pointer",
+                marginTop: "20px",
+                backgroundColor: isFormValid() ? "#4CAF50" : "#ccc",
+                color: "white",
+                border: "none",
+                padding: "12px 24px",
+                borderRadius: "6px",
+                fontSize: "16px",
+                fontWeight: "600",
               }}
             >
               Update Project
             </button>
-
           </div>
         </div>
       )}

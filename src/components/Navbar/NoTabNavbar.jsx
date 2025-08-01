@@ -1,5 +1,5 @@
 import React from "react";
-import "./NoTab.css"
+import "./NoTabNavbar.css";
 
 const NoTabNavBar = () => {
   return (
@@ -13,14 +13,8 @@ const NoTabNavBar = () => {
         marginTop: "0",
       }}
     >
-      <h1
-        className="no-tab-heading"
-        style={{
-          textAlign: "center",
-          fontSize: "1.5rem",
-        }}
-      >
-        Welcome to Samyarth Daily Activities Tracker
+      <h1 className="no-tab-heading">
+        Welcome to the Daily Activities Tracker
       </h1>
     </nav>
   );

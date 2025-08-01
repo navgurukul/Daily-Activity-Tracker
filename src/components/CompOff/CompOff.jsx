@@ -4,8 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import LoadingSpinner from "../Loader/LoadingSpinner";
 import { useLoader } from "../context/LoadingContext";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import { Snackbar, Alert } from "@mui/material";
+import { Snackbar, Alert, Box, Typography, Autocomplete, TextField } from "@mui/material";
 import url from "../../../public/api";
 
 const CompOff = () => {
@@ -14,6 +13,10 @@ const CompOff = () => {
   const { loading, setLoading } = useLoader();
   const navigate = useNavigate();
   const [showAuthError, setShowAuthError] = useState(false);
+
+  const [emailList, setEmailList] = useState([]);
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const getTodayDate = () => {
     const today = new Date();
@@ -24,285 +27,277 @@ const CompOff = () => {
   };
 
   const [leaveData, setLeaveData] = useState({
-    type: "compOff",
-    reason: "",
-    fromDate: getTodayDate(),
-    toDate: getTodayDate(),
-    email: "",
+    leaveType: "Compensatory Leave",
+    reasonForLeave: "",
+    startDate: getTodayDate(),
+    endDate: getTodayDate(),
+    userEmail: "",
+    leaveIsRaisingFrom: email,
+    durationType: "",  // full-day or half-day
+    halfDayStatus: "", // first-half or second-half
+    status: "pending",
   });
 
-  const [halfDay, setHalfDay] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-
-  // Check for authentication and email
-  useEffect(() => {
-    if (!email) {
-      navigate("/");
-      return;
-    }
-
-    if (sessionStorage.getItem("isAuth") !== "true") {
-      setShowAuthError(true);
-      setTimeout(() => {
-        navigate("/activity-tracker");
-      }, 2000);
-    }
-  }, [email, navigate]);
+  const [fieldErrors, setFieldErrors] = useState({
+    userEmail: "",
+    reasonForLeave: "",
+    durationType: "",
+    halfDayStatus: "",
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setLeaveData({
-      ...leaveData,
+    setLeaveData((prevData) => ({
+      ...prevData,
       [name]: value,
-    });
+    }));
   };
 
-  const handleHalfDayChange = (e) => {
-    setHalfDay(e.target.checked);
-  };
-
-  // Your existing calculateNumberOfDays function
-// const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
-//   const from = new Date(fromDate);
-//   const to = new Date(toDate);
-//   let totalDays = 0;
-//   let currentDate = new Date(from);
-
-//   // Count each eligible day
-//   while (currentDate <= to) {
-//     const dayOfWeek = currentDate.getDay();
-//     const dateOfMonth = currentDate.getDate();
-//     const isSecondSaturday =
-//       dayOfWeek === 6 && dateOfMonth >= 8 && dateOfMonth <= 14;
-//     const isFourthSaturday =
-//       dayOfWeek === 6 && dateOfMonth >= 22 && dateOfMonth <= 28;
-
-//     // Only count Sundays and specified Saturdays
-//     if (dayOfWeek === 0 || isSecondSaturday || isFourthSaturday) {
-//       totalDays += 1;
-//     }
-
-//     currentDate.setDate(currentDate.getDate() + 1);
-//   }
-
-//   // Handle half day cases
-//   if (halfDay) {
-//     if (from.getTime() === to.getTime()) {
-//       // Single day selection with half day
-//       totalDays = 0.5;
-//     } else if (totalDays === 2) {
-//       // Two day selection with half day
-//       totalDays = 1.5;
-//     }
-//   }
-
-//   // Cap at maximum 2 days
-//   return Math.min(totalDays, 2);
-  // };
-  
-const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
-  const from = new Date(fromDate);
-  const to = new Date(toDate);
-
-  // Helper function to check if a date is weekend
-  const isWeekend = (date) => {
-    const day = date.getDay();
-    return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
-  };
-
-  // If same day
-  if (from.getTime() === to.getTime()) {
-    return 1;
-  }
-
-  // Calculate the difference in days
-  const diffTime = Math.abs(to - from);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Adding 1 to include both start and end dates
-
-  // Handle half day case
-  if (halfDay) {
-    // If consecutive days (difference is 1 day)
-    if (diffDays === 2) {
-      return 1.5;
-    }
-  }
-
-  return diffDays;
-};
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
     setLoading(true);
     handleLoading(true);
-    if (
-      !leaveData.reason ||
-      !leaveData.fromDate || 
-      !leaveData.toDate ||
-      !leaveData.email
-    ) {
-      setError("All fields are required.");
-      setLoading(false);
-      handleLoading(false);
-      return;
-    }
-
-    const numberOfDays = JSON.stringify(
-      calculateNumberOfDays(leaveData.fromDate, leaveData.toDate, halfDay)
-    );
-    
-
-    const leaveDataWithDays = {
-      ...leaveData,
-      numberOfDays,
+    // 🗝️ Local validation
+    const errors = {
+      userEmail: leaveData.userEmail.trim() === "" ? "Please select an email*" : "",
+      reasonForLeave: leaveData.reasonForLeave.trim() === "" ? "Please enter a reason*" : "",
+      durationType: leaveData.durationType.trim() === "" ? "Please select a duration type*" : "",
+      halfDayStatus:
+        leaveData.durationType === "half-day" && leaveData.halfDayStatus.trim() === ""
+          ? "Please select a half day status*"
+          : "",
     };
 
-    setError("");
+    setFieldErrors(errors);
 
-    fetch(
-      "https://script.google.com/macros/s/AKfycbw8_FJNtP7duzyAvXqJwyPI-zpzNSY8fpkH4osGbdUGlMGbGZahsPFSeAF9NlsJtnwx/exec",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(leaveDataWithDays),
-        mode: "no-cors",
+    // If any error exists, stop submit
+    if (Object.values(errors).some(Boolean)) {
+      setLoading(false);
+      handleLoading(false);
+      return; // Stop
+    }
+
+    const payload = { ...leaveData };
+    if (payload.durationType !== "half-day") {
+      delete payload.halfDayStatus;
+    }
+
+    const token = localStorage.getItem("jwtToken");
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/employmentLeavePolicy/Compensatory`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const responseData = await response.json();
+      console.log(responseData, "Response from API");
+
+      if (!response.ok) {
+        // Show the specific message from backend if available
+        const errorMessage =
+          responseData?.message || "Failed to submit leave request.";
+        throw new Error(errorMessage);
       }
-    )
-      .then((response) => response.text())
-      .then((data) => {
-        setSuccessMessage("Compensatory request submitted successfully!");
-        setLeaveData({
-          type: "compOff",
-          reason: "",
-          fromDate: getTodayDate(),
-          toDate: getTodayDate(),
-          email: "",
-        });
-        setHalfDay(false);
-        setLoading(false);
-        handleLoading(false);
-        setTimeout(() => setSuccessMessage(""), 4000);
-      })
-      .catch((error) => {
-        console.error("Error sending data to Google Apps Script:", error);
-        setError("Error submitting leave request.");
-        setLoading(false);
-        handleLoading(false);
+
+      setSuccessMessage("Compensatory request submitted successfully!");
+      setLeaveData({
+        leaveType: "Compensatory Leave",
+        reasonForLeave: "",
+        startDate: getTodayDate(),
+        endDate: getTodayDate(),
+        userEmail: "",
+        leaveIsRaisingFrom: email,
+        durationType: "",
+        halfDayStatus: "",
+        status: "pending",
       });
+      setFieldErrors({});
+      setTimeout(() => setSuccessMessage(""), 4000);
+    } catch (error) {
+      console.error("Error submitting leave:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+      handleLoading(false);
+    }
   };
 
   const handleLoading = (load) => {
     document.getElementById("root").style.opacity = load ? "0.8" : "1";
   };
 
-  if (sessionStorage.getItem("isAuth") !== "true") {
-    return (
-      <Snackbar
-        open={showAuthError}
-        autoHideDuration={2000}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert severity="error" variant="filled" sx={{ width: "100%" }}>
-          You are not authorized to access this page
-        </Alert>
-      </Snackbar>
-    );
-  }
+  useEffect(() => {
+    const fetchEmails = async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
+        );
+        const result = await response.json();
+        if (result.success) {
+          const emails = result.data
+            .map((item) => item["Team ID"])
+            .filter((email) => email); // filter out null/undefined
+          setEmailList(emails);
+        }
+      } catch (error) {
+        console.error("Error fetching emails:", error);
+      }
+    };
+    fetchEmails();
+  }, []);
 
   return (
-    <div>
+    <div style={{ overflowY: "scroll", height: "100vh", marginTop: "45px" }}>
       <LoadingSpinner loading={loading} />
       <h1 style={{ textAlign: "center" }}>
         Compensatory Request Application Form
       </h1>
-      <p style={{ textAlign: "center" }}></p>
-      <form onSubmit={handleSubmit} className="form-1">
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <div>
-          <div>
-            <label>Employee Email:</label>
-            <input
-              type="email"
-              name="email"
-              value={leaveData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-        </div>
 
+      <form onSubmit={handleSubmit} className="form-1">
+        <Box sx={{ textAlign: 'left', mb: 0 }}>
+          <Typography
+            htmlFor="userEmail"
+            sx={{ fontWeight: 'bold', mb: 1.2, color: 'black' }}
+          >
+            Employee Email:
+          </Typography>
+
+          <Autocomplete
+            options={emailList}
+            value={leaveData.userEmail}
+            onChange={(event, newValue) => {
+              handleChange({
+                target: { name: 'userEmail', value: newValue || "" },
+              });
+            }}
+            freeSolo
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                id="userEmail"
+                name="userEmail"
+                variant="outlined"
+                size="small"
+                fullWidth
+                sx={{
+                  '& .MuiInputBase-root': {
+                    height: 36,
+                  },
+                  '& .MuiInputBase-input': {
+                    border: 'none',
+                    outline: 'none',
+                  },
+                }}
+              />
+            )}
+          />
+          {fieldErrors.userEmail && (
+            <div className="error-message" style={{ marginTop: "-24px" }}>{fieldErrors.userEmail}</div>
+          )}
+        </Box>
+
+
+        {/* Reason */}
         <div>
           <label>Reason for Working:</label>
           <textarea
-            name="reason"
-            value={leaveData.reason}
+            name="reasonForLeave"
+            value={leaveData.reasonForLeave}
             onChange={handleChange}
-            required
           />
+          {fieldErrors.reasonForLeave && (
+            <div className="error-message" style={{ marginTop: "-5px" }}>{fieldErrors.reasonForLeave}</div>
+          )}
         </div>
 
+        {/* Start Date */}
         <div>
           <label>From Date:</label>
           <input
             type="date"
-            name="fromDate"
-            value={leaveData.fromDate}
+            name="startDate"
+            value={leaveData.startDate}
             onChange={handleChange}
             required
           />
         </div>
 
+        {/* End Date */}
         <div>
           <label>To Date:</label>
           <input
             type="date"
-            name="toDate"
-            value={leaveData.toDate}
+            name="endDate"
+            value={leaveData.endDate}
             onChange={handleChange}
             required
           />
         </div>
-        <div className="tooltip">
-          How to use Half Day?
-          <span
-            style={{
-              width: "300px",
-            }}
-            className="tooltiptext"
+
+        {/* Duration Type */}
+        <div>
+          <label>Duration Type:</label>
+          <select
+            name="durationType"
+            value={leaveData.durationType}
+            onChange={handleChange}
           >
-            Note: Do not change the date if you want to avail half day for the
-            single day. If the date is increased by 1 and halfday is checked You
-            will be availing today's leave + tomorrow's + half day.
-          </span>
+            <option value="">Select Duration</option>
+            <option value="full-day">Full Day</option>
+            <option value="half-day">Half Day</option>
+          </select>
+          {fieldErrors.durationType && (
+            <div className="error-message" style={{ marginTop: "0px" }}>{fieldErrors.durationType}</div>
+          )}
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            gap: "0.5rem",
-            alignItems: "baseline",
-            marginTop: "10px",
-          }}
-        >
-          <label style={{ width: "25%" }}>Half Day:</label>
+        {/* Half Day Status (only if half-day selected) */}
+        {leaveData.durationType === "half-day" && (
+          <div>
+            <label>Half Day Status:</label>
+            <select
+              name="halfDayStatus"
+              value={leaveData.halfDayStatus}
+              onChange={handleChange}
+            >
+              <option value="">Select Half Day Status</option>
+              <option value="first-half">First Half</option>
+              <option value="second-half">Second Half</option>
+            </select>
+            {fieldErrors.halfDayStatus && (
+              <div className="error-message" style={{ marginTop: "0px" }}>{fieldErrors.halfDayStatus}</div>
+            )}
+          </div>
+        )}
+
+        {/* Raised By (disabled field) */}
+        <div>
+          <label>Comp Off Raised By:</label>
           <input
-            style={{
-              width: "20px",
-            }}
-            type="checkbox"
-            name="halfDay"
-            checked={halfDay}
-            onChange={handleHalfDayChange}
+            type="text"
+            name="leaveIsRaisingFrom"
+            value={leaveData.leaveIsRaisingFrom}
+            disabled
+            readOnly
           />
         </div>
 
         <button type="submit">Submit</button>
       </form>
 
+      {/* Success Snackbar */}
       <Snackbar
-        open={successMessage}
+        open={Boolean(successMessage)}
         autoHideDuration={6000}
         onClose={() => setSuccessMessage("")}
       >
@@ -313,6 +308,21 @@ const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
           sx={{ width: "100%" }}
         >
           {successMessage}
+        </Alert>
+      </Snackbar>
+      {/* Error Snackbar */}
+      <Snackbar
+        open={Boolean(error)}
+        autoHideDuration={6000}
+        onClose={() => setError("")}
+      >
+        <Alert
+          onClose={() => setError("")}
+          severity="error"
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {error}
         </Alert>
       </Snackbar>
     </div>

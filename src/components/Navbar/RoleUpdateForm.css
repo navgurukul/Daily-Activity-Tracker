@@ -1,0 +1,169 @@
+.main {
+  width: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 60px;
+}
+
+.role-update-container {
+  width: 100%;
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+.tabs {
+  margin-left: 0;
+  display: flex;
+  gap: 10px;
+}
+
+.tabs-button {
+  padding: 10px 20px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  background-color: #f3f3f3;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.tabs-button:hover {
+  background-color: #e0e0e0;
+}
+
+.active-tab {
+  background-color: #2e7d32;
+  color: white;
+  border-color: #2e7d32;
+}
+.active-tab:hover {
+  background-color: #1b5e20;
+  border-color: #1b5e20;
+}
+
+.filter-section {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+
+
+.filter-role {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+
+
+/* Responsiveness */
+@media (max-width: 1024px) {
+  .main {
+    margin-left: 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main {
+    width: 95%;
+    margin-left: 25px;
+    margin-top: 70px;
+  }
+
+  .role-update-container {
+    margin-left: 0px;
+    padding: 15px;
+  }
+}
+
+@media (max-width: 425px) {
+  .main {
+    width: 96%;
+    margin-left: 10px;
+  }
+
+  .role-update-container {
+    padding: 10px;
+  }
+
+  .tabs {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tabs-button {
+    max-width: 130px;
+  }
+
+  .all-users h2 {
+    text-align: center;
+  }
+
+  .filter-section {
+    justify-content: center;
+  }
+
+
+  .assign-role h2 {
+    text-align: center;
+  }
+
+  .filter-role {
+    justify-content: center;
+  }
+
+}
+
+@media (max-width: 375px) {
+  .main {
+    width: 99%;
+    margin-left: 2px;
+  }
+
+  .role-update-container {
+    padding: 8px;
+  }
+
+  .tabs {
+    margin-left: 0px;
+  }
+
+  .tabs-button {
+    width: 129px;
+  }
+
+  .filter-section {
+    justify-content: center;
+  }
+
+}
+
+@media (max-width: 320px) {
+  .main {
+    width: 97%;
+    margin-left: 4px;
+  }
+
+  .role-update-container {
+    padding: 6px;
+  }
+
+  .tabs {
+    margin-left: 8px;
+  }
+
+  .tabs-button {
+    width: 98px;
+  }
+
+  .filter-section {
+    justify-content: center;
+  } 
+}

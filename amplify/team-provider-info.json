@@ -1,0 +1,72 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-dailyactivitytracker-dev-c9fa2-authRole",
+      "UnauthRoleArn": "arn:aws:iam::807471455482:role/amplify-dailyactivitytracker-dev-c9fa2-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::807471455482:role/amplify-dailyactivitytracker-dev-c9fa2-authRole",
+      "Region": "ap-south-1",
+      "DeploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+      "UnauthRoleName": "amplify-dailyactivitytracker-dev-c9fa2-unauthRole",
+      "StackName": "amplify-dailyactivitytracker-dev-c9fa2",
+      "StackId": "arn:aws:cloudformation:ap-south-1:807471455482:stack/amplify-dailyactivitytracker-dev-c9fa2/890e26f0-0938-11f0-8855-0ada909a0a01",
+      "AmplifyAppId": "d1rulaq4j5h0pt"
+    },
+    "categories": {
+      "auth": {
+        "dailyactivitytracker02cba61c": {}
+      },
+      "function": {
+        "applyLeave": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/applyLeave-636b6a4f4b2f6944686d-build.zip"
+        },
+        "dailyactivitytracker903c1550": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/dailyactivitytracker903c1550-3832692f554346465a6d-build.zip"
+        },
+        "employeeAuthentication": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/employeeAuthentication-546637716e53544b3778-build.zip"
+        },
+        "employeeSheetRecords": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/employeeSheetRecords-4441624252614e5a7767-build.zip"
+        },
+        "employeesActivityTrackersLogs": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/employeesActivityTrackersLogs-58774b416d3472426348-build.zip"
+        },
+        "employmentLeavePolicy": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/employmentLeavePolicy-564b61453430694f774d-build.zip"
+        },
+        "getLeaveRecords": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/getLeaveRecords-6b516135504441324435-build.zip"
+        },
+        "slackNotification": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/slackNotification-714a514b644d78377845-build.zip"
+        },
+        "payableDaysOfMonth": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/payableDaysOfMonth-6f54784d6d557a64544d-build.zip"
+        },
+        "approveRequests": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/approveRequests-4671414672616f67634e-build.zip"
+        },
+        "accessControl": {
+          "deploymentBucketName": "amplify-dailyactivitytracker-dev-c9fa2-deployment",
+          "s3Key": "amplify-builds/accessControl-6a523274707642624544-build.zip"
+        }
+      },
+      "storage": {
+        "hrmsEmployeesRecords": {}
+      },
+      "api": {
+        "employeeRecords": {}
+      }
+    }
+  }
+}

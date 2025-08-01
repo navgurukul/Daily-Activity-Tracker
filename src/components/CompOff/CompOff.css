@@ -1,134 +1,116 @@
 form {
-    width: 95%;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
+  width: 95%;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+.tooltip .texttool {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 10%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.tooltip .texttool::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 10%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+.texttool {
+  display: flex;
+  width: 300px;
+}
+.tooltip:hover .texttool {
+  visibility: visible;
+  opacity: 1;
+}
+.error-message {
+  color: red !important;
+  font-size: 14px !important;
+  font-weight: bold;
+}
+@media (max-width: 700px) {
+  .form-1 {
+    width: 90%;
+    max-width: 300px;
   }
-  
-  
-  
-  .tooltip {
-    position: relative;
-    display: inline-block;
+}
+@media (max-width: 320px) {
+  .form-1 {
+    width: 83%;
+    max-width: 300px;
   }
-  
-  .tooltip .texttool {
-    visibility: hidden;
-    width: 120px;
-    background-color: #555;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 0;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 10%;
-    margin-left: -60px;
-    opacity: 0;
-    transition: opacity 0.3s;
-  
+}
+form h1 {
+  font-size: 24px;
+  text-align: center;
+}
+form div {
+  margin-bottom: 15px;
+}
+form label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+form input[type="text"],
+form input[type="email"],
+form input[type="date"],
+form select,
+form textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+form textarea {
+  height: 100px;
+}
+form button {
+  width: 100%;
+  padding: 10px 15px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+form button:hover {
+  background-color: #45a049;
+}
+form p {
+  color: red;
+  font-weight: bold;
+}
+form h1 {
+  color: green;
+  text-align: center;
+}
+@media (max-width: 768px) {
+  .form {
+    width: 90%;
+    max-width: 300px;
   }
-  
-  
-  .tooltip .texttool::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left:10%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #555 transparent transparent transparent;
-  }
-  
-  .texttool {
-    display: flex;
-    
-    width: 300px;
-  }
-  .tooltip:hover .texttool {
-    visibility: visible;
-    opacity: 1;
-  }
-  @media (max-width: 700px) { 
-    .form-1 {
-      width: 90%; 
-      max-width: 300px; 
-    }
-  }
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  form h1 {
-    font-size: 24px;
-    text-align: center;
-  }
-  
-  form div {
-    margin-bottom: 15px;
-  }
-  
-  form label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  form input[type="text"],
-  form input[type="email"],
-  form input[type="date"],
-  form select,
-  form textarea {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
-  
-  form textarea {
-    height: 100px;
-  }
-  
-  form button {
-    width: 100%;
-    padding: 10px 15px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-  }
-  
-  form button:hover {
-    background-color: #45a049;
-  }
-  
-  form p {
-    color: red;
-    font-weight: bold;
-    text-align: center;
-  }
-  
-  form h1 {
-    color: green;
-    text-align: center;
-  }
-  @media (max-width: 700px) { 
-    .form {
-      width: 90%; 
-      max-width: 300px; 
-    }
-  }
+}

@@ -5,6 +5,10 @@ body {
   height: 100%;
 }
 
+.form-container {
+  margin-top: 0px;
+}
+
 form {
   display: flex;
   flex-direction: column;
@@ -66,27 +70,6 @@ button:hover {
   background-color: #21a1f1;
 }
 
-h3 {
-  margin-top: 20px;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th,
-td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-}
-
-td {
-  max-width: 300px;
-  word-wrap: break-word;
-  white-space: normal;
-}
-
 .App-header {
   background-color: #282c34;
   padding: 20px;
@@ -97,91 +80,60 @@ td {
   margin: 0;
 }
 
-.delete-button,
-.save-button {
-  background-color: #8f0a00;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.button-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 #green-button {
   color: #4caf50;
-}
-.delete-button {
-  background-color: #8f0a00;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  width: 100px;
-}
-.delete-button,
-.edit-button {
-  width: 130px;
-  padding: 5px;
-  border-radius: 4px;
-  border: none;
-  cursor: pointer;
-  color: white;
-  height: 30px;
-}
-
-.edit-button,
-.save-button {
-  background-color: #4caf50;
-  margin-bottom: 10px;
-
-  width: 100px;
-  height: 20px;
-  width: 130px;
-  padding: 7px;
-}
-.delete-button:hover {
-  background-color: #d32f2f;
-}
-.icon-white {
-  color: white;
 }
 
 .full-width-button {
   width: 100%;
   box-sizing: border-box;
+  margin: 0 !important;
 }
 
-@media (max-width: 700px) {
+.full-width-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  color: #666;
+}
+
+@media (max-width: 1024px) {
+  .full-width-button{
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
   .full-width-button {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
   }
+  .formContainer{
+    margin-top: 40px !important;
+  }
+  h3 {
+    margin-top: 60px;
+  }
 }
 
-@media (max-width: 600px) {
-  .delete-button,
-  .edit-button {
-    width: 100%;
-
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-  .save-button, .edit-button {
-    height: 35px;
-    box-sizing: border-box;
-  }
-
-}
 @media (max-width: 700px) {
   .from-1 {
     width: 90%;
     max-width: 300px;
+  }
+}
+
+@media (max-width:425px){
+  .full-width-button{
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 320px) {
+  .from-1 {
+    margin: 0;
+    margin-left: 4px;
+    width: 86%;
+    max-width: 270px;
   }
 }

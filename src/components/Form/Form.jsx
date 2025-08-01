@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./Form.css";
 import url from "../../../public/api";
-import { json, useNavigate } from "react-router-dom";
+import { json, useLocation, useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -10,7 +10,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import LoadingSpinner from "../Loader/LoadingSpinner";
 import { useLoader } from "../context/LoadingContext";
-// import SimpleSnackbar from "../Snackbar/Snackbar";
 import TraansitionModal from "../Modal/TraansitionModal";
 import {
   Dialog,
@@ -21,11 +20,27 @@ import {
   Button,
   Snackbar,
   Alert,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  TextField,
+  Box,
 } from "@mui/material";
+import MuiAlert from "@mui/material/Alert";
+import { set } from "lodash";
+
 
 const Form = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
+  const userName = localStorage.getItem("name");
+  const userDepartment = localStorage.getItem("department");
+  // const userDepartment = "Residential Program";
   const { loading, setLoading } = useLoader();
   const getTodayDate = () => {
     const today = new Date();
@@ -34,16 +49,22 @@ const Form = () => {
     const dd = String(today.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   };
-  const [formData, setFormData] = useState({
-    type: "contribution",
-    email: email,
-    challenges: " ",
-    description: "",
-    contributions: [],
-    selectedDate: getTodayDate(),
-  });
 
-  const [projectData, setProjectData] = useState([]);
+  const initialFormData = {
+    email: email,
+    selectedDate: dataContext.selectedDate || getTodayDate(),
+    contributions: [],
+    blockers: "",
+    campus: "",
+  };
+  const [formData, setFormData] = useState(initialFormData);
+
+  // const [projectData, setProjectData] = useState([]);
+  // const [residentialProjectData, setResidentialProjectData] = useState([]);
+  const [projectByDepartment, setProjectByDepartment] = useState({});
+  const [projectByCampus, setProjectByCampus] = useState({});
+  const [filteredProjects, setFilteredProjects] = useState([]);
+  const [projectsLoading, setProjectsLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState("");
   const [currentContribution, setCurrentContribution] = useState({
     hours: "0",
@@ -71,85 +92,202 @@ const Form = () => {
   const [isDateDisabled, setIsDateDisabled] = useState(true);
   const [attemptLoading, setAttemptLoading] = useState(true);
 
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbaropen, setSnackbaropen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [alertMessage, setAlertMessage] = useState("");
+
+  const [campuses, setCampuses] = useState([]);
+
+  const [showProjectError, setShowProjectError] = useState(false);
+  const [showHoursError, setShowHoursError] = useState(false);
+  const [showTaskError, setShowTaskError] = useState(false);
+  const [departments, setDepartments] = useState([]);
+
+  const [showSaveError, setShowSaveError] = useState(false);
+  const [projectNameToId, setProjectNameToId] = useState({});
+  
+  const location = useLocation();
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  const handleCloseSnackbar = () => {
+    setSnackbaropen(false);
+  };
+
   useEffect(() => {
-    let email = localStorage.getItem("email") ?? "";
-    setAttemptLoading(true);
-    fetch(`${url}?email=${email}&type=attempts`)
-      .then((response) => response.json())
-      .then((data) => {
-        setAttempt(data.attemptsLeft);
-        localStorage.setItem("attemptsLeft", data.attemptsLeft);
-        setIsDateDisabled(false);
-        setAttemptLoading(false);
-      });
+    if (location.state?.message) {
+      setAlertMessage(location.state.message);
+    
+      setSnackbaropen(true)
+      navigate(location.pathname, {replace: true});
+    }
+  }, [location.state, location.pathname, navigate]);
 
-    const initPreviousEntries = () => {
-      const storedData = JSON.parse(
-        localStorage.getItem("previousEntriesDone")
-      );
-      const today = new Date();
-      const firstDayOfMonth = new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        1
-      );
+  useEffect(() => {
+    const fetchCampuses = async () => {
+      try {
+        const res = await fetch(
+          `${API_BASE_URL}/campuses`
+        );
+        const data = await res.json();
+        const parsedBody = JSON.parse(data.body);
+        setCampuses(parsedBody.data);
+      } catch (error) {
+        console.error("Failed to fetch campuses:", error);
+      }
+    };
+    fetchCampuses();
+  }, []);
 
-      if (storedData) {
-        // Check if it's the first day of the month
-        if (
-          new Date(storedData.lastUpdated).getTime() < firstDayOfMonth.getTime()
-        ) {
-          localStorage.setItem(
-            "previousEntriesDone",
-            JSON.stringify({ count: 0, lastUpdated: today })
-          );
-          setPreviousEntriesDone(0);
-        } else {
-          setPreviousEntriesDone(storedData.count);
-        }
-      } else {
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") return;
+    setSnackbarOpen(false);
+  };
+
+  useEffect(() => {
+  let email = localStorage.getItem("email") ?? "";
+  setAttemptLoading(true);
+
+  const initPreviousEntries = () => {
+    const storedData = JSON.parse(localStorage.getItem("previousEntriesDone"));
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    if (storedData) {
+      if (new Date(storedData.lastUpdated).getTime() < firstDayOfMonth.getTime()) {
         localStorage.setItem(
           "previousEntriesDone",
           JSON.stringify({ count: 0, lastUpdated: today })
         );
         setPreviousEntriesDone(0);
+      } else {
+        setPreviousEntriesDone(storedData.count);
       }
-    };
-
-    initPreviousEntries();
-    try {
-      fetch(`${url}?email=${email}&type=projects`)
-        .then((response) => response.json())
-        .then((data) => {
-          const projects = data.projects;
-          const activeProjects = projects.filter(function (project) {
-            return project.status === "Active";
-          });
-
-          // Extract project names from filtered array
-          const activeProjectNames = activeProjects.map(function (project) {
-            return project.projectName;
-          });
-          const today = new Date();
-          const dayOfWeek = today.getDay();
-
-          // Check if today is Saturday (0 = Sunday, 6 = Saturday)
-          if (dayOfWeek === 6) {
-            activeProjectNames.push("Saturday-Peer-Learning");
-          }
-          // console.log("Active Projects:", activeProjectNames);
-          setProjectData(activeProjectNames);
-          // const filteredProjects = data.content
-          //   .map((project) => project[0])
-          //   .filter((project) => project !== "");
-          // //   setProjectNames(filteredProjects);
-          // console.log("Project Names:", filteredProjects);
-          // setProjectData(filteredProjects);
-        });
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    } else {
+      localStorage.setItem(
+        "previousEntriesDone",
+        JSON.stringify({ count: 0, lastUpdated: today })
+      );
+      setPreviousEntriesDone(0);
     }
-  }, []);
+  };
+
+  initPreviousEntries();
+
+  try {
+    fetch(`${API_BASE_URL}/employees`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Fetched data:", data.data);
+
+        const projectByDepartment = {}; // move declaration here
+        const projectByCampus = {}; // <- new state object
+        const nameToIdMap = {};
+        const projects = data.data.map((project) => {
+          return {
+            projectId: project.Id,
+            projectName: project.projectName,
+            status: project.projectStatus,
+            department: project.department,
+            campus: project.campus, // <- assuming this exists in API response
+          };
+        });
+
+        const activeProjectNames = projects
+          .map((project) => project.status === "Active" && project.projectName)
+          .filter(Boolean);
+
+        const today = new Date();
+        const dayOfWeek = today.getDay();
+        if (dayOfWeek === 6) {
+          activeProjectNames.push("Saturday-Peer-Learning");
+        }
+
+        projects.forEach((project) => {
+          if (project.status === "Active") {
+            const dept = project.department.trim();
+            const campus = (project.campus || "Unknown").trim();
+            const projectName = project.projectName;
+
+            // Department-based mapping
+            if (!projectByDepartment[dept]) {
+              projectByDepartment[dept] = new Set();
+            }
+            projectByDepartment[dept].add(projectName);
+
+            // Campus-based mapping
+            if (!projectByCampus[campus]) {
+              projectByCampus[campus] = new Set();
+            }
+            projectByCampus[campus].add(projectName);
+
+            // Name to ID mapping
+            nameToIdMap[projectName] = project.projectId;
+          }
+        });
+
+        // Convert Sets to Arrays
+        Object.keys(projectByDepartment).forEach((dept) => {
+          projectByDepartment[dept] = Array.from(projectByDepartment[dept]);
+        });
+
+        Object.keys(projectByCampus).forEach((campus) => {
+          projectByCampus[campus] = Array.from(projectByCampus[campus]);
+        });
+
+        setProjectByDepartment(projectByDepartment);
+        setProjectByCampus(projectByCampus); // ✅ Set campus data
+        console.log("Project By Department:", projectByDepartment);
+        console.log("Project By Campus:", projectByCampus);
+        
+        setProjectNameToId(nameToIdMap);
+        setProjectsLoading(false);
+      });
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}, []);
+
+useEffect(() => {
+  const currentDept = formData.department || userDepartment;
+  if (!currentDept) {
+    setFilteredProjects([]);
+    return;
+  }
+  const fetchDepartmentProjects = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/employees?department=${encodeURIComponent(currentDept)}`);
+      const data = await response.json();
+      if (data?.data?.length > 0) {
+        const activeProjects = data.data.filter(
+          (project) => project.projectStatus === "Active"
+        );
+        let filtered = activeProjects.map((p) => p.projectName);
+        // Optional: If you still want to filter by campus (e.g. if Culture department has multiple campuses)
+        if (formData.campus) {
+          filtered = activeProjects
+            .filter((p) => p.campus?.trim() === formData.campus.trim())
+            .map((p) => p.projectName);
+        }
+        setFilteredProjects(filtered);
+      } else {
+        setFilteredProjects([]);
+      }
+    } catch (error) {
+      console.error("Error fetching department projects:", error);
+      setFilteredProjects([]);
+    }
+  };
+  fetchDepartmentProjects();
+}, [formData.department, userDepartment, formData.campus]);
 
   document.querySelectorAll('input[type="number"]').forEach(function (input) {
     input.addEventListener("wheel", function (event) {
@@ -157,13 +295,37 @@ const Form = () => {
     });
   });
 
-  const handleChange = (e) => {
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setFormData({
+  //     ...formData,
+  //     [name]: value,
+  //   });
+  // };
+
+  //  function isInvalidDate(dateStr) {
+  //    const date = new Date(dateStr);
+  //    const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+  //    const dateNum = date.getDate();
+  //    const week = Math.floor((dateNum - 1) / 7) + 1;
+
+  //    // Disable Sunday or 2nd/4th Saturday
+  //    return day === 0 || (day === 6 && (week === 2 || week === 4));
+  //  }
+
+  function handleChange(e) {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+
+    // if (isInvalidDate(value)) {
+    //   alert("This date is not allowed");
+    //   return;
+    // }
+
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
-  };
+    }));
+  }
 
   const handleProjectSelect = (e) => {
     setSaved(false);
@@ -172,12 +334,25 @@ const Form = () => {
       setError("You can only log a maximum of 2 hours for Ad-hoc tasks");
     setSelectedProject(e.target.value);
     setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
+
+    if (e.target.value !== "") {
+      setShowProjectError(false);
+    }
   };
 
   useEffect(() => {
-    // console.log("Selected Project:", selectedProject);
-    setMaxHours(2);
+    setMaxHours(15);
   }, [selectedProject]);
+
+  useEffect(() => {
+    if (showSaveError) {
+      const timer = setTimeout(() => {
+        setShowSaveError(false);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showSaveError]);
 
   function checkMaxValue(input) {
     if (selectedProject === "Ad-hoc tasks") {
@@ -196,21 +371,38 @@ const Form = () => {
 
   const addContribution = () => {
     if (!selectedProject) {
-      alert("Please select a project before saving the contribution");
+      setShowProjectError(true);
       return;
+    } else {
+      setShowProjectError(false);
     }
-
-    if (!currentContribution.hours || !currentContribution.task.trim()) {
-      alert("Please fill in both the total hours spent and the task achieved");
+    if (!currentContribution.hours) {
+      setShowHoursError(true);
       return;
+    } else {
+      setShowHoursError(false);
+    }
+    if (!currentContribution.task) {
+      setShowTaskError(true);
+      return;
+    } else {
+      setShowTaskError(false);
+    }
+    if (currentContribution.hours < 0) {
+      setShowHoursError(true);
+      return;
+    } else {
+      setShowHoursError(false);
     }
 
     setFormData((prevState) => ({
       ...prevState,
       contributions: [
         ...prevState.contributions,
-        { project: selectedProject, ...currentContribution },
+        { project: selectedProject, ...currentContribution, department: prevState.department || userDepartment },
       ],
+      blockers: formData.blockers,
+      campus: formData.campus,
     }));
     setSaved(true); // Set saved to true when a contribution is added
     setSelectedProject(""); // Reset project selection
@@ -261,91 +453,138 @@ const Form = () => {
     setOpen(false);
   };
 
-  const handleSubmit = (e) => {
-    const now = new Date();
-    const nextDay = new Date();
-    nextDay.setDate(now.getDate() + 1);
-    nextDay.setHours(7, 0, 0, 0); // Set time to 7 a.m. next day
-
-    if (now >= nextDay) {
-      setError("Submissions are only allowed before 7 a.m. the next day.");
-      return;
-    }
-    const entry = new Date(formData.selectedDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset today to start of the day
-
-    // Check if current time is after 12 a.m. but before 7 a.m.
-    const isAfterMidnightBefore7am = now.getHours() < 7;
-
-    if (isAfterMidnightBefore7am) {
-      // If it is after midnight but before 7 a.m., treat 'today' as the previous day
-      today.setDate(today.getDate() - 1);
-    }
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.contributions.length === 0) {
-      return alert(
-        "Please add and save at least one contribution before submitting the form"
-      );
-    }
-    // if (formData.challenges.length < 25) {
-    //   setError(
-    //     "Achievements, Blockers, and Challenges must be at least 25 characters long."
-    //   );
-    //   return;
-    // }
 
-    setSaved(false);
-    handleLoading(true);
     setLoading(true);
 
-    setError(""); // Clear any previous error messages
-    setShowSelect(true);
-    const submitTime = new Date();
-    const submitTimestamp = `${submitTime.toLocaleDateString(
-      "en-GB"
-    )} ${submitTime.getHours().toString().padStart(2, "0")}:${submitTime
-      .getMinutes()
-      .toString()
-      .padStart(2, "0")}:${submitTime
-      .getSeconds()
-      .toString()
-      .padStart(2, "0")}`;
+    if (!saved) {
+      setShowSaveError(true);
+      return;
+    }
 
-    const payload = {
-      ...formData,
-      timestamp: submitTimestamp,
+    // const userEmail = localStorage.getItem("email");
+    const userEmail = email;
+    const department = localStorage.getItem("department");
+    // const department = "Residential Program";
+
+    const newEntry = {
+      entries: formData.contributions.map((c) => ({
+        email: userEmail,
+        projectName: c.project,
+        projectId: projectNameToId[c.project],
+        totalHoursSpent: Number(c.hours),
+        workDescription: c.task,
+        entryDate: formData.selectedDate,
+        department: userDepartment, // original department
+        campus: formData.campus || "", // current selected campus
+        workingDepartment: c.department || userDepartment, // current selected
+        ...(department === "Residential Program" && {
+          blockers: formData.blockers,
+          campus: formData.campus,
+        }),
+      })),
     };
-    // console.log(payload)
+    console.log("New Entry:", newEntry);
 
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-      mode: "no-cors",
-    })
-      .then((response) => response.text())
-      .then((data) => {
-        // console.log("Success:", data);
-        // setSuccessMessage("Thanks for sharing the update!");
-        setError("Thanks for sharing the update!");
-        setFormData({
-          type: "contribution",
-          email: email,
-          challenges: "",
-          description: "",
-          contributions: [],
-          selectedDate: getTodayDate(),
-        });
+    // Save to localStorage for dashboard view
+    const newLog = {
+      date: newEntry.entryDate,
+      project: newEntry.projectName,
+      hours: newEntry.totalHoursSpent,
+      description: newEntry.workDescription,
+    };
+
+    const existingLogs = JSON.parse(localStorage.getItem("dailyLogs")) || [];
+    localStorage.setItem(
+      "dailyLogs",
+      JSON.stringify([...existingLogs, newLog])
+    );
+    console.log("Existing Logs:", existingLogs);
+
+    if (formData.contributions.length === 0) {
+      setShowProjectError(true);
+      return;
+    }
+
+    // Send to API
+    try {
+      console.log("Ready to send to backend", newEntry);
+      const response = await fetch(
+        `${API_BASE_URL}/activityLogs`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newEntry),
+        }
+      );
+      console.log("Response of Post API:", response);
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to save entry");
+        // console.error("Failed to save entry:");
+      }
+      showSnackbar("Entry successfully saved!", "success");
+
+      const result = await response.json();
+      console.log("Response from backend:", result);
+
+      if (result.message === 'You already finished your 3 attempts') {
+        setSnackbarMessage('You have 0 attempts remaining for backdated entries!');
+        setSnackbarSeverity('warning');
+        setSnackbarOpen(true);
+        setFormData((prev) => ({ ...prev, contributions: [] }));
         setLoading(false);
-        handleLoading(false);
-        setTimeout(() => setSuccessMessage(""), 3000); // Clear message after 3 seconds
-      })
-      .catch((error) => {
-        console.error("Error sending data to Google Apps Script:", error);
-      });
+        return;
+      }
+
+      // Check if the response has results and the first result's status is "success"
+      const entryStatus = result?.results?.[0]?.status;
+
+      console.log(entryStatus, "entryStatus");
+
+      const resultItem = result?.results?.[0];
+      const EntryStatus = resultItem?.status;
+      if (EntryStatus === "failed") {
+        showSnackbar(resultItem?.reason || "Entry was skipped or not saved.", "error");
+        setFormData((prev) => ({ ...prev, contributions: [] }));
+        setLoading(false);
+        return;
+      }
+
+      if (entryStatus !== "success" && entryStatus !== "updated") {
+        throw new Error(
+          result?.results?.[0]?.message || "Entry was skipped or not saved."
+        );
+      }
+
+      if (result?.backdatedLeft?.[userEmail] !== undefined) {
+        const backdatedLeft = result.backdatedLeft[userEmail];
+        showSnackbar(
+          `Entry successfully processed! Backdated entries left: ${backdatedLeft}`,
+          "info"
+        );
+        setAttempt(backdatedLeft);
+        localStorage.setItem("attemptsLeft", backdatedLeft);
+      }
+
+      if (entryStatus === "updated") {
+        showSnackbar("Entry successfully updated!", "info");
+      }
+
+      console.log("Entry successfully sent to backend");
+
+      // Clear the form
+      setFormData({ ...initialFormData });
+      console.log("Form Data after submission:", formData);
+
+      setLoading(false);
+    } catch (error) {
+      console.error("Error posting entry:", error);
+      showSnackbar(error.message || "Failed to save entry", "error");
+    }
+    setShowProjectError(false);
   };
 
   const handleLoading = (load) => {
@@ -355,58 +594,83 @@ const Form = () => {
   };
 
   function getMinDate() {
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-
-    const DAYS_BACK_NORMAL = 3;
-    const DAYS_BACK_EXTENDED = 5;
-
-    const currentHour = today.getHours();
-    let daysBack = currentHour < 8 ? 1 : 0;
-    if (attempt > 0) {
-      switch (dayOfWeek) {
-        case 1: // Monday
-        case 2: // Tuesday
-        case 3: // Wednesday
-          daysBack = DAYS_BACK_EXTENDED;
-          break;
-        case 4: // Thursday
-        case 5: // Friday
-        case 6: // Saturday
-        case 0: // Sunday
-        default:
-          daysBack = DAYS_BACK_NORMAL;
-          break;
+  const today = new Date();
+  const validDates = [];
+  let i = 1; // Start with yesterday
+  while (validDates.length < 3) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
+    const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+    // Skip Sundays
+    if (day === 0) {
+      i++;
+      continue;
+    }
+    // Skip 2nd and 4th Saturdays
+    if (day === 6) {
+      const dateNum = date.getDate();
+      const month = date.getMonth();
+      const year = date.getFullYear();
+      // Count which Saturday it is in the month
+      let saturdayCount = 0;
+      for (let d = 1; d <= dateNum; d++) {
+        const tempDate = new Date(year, month, d);
+        if (tempDate.getDay() === 6) {
+          saturdayCount++;
+        }
+      }
+      if (saturdayCount === 2 || saturdayCount === 4) {
+        i++;
+        continue; // Skip 2nd or 4th Saturday
       }
     }
-   console.log ("Current hour:", currentHour);
-
-    const minDate = new Date();
-
-    attempt == 0 && minDate.getHours() > 7?(daysBack = 0) : (daysBack = daysBack);
-    minDate.setDate(today.getDate() - daysBack);
-    return minDate.toISOString().split("T")[0];
+    validDates.push(new Date(date)); // Store a copy
+    i++;
   }
+  // Return the earliest valid date among the 3
+  return validDates[validDates.length - 1].toISOString().split("T")[0];
+}
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await fetch(
+          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
+        );
+        const data = await res.json();
+        if (data.success) {
+          const allDepartments = data.data.map((item) => item.Department);
+          const uniqueDepartments = [...new Set(allDepartments)];
+          setDepartments(uniqueDepartments);
+        }
+      } catch (err) {
+        console.error("Error fetching departments:", err);
+      }
+    };
+    fetchDepartments();
+  }, []);
+
+  const currentDept = formData.department || userDepartment;
+  const currentCampus = formData.campus || "";
 
   return (
-    <div>
+    <div className="form-container" style={{ overflowY: "scroll", height: "100vh", marginTop: "-20px" }}>
       <LoadingSpinner loading={loading} className="loader-container" />
-      <h1 style={{ textAlign: "center" }}>
-        Daily Employee's Activity Tracker{" "}
-      </h1>
-      <p style={{ textAlign: "center" }}>
-        {attemptLoading ? (
-          <CircularProgress />
-        ) : (
-          <div className="heading">
-            <p>
-              Note: You have only <span id="green-button">{attempt}</span>{" "}
-              attempts left to fill for previous days
-            </p>
-          </div>
-        )}
-      </p>
-
+      <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
+        <h3 style={{ fontSize: "32px", fontWeight: "bold", color: "#000" }}>
+          Welcome Back, <span style={{ color: "#2E7D32" }}>{userName}</span>
+        </h3>
+        <h1
+          style={{
+            fontSize: "18px",
+            fontWeight: "500",
+            color: "#000",
+            marginTop: "0.5rem",
+          }}
+        >
+          Daily Employee's Activity Tracker
+        </h1>
+      </div>
       <form onSubmit={handleSubmit} className="from-1">
         {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
         <div>
@@ -421,19 +685,54 @@ const Form = () => {
             color="red"
           />
         </div>
-
-        {/* <div>
-          <label>
-            Please Mention Any Blockers or Challenges You Are Facing (Minimum 25
-            characters):
-          </label>
-          <textarea
-            name="challenges"
-            value={formData.challenges}
+        <div>
+          <label>Employee Name:</label>
+          <input
+            type="text"
+            name="name"
+            value={userName}
             onChange={handleChange}
             required
+            disabled
+            color="red"
           />
-        </div> */}
+        </div>
+        <div>
+          <label>Employee Department:</label>
+          <input
+            type="text"
+            value={userDepartment}
+            required
+            disabled
+            color="red"
+          />
+        </div>
+        <div>
+          <label>Current Working Department:</label>
+          <select
+            name="department"
+            value={formData.department || userDepartment}
+            onChange={(e) => {
+              const newDepartment = e.target.value;
+              setFormData((prev) => ({
+                ...prev,
+                department: newDepartment,
+              }));
+              // Reset project and contribution when department changes
+              setSelectedProject("");
+              setCurrentContribution({ hours: "", task: "" });
+            }}
+          >
+            <option value="" disabled>
+              Select Department
+            </option>
+            {departments.map((dept, idx) => (
+              <option key={idx} value={dept}>
+                {dept}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div>
           <label>Select the date for which you want to update the form:</label>
@@ -441,112 +740,269 @@ const Form = () => {
             type="date"
             name="selectedDate"
             max={today}
-            disabled={isDateDisabled}
             min={getMinDate()}
             value={formData.selectedDate}
             onChange={handleChange}
           />
         </div>
 
+        {((formData.department || userDepartment) === "Residential Program"
+      || formData.department === "Culture"
+      || formData.department === "Academics"
+      || formData.department === "Operations"
+      || formData.department === "LXD & ETC"
+      || formData.department === "Campus Support Staff"
+      || formData.department === "Campus_Security"
+      ) && (
+          <div>
+            <label>Please select your campus :</label>
+            <select
+              name="campus"
+              value={formData.campus}
+              onChange={handleChange}
+              required
+            >
+              <option value="">--Select a campus--</option>
+              {campuses.map((c, index) => (
+                <option key={index} value={c.campus}>
+                  {c.campus}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {formData.contributions.length > 0 && (
           <div>
             <h3>Contributions Summary</h3>
-
-            <table>
-              <thead>
-                <tr>
-                  <th>Project</th>
-                  <th>Hours</th>
-                  <th>Task</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {formData.contributions.map((contribution, index) => (
-                  <tr key={index} style={{ height: "auto" }}>
-                    {editIndex === index ? (
-                      <>
-                        <td>{contribution.project}</td>
-                        <td>
-                          <input
+            <TableContainer 
+              component={Paper} 
+              sx={{ 
+                width: '100%',
+                maxWidth: '100%',
+                overflow: 'hidden',
+                boxShadow: 'none',
+                border: '1px solid #ddd',
+                margin: 0,
+                padding: 0
+              }}
+            >
+              <Table 
+                sx={{ 
+                  width: '100%',
+                  tableLayout: 'fixed',
+                  margin: 0,
+                  padding: 0,
+                  '& .MuiTableCell-root': {
+                    border: '1px solid #ddd',
+                    padding: { xs: '6px 4px', sm: '8px 6px' },
+                    overflow: 'hidden'
+                  }
+                }}
+                size="small"
+              >
+                <TableHead sx={{ margin: 0, padding: 0 }}>
+                  <TableRow sx={{ backgroundColor: '#f5f5f5', margin: 0, padding: 0 }}>
+                    <TableCell 
+                      sx={{ 
+                        fontWeight: 'bold',
+                        width: { xs: '22%', sm: '18%' },
+                        fontSize: { xs: '12px', sm: '14px' }
+                      }}
+                    >
+                      Project
+                    </TableCell>
+                    <TableCell 
+                      sx={{ 
+                        fontWeight: 'bold',
+                        width: { xs: '12%', sm: '10%' },
+                        textAlign: 'center',
+                        fontSize: { xs: '12px', sm: '14px' }
+                      }}
+                    >
+                      Hours
+                    </TableCell>
+                    <TableCell 
+                      sx={{ 
+                        fontWeight: 'bold',
+                        width: { xs: '48%', sm: '55%' },
+                        fontSize: { xs: '12px', sm: '14px' }
+                      }}
+                    >
+                      Task
+                    </TableCell>
+                    <TableCell 
+                      sx={{ 
+                        fontWeight: 'bold',
+                        width: { xs: '18%', sm: '17%' },
+                        textAlign: 'center',
+                        fontSize: { xs: '12px', sm: '14px' }
+                      }}
+                    >
+                      Action
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {formData.contributions.map((contribution, index) => (
+                    <TableRow key={index}>
+                      <TableCell 
+                        sx={{ 
+                          fontSize: { xs: '11px', sm: '13px' },
+                          wordBreak: 'break-word',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                      >
+                        {contribution.project}
+                      </TableCell>
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        {editIndex === index ? (
+                          <TextField
                             type="number"
                             name="hours"
                             value={editContribution.hours}
                             onChange={handleEditContributionChange}
+                            size="small"
+                            sx={{
+                              width: '50px',
+                              '& .MuiInputBase-input': {
+                                textAlign: 'center',
+                                fontSize: { xs: '11px', sm: '13px' },
+                                padding: '4px'
+                              }
+                            }}
                           />
-                        </td>
-                        <td>
-                          <textarea
+                        ) : (
+                          <span style={{ fontSize: window.innerWidth < 600 ? '11px' : '13px' }}>
+                            {contribution.hours}
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {editIndex === index ? (
+                          <TextField
                             name="task"
                             value={editContribution.task}
                             onChange={handleEditContributionChange}
+                            multiline
+                            minRows={2}
+                            maxRows={4}
+                            size="small"
+                            sx={{
+                              width: '100%',
+                              '& .MuiInputBase-input': {
+                                fontSize: { xs: '11px', sm: '13px' },
+                                padding: '4px'
+                              }
+                            }}
                           />
-                        </td>
-                        <td
-                          style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            flexDirection: "column",
-                          }}
-                        >
-                          <button
-                            type="button"
-                            className="save-button"
-                            onClick={() => handleSaveEdit(index)}
+                        ) : (
+                          <Box
+                            sx={{
+                              minHeight: '80px',
+                              maxHeight: '120px',
+                              overflowY: 'auto',
+                              overflowX: 'hidden',
+                              wordBreak: 'break-word',
+                              fontSize: { xs: '11px', sm: '13px' },
+                              lineHeight: 1.4,
+                              padding: '8px 4px',
+                              display: 'flex',
+                              alignItems: 'flex-start'
+                            }}
                           >
-                            <SaveIcon className="icon-white" />
-                          </button>
-                          <button
-                            type="button"
-                            className="delete-button"
-                            onClick={() => handleDelete(index)}
-                          >
-                            <DeleteIcon className="icon-white" />
-                          </button>
-                        </td>
-                      </>
-                    ) : (
-                      <>
-                        <td>{contribution.project}</td>
-                        <td>{contribution.hours}</td>
-                        <td
-                          style={{
-                            height: "auto",
-                            maxWidth: "100px",
+                            {contribution.task}
+                          </Box>
+                        )}
+                      </TableCell>
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        <Box 
+                          sx={{ 
+                            display: 'flex',
+                            gap: '2px',
+                            alignItems: 'center',
+                            justifyContent: 'center'
                           }}
                         >
-                          {contribution.task}
-                        </td>
-                        <td
-                          style={{
-                            display: "flex",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <div className="button-container">
-                            <button
-                              className="edit-button"
-                              type="button"
-                              onClick={() => handleEdit(index)}
-                            >
-                              <EditIcon className="icon-white" />
-                            </button>
-                            <button
-                              className="delete-button"
-                              type="button"
-                              onClick={() => handleDelete(index)}
-                            >
-                              <DeleteIcon className="icon-white" />
-                            </button>
-                          </div>
-                        </td>
-                      </>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                          {editIndex === index ? (
+                            <>
+                              <IconButton
+                                onClick={() => handleSaveEdit(index)}
+                                size="small"
+                                sx={{
+                                  color: '#666',
+                                  padding: '2px',
+                                  minWidth: 'auto',
+                                  width: '24px',
+                                  height: '24px',
+                                  '&:hover': {
+                                    color: '#4CAF50'
+                                  }
+                                }}
+                              >
+                                <SaveIcon sx={{ fontSize: '20px' }} />
+                              </IconButton>
+                              <IconButton
+                                onClick={() => handleDelete(index)}
+                                size="small"
+                                sx={{
+                                  color: '#666',
+                                  padding: '2px',
+                                  minWidth: 'auto',
+                                  width: '25px',
+                                  height: '25px',
+                                  '&:hover': {
+                                    color: '#f44336'
+                                  }
+                                }}
+                              >
+                                <DeleteIcon sx={{ fontSize: '20px' }} />
+                              </IconButton>
+                            </>
+                          ) : (
+                            <>
+                              <IconButton
+                                onClick={() => handleEdit(index)}
+                                size="small"
+                                sx={{
+                                  color: '#666',
+                                  padding: '2px',
+                                  minWidth: 'auto',
+                                  width: '25px',
+                                  height: '25px',
+                                  '&:hover': {
+                                    color: '#4CAF50'
+                                  }
+                                }}
+                              >
+                                <EditIcon sx={{ fontSize: '20px' }} />
+                              </IconButton>
+                              <IconButton
+                                onClick={() => handleDelete(index)}
+                                size="small"
+                                sx={{
+                                  color: '#666',
+                                  padding: '2px',
+                                  minWidth: 'auto',
+                                  width: '25px',
+                                  height: '25px',
+                                  '&:hover': {
+                                    color: '#f44336'
+                                  }
+                                }}
+                              >
+                                <DeleteIcon sx={{ fontSize: '16px' }} />
+                              </IconButton>
+                            </>
+                          )}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
             <br />
 
             <p
@@ -560,14 +1016,37 @@ const Form = () => {
         )}
         <div>
           <label>Select a project in which you contributed:</label>
-          <select value={selectedProject} onChange={handleProjectSelect}>
-            <option value="">--Select a project--</option>
-            {projectData.map((project, index) => (
-              <option key={index} value={project}>
-                {project}
-              </option>
-            ))}
-          </select>
+          {projectsLoading ? (
+            <select disabled>
+              <option value="">Loading projects...</option>
+            </select>
+          ) : Object.keys(projectByDepartment).length > 0 && currentDept in projectByDepartment ? (
+            <select
+              name="selectedProject"
+              value={selectedProject}
+              onChange={handleProjectSelect}
+            >
+              <option value="">--Select a project--</option>
+              {filteredProjects.length > 0 ? (
+                filteredProjects.map((project, index) => (
+                  <option key={index} value={project}>
+                    {project}
+                  </option>
+                ))
+              ) : (
+                <option disabled>No projects available</option>
+              )}
+            </select>
+          ) : (
+            <select disabled>
+              <option value="">No projects available for your department</option>
+            </select>
+          )}
+          {showProjectError && (
+            <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem" }}>
+              Project cannot be empty*
+            </div>
+          )}
           <br />
           <br />
           {selectedProject && (
@@ -581,16 +1060,24 @@ const Form = () => {
                 onChange={handleContributionChange}
                 onInput={(e) => checkMaxValue(e.target)}
                 min="0"
-                required
               />
+              {showHoursError && (
+                <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem" }}>
+                  Total hours spent cannot be empty or negative*
+                </div>
+              )}
               <br />
               <label>What did you achieve in this project?</label>
               <textarea
                 name="task"
                 value={currentContribution.task}
                 onChange={handleContributionChange}
-                required
               />
+              {showTaskError && (
+                <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem" }}>
+                  Task cannot be empty*
+                </div>
+              )}
               <button
                 type="button"
                 onClick={addContribution}
@@ -601,7 +1088,12 @@ const Form = () => {
             </div>
           )}
         </div>
-        <button type="submit" className="full-width-button">
+        {showSaveError && (
+          <p style={{ display: "flex", color: "red", marginTop: "4px" }}>
+            Please save your contribution before submitting.
+          </p>
+        )}
+        <button type="submit" className="full-width-button" disabled={formData.contributions.length === 0 || editIndex !== null}>
           Submit
         </button>
       </form>
@@ -627,20 +1119,33 @@ const Form = () => {
         </DialogActions>
       </Dialog>
       <Snackbar
-        open={error}
-        autoHideDuration={8000}
-        onClose={() => setError("")}
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert
-          onClose={() => setError("")}
-          severity={
-            error == "Thanks for sharing the update!" ? "success" : "error"
-          }
-          variant="filled"
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
           sx={{ width: "100%" }}
         >
-          {error}
+          {snackbarMessage}
         </Alert>
+      </Snackbar>
+      <Snackbar
+        open={snackbaropen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <MuiAlert
+          elevation={6}
+          variant="filled"
+          onClose={handleCloseSnackbar}
+          severity={snackbarSeverity} 
+        >
+          {alertMessage}
+        </MuiAlert>
       </Snackbar>
     </div>
   );

@@ -1,0 +1,146 @@
+
+.leave-tab {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.leave-tab-button {
+  padding: 10px 20px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  background-color: #f3f3f3;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.active-tab {
+  background-color: #2e7d32;
+  color: white;
+  border-color: #2e7d32;
+}
+
+/* Admin Panel Style Header Navigation */
+.admin-header-container {
+  background-color: #4a5568;
+  padding: 0;
+  margin: 0 0 30px 0;
+  width: 100%;
+}
+
+.admin-header-tabs {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  height: 60px;
+}
+
+.admin-tab {
+  padding: 20px 25px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: none;
+  white-space: nowrap;
+}
+
+.admin-tab.active {
+  border-bottom-color: #10b981;
+  color: #10b981;
+}
+
+/* Remove old header tab styles */
+.header-tab-container {
+  display: none;
+}
+
+.main_container {
+  margin-top: 0;
+  margin-left: 0;
+  padding: 0;
+}
+
+/* Content area */
+.content-area {
+  padding: 20px 60px;
+}
+
+@media (max-width: 1024px) {
+  .content-area {
+    padding: 20px 40px;
+  }
+  .main_container {
+    margin-left: 60px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main_container {
+    margin-left: 0;
+    padding: 0;
+  }
+  .content-area {
+    padding: 15px 20px;
+  }
+  
+   .admin-header-container {
+    margin-top: 60px;
+  }
+    .admin-header-tabs {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    height: auto;
+    padding: 10px 20px;
+  }
+
+  .admin-tab {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 14px;
+    border-bottom: none;
+    border-left: 5px solid transparent;
+  }
+
+  .admin-tab.active {
+    border-left-color: #10b981;
+    color: #10b981;
+  }
+}
+
+@media (max-width: 425px) {
+  .admin-header-container {
+    margin-top: 55px;
+  }
+  .content-area {
+    padding: 10px 15px;
+  }
+
+  .leave-tab-button {
+    padding: 10px 5px;
+    font-size: small;
+  }
+  
+  .admin-tab {
+    padding: 12px 15px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 320px) {
+  .content-area {
+    padding: 5px 10px;
+  }
+
+  .leave-tab {
+    gap: 5px;
+  }
+  
+  .admin-tab {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+}

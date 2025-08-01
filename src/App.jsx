@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import Form from "./components/Form/Form";
 import "./App.css";
-import { Route, Routes, Link } from "react-router-dom";
+import { Route, Routes, Link, Navigate } from "react-router-dom";
 import Leaves from "./components/Leaves/Leaves";
 import Navbar from "./components/Navbar/Navbar";
 import Login from "./components/Login/Login";
@@ -12,18 +12,23 @@ import brainImg from "../public/brain.png";
 import CompOff from "./components/CompOff/CompOff";
 import TraansitionModal from "./components/Modal/TraansitionModal";
 import MonthlyDashboard from "./components/MonthlyDashboard/MonthlyDashboard";
+import AdminDashboard from "./components/Admin/AdminDashboard";
+import LeaveHistory from "./components/LeaveHistory/LeaveHistory";
+import {handleBeforeUnload} from "./utils/beforeUnloadHandler";
+
+import RoleUpdateForm from "./components/Navbar/RoleUpdateForm";
+import ProjectManagement from "./components/Admin/ProjectManagement";
+
+import Unauthorized from "./components/Unauthorized/Unauthorized";
+
+import { Box, CircularProgress } from "@mui/material";
 
 function App() {
   const dataContext = useContext(LoginContext);
-  const { email } = dataContext;
+  const { email, isAdmin, loading } = dataContext;
   const [feedbackData, setFeedbackData] = useState(null);
 
   useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      event.preventDefault();
-      event.returnValue = true;
-    };
-
     window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
@@ -31,23 +36,10 @@ function App() {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchFeedbackData = async () => {
-      try {
-        const response = await fetch(
-          "https://script.google.com/macros/s/AKfycbyD6c544p-aVISBAlLUKlkEJRbXuV8tzpwv_YEUP3wKu7cSiKynMaTpqY3c6TqTQYtcOw/exec?type=getProjectFeedbackForm"
-        );
-        const data = await response.json();
-        console.log("Feedback data:", data);
-        // setFeedbackData(data);
-      } catch (error) {
-        console.error("Error fetching feedback data:", error);
-      }
-    };
-
-    
-    fetchFeedbackData();
-  }, []);
+  const ProtectedRoute = ({ children }) => {
+  const email = localStorage.getItem("email");
+  return email ? children : <Navigate to="/" replace />;
+};
 
   return (
     <div className="App">
@@ -59,24 +51,119 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route
             path="/activity-tracker"
-            element={<ProtectedRoute element={<Form />} />}
+            element={
+              <ProtectedRoute>
+                <Form />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/comp-off-application"
-            element={<ProtectedRoute element={<CompOff />} />}
+            element={
+              <ProtectedRoute>
+                <CompOff />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/leave-application"
-            element={<ProtectedRoute element={<Leaves />} />}
+            element={
+              <ProtectedRoute>
+                <Leaves />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/leaves"
-            element={<ProtectedRoute element={<Leaves />} />}
+            element={
+              <ProtectedRoute>
+                <Leaves />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/monthly-activity-dashboard"
-            element={<ProtectedRoute element={<MonthlyDashboard />} />}
+            element={
+              <ProtectedRoute>
+                <MonthlyDashboard />
+              </ProtectedRoute>
+            }
           />
+          <Route
+            path="/admin"
+            element={
+              loading ? (
+                <Box
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "400px",
+                  }}
+                >
+                  Loading...
+                  <CircularProgress style={{ marginLeft: "10px" }} />
+                </Box>
+              ) : (
+                <ProtectedRoute>
+                  {isAdmin ? <AdminDashboard /> : <Navigate to="/unauthorized" replace />}
+                </ProtectedRoute>
+              )
+            }
+          />
+          <Route
+            path="/leave-history"
+            element={
+              <ProtectedRoute>
+                <LeaveHistory />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/role-update"
+            element={
+              loading ? (
+                <Box
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "400px",
+                  }}
+                >
+                  Loading...
+                  <CircularProgress style={{ marginLeft: "10px" }} />
+                </Box>
+              ) : (
+                <ProtectedRoute>
+                  {isAdmin ? <RoleUpdateForm /> : <Navigate to="/unauthorized" replace />}
+                </ProtectedRoute>
+              )
+            }
+          />
+          <Route
+            path="/project-management"
+            element={
+              loading ? (
+                <Box
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "400px",
+                  }}
+                >
+                  Loading...
+                  <CircularProgress style={{ marginLeft: "10px" }} />
+                </Box>
+              ) : (
+                <ProtectedRoute>
+                  {isAdmin ? <ProjectManagement /> : <Navigate to="/unauthorized" replace />}
+                </ProtectedRoute>
+              )
+            }
+          />
+          <Route path="/unauthorized" element={<Unauthorized />} />
         </Routes>
       </main>
       {feedbackData && feedbackData.length > 0 && (

@@ -1,0 +1,22 @@
+{
+  "resourceName": "hrmsEmployeesRecords",
+  "tableName": "hrmsEmployeesRecords",
+  "partitionKey": {
+    "fieldName": "employeeId",
+    "fieldType": "number"
+  },
+  "sortKey": {
+    "fieldName": "status",
+    "fieldType": "string"
+  },
+  "gsi": [
+    {
+      "name": "email",
+      "partitionKey": {
+        "fieldName": "email",
+        "fieldType": "string"
+      }
+    }
+  ],
+  "triggerFunctions": []
+}

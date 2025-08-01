@@ -1,0 +1,1667 @@
+select * from stage_transitions where student_id =12345;
+select * from stage_transitions where student_id =12344;
+select * from stage_transitions where student_id =12344;
+select * from stage_transitions where student_id =12346;
+select * from stage_transitions where student_id =12346;
+select * from stage_transitions where student_id =12346;
+update stage_transitions set transition_done_by= 'ujjwal' where student_id =12346;
+update stage_transitions set transition_done_by= 'ujjwal' where student_id =12346;
+select * from stage_transitions where student_id =12346;
+select * from stage_transitions where student_id =12346;
+select * from stage_transitions where student_id =12346;
+select * from stage_transitions where student_id =12348;
+update stage_transitions set transition_done_by= 'School Of Programming' where student_id =12346;
+update stage_transitions set school= 'School Of Programming' where student_id =12348;
+select * from school;
+update school set name ='School Of Programming' where id =1;
+select * from school;
+select * from stage_transitions where student_id =12348;
+select * from stage_transitions where student_id =12348;
+select * from stage_transitions where student_id =12347;
+select * from stage_transitions where student_id =12347;
+select * from stage_transitions where student_id =12347;
+select * from stage_transitions where student_id =12347;
+select * from stage_transitions where student_id =12347;
+select * from stage_transitions where student_id =12347;
+select * from stage_transitions where student_id =12347;
+select * from stage_transitions where student_id =12347;
+select * from stage_transitions where student_id =12347;
+select * from stage_transitions where student_id =12348;
+select * from stage_transitions where student_id =12348;
+select * from stage_transitions where student_id =12345;
+select * from stage_transitions where student_id =12343;
+select * from stage_transitions where student_id =12343;
+select * from stage_transitions where student_id =12358;
+select * from stage_transitions where student_id =12359;
+select * from stage_transitions where student_id =12349;
+select * from stage_transitions where student_id =12333;
+select * from stage_transitions where student_id =12333 order by id;
+select * from stage_transitions where student_id =12336 order by id;
+select * from school;
+update stage_transitions set school ='School Of Carpanter' where student_id=12336;
+select * from stage_transitions where student_id =12336 order by id;
+select * from students_school;
+select * from students_school; where student_id=12336;
+select * from students_school where student_id=12336;
+insert into students_school school_id,student_id values(1,12336);
+insert into students_school, school_id,student_id values(1,12336);
+INSERT INTO students_school (school_id, student_id) VALUES (1, 12336);
+select * from students_school; where student_id=12336;
+select * from students_school where student_id=12336;
+select * from stage_transitions where student_id =INSERT INTO students_school (school_id, student_id) VALUES (1, 12336);
+select * from stage_transitions where student_id = 12336;
+update stage_transitions set tasition_done_by ='ujjwal' where student_id=12336;
+update stage_transitions set tansition_done_by ='ujjwal' where student_id=12336;
+update stage_transitions set transition_done_by ='ujjwal' where student_id=12336;
+select * from stage_transitions where student_id = 12336;
+select * from students_school where student_id = 12336;
+update students_school set school_id =3 where student_id=12336;
+select * from students_school where student_id = 12336;
+select * from students_school where student_id = 12336;
+select * from feedbacks where student_id =118955;
+select * from feedbacks where student_id =118955;
+select * from feedbacks where student_id =118955;
+select * from feedbacks where student_id =118955;
+select * from feedbacks where student_id =118955;
+select * from feedbacks where student_id =118955;
+select * from feedbacks where student_id =118955;
+select * from feedbacks where student_id =118955;
+select * from feedbacks where student_id =118955;
+select * from feedbacks where student_id =118955;
+\c sansaar1
+select * from knex_migrations where name ='20240103085930_stage_notification_latest.js';
+\d feedbacks;
+select * from partners where id =92;
+select district from partners where id =92;
+\d partners;
+select districts from partners where id =92;
+\d donor;
+select * from donor;
+select count(*) from partners;
+\COPY partners TO '/home/navgurukul/Desktop/partnersfromprod.csv' WITH CSV HEADER;
+\d partners;
+\COPY partners TO '/path/to/output/partners.csv' WITH CSV HEADER;
+\COPY partners TO /home/navgurukul/Desktop/partners.csv' WITH CSV HEADER;
+\COPY partners TO '/home/navgurukul/Desktop/partners.csv' WITH CSV HEADER;
+ezit
+ezi;
+\c sansaar1
+\dt
+\d sub_stage;
+select * from knex_migrations where name ='20240405054946_sub_stage.js';
+SELECT * FROM subStage;
+\DT
+\dt
+\dt
+select * from sub_stage;
+\dt
+\dt
+\dt
+select * from knex_migrations where name ='20240322060535_sub_stage.js';
+delete from knex_migrations where id =393;
+select * from knex_migrations where name ='20240322060535_sub_stage.js';
+select * from knex_migrations where name ='20240322060535_sub_stage.js';
+select * from sub_stage;
+\c chanakya 
+SELECT * FROM pg_stat_activity;
+CREATE TABLE user_activity_log (
+    log_id SERIAL PRIMARY KEY,
+    username TEXT,
+    email TEXT,
+    command TEXT,
+    timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+select * from user_activity_log;
+\c chanakya 
+select * from user_activity_log;
+CREATE OR REPLACE FUNCTION log_user_activity()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO user_activity_log (username, email, command)
+    VALUES (CURRENT_USER, 'user@example.com', pg_stat_activity.query);
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER user_activity_trigger
+AFTER STATEMENT ON DATABASE
+EXECUTE FUNCTION log_user_activity();
+-- Test commands
+SELECT * FROM some_table;
+INSERT INTO another_table VALUES (1, 'example');
+SELECT * FROM some_table;
+select * from contacts where mobile ='04544545454
+';
+select * from contacts where mobile ='04544545454';
+select * from contacts where mobile ='4544545454';
+\dt;
+select * from question_attempts;
+\d question_attempts;
+\dt
+\dt question_attempts;
+\c sansaar1
+\d questions;
+\d questions;
+\d questions;
+\d questions;
+sudo service mariadb status
+;
+sudo service postgres status;
+sudo service postgresql status
+;
+exti
+exit
+quit
+q
+\q
+select count(*) students;
+\d students;
+select * form students;
+select * from students;
+select count(*) students;
+select count(*) from students;
+select id,name from partners where name ='Udaan Foundation';
+select id from students where email='zy@gmail.com';
+select * from partners where student_id = 137855;
+\d partners;
+select email,id,partner_id from students where email =zy@gmail.com;
+select email,id,partner_id from students where email ='zy@gmail.com';
+select * from partners where name ='Chief Minister's Good Governance Associates';
+;
+
+
+exit
+'
+;
+select id from partners where name ='Chief Minister's Good Governance Associates';
+exit
+';
+select * from partners where name ="Chief Minister's Good Governance Associates";
+select * from partners where name ='Bharatiya Yuva Shakti Trust, (BYST)';
+\dt
+select * from contacts where mobile ='9310109335;
+;'
+';
+;exit
+';
+select * from contacts where mobile ='9310109335';
+\dt;
+select * from assessment_result;
+select * from question_attempts;
+select * from question_attempts limit 10;
+select * from enrolment_keys limit 10;
+\d enrolment_keys;
+\d students;
+select * from students where id=149767;
+\d campus;
+select * from campus;
+\dt;
+\d student_campus; 
+SELECT
+    s.email,
+    s.partner_id,
+    e.total_marks,
+    s.stage,
+    c.mobile
+FROM
+    students s
+LEFT JOIN
+    contacts c ON s.id = c.student_id
+LEFT JOIN
+    enrolment_keys e ON s.id = e.student_id
+LEFT JOIN
+    student_campus sc ON s.id = sc.student_id
+WHERE
+    e.total_marks::integer >= 10
+    AND sc.campus_id = 8;
+SELECT
+    s.email,
+    s.partner_id,
+    e.total_marks,
+    s.stage,
+s.district,
+    c.mobile
+FROM
+    students s
+LEFT JOIN
+    contacts c ON s.id = c.student_id
+LEFT JOIN
+    enrolment_keys e ON s.id = e.student_id
+LEFT JOIN
+    student_campus sc ON s.id = sc.student_id
+WHERE
+    e.total_marks::integer >= 10
+    AND sc.campus_id = 8;
+qq
+;
+\COPY (
+    SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        e.total_marks::integer >= 10
+        AND sc.campus_id = 8
+) TO '/home/navgurukul/Desktop/abhove10file.csv' WITH CSV HEADER;
+\COPY (
+    SELECT
+        s.email,
+        s.partner_id,
+        p.name AS partner_name,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    LEFT JOIN
+        partners p ON s.partner_id = p.id
+    WHERE
+        e.total_marks::integer >= 10
+        AND sc.campus_id = 8
+        AND s.partner_id = 899
+) TO '/home/navgurukul/Desktop/abhove10file.csv' WITH CSV HEADER;
+    SELECT
+        s.email,
+        s.partner_id,
+        p.name AS partner_name,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    LEFT JOIN
+        partners p ON s.partner_id = p.id
+    WHERE
+        e.total_marks::integer >= 10
+        AND sc.campus_id = 8
+        AND s.partner_id = 899
+) TO '/home/navgurukul/Desktop/abhove10filee.csv' WITH CSV HEADER;
+\COPY (
+    SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        e.total_marks::integer >= 10
+        AND sc.campus_id = 8
+) TO '/path/to/your/file.csv' WITH CSV HEADER;
+    SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=899
+) TO '/path/to/your/file.csv' WITH CSV HEADER;
+SELECT
+    s.email,
+    s.partner_id,
+    p.name AS partner_name,
+    e.total_marks,
+    s.stage,
+    s.district,
+    c.mobile
+FROM
+    students s
+LEFT JOIN
+    contacts c ON s.id = c.student_id
+LEFT JOIN
+    enrolment_keys e ON s.id = e.student_id
+LEFT JOIN
+    student_campus sc ON s.id = sc.student_id
+LEFT JOIN
+    partners p ON s.partner_id = p.id
+WHERE
+    e.total_marks::integer >= 10
+    AND sc.campus_id = 8
+    AND s.partner_id = 899;
+SELECT
+    s.email,
+    s.partner_id,
+    p.name AS partner_name,
+    e.total_marks,
+    s.stage,
+    s.district,
+    c.mobile
+FROM
+    students s
+LEFT JOIN
+    contacts c ON s.id = c.student_id
+LEFT JOIN
+    enrolment_keys e ON s.id = e.student_id
+LEFT JOIN
+    student_campus sc ON s.id = sc.student_id
+LEFT JOIN
+    partners p ON s.partner_id = p.id
+WHERE
+    AND s.partner_id = 899;
+SELECT
+    s.email,
+    s.partner_id,
+    p.name AS partner_name,
+    e.total_marks,
+    s.stage,
+    s.district,
+    c.mobile
+FROM
+    students s
+LEFT JOIN
+    contacts c ON s.id = c.student_id
+LEFT JOIN
+    enrolment_keys e ON s.id = e.student_id
+LEFT JOIN
+    student_campus sc ON s.id = sc.student_id
+LEFT JOIN
+    partners p ON s.partner_id = p.id
+WHERE
+    AND s.partner_id = 899;
+SELECT
+    s.email,
+    s.partner_id,
+    p.name AS partner_name,
+    e.total_marks,
+    s.stage,
+    s.district,
+    c.mobile
+FROM
+    students s
+LEFT JOIN
+    contacts c ON s.id = c.student_id
+LEFT JOIN
+    enrolment_keys e ON s.id = e.student_id
+LEFT JOIN
+    student_campus sc ON s.id = sc.student_id
+LEFT JOIN
+    partners p ON s.partner_id = p.id
+WHERE
+    s.partner_id = 899;
+\COPY (
+    SELECT
+        s.email,
+        s.partner_id,
+        p.name AS partner_name,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    LEFT JOIN
+        partners p ON s.partner_id = p.id
+    WHERE
+        e.total_marks::integer >= 10
+        AND sc.campus_id = 8
+        AND s.partner_id = 899
+) TO '/home/navgurukul/Desktop/above10file.csv' WITH CSV HEADER;
+    SELECT
+        s.email,
+        s.partner_id,
+        p.name AS partner_name,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    LEFT JOIN
+        partners p ON s.partner_id = p.id
+    WHERE
+        e.total_marks::integer >= 10
+        AND sc.campus_id = 8
+        AND s.partner_id = 899
+) TO '/home/navgurukul/Desktop/above10file.csv' WITH CSV HEADER;
+COPY (
+    SELECT
+        s.email,
+        s.partner_id,
+        p.name AS partner_name,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    LEFT JOIN
+        partners p ON s.partner_id = p.id
+    WHERE
+        e.total_marks::integer >= 10
+        AND sc.campus_id = 8
+        AND s.partner_id = 899
+) TO '/home/navgurukul/Desktop/above10file.csv' WITH CSV HEADER;
+\COPY (
+    SELECT
+        s.email,
+        s.partner_id,
+        p.name AS partner_name,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    LEFT JOIN
+        partners p ON s.partner_id = p.id
+    WHERE
+        e.total_marks::integer >= 10
+        AND sc.campus_id = 8
+        AND s.partner_id = 899
+) TO '/home/navgurukul/Desktop/above10file.csv' WITH CSV HEADER;
+\COPY (
+    SELECT
+        s.email,
+        s.partner_id,
+        p.name AS partner_name,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    LEFT JOIN
+        partners p ON s.partner_id = p.id
+    WHERE
+        s.partner_id = 899
+) TO '/home/navgurukul/Desktop/above10file.csv' WITH CSV HEADER;
+\COPY (
+    SELECT
+        s.email,
+        s.partner_id,
+        p.name AS partner_name,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    LEFT JOIN
+        partners p ON s.partner_id = p.id
+    WHERE
+        s.partner_id = 899
+    GROUP BY
+        s.email, s.partner_id, p.name, e.total_marks, s.stage, s.district, c.mobile
+) TO '/home/navgurukul/Desktop/jashpurPartner.csv' WITH CSV HEADER;
+select count(*) from partners where name='Jashpur';
+selct count(*) from students where partner_id=899;
+select count(*) from students where partner_id=899;
+\d campus;
+select * from campus;
+select count(*) from student_campus where campus_id =8;
+select count(*) from students where partner_id =899;
+COPY (
+    SELECT
+        s.email,
+        s.partner_id,
+        p.name AS partner_name,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    LEFT JOIN
+        partners p ON s.partner_id = p.id
+    WHERE
+        e.total_marks::integer >= 10
+        AND sc.campus_id = 8
+        AND s.partner_id = 899
+) TO '/home/navgurukul/Desktop/above10file.csv' WITH CSV HEADER;
+\COPY (
+    SELECT
+        s.email,
+        s.partner_id,
+        p.name AS partner_name,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    LEFT JOIN
+        partners p ON s.partner_id = p.id
+    WHERE
+        AND s.partner_id = 899
+) TO '/home/navgurukul/Desktop/jashpurPartner.csv' WITH CSV HEADER;
+\COPY (
+    SELECT
+        s.email,
+        s.partner_id,
+        p.name AS partner_name,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    LEFT JOIN
+        partners p ON s.partner_id = p.id
+    WHERE
+         s.partner_id = 899
+) TO '/home/navgurukul/Desktop/jashpurPartner.csv' WITH CSV HEADER;
+select count(*) from students where partner_id =899;
+\c sansaar1
+\d ghar_users;
+\d ghar_users;
+select * from ghar_users;
+select count(*) from students where partner_id =52;
+select * from students where email ='r@gmail.com';
+select * from partners where name ='alf';
+select * from partners where name ='Alohomora Education Foundation';
+select * from partners where name ='Alohomora Education Foundation';
+select count(*) from students where partner_id =1469;
+  SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52;
+\COPY (
+    SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52
+) TO '/home/navgurukul/Desktop/alhomora.csv' WITH CSV HEADER;
+    SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52
+) TO '/home/navgurukul/Desktop/alhomora.csv' WITH CSV HEADER;
+\COPY(SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52;
+) TO '/home/navgurukul/Desktop/alohomora.csv' WITH CSV HEADER;
+ SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52;
+SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52;
+SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52;
+SELECT
+        s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.created_at,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52;
+\COPY (
+    SELECT
+        s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.created_at,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id = 52
+) TO '/home/navgurukul/Desktop/alhomora.csv' WITH CSV HEADER;
+COPY (
+    SELECT
+        s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.created_at,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id = 52
+) TO '/home/navgurukul/Desktop/alhomora.csv' WITH CSV HEADER;
+\COPY (
+    SELECT
+        s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.created_at,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id = 52
+) TO '/home/navgurukul/Desktop/alhomora.csv' WITH CSV HEADER;
+select * from partner where name = 'Alohomora';
+select * from partners where name = 'Alohomora';
+  SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52;
+  SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52;
+ SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52;
+ SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52;
+ SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52;
+ SELECT
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52;
+\COPY (
+    SELECT
+        s.email,
+s.name,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        e.total_marks::integer >= 10
+        AND sc.campus_id = 8
+) TO '/home' WITH CSV HEADER;
+    SELECT
+        s.email,
+s.name,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        e.total_marks::integer >= 10
+        AND sc.campus_id = 8
+) TO '/home/nav' WITH CSV HEADER;
+\COPY (
+    SELECT
+        s.email,
+s.name,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52
+) TO '/path/to/your/file.csv' WITH CSV HEADER;
+\d students;
+SELECT
+s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+s.created_at
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52;
+SELECT
+s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+s.created_at
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52;
+SELECT
+        s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.stage,
+        s.created_at,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52;
+\COPY (
+SELECT
+s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+s.created_at,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52
+) TO '/home/navgurukul/Desktop/alhomora.csv' WITH CSV HEADER;
+\COPY(SELECT
+        s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.created_at,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52) TO '/home/navgurukul/Desktop/alhomora.csv' WITH CSV HEADER;
+\COPY(SELECT
+        s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+        s.created_at,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52) TO '/home/navgurukul/Desktop/alhomora.csv' WITH CSV HEADER;
+select partners where name ='Milan'
+;
+select partners where name ='Milan';
+select * partners where name ='Milan';
+select * partner where name ='Milan';
+select * partners where name ='Milan';
+select*partners where name ='Milan';
+select * from partners;
+select * from partners where name='Milan';
+select * from partners where name='Milaan';
+select * from partners where name='Educate Girls';
+select * from partners where name='Alohomora';
+select * from partners where name='Manzil';
+select * from partners where name='Manzil (Delhi)';
+select * from partners where name='BSSK Pune';
+select count(*) from students where partner_id =1471;
+select count(*) from students where partner_id =27;
+select count(*) from students where partner_id =52;
+select count(*) from students where partner_id =157;
+select count(*) from students where partner_id =34;
+COPY (
+SELECT
+s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+s.created_at,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52
+) TO '/home/navgurukul/Desktop/alhomoraNew.csv' WITH CSV HEADER;
+\COPY (
+SELECT
+s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+s.created_at,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=52
+) TO '/home/navgurukul/Desktop/alhomoraNew.csv' WITH CSV HEADER;
+\COPY (
+SELECT
+s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+s.created_at,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=27
+) TO '/home/navgurukul/Desktop/manzil.csv' WITH CSV HEADER;
+\COPY (
+SELECT
+s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+s.created_at,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=1471
+) TO '/home/navgurukul/Desktop/bssk.csv' WITH CSV HEADER;
+\COPY (
+SELECT
+s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+s.created_at,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=157
+) TO '/home/navgurukul/Desktop/educateGirls.csv' WITH CSV HEADER;
+\COPY (
+SELECT
+s.name,
+        s.email,
+        s.partner_id,
+        e.total_marks,
+s.created_at,
+        s.stage,
+        s.district,
+        c.mobile
+    FROM
+        students s
+    LEFT JOIN
+        contacts c ON s.id = c.student_id
+    LEFT JOIN
+        enrolment_keys e ON s.id = e.student_id
+    LEFT JOIN
+        student_campus sc ON s.id = sc.student_id
+    WHERE
+        s.partner_id=34
+) TO '/home/navgurukul/Desktop/milaan.csv' WITH CSV HEADER;
+\l
+\c my_db;
+\dt
+create database ignou
+;
+\c ignou; 
+\dt;
+CREATE TABLE SALARY_DETAILS (
+    ENAME VARCHAR(50),
+    ENO INT PRIMARY KEY,
+    DEPT VARCHAR(50),
+    BRANCH VARCHAR(50),
+    BASIC DECIMAL(10, 2),
+    HRA DECIMAL(10, 2),
+    DEDUCTIONS DECIMAL(10, 2),
+    TAX DECIMAL(10, 2),
+    DATE_OF_JOIN DATE
+);
+CREATE TABLE SALARY_DETAILS (
+    NAME VARCHAR(50),
+    NO INT PRIMARY KEY,
+    DEPT VARCHAR(50),
+    BRANCH VARCHAR(50),
+    BASIC DECIMAL(10, 2),
+    HRA DECIMAL(10, 2),
+    DEDUCTIONS DECIMAL(10, 2),
+    TAX DECIMAL(10, 2),
+    DATE_OF_JOIN DATE
+);
+set search path to main;
+show search path;
+SET search_path TO public;
+CREATE TABLE SALARY_DETAILS (
+    NAME VARCHAR(50),
+    NO INT PRIMARY KEY,
+    DEPT VARCHAR(50),
+    BRANCH VARCHAR(50),
+    BASIC DECIMAL(10, 2),
+    HRA DECIMAL(10, 2),
+    DEDUCTIONS DECIMAL(10, 2),
+    TAX DECIMAL(10, 2),
+    DATE_OF_JOIN DATE
+);
+\dt;
+INSERT INTO SALARY_DETAILS (ENAME, ENO, DEPT, BRANCH, BASIC, HRA, DEDUCTIONS, TAX, DATE_OF_JOIN)
+VALUES
+('John Doe', 101, 'HR', 'New York', 50000.00, 10000.00, 5000.00, 2000.00, '2023-01-15'),
+('Jane Smith', 102, 'Finance', 'Chicago', 60000.00, 12000.00, 6000.00, 2500.00, '2023-02-20'),
+('Sam Brown', 103, 'IT', 'San Francisco', 55000.00, 11000.00, 5500.00, 2200.00, '2023-03-10'),
+('Lisa White', 104, 'Marketing', 'Los Angeles', 58000.00, 11500.00, 5800.00, 2300.00, '2023-04-25'),
+('Tom Green', 105, 'Sales', 'Houston', 49000.00, 9800.00, 4900.00, 1800.00, '2023-05-30'),
+('Emma Black', 106, 'IT', 'San Diego', 53000.00, 10600.00, 5300.00, 2100.00, '2023-06-15'),
+('Olivia Blue', 107, 'Finance', 'New York', 62000.00, 12400.00, 6200.00, 2600.00, '2023-07-05'),
+('James Grey', 108, 'HR', 'Chicago', 51000.00, 10200.00, 5100.00, 2000.00, '2023-08-10'),
+('Sophia Red', 109, 'Sales', 'San Francisco', 56000.00, 11200.00, 5600.00, 2400.00, '2023-09-20'),
+('Michael Yellow', 110, 'Marketing', 'Los Angeles', 57000.00, 11400.00, 5700.00, 2200.00, '2023-10-30');
+INSERT INTO SALARY_DETAILS (NAME, NO, DEPT, BRANCH, BASIC, HRA, DEDUCTIONS, TAX, DATE_OF_JOIN)
+VALUES
+('John Doe', 101, 'HR', 'New York', 50000.00, 10000.00, 5000.00, 2000.00, '2023-01-15'),
+('Jane Smith', 102, 'Finance', 'Chicago', 60000.00, 12000.00, 6000.00, 2500.00, '2023-02-20'),
+('Sam Brown', 103, 'IT', 'San Francisco', 55000.00, 11000.00, 5500.00, 2200.00, '2023-03-10'),
+('Lisa White', 104, 'Marketing', 'Los Angeles', 58000.00, 11500.00, 5800.00, 2300.00, '2023-04-25'),
+('Tom Green', 105, 'Sales', 'Houston', 49000.00, 9800.00, 4900.00, 1800.00, '2023-05-30'),
+('Emma Black', 106, 'IT', 'San Diego', 53000.00, 10600.00, 5300.00, 2100.00, '2023-06-15'),
+('Olivia Blue', 107, 'Finance', 'New York', 62000.00, 12400.00, 6200.00, 2600.00, '2023-07-05'),
+('James Grey', 108, 'HR', 'Chicago', 51000.00, 10200.00, 5100.00, 2000.00, '2023-08-10'),
+('Sophia Red', 109, 'Sales', 'San Francisco', 56000.00, 11200.00, 5600.00, 2400.00, '2023-09-20'),
+('Michael Yellow', 110, 'Marketing', 'Los Angeles', 57000.00, 11400.00, 5700.00, 2200.00, '2023-10-30');
+SELECT AVG(BASIC) AS Average_Basic_Pay
+FROM SALARY_DETAILS;
+\dt;
+\d salary_details;
+select avg(basic) from salary_details; 
+select avg(tax) from salary_details; 
+select avg(date_of_join) from salary_details; 
+\d questions;
+select * from questions where id =1980;
+select * from questions where id =1987;
+select * from questions;
+select count(*) from questions;
+select count(*) from questions where id =499;
+select *from questions where id =499;
+\c sansaar1
+\d questions;
+\c sansaar1 
+\d students;
+\d fcccourses_challenge_id_unique 
+\d fccCourses;
+select * from fcccourses_challenge_id_unique;
+\d fcccourses_challenge_id_unique;
+\dt
+select * from knex_migrations;
+cat 20240830052014_fccCourses.js;
+select * from fcc_courses;
+\dt
+select * from ghar_users;
+truncate table ghar_users ;
+truncate table ghar_users;
+truncate table ghar_users ... cascade;
+truncate table ghar_users ...cascade;
+truncate table ghar_users...cascade;
+select * from fcc_courses;
+truncate table fcc_courses;
+select * from fcc_courses;
+select count(*) from fcc_courses;
+select count(*) from fcc_courses;
+select count(*) from fcc_courses;
+select count(*) from fcc_courses;
+truncate table fcc_courses;
+select count(*) from fcc_courses;
+truncate table fcc_courses;
+select count(*) from fcc_courses;
+truncate table fcc_courses;
+truncate table fcc_courses;
+select count(*) from fcc_courses;
+select count(*) from fcc_courses;
+truncate table fcc_courses;
+select count(*) from fcc_courses;
+select count(*) from fcc_courses;
+select * from fcc_courses;
+truncate table fcc_courses;
+select * from fcc_courses;
+select * from contacts where mobile ='8103111376';
+select name,email,city from students where id =157136;
+select name,email,city from students where id =156912;
+show databases;
+\l
+use striveLabs
+create database striveLabs
+use striveLabs
+\l
+CREATE DATABASE striveLabs;
+';
+;'
+exit
+q
+\l
+\c my_db 
+\c my_db; 
+\dt
+use test
+use test;
+\c test;
+\dt
+create database striveLabs;
+\dt
+\c strivelabs; 
+\dt
+show path;
+set path main;
+SET search_path TO public;
+\dt
+SET search_path TO main;
+\dt
+show search_path;
+set search_path to main;
+\d
+\dt
+\c
+\l
+\dt
+use obj;
+\c obj;
+\dt
+\dt
+\l strivelabs 
+\c strivelabs 
+\c obj 
+\dt
+select * from kv_store;
+select * from kv_store;
+select * from kv_store;
+u
+\c test 
+\obj
+\c obj 
+select * from kv_store;
+select * from kv_store;
+select * from kv_store;
+truncate kv_store; 
+create database chanakya;
+create database chanakya2025;
+\c chanakya2025;
+\q
+\c chanakya2025 
+\dt
+\d user_tokens;
+select * from user_tokens;
+\d chanakya_access;
+select * from chanakya_access;
+\c chanakya2025 
+\c chanakya2025 
+\dt zuvy_bootcamps;
+\d zuvy_bootcamps;
+select id,name,bootcamp_topic,language from zuvy_bootcamps;
+\d question_buckets;
+\d question_sets
+;
+select * from question_sets limit 100;
+select * from test_versions;
+select * from question_sets;
+create database practicing;
+use practicing;
+\c practicing;
+create table user(id primary key,name varchar 200,email varchar 50);
+create table user(id int primary key,name varchar(200),email varchar(50));
+create table user (id int primary key,name varchar(200),email varchar(50));
+\dt;
+set search_path to main;
+create table user (id int primary key,name varchar(200),email varchar(50));
+\dt
+create table "user" (id int primary key,name varchar(200),email varchar(50));
+create table users (id int primary key,name varchar(200),email varchar(50));
+create table "users" (id int primary key,name varchar(200),email varchar(50));
+create table "users" (id INT PRIMARY KEY,name VARCHAR(200),email VARCHAR(50));
+create table employee (id INT PRIMARY KEY,name VARCHAR(200),email VARCHAR(50));
+CREATE TABLE users (id INT PRIMARY KEY,name VARCHAR(200),email VARCHAR(50));
+create table "user" (id int primary key,name varchar(200),email varchar(50));
+CREATE TABLE users (id SERIAL PRIMARY KEY,name VARCHAR(200),email VARCHAR(50));
+CREATE TABLE employees (id SERIAL PRIMARY KEY,name VARCHAR(200),email VARCHAR(50));
+SET search_path TO public;
+CREATE TABLE employees (id SERIAL PRIMARY KEY,name VARCHAR(200),email VARCHAR(50));
+insert into employees(name,email) values(Radha,radhakrishna@sanatan.org);
+insert into employees(name,email) values("Radha","radhakrishna@sanatan.org");
+insert into employees(name,email) values('Radha','radhakrishna@sanatan.org');
+select * from employees;
+insert into employees(name,email) values('krishna','radhakrishna@sanatan.org');
+select * from employees;
+concat name email from employees;
+concate name email from employees;
+cancate name email from employees;
+insert into employees(name,email) values(('Ram','ram@sanatan.org'),('Sita','sita@sanatan.org'),('Hanuman','hanuman@sanatan.org'));
+insert into employees(name,email) values('Ram','ram@sanatan.org'),('Sita','sita@sanatan.org'),('Hanuman','hanuman@sanatan.org');
+insert into employees(name,email) values('Ram','ram@sanatan.org'),('Sita','sita@sanatan.org'),('Hanuman','hanuman@sanatan.org') returning id;
+insert into employees(name,email) values('Ram','ram@sanatan.org'),('Sita','sita@sanatan.org'),('Hanuman','hanuman@sanatan.org') returning email;
+insert into employees(name,email) values('Ram','ram@sanatan.org'),('Sita','sita@sanatan.org'),('Hanuman','hanuman@sanatan.org') returning email,id;
+insert into employees(name,email) values('Ram','ram@sanatan.org'),('Sita','sita@sanatan.org'),('Hanuman','hanuman@sanatan.org') concat email,id;
+\dt employees returning id;
+INSERT INTO employees(name, email)
+VALUES
+  ('Ram', 'ram@sanatan.org'),
+  ('Sita', 'sita@sanatan.org'),
+  ('Hanuman', 'hanuman@sanatan.org')
+RETURNING id, email, (email || id::text) AS email_id_concat;
+INSERT INTO employees(name, email)
+VALUES
+  ('Ram', 'ram@sanatan.org'),
+  ('Sita', 'sita@sanatan.org'),
+  ('Hanuman', 'hanuman@sanatan.org')
+RETURNING id, email, (email || id::text) AS email_''_name_concat;
+INSERT INTO employees(name, email)
+VALUES
+  ('Ram', 'ram@sanatan.org'),
+  ('Sita', 'sita@sanatan.org'),
+  ('Hanuman', 'hanuman@sanatan.org')
+RETURNING id, email, (email || id::text) AS email_name_concat;
+INSERT INTO employees(name, email)
+VALUES
+  ('Ram', 'ram@sanatan.org'),
+  ('Sita', 'sita@sanatan.org'),
+  ('Hanuman', 'hanuman@sanatan.org')
+RETURNING id, email, (email || id::text) AS email_name_concat;
+select email::name;
+select email::name from employees;
+select email::text from employees;
+select '1'::int from employees;
+select '1'::int;
+select '1.0'::int;
+select 1::int;
+select '2025-04-12'::date;
+select '2025-04-12';
+select '2025-04-12'::date123;
+select '2025-04-12'::date AS ujjwal;
+select '2025-04-12'::date AS ujjwalTime;
+select '2025-04-12'::date AS ujjwalTime returning ujjwalTime;
+select '2025-04-12'::date AS ujjwalTime returning '2';
+INSERT INTO employees DEFAULT VALUES;
+select * from employees;
+INSERT INTO employees DEFAULT VALUES;
+INSERT INTO employees DEFAULT VALUES;
+INSERT INTO employees DEFAULT VALUES;
+select * from employees;
+INSERT INTO employees default values;
+create table users(id serial primary key,name varchar(200),ngEmail varchar(200),status boolean default true);
+INSERT INTO users;
+INSERT INTO users default values;
+select * from users;
+truncate users;
+insert into users (name,ngemail) select name,email from employees;
+insert into users (name,ngemail) select name,email from employees limit 10;
+select * from users;
+truncate users;
+insert into users (name,ngemail) select name,email from employees limit 10;
+select * from users;
+truncate users;
+insert into users (name,ngemail) select name,email from employees on conflict (ngemail);
+insert into users (name,ngemail) select name,email from employees on conflict(ngemail);
+insert into users (name,ngemail) select name,email from employees on conflict(ngemail) do update;
+insert into users (name,ngemail) select name,email from employees on conflict(ngemail) do update set name=excluded.name;
+insert into users (name,ngemail) select name,email from employees on conflict(ngemail) do update set name=excluded.name,status=true;
+truncate users;
+INSERT INTO users (name, ngEmail)
+SELECT e.name, e.email
+FROM employees e
+WHERE NOT EXISTS (
+    SELECT 1 FROM users u WHERE u.ngEmail = e.email
+)
+;
+INSERT INTO users (name, ngEmail)
+SELECT e.name, e.email
+FROM employees e
+WHERE NOT EXISTS (
+    SELECT 1 FROM users u WHERE u.ngEmail = e.email
+)
+;
+INSERT INTO users (name, ngEmail)
+SELECT e.name, e.email
+FROM employees e
+WHERE NOT EXISTS (
+    SELECT 1 FROM users u WHERE u.ngEmail = e.email
+)
+;
+INSERT INTO users (name, ngEmail)
+SELECT e.name, e.email
+FROM employees e
+WHERE NOT EXISTS (
+    SELECT 1 FROM users u WHERE u.ngEmail = e.email
+)
+;
+INSERT INTO users (name, ngEmail)
+SELECT e.name, e.email
+FROM employees e
+WHERE NOT EXISTS (
+    SELECT 1 FROM users u WHERE u.ngEmail = e.email
+)
+;
+INSERT INTO users (name, ngEmail)
+SELECT e.name, e.email
+FROM employees e
+WHERE NOT EXISTS (
+    SELECT 1 FROM users u WHERE u.ngEmail = e.email
+)
+;
+select count(*) from users.
+;
+select count(*) from users;
+\c practicing 
+\dt
+set search_path to public
+;
+\! clear
+\d users;
+\d employees;
+delete from users where id IN(15,16,18);
+select id from users limit 5
+;
+delete from users where id IN(51,52,53);
+select id from users limit 5
+;
+select id || ' ' || email from users;
+select id || ' ' || ngemail from users;
+select id || ' ' || ngemail from users limit 5;
+delete from users where ngemail = '%sanatan.org';
+delete from users where ngemail like '%sanatan.org';
+insert into users (name,ngemail) select name,email from employees;
+delete from users where ngemail in (select email from employees);
+SELECT users.id, users.name, employees.id AS emp_id
+FROM users
+JOIN employees ON users.ngemail = employees.email;
+insert into users (name,ngemail) select name,email from employees;
+SELECT users.id, users.name, employees.id AS emp_id
+FROM users
+JOIN employees ON users.ngemail = employees.email;
+SELECT users.*
+FROM users
+LEFT JOIN employees ON users.ngemail = employees.email
+WHERE employees.email IS NULL;
+SELECT users.*
+FROM users
+LEFT JOIN employees ON users.ngemail = employees.email
+WHERE employees.email IS NULL;
+\! clear
+\s
+\s
+\s order by desc;

@@ -746,7 +746,7 @@ useEffect(() => {
           />
         </div>
 
-        {((formData.department || userDepartment) === "Residential Program"
+        {/* {((formData.department || userDepartment) === "Residential Program"
       || formData.department === "Culture"
       || formData.department === "Academics"
       || formData.department === "Operations"
@@ -770,7 +770,7 @@ useEffect(() => {
               ))}
             </select>
           </div>
-        )}
+        )} */}
 
         {formData.contributions.length > 0 && (
           <div>

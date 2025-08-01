@@ -52,7 +52,7 @@ const ProjectManagement = () => {
     campus: "",
     discordWebhook: "",
     poc_of_project: "",
-    projectStatus: "", // Add this field
+    projectStatus: "", 
   });
 
   const [filters, setFilters] = useState({

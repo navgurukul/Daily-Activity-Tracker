@@ -127,7 +127,7 @@ const Navbar = (props) => {
   };
 
   const handleClick = (button) => {
-    console.log("Handleclick", button);
+    // console.log("Handleclick", button);
     if (button === "logout") {
       localStorage.clear();
       sessionStorage.clear();

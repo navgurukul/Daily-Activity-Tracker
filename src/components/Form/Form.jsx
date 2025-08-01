@@ -379,7 +379,7 @@ const Form = () => {
           break;
       }
     }
-   console.log ("Current hour:", currentHour);
+  //  console.log ("Current hour:", currentHour);
 
     const minDate = new Date();
 

@@ -107,6 +107,7 @@ const Form = () => {
 
   const [showSaveError, setShowSaveError] = useState(false);
   const [projectNameToId, setProjectNameToId] = useState({});
+  const [backdatedAttemptsLeft, setBackdatedAttemptsLeft] = useState(0);
   
   const location = useLocation();
 
@@ -632,6 +633,26 @@ useEffect(() => {
 }
 
   useEffect(() => {
+    const email = localStorage.getItem("email") ?? "";
+
+    const fetchUserAttempts = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/attempts?email=${email}`);
+        const data = await response.json();
+        if (data?.data) {
+          setBackdatedAttemptsLeft(data?.data?.attemptsLeft);
+        }
+      } catch (error) {
+        console.error("Error fetching user attempts:", error);
+      }
+    };
+
+    if (email) {
+      fetchUserAttempts();
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchDepartments = async () => {
       try {
         const res = await fetch(
@@ -659,6 +680,19 @@ useEffect(() => {
       <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
         <h3 style={{ fontSize: "32px", fontWeight: "bold", color: "#000" }}>
           Welcome Back, <span style={{ color: "#2E7D32" }}>{userName}</span>
+        </h3>
+                <h3
+          style={{
+            fontSize: "1rem",
+            fontWeight: "500",
+            color: "#000",
+            marginTop: "0.5rem",
+          }}
+        >
+          Remaining Attempts for Backdated Entries :-{" "}
+          <span style={{ color: "#2E7D32", fontWeight: "bold" }}>
+            {backdatedAttemptsLeft}
+          </span>
         </h3>
         <h1
           style={{

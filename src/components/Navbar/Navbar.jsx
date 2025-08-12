@@ -87,7 +87,7 @@ const Navbar = (props) => {
     console.log("Can see access control:", canSeeAccessControl());
     console.log("Can see project management:", canSeeProjectManagement());
     console.log("Is Admin (legacy):", isAdmin);
-    console.log("========================");
+    // console.log("========================");
   }, [email, userRole]);
 
   // ============== ALL EXISTING useEffects PRESERVED ==============

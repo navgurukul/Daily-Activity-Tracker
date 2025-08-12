@@ -24,6 +24,7 @@ const LeaveManagement = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const [isApproving, setIsApproving] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
 
   const [filterEmail, setFilterEmail] = useState("");
   const [filterMonth, setFilterMonth] = useState("");
@@ -332,6 +333,68 @@ const LeaveManagement = () => {
     }
   };
 
+  const handleRejectAll = async () => {
+  if (selectedLeave.length === 0) {
+    setSnackbarMessage("Please select leave to reject.");
+    setSnackbarSeverity("warning");
+    setSnackbarOpen(true);
+    return;
+  }
+  setIsRejecting(true);
+
+  const approverEmail = email;
+  const token = localStorage.getItem("jwtToken");
+
+  const leaveData = pendingLeaves
+    .filter((leave) => selectedLeave.includes(leave.Id))
+    .map((leave) => ({
+      Id: leave.Id,
+      approverEmail,
+      status: "rejected",
+    }));
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/employmentLeavePolicy`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          isBulkUpload: true,
+          leaveData,
+        }),
+      }
+    );
+
+    const result = await response.json();
+    console.log("Bulk rejection response:", result);
+
+    if (response.ok) {
+      const stillPending = pendingLeaves.filter((leave) => !selectedLeave.includes(leave.Id));
+      setPendingLeaves(stillPending);
+
+      setSnackbarMessage("Selected leaves rejected successfully.");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } else {
+      setSnackbarMessage(result?.message || "Bulk rejection failed.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+
+  } catch (error) {
+    console.error("Bulk rejection error:", error);
+    setSnackbarMessage("Something went wrong during bulk rejection.");
+    setSnackbarSeverity("error");
+    setSnackbarOpen(true);
+  } finally {
+    setIsRejecting(false);
+  }
+};
+
   const handleSelectAll = (isChecked) => {
   if (isChecked) {
     const allIds = pendingLeaves.map(leave => leave.Id);
@@ -530,6 +593,14 @@ const downloadCSV = async () => {
                   </div>
                 </div>
               )}
+              {isRejecting && (
+                <div className="loader-overlay">
+                  <div className="loader-box">
+                    <span style={{ margin: "0px", fontWeight: "bold" }}>Rejecting leave...</span>
+                    <CircularProgress size={24} />
+                  </div>
+                </div>
+              )}
               {pendingLeaves.length === 0 ? (
                 <p style={{ fontSize: '17px', textAlign: "center" }}>No pending leaves found.</p>
               ) : (
@@ -550,24 +621,46 @@ const downloadCSV = async () => {
   }
   label="Select All"
 />
-                    <Button
-                      variant="contained"
-                      onClick={handleApproveAll}
-                      sx={{
-                        backgroundColor: '#1976D2',
-                        color: '#fff',
-                        fontWeight: 'bold',
-                        textTransform: 'none',
-                        px: 2,
-                        py: 1,
-                        borderRadius: 2,
-                        boxShadow: 2,
-                        '&:hover': {
-                          backgroundColor: '#115293',
-                        }
-                      }}>
-                      Approve Selected Leaves
-                    </Button>
+                    <div>
+                      <Button
+                        variant="contained"
+                        onClick={handleRejectAll}
+                        sx={{
+                          backgroundColor: '#f34f26ff',
+                          color: '#fff',
+                          fontWeight: 'bold',
+                          textTransform: 'none',
+                          px: 2,
+                          py: 1,
+                          borderRadius: 2,
+                          boxShadow: 2,
+                          '&:hover': {
+                            backgroundColor: '#da3309ff',
+                          }
+                        }}>
+                        Reject Selected Leaves
+                      </Button>
+
+                      <Button
+                        variant="contained"
+                        onClick={handleApproveAll}
+                        sx={{
+                          backgroundColor: '#1976D2',
+                          color: '#fff',
+                          fontWeight: 'bold',
+                          textTransform: 'none',
+                          px: 2,
+                          py: 1,
+                          ml: 1,
+                          borderRadius: 2,
+                          boxShadow: 2,
+                          '&:hover': {
+                            backgroundColor: '#115293',
+                          }
+                        }}>
+                        Approve Selected Leaves
+                      </Button>
+                    </div>
                   </div>
                   <table style={{ minWidth: 1180 }}>
                     <thead>

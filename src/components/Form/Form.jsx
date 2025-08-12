@@ -689,7 +689,7 @@ useEffect(() => {
             marginTop: "0.5rem",
           }}
         >
-          Remaining Attempts for Backdated Entries :-{" "}
+          Remaining Attempts for Backdated Entries : {" "}
           <span style={{ color: "#2E7D32", fontWeight: "bold" }}>
             {backdatedAttemptsLeft}
           </span>

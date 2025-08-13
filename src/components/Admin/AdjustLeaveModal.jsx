@@ -43,7 +43,8 @@ const AdjustLeaveModal = ({
 
   const leaveTypes = [
     "Exam Leave",
-    "Casual Leave", 
+    "Casual Leave",
+    "Festival Leave",
     "Bereavement Leave",
     "Vipassana Leave",
     "Wellness Leave",

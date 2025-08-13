@@ -44,6 +44,7 @@ function DailyLogs() {
     workDescription: "",
     projectName: "",
     totalHoursSpent: "",
+    date: "",
   });
   const [snackbar, setSnackbar] = useState({ open: false, message: "", error: false });
   const [loading, setLoading] = useState(false);
@@ -182,6 +183,7 @@ function DailyLogs() {
       workDescription: log.description,
       projectName: log.project,
       totalHoursSpent: log.totalHoursSpent,
+      date: log.date,
     });
     setEditLog(log);
   };
@@ -212,6 +214,7 @@ function DailyLogs() {
     }
     // Proceed to update
     try {
+      const entryDate = editedData?.date;
       const response = await fetch(
         ACTIVITY_LOGS_URL,
         {
@@ -220,7 +223,7 @@ function DailyLogs() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
           },
-          body: JSON.stringify([{ ...editedData, logStatus: "approved" }]),
+          body: JSON.stringify([{ ...editedData, logStatus: "approved", entryDate }]),
         }
       );
       if (response.ok) {
@@ -482,6 +485,14 @@ function DailyLogs() {
                   <TableCell>Project</TableCell>
                   <TableCell>Hours</TableCell>
                   <TableCell>Description</TableCell>
+                  <TableCell
+                    sx={{
+                      whiteSpace: "wrap",
+                      minWidth: { xs: 50, sm: 80, md: 150 },
+                    }}
+                  >
+                    Submission Time
+                  </TableCell>
                   {/* <TableCell>Status</TableCell> */}
                   <TableCell>Actions</TableCell>
                 </TableRow>
@@ -494,6 +505,7 @@ function DailyLogs() {
                     <TableCell>{log.project}</TableCell>
                     <TableCell>{log.totalHoursSpent}</TableCell>
                     <TableCell>{log.description}</TableCell>
+                    <TableCell>{log.updatedAt?.split(".")[0]}</TableCell>
                     {/* <TableCell>
                       <Chip label={log.logStatus} color={log.logStatus === "approved" ? "success" : log.logStatus === "rejected" ? "error" : "warning"} size="small" />
                     </TableCell> */}
@@ -583,6 +595,11 @@ function DailyLogs() {
         <DialogTitle>Edit Log</DialogTitle>
         <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
           <TextField label="Approver Email" value={userEmail} disabled sx={{ mt: 1 }} />
+          <TextField
+            label="Log Date"
+            value={editedData.date} // ✅ Changed from editLog.date to editedData.date
+            onChange={(e) => handleEditChange("date", e.target.value)}
+          />
           <TextField label="Project Name" value={editedData.projectName} onChange={(e) => handleEditChange("projectName", e.target.value)} />
           <TextField label="Work Description" multiline rows={3} value={editedData.workDescription} onChange={(e) => handleEditChange("workDescription", e.target.value)} />
           <TextField

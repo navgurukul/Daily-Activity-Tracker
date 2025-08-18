@@ -28,6 +28,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import debounce from "lodash/debounce";
 import { Edit, Check, Close } from "@mui/icons-material";
 import axios from "axios";
+import AddLogModal from "./AddLogModal"; 
 
 function DailyLogs() {
   const [projectName, setProjectName] = useState("");
@@ -64,6 +65,7 @@ function DailyLogs() {
   const [nextPage, setNextPage] = useState(null);
   const [previousPages, setPreviousPages] = useState([]);
   const [allEmails, setAllEmails] = useState([]);
+  const [adjustModalOpen, setAdjustModalOpen] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const ACTIVITY_LOGS_URL = `${API_BASE_URL}/activityLogs`;
@@ -331,6 +333,9 @@ function DailyLogs() {
     try {
       const response = await fetch(ACTIVITY_LOGS_URL);
       const data = await response.json();
+      
+      const AllProject = await fetch(`${API_BASE_URL}/employees`);
+      const projectData = await AllProject.json();
 
       const allLogs = Object.entries(data.data).flatMap(([email, logs]) =>
         logs.map((log) => ({
@@ -340,7 +345,8 @@ function DailyLogs() {
       );
 
       setEmailsList([...new Set(allLogs.map(log => log.email))]);
-      setProjectList([...new Set(allLogs.map(log => log.project))]);
+      // setProjectList([...new Set(allLogs.map(log => log.project))]);
+      setProjectList([...new Set(projectData?.data?.map(project => project.projectName))]);
     } catch (error) {
       console.error("Failed to load filters:", error);
     }
@@ -450,6 +456,21 @@ function DailyLogs() {
           }}
         >
           Clear Filters
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => setAdjustModalOpen(true)}
+          sx={{
+            backgroundColor: "#168625ff",
+            fontWeight: "bold",
+            "&:hover": {
+              backgroundColor: "#135a05ff"
+            },
+            textTransform: "none"
+          }}
+        >
+          Add New Logs
         </Button>
       </Box>
 
@@ -581,6 +602,25 @@ function DailyLogs() {
       ) : (
         <Typography align="center" color="textSecondary">No logs found for selected filters.</Typography>
       )}
+
+      {/* add new log */}
+      <Dialog
+        open={adjustModalOpen}
+        onClose={() => setAdjustModalOpen(false)}
+        fullWidth
+        maxWidth="md"
+      >
+        <AddLogModal onClose={() => setAdjustModalOpen(false)} />
+        <DialogActions sx={{ borderTop: 1, borderColor: "divider" }}>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => setAdjustModalOpen(false)}
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Edit Dialog  */}
       <Dialog

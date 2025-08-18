@@ -121,6 +121,10 @@ button:hover {
     width: 90%;
     max-width: 300px;
   }
+  .admin-from{
+    width: 90%;
+    max-width: 300px;
+  }
 }
 
 @media (max-width:425px){
@@ -135,5 +139,11 @@ button:hover {
     margin-left: 4px;
     width: 86%;
     max-width: 270px;
+  }
+  .admin-from {
+    margin: 0px;
+    margin-left: 0px;
+    width: 100%;
+    max-width: 300px;
   }
 }

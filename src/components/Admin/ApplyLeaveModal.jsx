@@ -141,13 +141,12 @@ const ApplyLeaveModal = () => {
     "startDate": getTodayDate(),
     "endDate": getTodayDate(),
     "userEmail": "",
-    // "name": userName,
     "durationType": "",
     "halfDayStatus": "",
-    "status": "pending",
+    "status": "approved",
     "leaveRaisedByAdmin": true,
     "leaveRaisedByAdminEmail": email,
-    // "department": department,
+    "approverEmail": email,
   });
   const [remainingLeaves, setRemainingLeaves] = useState();
   const [halfDay, setHalfDay] = useState(false);
@@ -470,12 +469,12 @@ const ApplyLeaveModal = () => {
                   options={allEmails}
                   value={leaveData.userEmail || ""}
                   onChange={(e, newValue) => setLeaveData((prev) => ({ ...prev, userEmail: newValue || "", }))}
-                  onInputChange={(e, newInputValue) =>
-                    setLeaveData((prev) => ({
-                      ...prev,
-                      userEmail: newInputValue || "",
-                    }))
-                  }
+                  // onInputChange={(e, newInputValue) =>
+                  //   setLeaveData((prev) => ({
+                  //     ...prev,
+                  //     userEmail: newInputValue || "",
+                  //   }))
+                  // }
                   freeSolo
                   disableClearable
                   slotProps={{

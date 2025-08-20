@@ -1,4 +1,3 @@
-// Leaves.jsx
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
@@ -14,27 +13,12 @@ import {
   InputLabel,
   Grid,
   Button,
-  Box,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Checkbox,
-  FormControlLabel,
-  Tooltip,
   Snackbar,
   Alert,
   CircularProgress,
   Autocomplete,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { styled } from "@mui/material/styles";
-
 import LoadingSpinner from "../Loader/LoadingSpinner";
 import axios from "axios";
 
@@ -153,15 +137,12 @@ const ApplyLeaveModal = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [availableLeaveTypes, setAvailableLeaveTypes] = useState();
-
   const [leavesData, setLeavesData] = useState([]);
   const [allLeaves, setAllLeaves] = useState([]);
-
   const [allEmails, setAllEmails] = useState([]);
   const [leavesLoading, setLeavesLoading] = useState(false);
-
-
   const [fieldErrors, setFieldErrors] = useState({
+    userEmail: "",
     leaveType: "",
     reasonForLeave: "",
     durationType: "",
@@ -169,8 +150,6 @@ const ApplyLeaveModal = () => {
   });
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -345,6 +324,7 @@ const ApplyLeaveModal = () => {
 
     // 1️⃣ Reset errors
     const errors = {
+      userEmail: "",
       leaveType: "",
       reasonForLeave: "",
       durationType: "",
@@ -352,6 +332,10 @@ const ApplyLeaveModal = () => {
     };
 
     // 2️⃣ Validate each field
+    if (!leaveData.userEmail) {
+      errors.userEmail = "Please select an employee email*";
+    }
+
     if (!leaveData.leaveType) {
       errors.leaveType = "Please select a leave type*";
     }
@@ -429,7 +413,7 @@ const ApplyLeaveModal = () => {
         reasonForLeave: "",
         startDate: getTodayDate(),
         status: "pending",
-        userEmail: email,
+        userEmail: null,
       });
     } catch (error) {
       console.error("Error submitting leave request:", error);
@@ -466,15 +450,21 @@ const ApplyLeaveModal = () => {
             <Grid item xs={12} md={6}>
               <StyledFormControl>
                 <Autocomplete
-                  options={allEmails}
-                  value={leaveData.userEmail || ""}
-                  onChange={(e, newValue) => setLeaveData((prev) => ({ ...prev, userEmail: newValue || "", }))}
+                  options={allEmails.filter((empEmail) => empEmail !== email)}
+                  value={leaveData.userEmail}
+                  onChange={(e, newValue) => {
+                    setLeaveData((prev) => ({ ...prev, userEmail: newValue || "" }));
+                    if (newValue) {
+                      setFieldErrors((prev) => ({ ...prev, userEmail: "" })); // ✅ clear error instantly
+                    } 
+                  }}
                   // onInputChange={(e, newInputValue) =>
                   //   setLeaveData((prev) => ({
                   //     ...prev,
                   //     userEmail: newInputValue || "",
                   //   }))
                   // }
+
                   freeSolo
                   disableClearable
                   slotProps={{
@@ -492,9 +482,37 @@ const ApplyLeaveModal = () => {
                     <TextField
                       {...params}
                       label="Employee Email"
-                    // name="userEmail"
-                    // fullWidth
-                    // variant="outlined"
+                      error={Boolean(fieldErrors.userEmail)}   // 🔴 red border
+                      helperText={fieldErrors.userEmail}      // 🔽 error message
+                      InputLabelProps={{
+                        sx: {
+                          color: "rgba(0, 0, 0, 0.6)",   // 👈 default gray
+                          "&.Mui-focused": {
+                            color: "primary.main",       // 👈 blue when focused
+                          },
+                          "&.Mui-error": {
+                            color: "rgba(0, 0, 0, 0.6)", // 👈 prevent red on error
+                          },
+                          "&.Mui-focused.Mui-error": {
+                            color: "primary.main",       // 👈 keep blue when focused + error
+                          },
+                        },
+                      }}
+                      FormHelperTextProps={{
+                        sx: {
+                          color: "red !important",
+                          fontSize: 14,
+                          fontWeight: "bold",
+                          m: 0,
+                          mt: -1,
+                        },
+                      }}
+                      sx={{
+                        '& .MuiInputBase-input': {
+                          border: 'none',
+                          outline: 'none',
+                        },
+                      }}
                     />
                   )}
                 />

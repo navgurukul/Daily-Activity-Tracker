@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
 import "./LeaveManagement.css";
 import { LoginContext } from "../context/LoginContext";
-import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, Box, Button, Chip, FormControlLabel, Checkbox } from "@mui/material";
+import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, Checkbox, Box, Button, Chip, FormControlLabel, Dialog, DialogActions } from "@mui/material";
 import axios from "axios";
 import AdjustLeaveModal from "./AdjustLeaveModal";
+import ApplyLeaveModal from "./ApplyLeaveModal"; 
 
 const LeaveManagement = () => {
   const dataContext = useContext(LoginContext);
@@ -38,6 +39,8 @@ const LeaveManagement = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   // NEW STATE FOR MODAL
   const [adjustModalOpen, setAdjustModalOpen] = useState(false);
+  const [applyModalOpen, setApplyModalOpen] = useState(false);
+
 
   const fetchLeavesData = async (status, email = '', month = '') => {
     setLoading(true)
@@ -66,6 +69,7 @@ const LeaveManagement = () => {
       }
 
     } catch (err) {
+      
       console.error(`Failed to fetch ${status} leaves`, err);
     } finally {
       setLoading(false);
@@ -577,7 +581,41 @@ const downloadCSV = async () => {
             >
               Clear Filters
             </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => setApplyModalOpen(true)}
+              sx={{
+                backgroundColor: "#168625ff",
+                fontWeight: "bold",
+                "&:hover": {
+                  backgroundColor: "#135a05ff"
+                },
+                textTransform: "none"
+              }}
+            >
+              Apply Leaves
+            </Button>
+             
           </div>
+          {/* Apply leave*/}
+                   <Dialog
+                     open={applyModalOpen}
+                     onClose={() => setApplyModalOpen(false)}
+                     fullWidth
+                     maxWidth="md"
+                   >
+                     <ApplyLeaveModal />
+                     <DialogActions sx={{ borderTop: 1, borderColor: "divider" }}>
+                       <Button
+                         variant="contained"
+                         color="success"
+                         onClick={() => setApplyModalOpen(false)}
+                       >
+                         Close
+                       </Button>
+                     </DialogActions>
+                   </Dialog>
           {loading ? (
             <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
               <p>Loading...</p>

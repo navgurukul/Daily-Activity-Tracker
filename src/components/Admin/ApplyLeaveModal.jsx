@@ -240,7 +240,6 @@ const ApplyLeaveModal = () => {
   const handleChange = (e) => {
     setErrorMessage("");
     const { name, value } = e.target;
-
     const keyToUpdate = name === "email" ? "userEmail" : name;
 
     setLeaveData((prevData) => ({
@@ -271,7 +270,7 @@ const ApplyLeaveModal = () => {
 
   }, [leaveData.leaveType, allLeaves]);
 
-  // NEW: Half-day date synchronization useEffect
+  // Half-day date synchronization useEffect
   useEffect(() => {
     // Only sync dates when durationType is "half-day"
     if (leaveData.durationType === "half-day") {
@@ -283,7 +282,6 @@ const ApplyLeaveModal = () => {
         }));
       }
     }
-    // For "full-day" or empty durationType, do nothing - allow independent date selection
   }, [leaveData.durationType, leaveData.startDate]);
 
   const handleHalfDayChange = (e) => {
@@ -322,7 +320,7 @@ const ApplyLeaveModal = () => {
     e.preventDefault();
     setLoading(true);
 
-    // 1️⃣ Reset errors
+    // Reset errors
     const errors = {
       userEmail: "",
       leaveType: "",
@@ -331,7 +329,7 @@ const ApplyLeaveModal = () => {
       halfDayStatus: "",
     };
 
-    // 2️⃣ Validate each field
+    // Validate each field
     if (!leaveData.userEmail) {
       errors.userEmail = "Please select an employee email*";
     }
@@ -358,17 +356,17 @@ const ApplyLeaveModal = () => {
       errors.halfDayStatus = "Please select a half day status*";
     }
 
-    // 3️⃣ Apply errors to state
+    // Apply errors to state
     setFieldErrors(errors);
 
-    // 4️⃣ If any error found, stop here
+    // If any error found, stop here
     const hasError = Object.values(errors).some(Boolean);
     if (hasError) {
       setLoading(false);
       return;
     }
 
-    // ✅ 5️⃣ Also check required non-error-tracked fields
+    // Also check required non-error-tracked fields
     if (
       !leaveData.startDate ||
       !leaveData.endDate ||
@@ -379,12 +377,11 @@ const ApplyLeaveModal = () => {
       return;
     }
 
-    // 6️⃣ Submit to backend
+    // Submit to backend
     const payload = { ...leaveData };
     if (payload.durationType !== "half-day") {
       delete payload.halfDayStatus;
     }
-
     try {
       const response = await fetch(
         `${API_BASE_URL}/employmentLeavePolicy`,
@@ -402,7 +399,7 @@ const ApplyLeaveModal = () => {
         return;
       }
 
-      // ✅ Success
+      // Success
       setSuccessMessage("Leave request submitted successfully!");
       setErrorMessage("");
       setLeaveData({
@@ -427,7 +424,6 @@ const ApplyLeaveModal = () => {
   return (
     <StyledContainer style={{ overflowY: "auto", maxHeight: "80vh", marginTop: "0", padding: "16px" }}>
       <LoadingSpinner loading={loading} />
-
       <Typography
         variant="h4"
         component="h1"
@@ -443,79 +439,43 @@ const ApplyLeaveModal = () => {
         Leave Application Form
       </Typography>
 
-
       <StyledPaper>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <StyledFormControl>
-                <Autocomplete
-                  options={allEmails.filter((empEmail) => empEmail !== email)}
-                  value={leaveData.userEmail}
-                  onChange={(e, newValue) => {
-                    setLeaveData((prev) => ({ ...prev, userEmail: newValue || "" }));
-                    if (newValue) {
-                      setFieldErrors((prev) => ({ ...prev, userEmail: "" })); // ✅ clear error instantly
-                    } 
-                  }}
-                  // onInputChange={(e, newInputValue) =>
-                  //   setLeaveData((prev) => ({
-                  //     ...prev,
-                  //     userEmail: newInputValue || "",
-                  //   }))
-                  // }
-
-                  freeSolo
-                  disableClearable
-                  slotProps={{
-                    paper: {
-                      sx: {
-                        '& ul': {
-                          maxHeight: 250,
-                          overflowY: 'auto',
-                        },
+                <InputLabel>Employee Email</InputLabel>
+                <Select
+                  name="userEmail"
+                  value={leaveData.userEmail || ""}
+                  onChange={handleChange}
+                  label="Employee Email"
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: 200,
                       },
                     },
                   }}
+                  error={Boolean(fieldErrors.userEmail)}
+                >
+                  {allEmails
+                    .filter((empEmail) => empEmail !== email) // exclude logged-in user
+                    .map((empEmail, index) => (
+                      <MenuItem key={index} value={empEmail}>
+                        {empEmail}
+                      </MenuItem>
+                    ))}
+                </Select>
 
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Employee Email"
-                      error={Boolean(fieldErrors.userEmail)}   // 🔴 red border
-                      helperText={fieldErrors.userEmail}      // 🔽 error message
-                      InputLabelProps={{
-                        sx: {
-                          color: "rgba(0, 0, 0, 0.6)",   // 👈 default gray
-                          "&.Mui-focused": {
-                            color: "primary.main",       // 👈 blue when focused
-                          },
-                          "&.Mui-error": {
-                            color: "rgba(0, 0, 0, 0.6)", // 👈 prevent red on error
-                          },
-                          "&.Mui-focused.Mui-error": {
-                            color: "primary.main",       // 👈 keep blue when focused + error
-                          },
-                        },
-                      }}
-                      FormHelperTextProps={{
-                        sx: {
-                          color: "red !important",
-                          fontSize: 14,
-                          fontWeight: "bold",
-                          m: 0,
-                          mt: -1,
-                        },
-                      }}
-                      sx={{
-                        '& .MuiInputBase-input': {
-                          border: 'none',
-                          outline: 'none',
-                        },
-                      }}
-                    />
-                  )}
-                />
+                {fieldErrors.userEmail && (
+                  <Typography
+                    variant="caption"
+                    sx={{ color: "red", fontSize: 14, fontWeight: "bold", mt: -1 }}
+                  >
+                    {fieldErrors.userEmail}
+                  </Typography>
+                )}
               </StyledFormControl>
             </Grid>
 
@@ -794,6 +754,5 @@ const ApplyLeaveModal = () => {
     </StyledContainer>
   );
 };
-
 
 export default ApplyLeaveModal;

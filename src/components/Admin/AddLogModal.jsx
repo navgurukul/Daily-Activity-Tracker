@@ -630,6 +630,7 @@ const Form = () => {
             <option value="">--Select an email--</option>
             {employees
               .filter(emp => emp["Team ID"] !== email)
+              .sort((a, b) => a["Team ID"].toLowerCase().localeCompare(b["Team ID"].toLowerCase()))
               .map((emp, idx) => (
                 <option key={idx} value={emp["Team ID"]}>
                   {emp["Team ID"]}

@@ -88,7 +88,7 @@ const [roleError, setRoleError] = useState(false);
               ?.map((entry) => entry["Team ID"])
               ?.filter((id) => !!id)
           )
-        );
+        ).sort((a,b)=>a.localeCompare(b));
         setTeamIds(teamIDs);
       } catch (error) {
         console.error("Error fetching emails:", error);

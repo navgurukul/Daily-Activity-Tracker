@@ -93,7 +93,7 @@ const Payroll = () => {
               ?.map((entry) => entry["Team ID"])
               ?.filter((id) => !!id)
           )
-        );
+        ).sort((a,b)=>a.localeCompare(b));
         const names = Array.from(
           new Set(
             response.data?.data

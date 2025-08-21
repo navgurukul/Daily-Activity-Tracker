@@ -28,7 +28,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import debounce from "lodash/debounce";
 import { Edit, Check, Close } from "@mui/icons-material";
 import axios from "axios";
-import AddLogModal from "./AddLogModal"; 
+import AddLogModal from "./AddLogModal";
 
 function DailyLogs() {
   const [projectName, setProjectName] = useState("");
@@ -87,7 +87,7 @@ function DailyLogs() {
               ?.map((entry) => entry["Team ID"])
               ?.filter((id) => !!id)
           )
-        );
+        ).sort((a,b)=>a.localeCompare(b));
         setAllEmails(teamIDs);
       } catch (error) {
         console.error("Error fetching emails:", error);
@@ -333,7 +333,6 @@ function DailyLogs() {
     try {
       const response = await fetch(ACTIVITY_LOGS_URL);
       const data = await response.json();
-      
       const AllProject = await fetch(`${API_BASE_URL}/employees`);
       const projectData = await AllProject.json();
 
@@ -373,10 +372,10 @@ function DailyLogs() {
           value={email}
           onChange={(e, val) => setEmail(val || "")}
           renderInput={(params) => (
-            <TextField 
-              {...params} 
-              label="Employee Email" 
-              size="small" 
+            <TextField
+              {...params}
+              label="Employee Email"
+              size="small"
             />
           )}
           freeSolo
@@ -561,42 +560,24 @@ function DailyLogs() {
               </TableBody>
             </Table>
           </TableContainer>
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 2, gap: 2 }}>
-            <Button
-              variant="contained"
-              disabled={previousPages.length === 0}
-              onClick={() => {
-                const prev = [...previousPages];
-                const lastPage = prev.pop();
-                setPreviousPages(prev);
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+            <Pagination
+              count={nextPage ? nextPage : currentPage} // total pages (adjust if API provides totalPages)
+              page={currentPage}
+              onChange={(event, value) => {
                 fetchLogs({
-                  pageToken: lastPage,
+                  pageToken: value,
                   email,
                   projectName,
                   month,
                   year
                 });
               }}
-            >
-              Previous
-            </Button>
-
-            <Button
-              variant="contained"
-              disabled={!nextPage}
-              onClick={() => {
-                setPreviousPages([...previousPages, currentPage]);
-                fetchLogs({
-                  pageToken: nextPage,
-                  email,
-                  projectName,
-                  month,
-                  year
-                });
-              }}
-            >
-              Next
-            </Button>
+              color="primary"
+              shape="rounded"
+              siblingCount={1}
+              boundaryCount={1}
+            />
           </Box>
         </>
       ) : (

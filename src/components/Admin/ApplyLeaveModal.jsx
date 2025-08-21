@@ -214,7 +214,7 @@ const ApplyLeaveModal = () => {
               ?.map((entry) => entry["Team ID"])
               ?.filter((id) => !!id)
           )
-        );
+        ).sort((a,b)=>a.localeCompare(b));
         setAllEmails(teamIDs);
       } catch (error) {
         console.error("Error fetching emails:", error);

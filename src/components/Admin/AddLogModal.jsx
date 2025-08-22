@@ -51,7 +51,7 @@ const Form = () => {
   };
 
   const initialFormData = {
-    email: email,
+    email: "",
     selectedDate: dataContext.selectedDate || getTodayDate(),
     contributions: [],
     blockers: "",
@@ -114,6 +114,7 @@ const Form = () => {
 
 
   const location = useLocation();
+  const role = localStorage.getItem("role");
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -612,7 +613,7 @@ const Form = () => {
           <label>Employee Email:</label>
           <select
             name="email"
-            value={formData.email}
+            value={formData.email || ""}
             onChange={(e) => {
               const selectedEmail = e.target.value;
               const emp = employees.find(emp => emp["Team ID"] === selectedEmail);
@@ -629,7 +630,7 @@ const Form = () => {
           >
             <option value="">--Select an email--</option>
             {employees
-              .filter(emp => emp["Team ID"] !== email)
+              .filter(emp => role === "superAdmin" || emp["Team ID"] !== email)
               .sort((a, b) => a["Team ID"].toLowerCase().localeCompare(b["Team ID"].toLowerCase()))
               .map((emp, idx) => (
                 <option key={idx} value={emp["Team ID"]}>

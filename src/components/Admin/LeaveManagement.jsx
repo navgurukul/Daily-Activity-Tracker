@@ -271,6 +271,7 @@ const LeaveManagement = () => {
 
 
   const handleApproveAll = async () => {
+    const role = localStorage.getItem("role");
     if (selectedLeave.length === 0) {
       setSnackbarMessage("Please select leave to approve.");
       setSnackbarSeverity("warning");
@@ -282,7 +283,7 @@ const LeaveManagement = () => {
     const invalidLeaves = pendingLeaves.filter(
       (leave) => selectedLeave.includes(leave.Id) && leave.email === email
     );
-    if (invalidLeaves.length > 0) {
+    if (invalidLeaves.length > 0 && role !== "superAdmin") {
       setSnackbarMessage("You cannot approve your own leave request.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
@@ -350,6 +351,7 @@ const LeaveManagement = () => {
   };
 
   const handleRejectAll = async () => {
+    const role = localStorage.getItem("role");
     if (selectedLeave.length === 0) {
       setSnackbarMessage("Please select leave to reject.");
       setSnackbarSeverity("warning");
@@ -361,7 +363,7 @@ const LeaveManagement = () => {
     const invalidLeaves = pendingLeaves.filter(
       (leave) => selectedLeave.includes(leave.Id) && leave.email === email
     );
-    if (invalidLeaves.length > 0) {
+    if (invalidLeaves.length > 0 && role !== "superAdmin") {
       setSnackbarMessage("You cannot reject your own leave request.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);

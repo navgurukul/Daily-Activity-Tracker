@@ -149,6 +149,7 @@ const ApplyLeaveModal = () => {
     halfDayStatus: "",
   });
 
+  const role = localStorage.getItem("role");
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
@@ -409,7 +410,7 @@ const ApplyLeaveModal = () => {
         leaveType: "",
         reasonForLeave: "",
         startDate: getTodayDate(),
-        status: "pending",
+        status: "approved",
         userEmail: null,
       });
     } catch (error) {
@@ -460,7 +461,7 @@ const ApplyLeaveModal = () => {
                   error={Boolean(fieldErrors.userEmail)}
                 >
                   {allEmails
-                    .filter((empEmail) => empEmail !== email) // exclude logged-in user
+                    .filter((empEmail) => role === "superAdmin" || empEmail !== email) // exclude logged-in user
                     .map((empEmail, index) => (
                       <MenuItem key={index} value={empEmail}>
                         {empEmail}

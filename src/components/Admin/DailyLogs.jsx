@@ -22,6 +22,9 @@ import {
   Chip,
   CircularProgress,
   MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
 } from "@mui/material";
 
 import Autocomplete from "@mui/material/Autocomplete";
@@ -87,7 +90,7 @@ function DailyLogs() {
               ?.map((entry) => entry["Team ID"])
               ?.filter((id) => !!id)
           )
-        ).sort((a,b)=>a.localeCompare(b));
+        ).sort((a, b) => a.localeCompare(b));
         setAllEmails(teamIDs);
       } catch (error) {
         console.error("Error fetching emails:", error);
@@ -617,11 +620,33 @@ function DailyLogs() {
         <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
           <TextField label="Approver Email" value={userEmail} disabled sx={{ mt: 1 }} />
           <TextField
+            type="date"
             label="Log Date"
             value={editedData.date} // ✅ Changed from editLog.date to editedData.date
             onChange={(e) => handleEditChange("date", e.target.value)}
           />
-          <TextField label="Project Name" value={editedData.projectName} onChange={(e) => handleEditChange("projectName", e.target.value)} />
+          {/* <TextField label="Project Name" value={editedData.projectName} onChange={(e) => handleEditChange("projectName", e.target.value)} /> */}
+          <FormControl sx={{ minWidth: 280 }} size="small">
+            <InputLabel>Project Name</InputLabel>
+            <Select
+              value={editedData.projectName || ""}
+              onChange={(e) => handleEditChange("projectName", e.target.value)}
+              label="Project Name"
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    maxHeight: 200, 
+                  },
+                },
+              }}
+            >
+              {projectList.map((project, index) => (
+                <MenuItem key={index} value={project}>
+                  {project}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <TextField label="Work Description" multiline rows={3} value={editedData.workDescription} onChange={(e) => handleEditChange("workDescription", e.target.value)} />
           <TextField
             label="Total Hours Spent"

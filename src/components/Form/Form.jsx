@@ -782,6 +782,7 @@ const Form = () => {
                   selectedDate: newValue ? dayjs(newValue).format("YYYY-MM-DD") : ""
                 }));
               }}
+              
               format="DD/MM/YYYY"
               slotProps={{
                 textField: {

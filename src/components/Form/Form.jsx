@@ -33,8 +33,10 @@ import {
 } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import { set } from "lodash";
-
-
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 const Form = () => {
   const dataContext = useContext(LoginContext);
@@ -109,7 +111,7 @@ const Form = () => {
   const [showSaveError, setShowSaveError] = useState(false);
   const [projectNameToId, setProjectNameToId] = useState({});
   const [backdatedAttemptsLeft, setBackdatedAttemptsLeft] = useState(0);
-  
+
   const location = useLocation();
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -121,9 +123,9 @@ const Form = () => {
   useEffect(() => {
     if (location.state?.message) {
       setAlertMessage(location.state.message);
-    
+
       setSnackbaropen(true)
-      navigate(location.pathname, {replace: true});
+      navigate(location.pathname, { replace: true });
     }
   }, [location.state, location.pathname, navigate]);
 
@@ -155,141 +157,141 @@ const Form = () => {
   };
 
   useEffect(() => {
-  let email = localStorage.getItem("email") ?? "";
-  setAttemptLoading(true);
+    let email = localStorage.getItem("email") ?? "";
+    setAttemptLoading(true);
 
-  const initPreviousEntries = () => {
-    const storedData = JSON.parse(localStorage.getItem("previousEntriesDone"));
-    const today = new Date();
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const initPreviousEntries = () => {
+      const storedData = JSON.parse(localStorage.getItem("previousEntriesDone"));
+      const today = new Date();
+      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    if (storedData) {
-      if (new Date(storedData.lastUpdated).getTime() < firstDayOfMonth.getTime()) {
+      if (storedData) {
+        if (new Date(storedData.lastUpdated).getTime() < firstDayOfMonth.getTime()) {
+          localStorage.setItem(
+            "previousEntriesDone",
+            JSON.stringify({ count: 0, lastUpdated: today })
+          );
+          setPreviousEntriesDone(0);
+        } else {
+          setPreviousEntriesDone(storedData.count);
+        }
+      } else {
         localStorage.setItem(
           "previousEntriesDone",
           JSON.stringify({ count: 0, lastUpdated: today })
         );
         setPreviousEntriesDone(0);
-      } else {
-        setPreviousEntriesDone(storedData.count);
       }
-    } else {
-      localStorage.setItem(
-        "previousEntriesDone",
-        JSON.stringify({ count: 0, lastUpdated: today })
-      );
-      setPreviousEntriesDone(0);
-    }
-  };
+    };
 
-  initPreviousEntries();
+    initPreviousEntries();
 
-  try {
-    fetch(`${API_BASE_URL}/employees`)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Fetched data:", data.data);
-
-        const projectByDepartment = {}; // move declaration here
-        const projectByCampus = {}; // <- new state object
-        const nameToIdMap = {};
-        const projects = data.data.map((project) => {
-          return {
-            projectId: project.Id,
-            projectName: project.projectName,
-            status: project.projectStatus,
-            department: project.department,
-            campus: project.campus, // <- assuming this exists in API response
-          };
-        });
-
-        const activeProjectNames = projects
-          .map((project) => project.status === "Active" && project.projectName)
-          .filter(Boolean);
-
-        const today = new Date();
-        const dayOfWeek = today.getDay();
-        if (dayOfWeek === 6) {
-          activeProjectNames.push("Saturday-Peer-Learning");
-        }
-
-        projects.forEach((project) => {
-          if (project.status === "Active") {
-            const dept = project.department.trim();
-            const campus = (project.campus || "Unknown").trim();
-            const projectName = project.projectName;
-
-            // Department-based mapping
-            if (!projectByDepartment[dept]) {
-              projectByDepartment[dept] = new Set();
-            }
-            projectByDepartment[dept].add(projectName);
-
-            // Campus-based mapping
-            if (!projectByCampus[campus]) {
-              projectByCampus[campus] = new Set();
-            }
-            projectByCampus[campus].add(projectName);
-
-            // Name to ID mapping
-            nameToIdMap[projectName] = project.projectId;
-          }
-        });
-
-        // Convert Sets to Arrays
-        Object.keys(projectByDepartment).forEach((dept) => {
-          projectByDepartment[dept] = Array.from(projectByDepartment[dept]);
-        });
-
-        Object.keys(projectByCampus).forEach((campus) => {
-          projectByCampus[campus] = Array.from(projectByCampus[campus]);
-        });
-
-        setProjectByDepartment(projectByDepartment);
-        setProjectByCampus(projectByCampus); // ✅ Set campus data
-        console.log("Project By Department:", projectByDepartment);
-        console.log("Project By Campus:", projectByCampus);
-        
-        setProjectNameToId(nameToIdMap);
-        setProjectsLoading(false);
-      });
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
-}, []);
-
-useEffect(() => {
-  const currentDept = formData.department || userDepartment;
-  if (!currentDept) {
-    setFilteredProjects([]);
-    return;
-  }
-  const fetchDepartmentProjects = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/employees?department=${encodeURIComponent(currentDept)}`);
-      const data = await response.json();
-      if (data?.data?.length > 0) {
-        const activeProjects = data.data.filter(
-          (project) => project.projectStatus === "Active"
-        );
-        let filtered = activeProjects.map((p) => p.projectName);
-        // Optional: If you still want to filter by campus (e.g. if Culture department has multiple campuses)
-        if (formData.campus) {
-          filtered = activeProjects
-            .filter((p) => p.campus?.trim() === formData.campus.trim())
-            .map((p) => p.projectName);
+      fetch(`${API_BASE_URL}/employees`)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Fetched data:", data.data);
+
+          const projectByDepartment = {}; // move declaration here
+          const projectByCampus = {}; // <- new state object
+          const nameToIdMap = {};
+          const projects = data.data.map((project) => {
+            return {
+              projectId: project.Id,
+              projectName: project.projectName,
+              status: project.projectStatus,
+              department: project.department,
+              campus: project.campus, // <- assuming this exists in API response
+            };
+          });
+
+          const activeProjectNames = projects
+            .map((project) => project.status === "Active" && project.projectName)
+            .filter(Boolean);
+
+          const today = new Date();
+          const dayOfWeek = today.getDay();
+          if (dayOfWeek === 6) {
+            activeProjectNames.push("Saturday-Peer-Learning");
+          }
+
+          projects.forEach((project) => {
+            if (project.status === "Active") {
+              const dept = project.department.trim();
+              const campus = (project.campus || "Unknown").trim();
+              const projectName = project.projectName;
+
+              // Department-based mapping
+              if (!projectByDepartment[dept]) {
+                projectByDepartment[dept] = new Set();
+              }
+              projectByDepartment[dept].add(projectName);
+
+              // Campus-based mapping
+              if (!projectByCampus[campus]) {
+                projectByCampus[campus] = new Set();
+              }
+              projectByCampus[campus].add(projectName);
+
+              // Name to ID mapping
+              nameToIdMap[projectName] = project.projectId;
+            }
+          });
+
+          // Convert Sets to Arrays
+          Object.keys(projectByDepartment).forEach((dept) => {
+            projectByDepartment[dept] = Array.from(projectByDepartment[dept]);
+          });
+
+          Object.keys(projectByCampus).forEach((campus) => {
+            projectByCampus[campus] = Array.from(projectByCampus[campus]);
+          });
+
+          setProjectByDepartment(projectByDepartment);
+          setProjectByCampus(projectByCampus); // ✅ Set campus data
+          console.log("Project By Department:", projectByDepartment);
+          console.log("Project By Campus:", projectByCampus);
+
+          setProjectNameToId(nameToIdMap);
+          setProjectsLoading(false);
+        });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const currentDept = formData.department || userDepartment;
+    if (!currentDept) {
+      setFilteredProjects([]);
+      return;
+    }
+    const fetchDepartmentProjects = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/employees?department=${encodeURIComponent(currentDept)}`);
+        const data = await response.json();
+        if (data?.data?.length > 0) {
+          const activeProjects = data.data.filter(
+            (project) => project.projectStatus === "Active"
+          );
+          let filtered = activeProjects.map((p) => p.projectName);
+          // Optional: If you still want to filter by campus (e.g. if Culture department has multiple campuses)
+          if (formData.campus) {
+            filtered = activeProjects
+              .filter((p) => p.campus?.trim() === formData.campus.trim())
+              .map((p) => p.projectName);
+          }
+          setFilteredProjects(filtered);
+        } else {
+          setFilteredProjects([]);
         }
-        setFilteredProjects(filtered);
-      } else {
+      } catch (error) {
+        console.error("Error fetching department projects:", error);
         setFilteredProjects([]);
       }
-    } catch (error) {
-      console.error("Error fetching department projects:", error);
-      setFilteredProjects([]);
-    }
-  };
-  fetchDepartmentProjects();
-}, [formData.department, userDepartment, formData.campus]);
+    };
+    fetchDepartmentProjects();
+  }, [formData.department, userDepartment, formData.campus]);
 
   document.querySelectorAll('input[type="number"]').forEach(function (input) {
     input.addEventListener("wheel", function (event) {
@@ -596,42 +598,42 @@ useEffect(() => {
   };
 
   function getMinDate() {
-  const today = new Date();
-  const validDates = [];
-  let i = 1; // Start with yesterday
-  while (validDates.length < 3) {
-    const date = new Date(today);
-    date.setDate(today.getDate() - i);
-    const day = date.getDay(); // 0 = Sunday, 6 = Saturday
-    // Skip Sundays
-    if (day === 0) {
-      i++;
-      continue;
-    }
-    // Skip 2nd and 4th Saturdays
-    if (day === 6) {
-      const dateNum = date.getDate();
-      const month = date.getMonth();
-      const year = date.getFullYear();
-      // Count which Saturday it is in the month
-      let saturdayCount = 0;
-      for (let d = 1; d <= dateNum; d++) {
-        const tempDate = new Date(year, month, d);
-        if (tempDate.getDay() === 6) {
-          saturdayCount++;
+    const today = new Date();
+    const validDates = [];
+    let i = 1; // Start with yesterday
+    while (validDates.length < 3) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+      // Skip Sundays
+      if (day === 0) {
+        i++;
+        continue;
+      }
+      // Skip 2nd and 4th Saturdays
+      if (day === 6) {
+        const dateNum = date.getDate();
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        // Count which Saturday it is in the month
+        let saturdayCount = 0;
+        for (let d = 1; d <= dateNum; d++) {
+          const tempDate = new Date(year, month, d);
+          if (tempDate.getDay() === 6) {
+            saturdayCount++;
+          }
+        }
+        if (saturdayCount === 2 || saturdayCount === 4) {
+          i++;
+          continue; // Skip 2nd or 4th Saturday
         }
       }
-      if (saturdayCount === 2 || saturdayCount === 4) {
-        i++;
-        continue; // Skip 2nd or 4th Saturday
-      }
+      validDates.push(new Date(date)); // Store a copy
+      i++;
     }
-    validDates.push(new Date(date)); // Store a copy
-    i++;
+    // Return the earliest valid date among the 3
+    return validDates[validDates.length - 1].toISOString().split("T")[0];
   }
-  // Return the earliest valid date among the 3
-  return validDates[validDates.length - 1].toISOString().split("T")[0];
-}
 
   useEffect(() => {
     const email = localStorage.getItem("email") ?? "";
@@ -682,7 +684,7 @@ useEffect(() => {
         <h3 style={{ fontSize: "32px", fontWeight: "bold", color: "#000" }}>
           Welcome Back, <span style={{ color: "#2E7D32" }}>{userName}</span>
         </h3>
-                <h3
+        <h3
           style={{
             fontSize: "1rem",
             fontWeight: "500",
@@ -771,48 +773,60 @@ useEffect(() => {
 
         <div>
           <label>Select the date for which you want to update the form:</label>
-          <input
-            type="date"
-            name="selectedDate"
-            max={today}
-            min={getMinDate()}
-            value={formData.selectedDate}
-            onChange={handleChange}
-          />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              value={dayjs(formData.selectedDate)}
+              onChange={(newValue) => {
+                setFormData((prev) => ({
+                  ...prev,
+                  selectedDate: newValue ? dayjs(newValue).format("YYYY-MM-DD") : ""
+                }));
+              }}
+              
+              format="DD/MM/YYYY"
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  required: true,
+                  size: "small", 
+                }
+              }}
+              minDate={dayjs(getMinDate())}
+              maxDate={dayjs(today)}
+            />
+          </LocalizationProvider>
         </div>
-
-        {/* {((formData.department || userDepartment) === "Residential Program"
-      || formData.department === "Culture"
-      || formData.department === "Academics"
-      || formData.department === "Operations"
-      || formData.department === "LXD & ETC"
-      || formData.department === "Campus Support Staff"
-      || formData.department === "Campus_Security"
-      ) && (
-          <div>
-            <label>Please select your campus :</label>
-            <select
-              name="campus"
-              value={formData.campus}
-              onChange={handleChange}
-              required
-            >
-              <option value="">--Select a campus--</option>
-              {campuses.map((c, index) => (
-                <option key={index} value={c.campus}>
-                  {c.campus}
-                </option>
-              ))}
-            </select>
-          </div>
-        )} */}
-
+        {((formData.department || userDepartment) === "Residential Program"
+          || formData.department === "Culture"
+          || formData.department === "Academics"
+          || formData.department === "Operations"
+          || formData.department === "LXD & ETC"
+          || formData.department === "Campus Support Staff"
+          || formData.department === "Campus_Security"
+        ) && (
+            <div>
+              <label>Please select your campus :</label>
+              <select
+                name="campus"
+                value={formData.campus}
+                onChange={handleChange}
+                required
+              >
+                <option value="">--Select a campus--</option>
+                {campuses.map((c, index) => (
+                  <option key={index} value={c.campus}>
+                    {c.campus}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         {formData.contributions.length > 0 && (
           <div>
             <h3>Contributions Summary</h3>
-            <TableContainer 
-              component={Paper} 
-              sx={{ 
+            <TableContainer
+              component={Paper}
+              sx={{
                 width: '100%',
                 maxWidth: '100%',
                 overflow: 'hidden',
@@ -822,8 +836,8 @@ useEffect(() => {
                 padding: 0
               }}
             >
-              <Table 
-                sx={{ 
+              <Table
+                sx={{
                   width: '100%',
                   tableLayout: 'fixed',
                   margin: 0,
@@ -838,8 +852,8 @@ useEffect(() => {
               >
                 <TableHead sx={{ margin: 0, padding: 0 }}>
                   <TableRow sx={{ backgroundColor: '#f5f5f5', margin: 0, padding: 0 }}>
-                    <TableCell 
-                      sx={{ 
+                    <TableCell
+                      sx={{
                         fontWeight: 'bold',
                         width: { xs: '22%', sm: '18%' },
                         fontSize: { xs: '12px', sm: '14px' }
@@ -847,8 +861,8 @@ useEffect(() => {
                     >
                       Project
                     </TableCell>
-                    <TableCell 
-                      sx={{ 
+                    <TableCell
+                      sx={{
                         fontWeight: 'bold',
                         width: { xs: '12%', sm: '10%' },
                         textAlign: 'center',
@@ -857,8 +871,8 @@ useEffect(() => {
                     >
                       Hours
                     </TableCell>
-                    <TableCell 
-                      sx={{ 
+                    <TableCell
+                      sx={{
                         fontWeight: 'bold',
                         width: { xs: '48%', sm: '55%' },
                         fontSize: { xs: '12px', sm: '14px' }
@@ -866,8 +880,8 @@ useEffect(() => {
                     >
                       Task
                     </TableCell>
-                    <TableCell 
-                      sx={{ 
+                    <TableCell
+                      sx={{
                         fontWeight: 'bold',
                         width: { xs: '18%', sm: '17%' },
                         textAlign: 'center',
@@ -881,8 +895,8 @@ useEffect(() => {
                 <TableBody>
                   {formData.contributions.map((contribution, index) => (
                     <TableRow key={index}>
-                      <TableCell 
-                        sx={{ 
+                      <TableCell
+                        sx={{
                           fontSize: { xs: '11px', sm: '13px' },
                           wordBreak: 'break-word',
                           overflow: 'hidden',
@@ -952,8 +966,8 @@ useEffect(() => {
                         )}
                       </TableCell>
                       <TableCell sx={{ textAlign: 'center' }}>
-                        <Box 
-                          sx={{ 
+                        <Box
+                          sx={{
                             display: 'flex',
                             gap: '2px',
                             alignItems: 'center',
@@ -1177,7 +1191,7 @@ useEffect(() => {
           elevation={6}
           variant="filled"
           onClose={handleCloseSnackbar}
-          severity={snackbarSeverity} 
+          severity={snackbarSeverity}
         >
           {alertMessage}
         </MuiAlert>

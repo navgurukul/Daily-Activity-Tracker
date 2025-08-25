@@ -22,12 +22,16 @@ import {
   Chip,
   CircularProgress,
   MenuItem,
+  FormControl,
+  InputLabel,
+  Select,
 } from "@mui/material";
 
 import Autocomplete from "@mui/material/Autocomplete";
 import debounce from "lodash/debounce";
 import { Edit, Check, Close } from "@mui/icons-material";
 import axios from "axios";
+import AddLogModal from "./AddLogModal";
 
 function DailyLogs() {
   const [projectName, setProjectName] = useState("");
@@ -44,6 +48,7 @@ function DailyLogs() {
     workDescription: "",
     projectName: "",
     totalHoursSpent: "",
+    date: "",
   });
   const [snackbar, setSnackbar] = useState({ open: false, message: "", error: false });
   const [loading, setLoading] = useState(false);
@@ -63,6 +68,7 @@ function DailyLogs() {
   const [nextPage, setNextPage] = useState(null);
   const [previousPages, setPreviousPages] = useState([]);
   const [allEmails, setAllEmails] = useState([]);
+  const [adjustModalOpen, setAdjustModalOpen] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const ACTIVITY_LOGS_URL = `${API_BASE_URL}/activityLogs`;
@@ -84,7 +90,7 @@ function DailyLogs() {
               ?.map((entry) => entry["Team ID"])
               ?.filter((id) => !!id)
           )
-        );
+        ).sort((a, b) => a.localeCompare(b));
         setAllEmails(teamIDs);
       } catch (error) {
         console.error("Error fetching emails:", error);
@@ -182,6 +188,7 @@ function DailyLogs() {
       workDescription: log.description,
       projectName: log.project,
       totalHoursSpent: log.totalHoursSpent,
+      date: log.date,
     });
     setEditLog(log);
   };
@@ -212,6 +219,7 @@ function DailyLogs() {
     }
     // Proceed to update
     try {
+      const entryDate = editedData?.date;
       const response = await fetch(
         ACTIVITY_LOGS_URL,
         {
@@ -220,7 +228,7 @@ function DailyLogs() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
           },
-          body: JSON.stringify([{ ...editedData, logStatus: "approved" }]),
+          body: JSON.stringify([{ ...editedData, logStatus: "approved", entryDate }]),
         }
       );
       if (response.ok) {
@@ -328,6 +336,8 @@ function DailyLogs() {
     try {
       const response = await fetch(ACTIVITY_LOGS_URL);
       const data = await response.json();
+      const AllProject = await fetch(`${API_BASE_URL}/employees`);
+      const projectData = await AllProject.json();
 
       const allLogs = Object.entries(data.data).flatMap(([email, logs]) =>
         logs.map((log) => ({
@@ -337,7 +347,8 @@ function DailyLogs() {
       );
 
       setEmailsList([...new Set(allLogs.map(log => log.email))]);
-      setProjectList([...new Set(allLogs.map(log => log.project))]);
+      // setProjectList([...new Set(allLogs.map(log => log.project))]);
+      setProjectList([...new Set(projectData?.data?.map(project => project.projectName))]);
     } catch (error) {
       console.error("Failed to load filters:", error);
     }
@@ -364,10 +375,10 @@ function DailyLogs() {
           value={email}
           onChange={(e, val) => setEmail(val || "")}
           renderInput={(params) => (
-            <TextField 
-              {...params} 
-              label="Employee Email" 
-              size="small" 
+            <TextField
+              {...params}
+              label="Employee Email"
+              size="small"
             />
           )}
           freeSolo
@@ -448,6 +459,21 @@ function DailyLogs() {
         >
           Clear Filters
         </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => setAdjustModalOpen(true)}
+          sx={{
+            backgroundColor: "#168625ff",
+            fontWeight: "bold",
+            "&:hover": {
+              backgroundColor: "#135a05ff"
+            },
+            textTransform: "none"
+          }}
+        >
+          Add New Logs
+        </Button>
       </Box>
 
       {isApproving && (
@@ -482,6 +508,14 @@ function DailyLogs() {
                   <TableCell>Project</TableCell>
                   <TableCell>Hours</TableCell>
                   <TableCell>Description</TableCell>
+                  <TableCell
+                    sx={{
+                      whiteSpace: "wrap",
+                      minWidth: { xs: 50, sm: 80, md: 150 },
+                    }}
+                  >
+                    Submission Time
+                  </TableCell>
                   {/* <TableCell>Status</TableCell> */}
                   <TableCell>Actions</TableCell>
                 </TableRow>
@@ -494,6 +528,7 @@ function DailyLogs() {
                     <TableCell>{log.project}</TableCell>
                     <TableCell>{log.totalHoursSpent}</TableCell>
                     <TableCell>{log.description}</TableCell>
+                    <TableCell>{log.updatedAt?.split(".")[0]}</TableCell>
                     {/* <TableCell>
                       <Chip label={log.logStatus} color={log.logStatus === "approved" ? "success" : log.logStatus === "rejected" ? "error" : "warning"} size="small" />
                     </TableCell> */}
@@ -528,47 +563,48 @@ function DailyLogs() {
               </TableBody>
             </Table>
           </TableContainer>
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 2, gap: 2 }}>
-            <Button
-              variant="contained"
-              disabled={previousPages.length === 0}
-              onClick={() => {
-                const prev = [...previousPages];
-                const lastPage = prev.pop();
-                setPreviousPages(prev);
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+            <Pagination
+              count={nextPage ? nextPage : currentPage} // total pages (adjust if API provides totalPages)
+              page={currentPage}
+              onChange={(event, value) => {
                 fetchLogs({
-                  pageToken: lastPage,
+                  pageToken: value,
                   email,
                   projectName,
                   month,
                   year
                 });
               }}
-            >
-              Previous
-            </Button>
-
-            <Button
-              variant="contained"
-              disabled={!nextPage}
-              onClick={() => {
-                setPreviousPages([...previousPages, currentPage]);
-                fetchLogs({
-                  pageToken: nextPage,
-                  email,
-                  projectName,
-                  month,
-                  year
-                });
-              }}
-            >
-              Next
-            </Button>
+              color="primary"
+              shape="rounded"
+              siblingCount={1}
+              boundaryCount={1}
+            />
           </Box>
         </>
       ) : (
         <Typography align="center" color="textSecondary">No logs found for selected filters.</Typography>
       )}
+
+      {/* add new log */}
+      <Dialog
+        open={adjustModalOpen}
+        onClose={() => setAdjustModalOpen(false)}
+        fullWidth
+        maxWidth="md"
+      >
+        <AddLogModal onClose={() => setAdjustModalOpen(false)} />
+        <DialogActions sx={{ borderTop: 1, borderColor: "divider" }}>
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => setAdjustModalOpen(false)}
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Edit Dialog  */}
       <Dialog
@@ -583,7 +619,34 @@ function DailyLogs() {
         <DialogTitle>Edit Log</DialogTitle>
         <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
           <TextField label="Approver Email" value={userEmail} disabled sx={{ mt: 1 }} />
-          <TextField label="Project Name" value={editedData.projectName} onChange={(e) => handleEditChange("projectName", e.target.value)} />
+          <TextField
+            type="date"
+            label="Log Date"
+            value={editedData.date} // ✅ Changed from editLog.date to editedData.date
+            onChange={(e) => handleEditChange("date", e.target.value)}
+          />
+          {/* <TextField label="Project Name" value={editedData.projectName} onChange={(e) => handleEditChange("projectName", e.target.value)} /> */}
+          <FormControl sx={{ minWidth: 280 }} size="small">
+            <InputLabel>Project Name</InputLabel>
+            <Select
+              value={editedData.projectName || ""}
+              onChange={(e) => handleEditChange("projectName", e.target.value)}
+              label="Project Name"
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    maxHeight: 200, 
+                  },
+                },
+              }}
+            >
+              {projectList.map((project, index) => (
+                <MenuItem key={index} value={project}>
+                  {project}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <TextField label="Work Description" multiline rows={3} value={editedData.workDescription} onChange={(e) => handleEditChange("workDescription", e.target.value)} />
           <TextField
             label="Total Hours Spent"

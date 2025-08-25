@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import "./Form.css";
+import "../Form/Form.css";
 import url from "../../../public/api";
 import { json, useLocation, useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
@@ -35,7 +35,6 @@ import MuiAlert from "@mui/material/Alert";
 import { set } from "lodash";
 
 
-
 const Form = () => {
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
@@ -52,7 +51,7 @@ const Form = () => {
   };
 
   const initialFormData = {
-    email: email,
+    email: "",
     selectedDate: dataContext.selectedDate || getTodayDate(),
     contributions: [],
     blockers: "",
@@ -104,13 +103,18 @@ const Form = () => {
   const [showProjectError, setShowProjectError] = useState(false);
   const [showHoursError, setShowHoursError] = useState(false);
   const [showTaskError, setShowTaskError] = useState(false);
+  const [showEmailError, setShowEmailError] = useState(false);
   const [departments, setDepartments] = useState([]);
 
   const [showSaveError, setShowSaveError] = useState(false);
   const [projectNameToId, setProjectNameToId] = useState({});
-  const [backdatedAttemptsLeft, setBackdatedAttemptsLeft] = useState(0);
-  
+  const [employees, setEmployees] = useState([]);
+  const [employeeDepartment, setEmployeeDepartment] = useState("");
+
+
+
   const location = useLocation();
+  const role = localStorage.getItem("role");
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -118,14 +122,6 @@ const Form = () => {
     setSnackbaropen(false);
   };
 
-  useEffect(() => {
-    if (location.state?.message) {
-      setAlertMessage(location.state.message);
-    
-      setSnackbaropen(true)
-      navigate(location.pathname, {replace: true});
-    }
-  }, [location.state, location.pathname, navigate]);
 
   useEffect(() => {
     const fetchCampuses = async () => {
@@ -143,6 +139,22 @@ const Form = () => {
     fetchCampuses();
   }, []);
 
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`);
+        const data = await res.json();
+        if (data.success) {
+          setEmployees(data.data);
+        }
+      } catch (err) {
+        console.error("Error fetching employees:", err);
+      }
+    };
+    fetchEmployees();
+  }, []);
+
+
   const showSnackbar = (message, severity = "success") => {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
@@ -155,141 +167,141 @@ const Form = () => {
   };
 
   useEffect(() => {
-  let email = localStorage.getItem("email") ?? "";
-  setAttemptLoading(true);
+    let email = localStorage.getItem("email") ?? "";
+    setAttemptLoading(true);
 
-  const initPreviousEntries = () => {
-    const storedData = JSON.parse(localStorage.getItem("previousEntriesDone"));
-    const today = new Date();
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const initPreviousEntries = () => {
+      const storedData = JSON.parse(localStorage.getItem("previousEntriesDone"));
+      const today = new Date();
+      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-    if (storedData) {
-      if (new Date(storedData.lastUpdated).getTime() < firstDayOfMonth.getTime()) {
+      if (storedData) {
+        if (new Date(storedData.lastUpdated).getTime() < firstDayOfMonth.getTime()) {
+          localStorage.setItem(
+            "previousEntriesDone",
+            JSON.stringify({ count: 0, lastUpdated: today })
+          );
+          setPreviousEntriesDone(0);
+        } else {
+          setPreviousEntriesDone(storedData.count);
+        }
+      } else {
         localStorage.setItem(
           "previousEntriesDone",
           JSON.stringify({ count: 0, lastUpdated: today })
         );
         setPreviousEntriesDone(0);
-      } else {
-        setPreviousEntriesDone(storedData.count);
       }
-    } else {
-      localStorage.setItem(
-        "previousEntriesDone",
-        JSON.stringify({ count: 0, lastUpdated: today })
-      );
-      setPreviousEntriesDone(0);
-    }
-  };
+    };
 
-  initPreviousEntries();
+    initPreviousEntries();
 
-  try {
-    fetch(`${API_BASE_URL}/employees`)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Fetched data:", data.data);
-
-        const projectByDepartment = {}; // move declaration here
-        const projectByCampus = {}; // <- new state object
-        const nameToIdMap = {};
-        const projects = data.data.map((project) => {
-          return {
-            projectId: project.Id,
-            projectName: project.projectName,
-            status: project.projectStatus,
-            department: project.department,
-            campus: project.campus, // <- assuming this exists in API response
-          };
-        });
-
-        const activeProjectNames = projects
-          .map((project) => project.status === "Active" && project.projectName)
-          .filter(Boolean);
-
-        const today = new Date();
-        const dayOfWeek = today.getDay();
-        if (dayOfWeek === 6) {
-          activeProjectNames.push("Saturday-Peer-Learning");
-        }
-
-        projects.forEach((project) => {
-          if (project.status === "Active") {
-            const dept = project.department.trim();
-            const campus = (project.campus || "Unknown").trim();
-            const projectName = project.projectName;
-
-            // Department-based mapping
-            if (!projectByDepartment[dept]) {
-              projectByDepartment[dept] = new Set();
-            }
-            projectByDepartment[dept].add(projectName);
-
-            // Campus-based mapping
-            if (!projectByCampus[campus]) {
-              projectByCampus[campus] = new Set();
-            }
-            projectByCampus[campus].add(projectName);
-
-            // Name to ID mapping
-            nameToIdMap[projectName] = project.projectId;
-          }
-        });
-
-        // Convert Sets to Arrays
-        Object.keys(projectByDepartment).forEach((dept) => {
-          projectByDepartment[dept] = Array.from(projectByDepartment[dept]);
-        });
-
-        Object.keys(projectByCampus).forEach((campus) => {
-          projectByCampus[campus] = Array.from(projectByCampus[campus]);
-        });
-
-        setProjectByDepartment(projectByDepartment);
-        setProjectByCampus(projectByCampus); // ✅ Set campus data
-        console.log("Project By Department:", projectByDepartment);
-        console.log("Project By Campus:", projectByCampus);
-        
-        setProjectNameToId(nameToIdMap);
-        setProjectsLoading(false);
-      });
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
-}, []);
-
-useEffect(() => {
-  const currentDept = formData.department || userDepartment;
-  if (!currentDept) {
-    setFilteredProjects([]);
-    return;
-  }
-  const fetchDepartmentProjects = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/employees?department=${encodeURIComponent(currentDept)}`);
-      const data = await response.json();
-      if (data?.data?.length > 0) {
-        const activeProjects = data.data.filter(
-          (project) => project.projectStatus === "Active"
-        );
-        let filtered = activeProjects.map((p) => p.projectName);
-        // Optional: If you still want to filter by campus (e.g. if Culture department has multiple campuses)
-        if (formData.campus) {
-          filtered = activeProjects
-            .filter((p) => p.campus?.trim() === formData.campus.trim())
-            .map((p) => p.projectName);
+      fetch(`${API_BASE_URL}/employees`)
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Fetched data:", data.data);
+
+          const projectByDepartment = {}; // move declaration here
+          const projectByCampus = {}; // <- new state object
+          const nameToIdMap = {};
+          const projects = data.data.map((project) => {
+            return {
+              projectId: project.Id,
+              projectName: project.projectName,
+              status: project.projectStatus,
+              department: project.department,
+              campus: project.campus, // <- assuming this exists in API response
+            };
+          });
+
+          const activeProjectNames = projects
+            .map((project) => project.status === "Active" && project.projectName)
+            .filter(Boolean);
+
+          const today = new Date();
+          const dayOfWeek = today.getDay();
+          if (dayOfWeek === 6) {
+            activeProjectNames.push("Saturday-Peer-Learning");
+          }
+
+          projects.forEach((project) => {
+            if (project.status === "Active") {
+              const dept = project.department.trim();
+              const campus = (project.campus || "Unknown").trim();
+              const projectName = project.projectName;
+
+              // Department-based mapping
+              if (!projectByDepartment[dept]) {
+                projectByDepartment[dept] = new Set();
+              }
+              projectByDepartment[dept].add(projectName);
+
+              // Campus-based mapping
+              if (!projectByCampus[campus]) {
+                projectByCampus[campus] = new Set();
+              }
+              projectByCampus[campus].add(projectName);
+
+              // Name to ID mapping
+              nameToIdMap[projectName] = project.projectId;
+            }
+          });
+
+          // Convert Sets to Arrays
+          Object.keys(projectByDepartment).forEach((dept) => {
+            projectByDepartment[dept] = Array.from(projectByDepartment[dept]);
+          });
+
+          Object.keys(projectByCampus).forEach((campus) => {
+            projectByCampus[campus] = Array.from(projectByCampus[campus]);
+          });
+
+          setProjectByDepartment(projectByDepartment);
+          setProjectByCampus(projectByCampus); // ✅ Set campus data
+          console.log("Project By Department:", projectByDepartment);
+          console.log("Project By Campus:", projectByCampus);
+
+          setProjectNameToId(nameToIdMap);
+          setProjectsLoading(false);
+        });
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    const currentDept = formData.department;
+    if (!currentDept) {
+      setFilteredProjects([]);
+      return;
+    }
+    const fetchDepartmentProjects = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/employees?department=${encodeURIComponent(currentDept)}`);
+        const data = await response.json();
+        if (data?.data?.length > 0) {
+          const activeProjects = data.data.filter(
+            (project) => project.projectStatus === "Active"
+          );
+          let filtered = activeProjects.map((p) => p.projectName);
+          // Optional: If you still want to filter by campus (e.g. if Culture department has multiple campuses)
+          if (formData.campus) {
+            filtered = activeProjects
+              .filter((p) => p.campus?.trim() === formData.campus.trim())
+              .map((p) => p.projectName);
+          }
+          setFilteredProjects(filtered);
+        } else {
+          setFilteredProjects([]);
         }
-        setFilteredProjects(filtered);
-      } else {
+      } catch (error) {
+        console.error("Error fetching department projects:", error);
         setFilteredProjects([]);
       }
-    } catch (error) {
-      console.error("Error fetching department projects:", error);
-      setFilteredProjects([]);
-    }
-  };
-  fetchDepartmentProjects();
-}, [formData.department, userDepartment, formData.campus]);
+    };
+    fetchDepartmentProjects();
+  }, [formData.department, userDepartment, formData.campus]);
 
   document.querySelectorAll('input[type="number"]').forEach(function (input) {
     input.addEventListener("wheel", function (event) {
@@ -297,32 +309,8 @@ useEffect(() => {
     });
   });
 
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setFormData({
-  //     ...formData,
-  //     [name]: value,
-  //   });
-  // };
-
-  //  function isInvalidDate(dateStr) {
-  //    const date = new Date(dateStr);
-  //    const day = date.getDay(); // 0 = Sunday, 6 = Saturday
-  //    const dateNum = date.getDate();
-  //    const week = Math.floor((dateNum - 1) / 7) + 1;
-
-  //    // Disable Sunday or 2nd/4th Saturday
-  //    return day === 0 || (day === 6 && (week === 2 || week === 4));
-  //  }
-
   function handleChange(e) {
     const { name, value } = e.target;
-
-    // if (isInvalidDate(value)) {
-    //   alert("This date is not allowed");
-    //   return;
-    // }
-
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -401,7 +389,7 @@ useEffect(() => {
       ...prevState,
       contributions: [
         ...prevState.contributions,
-        { project: selectedProject, ...currentContribution, department: prevState.department || userDepartment },
+        { project: selectedProject, ...currentContribution, department: prevState.department },
       ],
       blockers: formData.blockers,
       campus: formData.campus,
@@ -458,8 +446,11 @@ useEffect(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if(!formData.email){
+      setShowEmailError(true);
+      return;
+    }
     setLoading(true);
-
     if (!saved) {
       setShowSaveError(true);
       return;
@@ -467,20 +458,21 @@ useEffect(() => {
 
     // const userEmail = localStorage.getItem("email");
     const userEmail = email;
-    const department = localStorage.getItem("department");
+    const department = employeeDepartment || formData.department;
     // const department = "Residential Program";
 
     const newEntry = {
       entries: formData.contributions.map((c) => ({
-        email: userEmail,
+        email: formData.email,
+        raisedEmail: userEmail,
         projectName: c.project,
         projectId: projectNameToId[c.project],
         totalHoursSpent: Number(c.hours),
         workDescription: c.task,
         entryDate: formData.selectedDate,
-        department: userDepartment, // original department
+        department: employeeDepartment, // original department
         campus: formData.campus || "", // current selected campus
-        workingDepartment: c.department || userDepartment, // current selected
+        workingDepartment: c.department, // current selected
         ...(department === "Residential Program" && {
           blockers: formData.blockers,
           campus: formData.campus,
@@ -513,7 +505,7 @@ useEffect(() => {
     try {
       console.log("Ready to send to backend", newEntry);
       const response = await fetch(
-        `${API_BASE_URL}/activityLogs`,
+        `${API_BASE_URL}/activityLogs/admin`,
         {
           method: "POST",
           headers: {
@@ -525,21 +517,12 @@ useEffect(() => {
       console.log("Response of Post API:", response);
       if (!response.ok) {
         throw new Error(result.message || "Failed to save entry");
-        // console.error("Failed to save entry:");
       }
       showSnackbar("Entry successfully saved!", "success");
 
       const result = await response.json();
       console.log("Response from backend:", result);
 
-      if (result.message === 'You already finished your 3 attempts') {
-        setSnackbarMessage('You have 0 attempts remaining for backdated entries!');
-        setSnackbarSeverity('warning');
-        setSnackbarOpen(true);
-        setFormData((prev) => ({ ...prev, contributions: [] }));
-        setLoading(false);
-        return;
-      }
 
       // Check if the response has results and the first result's status is "success"
       const entryStatus = result?.results?.[0]?.status;
@@ -561,15 +544,6 @@ useEffect(() => {
         );
       }
 
-      if (result?.backdatedLeft?.[userEmail] !== undefined) {
-        const backdatedLeft = result.backdatedLeft[userEmail];
-        showSnackbar(
-          `Entry successfully processed! Backdated entries left: ${backdatedLeft}`,
-          "info"
-        );
-        setAttempt(backdatedLeft);
-        localStorage.setItem("attemptsLeft", backdatedLeft);
-      }
 
       if (entryStatus === "updated") {
         showSnackbar("Entry successfully updated!", "info");
@@ -595,63 +569,6 @@ useEffect(() => {
       : (document.getElementById("root").style.opacity = "1");
   };
 
-  function getMinDate() {
-  const today = new Date();
-  const validDates = [];
-  let i = 1; // Start with yesterday
-  while (validDates.length < 3) {
-    const date = new Date(today);
-    date.setDate(today.getDate() - i);
-    const day = date.getDay(); // 0 = Sunday, 6 = Saturday
-    // Skip Sundays
-    if (day === 0) {
-      i++;
-      continue;
-    }
-    // Skip 2nd and 4th Saturdays
-    if (day === 6) {
-      const dateNum = date.getDate();
-      const month = date.getMonth();
-      const year = date.getFullYear();
-      // Count which Saturday it is in the month
-      let saturdayCount = 0;
-      for (let d = 1; d <= dateNum; d++) {
-        const tempDate = new Date(year, month, d);
-        if (tempDate.getDay() === 6) {
-          saturdayCount++;
-        }
-      }
-      if (saturdayCount === 2 || saturdayCount === 4) {
-        i++;
-        continue; // Skip 2nd or 4th Saturday
-      }
-    }
-    validDates.push(new Date(date)); // Store a copy
-    i++;
-  }
-  // Return the earliest valid date among the 3
-  return validDates[validDates.length - 1].toISOString().split("T")[0];
-}
-
-  useEffect(() => {
-    const email = localStorage.getItem("email") ?? "";
-
-    const fetchUserAttempts = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/attempts?email=${email}`);
-        const data = await response.json();
-        if (data?.data) {
-          setBackdatedAttemptsLeft(data?.data?.attemptsLeft);
-        }
-      } catch (error) {
-        console.error("Error fetching user attempts:", error);
-      }
-    };
-
-    if (email) {
-      fetchUserAttempts();
-    }
-  }, []);
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -672,81 +589,90 @@ useEffect(() => {
     fetchDepartments();
   }, []);
 
-  const currentDept = formData.department || userDepartment;
+  const currentDept = formData.department || "";
   const currentCampus = formData.campus || "";
 
   return (
-    <div className="form-container" style={{ overflowY: "scroll", height: "100vh", marginTop: "-20px" }}>
+    <div className="" style={{ overflowY: "scroll", height: "85vh", marginBottom: "5px", width: "100%" }}>
       <LoadingSpinner loading={loading} className="loader-container" />
       <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
-        <h3 style={{ fontSize: "32px", fontWeight: "bold", color: "#000" }}>
-          Welcome Back, <span style={{ color: "#2E7D32" }}>{userName}</span>
-        </h3>
-                <h3
-          style={{
-            fontSize: "1rem",
-            fontWeight: "500",
-            color: "#000",
-            marginTop: "0.5rem",
-          }}
-        >
-          Remaining Attempts for Backdated Entries : {" "}
-          <span style={{ color: "#2E7D32", fontWeight: "bold" }}>
-            {backdatedAttemptsLeft}
-          </span>
-        </h3>
         <h1
           style={{
-            fontSize: "18px",
-            fontWeight: "500",
-            color: "#000",
+            fontSize: "26px",
+            fontWeight: "bold",
+            color: "#272829ff",
             marginTop: "0.5rem",
           }}
         >
-          Daily Employee's Activity Tracker
+          Add New Logs
         </h1>
       </div>
-      <form onSubmit={handleSubmit} className="from-1">
+      <form onSubmit={handleSubmit} className="admin-from">
         {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
         <div>
           <label>Employee Email:</label>
-          <input
-            type="email"
+          <select
             name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            disabled
-            color="red"
-          />
+            value={formData.email || ""}
+            onChange={(e) => {
+              const selectedEmail = e.target.value;
+              const emp = employees.find(emp => emp["Team ID"] === selectedEmail);
+              setFormData(prev => ({
+                ...prev,
+                email: selectedEmail,
+                name: emp ? emp["First and Last Name"] : "",
+                department: emp ? emp["Department"] || "" : ""
+              }));
+              setEmployeeDepartment(emp ? emp["Department"] || "" : "");
+              setShowEmailError(false)
+            }}
+            
+          >
+            <option value="">--Select an email--</option>
+            {employees
+              .filter(emp => role === "superAdmin" || emp["Team ID"] !== email)
+              .sort((a, b) => a["Team ID"].toLowerCase().localeCompare(b["Team ID"].toLowerCase()))
+              .map((emp, idx) => (
+                <option key={idx} value={emp["Team ID"]}>
+                  {emp["Team ID"]}
+                </option>
+              ))}
+          </select>
+          {showEmailError && (
+              <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem" }}>
+                Email cannot be empty*
+              </div>
+              )}
         </div>
+
         <div>
           <label>Employee Name:</label>
           <input
             type="text"
             name="name"
-            value={userName}
-            onChange={handleChange}
-            required
-            disabled
-            color="red"
+            placeholder="Please select an employee email first"
+            value={formData.name || ""}
+            readOnly
           />
         </div>
+
         <div>
           <label>Employee Department:</label>
           <input
             type="text"
-            value={userDepartment}
-            required
-            disabled
-            color="red"
+            name="department"
+            placeholder="Please select an employee email first"
+            value={employeeDepartment}
+            readOnly
           />
         </div>
+
         <div>
           <label>Current Working Department:</label>
           <select
+          style={{ maxHeight: "50px", overflowY: "auto" }}
             name="department"
-            value={formData.department || userDepartment}
+            value={formData.department || ""}
             onChange={(e) => {
               const newDepartment = e.target.value;
               setFormData((prev) => ({
@@ -758,8 +684,8 @@ useEffect(() => {
               setCurrentContribution({ hours: "", task: "" });
             }}
           >
-            <option value="" disabled>
-              Select Department
+            <option style={{ maxHeight: "50px", overflowY: "auto" }} value="" disabled>
+              --Select a department--
             </option>
             {departments.map((dept, idx) => (
               <option key={idx} value={dept}>
@@ -775,44 +701,43 @@ useEffect(() => {
             type="date"
             name="selectedDate"
             max={today}
-            min={getMinDate()}
             value={formData.selectedDate}
             onChange={handleChange}
           />
         </div>
 
-        {/* {((formData.department || userDepartment) === "Residential Program"
-      || formData.department === "Culture"
-      || formData.department === "Academics"
-      || formData.department === "Operations"
-      || formData.department === "LXD & ETC"
-      || formData.department === "Campus Support Staff"
-      || formData.department === "Campus_Security"
-      ) && (
-          <div>
-            <label>Please select your campus :</label>
-            <select
-              name="campus"
-              value={formData.campus}
-              onChange={handleChange}
-              required
-            >
-              <option value="">--Select a campus--</option>
-              {campuses.map((c, index) => (
-                <option key={index} value={c.campus}>
-                  {c.campus}
-                </option>
-              ))}
-            </select>
-          </div>
-        )} */}
+        {((formData.department || userDepartment) === "Residential Program"
+          || formData.department === "Culture"
+          || formData.department === "Academics"
+          || formData.department === "Operations"
+          || formData.department === "LXD & ETC"
+          || formData.department === "Campus Support Staff"
+          || formData.department === "Campus_Security"
+        ) && (
+            <div>
+              <label>Please select your campus :</label>
+              <select
+                name="campus"
+                value={formData.campus}
+                onChange={handleChange}
+                required
+              >
+                <option value="">--Select a campus--</option>
+                {campuses.map((c, index) => (
+                  <option key={index} value={c.campus}>
+                    {c.campus}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
         {formData.contributions.length > 0 && (
           <div>
             <h3>Contributions Summary</h3>
-            <TableContainer 
-              component={Paper} 
-              sx={{ 
+            <TableContainer
+              component={Paper}
+              sx={{
                 width: '100%',
                 maxWidth: '100%',
                 overflow: 'hidden',
@@ -822,8 +747,8 @@ useEffect(() => {
                 padding: 0
               }}
             >
-              <Table 
-                sx={{ 
+              <Table
+                sx={{
                   width: '100%',
                   tableLayout: 'fixed',
                   margin: 0,
@@ -838,8 +763,8 @@ useEffect(() => {
               >
                 <TableHead sx={{ margin: 0, padding: 0 }}>
                   <TableRow sx={{ backgroundColor: '#f5f5f5', margin: 0, padding: 0 }}>
-                    <TableCell 
-                      sx={{ 
+                    <TableCell
+                      sx={{
                         fontWeight: 'bold',
                         width: { xs: '22%', sm: '18%' },
                         fontSize: { xs: '12px', sm: '14px' }
@@ -847,8 +772,8 @@ useEffect(() => {
                     >
                       Project
                     </TableCell>
-                    <TableCell 
-                      sx={{ 
+                    <TableCell
+                      sx={{
                         fontWeight: 'bold',
                         width: { xs: '12%', sm: '10%' },
                         textAlign: 'center',
@@ -857,8 +782,8 @@ useEffect(() => {
                     >
                       Hours
                     </TableCell>
-                    <TableCell 
-                      sx={{ 
+                    <TableCell
+                      sx={{
                         fontWeight: 'bold',
                         width: { xs: '48%', sm: '55%' },
                         fontSize: { xs: '12px', sm: '14px' }
@@ -866,8 +791,8 @@ useEffect(() => {
                     >
                       Task
                     </TableCell>
-                    <TableCell 
-                      sx={{ 
+                    <TableCell
+                      sx={{
                         fontWeight: 'bold',
                         width: { xs: '18%', sm: '17%' },
                         textAlign: 'center',
@@ -881,8 +806,8 @@ useEffect(() => {
                 <TableBody>
                   {formData.contributions.map((contribution, index) => (
                     <TableRow key={index}>
-                      <TableCell 
-                        sx={{ 
+                      <TableCell
+                        sx={{
                           fontSize: { xs: '11px', sm: '13px' },
                           wordBreak: 'break-word',
                           overflow: 'hidden',
@@ -952,8 +877,8 @@ useEffect(() => {
                         )}
                       </TableCell>
                       <TableCell sx={{ textAlign: 'center' }}>
-                        <Box 
-                          sx={{ 
+                        <Box
+                          sx={{
                             display: 'flex',
                             gap: '2px',
                             alignItems: 'center',
@@ -1177,7 +1102,7 @@ useEffect(() => {
           elevation={6}
           variant="filled"
           onClose={handleCloseSnackbar}
-          severity={snackbarSeverity} 
+          severity={snackbarSeverity}
         >
           {alertMessage}
         </MuiAlert>

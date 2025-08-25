@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useContext } from "react";
 import "./LeaveManagement.css";
 import { LoginContext } from "../context/LoginContext";
-import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, Box, Button, Chip, FormControlLabel, Checkbox } from "@mui/material";
+import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, Checkbox, Box, Button, Chip, FormControlLabel, Dialog, DialogActions } from "@mui/material";
 import axios from "axios";
 import AdjustLeaveModal from "./AdjustLeaveModal";
+import ApplyLeaveModal from "./ApplyLeaveModal"; 
 
 const LeaveManagement = () => {
   const dataContext = useContext(LoginContext);
@@ -38,6 +39,8 @@ const LeaveManagement = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   // NEW STATE FOR MODAL
   const [adjustModalOpen, setAdjustModalOpen] = useState(false);
+  const [applyModalOpen, setApplyModalOpen] = useState(false);
+
 
   const fetchLeavesData = async (status, email = '', month = '') => {
     setLoading(true)
@@ -66,6 +69,7 @@ const LeaveManagement = () => {
       }
 
     } catch (err) {
+      
       console.error(`Failed to fetch ${status} leaves`, err);
     } finally {
       setLoading(false);
@@ -197,7 +201,7 @@ const LeaveManagement = () => {
               ?.map((entry) => entry["Team ID"])
               ?.filter((id) => !!id)
           )
-        );
+        ).sort((a,b)=>a.localeCompare(b));
         setAllEmails(teamIDs);
       } catch (error) {
         console.error("Error fetching emails:", error);
@@ -267,12 +271,25 @@ const LeaveManagement = () => {
 
 
   const handleApproveAll = async () => {
+    const role = localStorage.getItem("role");
     if (selectedLeave.length === 0) {
       setSnackbarMessage("Please select leave to approve.");
       setSnackbarSeverity("warning");
       setSnackbarOpen(true);
       return;
     }
+
+    // Prevent approving own leave
+    const invalidLeaves = pendingLeaves.filter(
+      (leave) => selectedLeave.includes(leave.Id) && leave.email === email
+    );
+    if (invalidLeaves.length > 0 && role !== "superAdmin") {
+      setSnackbarMessage("You cannot approve your own leave request.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
+
     setIsApproving(true);
 
     const approverEmail = email;
@@ -334,137 +351,150 @@ const LeaveManagement = () => {
   };
 
   const handleRejectAll = async () => {
-  if (selectedLeave.length === 0) {
-    setSnackbarMessage("Please select leave to reject.");
-    setSnackbarSeverity("warning");
-    setSnackbarOpen(true);
-    return;
-  }
-  setIsRejecting(true);
-
-  const approverEmail = email;
-  const token = localStorage.getItem("jwtToken");
-
-  const leaveData = pendingLeaves
-    .filter((leave) => selectedLeave.includes(leave.Id))
-    .map((leave) => ({
-      Id: leave.Id,
-      approverEmail,
-      status: "rejected",
-    }));
-
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/employmentLeavePolicy`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          isBulkUpload: true,
-          leaveData,
-        }),
-      }
-    );
-
-    const result = await response.json();
-    console.log("Bulk rejection response:", result);
-
-    if (response.ok) {
-      const stillPending = pendingLeaves.filter((leave) => !selectedLeave.includes(leave.Id));
-      setPendingLeaves(stillPending);
-
-      setSnackbarMessage("Selected leaves rejected successfully.");
-      setSnackbarSeverity("success");
+    const role = localStorage.getItem("role");
+    if (selectedLeave.length === 0) {
+      setSnackbarMessage("Please select leave to reject.");
+      setSnackbarSeverity("warning");
       setSnackbarOpen(true);
-    } else {
-      setSnackbarMessage(result?.message || "Bulk rejection failed.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    }
-
-  } catch (error) {
-    console.error("Bulk rejection error:", error);
-    setSnackbarMessage("Something went wrong during bulk rejection.");
-    setSnackbarSeverity("error");
-    setSnackbarOpen(true);
-  } finally {
-    setIsRejecting(false);
-  }
-};
-
-  const handleSelectAll = (isChecked) => {
-  if (isChecked) {
-    const allIds = pendingLeaves.map(leave => leave.Id);
-    setSelectedLeave(allIds);
-  } else {
-    setSelectedLeave([]);
-  }
-};
-
-const downloadCSV = async () => {
-  setIsDownloading(true); // show loader
-
-  let currentPage = 1;
-  const totalPages = 45;
-  let allUsers = [];
-
-  try {
-    while (currentPage <= totalPages) {
-      const response = await fetch(`${API_BASE_URL}/employmentLeavePolicy?page=${currentPage}`);
-      const result = await response.json();
-
-      if (result.success) {
-        const pageData = result.data || [];
-        if (pageData.length > 0) {
-          allUsers.push(...pageData);
-        }
-      }
-      currentPage++;
-    }
-
-    if (allUsers.length === 0) {
-      alert('No data found.');
       return;
     }
 
-    const rows = [];
-    allUsers.forEach((user) => {
-      user.leaveRecords.forEach((record) => {
-        rows.push({
-          Email: user.userEmail,
-          LeaveType: record.leaveType,
-          UsedLeaves: record.usedLeaves,
-          PendingLeaves: record.pendingLeaves,
-          AllottedLeaves: record.totalLeavesAllotted,
-          LeaveLeft: record.leaveLeft,
+    // Prevent rejecting own leave
+    const invalidLeaves = pendingLeaves.filter(
+      (leave) => selectedLeave.includes(leave.Id) && leave.email === email
+    );
+    if (invalidLeaves.length > 0 && role !== "superAdmin") {
+      setSnackbarMessage("You cannot reject your own leave request.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    setIsRejecting(true);
+
+    const approverEmail = email;
+    const token = localStorage.getItem("jwtToken");
+
+    const leaveData = pendingLeaves
+      .filter((leave) => selectedLeave.includes(leave.Id))
+      .map((leave) => ({
+        Id: leave.Id,
+        approverEmail,
+        status: "rejected",
+      }));
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/employmentLeavePolicy`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            isBulkUpload: true,
+            leaveData,
+          }),
+        }
+      );
+
+      const result = await response.json();
+      console.log("Bulk rejection response:", result);
+
+      if (response.ok) {
+        const stillPending = pendingLeaves.filter((leave) => !selectedLeave.includes(leave.Id));
+        setPendingLeaves(stillPending);
+
+        setSnackbarMessage("Selected leaves rejected successfully.");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+      } else {
+        setSnackbarMessage(result?.message || "Bulk rejection failed.");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      }
+
+    } catch (error) {
+      console.error("Bulk rejection error:", error);
+      setSnackbarMessage("Something went wrong during bulk rejection.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    } finally {
+      setIsRejecting(false);
+    }
+  };
+
+  const handleSelectAll = (isChecked) => {
+    if (isChecked) {
+      const allIds = pendingLeaves.map(leave => leave.Id);
+      setSelectedLeave(allIds);
+    } else {
+      setSelectedLeave([]);
+    }
+  };
+
+  const downloadCSV = async () => {
+    setIsDownloading(true); // show loader
+
+    let currentPage = 1;
+    const totalPages = 45;
+    let allUsers = [];
+
+    try {
+      while (currentPage <= totalPages) {
+        const response = await fetch(`${API_BASE_URL}/employmentLeavePolicy?page=${currentPage}`);
+        const result = await response.json();
+
+        if (result.success) {
+          const pageData = result.data || [];
+          if (pageData.length > 0) {
+            allUsers.push(...pageData);
+          }
+        }
+        currentPage++;
+      }
+
+      if (allUsers.length === 0) {
+        alert('No data found.');
+        return;
+      }
+
+      const rows = [];
+      allUsers.forEach((user) => {
+        user.leaveRecords.forEach((record) => {
+          rows.push({
+            Email: user.userEmail,
+            LeaveType: record.leaveType,
+            UsedLeaves: record.usedLeaves,
+            PendingLeaves: record.pendingLeaves,
+            AllottedLeaves: record.totalLeavesAllotted,
+            LeaveLeft: record.leaveLeft,
+          });
         });
       });
-    });
 
-    const header = ['Email', 'LeaveType', 'UsedLeaves', 'PendingLeaves', 'AllottedLeaves', 'LeaveLeft'];
-    const csvContent = [
-      header.join(','),
-      ...rows.map(row => header.map(field => `"${row[field]}"`).join(','))
-    ].join('\n');
+      const header = ['Email', 'LeaveType', 'UsedLeaves', 'PendingLeaves', 'AllottedLeaves', 'LeaveLeft'];
+      const csvContent = [
+        header.join(','),
+        ...rows.map(row => header.map(field => `"${row[field]}"`).join(','))
+      ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'leave_data.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  } catch (error) {
-    console.error('Error downloading:', error);
-    alert('Error occurred during download.');
-  } finally {
-    setIsDownloading(false); // hide loader
-  }
-};
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'leave_data.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading:', error);
+      alert('Error occurred during download.');
+    } finally {
+      setIsDownloading(false); // hide loader
+    }
+  };
 
   return (
     <div className="leave-container">
@@ -577,7 +607,40 @@ const downloadCSV = async () => {
             >
               Clear Filters
             </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={() => setApplyModalOpen(true)}
+              sx={{
+                backgroundColor: "#168625ff",
+                fontWeight: "bold",
+                "&:hover": {
+                  backgroundColor: "#135a05ff"
+                },
+                textTransform: "none"
+              }}
+            >
+              Apply Leaves
+            </Button>
           </div>
+          {/* Apply leave*/}
+          <Dialog
+            open={applyModalOpen}
+            onClose={() => setApplyModalOpen(false)}
+            fullWidth
+            maxWidth="md"
+          >
+            <ApplyLeaveModal />
+            <DialogActions sx={{ borderTop: 1, borderColor: "divider" }}>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => setApplyModalOpen(false)}
+              >
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
           {loading ? (
             <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
               <p>Loading...</p>
@@ -606,21 +669,21 @@ const downloadCSV = async () => {
               ) : (
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px', marginTop: '10px', marginBottom: '-12px', minWidth: 1180 }}>
-    <FormControlLabel
-  control={
-    <Checkbox
-      checked={selectedLeave.length === pendingLeaves.length && pendingLeaves.length > 0}
-      onChange={(e) => handleSelectAll(e.target.checked)}
-      sx={{
-        color: '#1976D2',
-        '&.Mui-checked': {
-          color: '#72ce47ff',
-        },
-      }}
-    />
-  }
-  label="Select All"
-/>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={selectedLeave.length === pendingLeaves.length && pendingLeaves.length > 0}
+                          onChange={(e) => handleSelectAll(e.target.checked)}
+                          sx={{
+                            color: '#1976D2',
+                            '&.Mui-checked': {
+                              color: '#72ce47ff',
+                            },
+                          }}
+                        />
+                      }
+                      label="Select All"
+                    />
                     <div>
                       <Button
                         variant="contained"
@@ -680,10 +743,10 @@ const downloadCSV = async () => {
                       {pendingLeaves.map((leave, index) => (
                         <tr key={index}>
                           <td>
-                            <input 
-                              type="checkbox" 
+                            <input
+                              type="checkbox"
                               checked={selectedLeave.includes(leave.Id)}
-                              onChange={()=>handleCheckbox(leave.Id)}
+                              onChange={() => handleCheckbox(leave.Id)}
                             />
                           </td>
                           <td>{leave.email}</td>
@@ -903,42 +966,42 @@ const downloadCSV = async () => {
                 Adjust Leaves
               </Button>
               <Button variant="contained" onClick={downloadCSV}
-  sx={{
-    backgroundColor: '#1976D2',
-    color: '#fff',
-    fontWeight: 'bold',
-    textTransform: 'none',
-    px: 3,
-    py: 1,
-    borderRadius: 2,
-    boxShadow: 2,
-    '&:hover': {
-      backgroundColor: '#115293',
-    }
-  }}>
-    Download CSV
-  </Button>
+                sx={{
+                  backgroundColor: '#1976D2',
+                  color: '#fff',
+                  fontWeight: 'bold',
+                  textTransform: 'none',
+                  px: 3,
+                  py: 1,
+                  borderRadius: 2,
+                  boxShadow: 2,
+                  '&:hover': {
+                    backgroundColor: '#115293',
+                  }
+                }}>
+                Download CSV
+              </Button>
             </Box>
           </div>
 
           {isDownloading && (
-  <div style={{
-    position: 'fixed',
-    top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    zIndex: 9999,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-  }}>
-    <CircularProgress size={60} thickness={5} />
-    <p style={{ marginTop: 20, fontSize: 18, color: '#333', textAlign: 'center' }}>
-      Downloading leave records…<br />
-      This may take more than a minute. Please wait patiently.
-    </p>
-  </div>
-)}
+            <div style={{
+              position: 'fixed',
+              top: 0, left: 0, right: 0, bottom: 0,
+              backgroundColor: 'rgba(255,255,255,0.9)',
+              zIndex: 9999,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+              <CircularProgress size={60} thickness={5} />
+              <p style={{ marginTop: 20, fontSize: 18, color: '#333', textAlign: 'center' }}>
+                Downloading leave records…<br />
+                This may take more than a minute. Please wait patiently.
+              </p>
+            </div>
+          )}
 
           <div className="balance-data">
             {loadingBalance ? (

@@ -146,7 +146,8 @@ const CompOff = () => {
         if (result.success) {
           const emails = result.data
             .map((item) => item["Team ID"])
-            .filter((email) => email); // filter out null/undefined
+            .filter((email) => email) // filter out null/undefined
+            .sort((a,b)=>a.localeCompare(b));
           setEmailList(emails);
         }
       } catch (error) {

@@ -796,7 +796,6 @@ const Form = () => {
             />
           </LocalizationProvider>
         </div>
-
         {((formData.department || userDepartment) === "Residential Program"
           || formData.department === "Culture"
           || formData.department === "Academics"
@@ -822,7 +821,6 @@ const Form = () => {
               </select>
             </div>
           )}
-
         {formData.contributions.length > 0 && (
           <div>
             <h3>Contributions Summary</h3>

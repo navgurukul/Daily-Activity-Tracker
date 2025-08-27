@@ -363,6 +363,10 @@ const Form = () => {
       if (input.value > 2) {
         input.value = 2;
       }
+    }else{
+      if ( input.value > 15){
+        input.value = 15;
+      }
     }
   }
   const handleContributionChange = (e) => {

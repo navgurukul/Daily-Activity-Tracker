@@ -415,9 +415,22 @@ const Form = () => {
   };
   const handleEditContributionChange = (e) => {
     const { name, value } = e.target;
+    let newValue = value;
+
+    if (name === "hours") {
+    const project = formData.contributions[editIndex]?.project;
+
+    if (project === "Ad-hoc tasks") {
+      if (newValue > 2) newValue = 2;
+      if (newValue < 0) newValue = 0;
+    } else {
+      if (newValue > 15) newValue = 15;
+      if (newValue < 0) newValue = 0;
+    }
+  }
     setEditContribution({
       ...editContribution,
-      [name]: value,
+      [name]: newValue,
     });
   };
 
@@ -782,7 +795,6 @@ const Form = () => {
                   selectedDate: newValue ? dayjs(newValue).format("YYYY-MM-DD") : ""
                 }));
               }}
-              
               format="DD/MM/YYYY"
               slotProps={{
                 textField: {
@@ -912,6 +924,10 @@ const Form = () => {
                             name="hours"
                             value={editContribution.hours}
                             onChange={handleEditContributionChange}
+                            inputPropes={{
+                              min:0,
+                              max: formData.contributions[editIndex]?.project === "Ad-hoc tasks" ? 2 : 15,
+                            }}
                             size="small"
                             sx={{
                               width: '50px',

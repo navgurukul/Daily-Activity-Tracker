@@ -55,14 +55,12 @@ const Form = () => {
     selectedDate: dataContext.selectedDate || getTodayDate(),
     contributions: [],
     blockers: "",
-    campus: "",
   };
   const [formData, setFormData] = useState(initialFormData);
 
   // const [projectData, setProjectData] = useState([]);
   // const [residentialProjectData, setResidentialProjectData] = useState([]);
   const [projectByDepartment, setProjectByDepartment] = useState({});
-  const [projectByCampus, setProjectByCampus] = useState({});
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [projectsLoading, setProjectsLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState("");
@@ -98,8 +96,6 @@ const Form = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [alertMessage, setAlertMessage] = useState("");
 
-  const [campuses, setCampuses] = useState([]);
-
   const [showProjectError, setShowProjectError] = useState(false);
   const [showHoursError, setShowHoursError] = useState(false);
   const [showTaskError, setShowTaskError] = useState(false);
@@ -122,23 +118,6 @@ const Form = () => {
     setSnackbaropen(false);
   };
 
-
-  useEffect(() => {
-    const fetchCampuses = async () => {
-      try {
-        const res = await fetch(
-          `${API_BASE_URL}/campuses`
-        );
-        const data = await res.json();
-        const parsedBody = JSON.parse(data.body);
-        setCampuses(parsedBody.data);
-      } catch (error) {
-        console.error("Failed to fetch campuses:", error);
-      }
-    };
-    fetchCampuses();
-  }, []);
-
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -153,7 +132,6 @@ const Form = () => {
     };
     fetchEmployees();
   }, []);
-
 
   const showSnackbar = (message, severity = "success") => {
     setSnackbarMessage(message);
@@ -203,7 +181,6 @@ const Form = () => {
           console.log("Fetched data:", data.data);
 
           const projectByDepartment = {}; // move declaration here
-          const projectByCampus = {}; // <- new state object
           const nameToIdMap = {};
           const projects = data.data.map((project) => {
             return {
@@ -211,7 +188,6 @@ const Form = () => {
               projectName: project.projectName,
               status: project.projectStatus,
               department: project.department,
-              campus: project.campus, // <- assuming this exists in API response
             };
           });
 
@@ -228,7 +204,6 @@ const Form = () => {
           projects.forEach((project) => {
             if (project.status === "Active") {
               const dept = project.department.trim();
-              const campus = (project.campus || "Unknown").trim();
               const projectName = project.projectName;
 
               // Department-based mapping
@@ -236,12 +211,6 @@ const Form = () => {
                 projectByDepartment[dept] = new Set();
               }
               projectByDepartment[dept].add(projectName);
-
-              // Campus-based mapping
-              if (!projectByCampus[campus]) {
-                projectByCampus[campus] = new Set();
-              }
-              projectByCampus[campus].add(projectName);
 
               // Name to ID mapping
               nameToIdMap[projectName] = project.projectId;
@@ -253,14 +222,8 @@ const Form = () => {
             projectByDepartment[dept] = Array.from(projectByDepartment[dept]);
           });
 
-          Object.keys(projectByCampus).forEach((campus) => {
-            projectByCampus[campus] = Array.from(projectByCampus[campus]);
-          });
-
           setProjectByDepartment(projectByDepartment);
-          setProjectByCampus(projectByCampus); // ✅ Set campus data
           console.log("Project By Department:", projectByDepartment);
-          console.log("Project By Campus:", projectByCampus);
 
           setProjectNameToId(nameToIdMap);
           setProjectsLoading(false);
@@ -285,12 +248,6 @@ const Form = () => {
             (project) => project.projectStatus === "Active"
           );
           let filtered = activeProjects.map((p) => p.projectName);
-          // Optional: If you still want to filter by campus (e.g. if Culture department has multiple campuses)
-          if (formData.campus) {
-            filtered = activeProjects
-              .filter((p) => p.campus?.trim() === formData.campus.trim())
-              .map((p) => p.projectName);
-          }
           setFilteredProjects(filtered);
         } else {
           setFilteredProjects([]);
@@ -301,7 +258,7 @@ const Form = () => {
       }
     };
     fetchDepartmentProjects();
-  }, [formData.department, userDepartment, formData.campus]);
+  }, [formData.department, userDepartment]); 
 
   document.querySelectorAll('input[type="number"]').forEach(function (input) {
     input.addEventListener("wheel", function (event) {
@@ -392,7 +349,6 @@ const Form = () => {
         { project: selectedProject, ...currentContribution, department: prevState.department },
       ],
       blockers: formData.blockers,
-      campus: formData.campus,
     }));
     setSaved(true); // Set saved to true when a contribution is added
     setSelectedProject(""); // Reset project selection
@@ -471,11 +427,9 @@ const Form = () => {
         workDescription: c.task,
         entryDate: formData.selectedDate,
         department: employeeDepartment, // original department
-        campus: formData.campus || "", // current selected campus
         workingDepartment: c.department, // current selected
         ...(department === "Residential Program" && {
           blockers: formData.blockers,
-          campus: formData.campus,
         }),
       })),
     };
@@ -590,7 +544,6 @@ const Form = () => {
   }, []);
 
   const currentDept = formData.department || "";
-  const currentCampus = formData.campus || "";
 
   return (
     <div className="" style={{ overflowY: "scroll", height: "85vh", marginBottom: "5px", width: "100%" }}>
@@ -705,32 +658,6 @@ const Form = () => {
             onChange={handleChange}
           />
         </div>
-
-        {((formData.department || userDepartment) === "Residential Program"
-          || formData.department === "Culture"
-          || formData.department === "Academics"
-          || formData.department === "Operations"
-          || formData.department === "LXD & ETC"
-          || formData.department === "Campus Support Staff"
-          || formData.department === "Campus_Security"
-        ) && (
-            <div>
-              <label>Please select your campus :</label>
-              <select
-                name="campus"
-                value={formData.campus}
-                onChange={handleChange}
-                required
-              >
-                <option value="">--Select a campus--</option>
-                {campuses.map((c, index) => (
-                  <option key={index} value={c.campus}>
-                    {c.campus}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
 
         {formData.contributions.length > 0 && (
           <div>

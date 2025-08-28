@@ -58,14 +58,12 @@ const Form = () => {
     selectedDate: dataContext.selectedDate || getTodayDate(),
     contributions: [],
     blockers: "",
-    campus: "",
   };
   const [formData, setFormData] = useState(initialFormData);
 
   // const [projectData, setProjectData] = useState([]);
   // const [residentialProjectData, setResidentialProjectData] = useState([]);
   const [projectByDepartment, setProjectByDepartment] = useState({});
-  const [projectByCampus, setProjectByCampus] = useState({});
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [projectsLoading, setProjectsLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState("");
@@ -101,8 +99,6 @@ const Form = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [alertMessage, setAlertMessage] = useState("");
 
-  const [campuses, setCampuses] = useState([]);
-
   const [showProjectError, setShowProjectError] = useState(false);
   const [showHoursError, setShowHoursError] = useState(false);
   const [showTaskError, setShowTaskError] = useState(false);
@@ -128,22 +124,6 @@ const Form = () => {
       navigate(location.pathname, { replace: true });
     }
   }, [location.state, location.pathname, navigate]);
-
-  useEffect(() => {
-    const fetchCampuses = async () => {
-      try {
-        const res = await fetch(
-          `${API_BASE_URL}/campuses`
-        );
-        const data = await res.json();
-        const parsedBody = JSON.parse(data.body);
-        setCampuses(parsedBody.data);
-      } catch (error) {
-        console.error("Failed to fetch campuses:", error);
-      }
-    };
-    fetchCampuses();
-  }, []);
 
   const showSnackbar = (message, severity = "success") => {
     setSnackbarMessage(message);
@@ -193,7 +173,6 @@ const Form = () => {
           console.log("Fetched data:", data.data);
 
           const projectByDepartment = {}; // move declaration here
-          const projectByCampus = {}; // <- new state object
           const nameToIdMap = {};
           const projects = data.data.map((project) => {
             return {
@@ -201,7 +180,6 @@ const Form = () => {
               projectName: project.projectName,
               status: project.projectStatus,
               department: project.department,
-              campus: project.campus, // <- assuming this exists in API response
             };
           });
 
@@ -218,7 +196,6 @@ const Form = () => {
           projects.forEach((project) => {
             if (project.status === "Active") {
               const dept = project.department.trim();
-              const campus = (project.campus || "Unknown").trim();
               const projectName = project.projectName;
 
               // Department-based mapping
@@ -226,12 +203,6 @@ const Form = () => {
                 projectByDepartment[dept] = new Set();
               }
               projectByDepartment[dept].add(projectName);
-
-              // Campus-based mapping
-              if (!projectByCampus[campus]) {
-                projectByCampus[campus] = new Set();
-              }
-              projectByCampus[campus].add(projectName);
 
               // Name to ID mapping
               nameToIdMap[projectName] = project.projectId;
@@ -243,14 +214,8 @@ const Form = () => {
             projectByDepartment[dept] = Array.from(projectByDepartment[dept]);
           });
 
-          Object.keys(projectByCampus).forEach((campus) => {
-            projectByCampus[campus] = Array.from(projectByCampus[campus]);
-          });
-
           setProjectByDepartment(projectByDepartment);
-          setProjectByCampus(projectByCampus); // ✅ Set campus data
           console.log("Project By Department:", projectByDepartment);
-          console.log("Project By Campus:", projectByCampus);
 
           setProjectNameToId(nameToIdMap);
           setProjectsLoading(false);
@@ -275,12 +240,6 @@ const Form = () => {
             (project) => project.projectStatus === "Active"
           );
           let filtered = activeProjects.map((p) => p.projectName);
-          // Optional: If you still want to filter by campus (e.g. if Culture department has multiple campuses)
-          if (formData.campus) {
-            filtered = activeProjects
-              .filter((p) => p.campus?.trim() === formData.campus.trim())
-              .map((p) => p.projectName);
-          }
           setFilteredProjects(filtered);
         } else {
           setFilteredProjects([]);
@@ -291,7 +250,7 @@ const Form = () => {
       }
     };
     fetchDepartmentProjects();
-  }, [formData.department, userDepartment, formData.campus]);
+  }, [formData.department, userDepartment]); 
 
   document.querySelectorAll('input[type="number"]').forEach(function (input) {
     input.addEventListener("wheel", function (event) {
@@ -360,9 +319,12 @@ const Form = () => {
 
   function checkMaxValue(input) {
     if (selectedProject === "Ad-hoc tasks") {
-      if (input.value > 2) {
-        input.value = 2;
-      }
+      if (input.value > 2) input.value = 2;
+      if (input.value < 0) input.value = 0;
+      
+    }else{
+      if ( input.value > 15) input.value = 15;
+      if (input.value < 0) input.value = 0;
     }
   }
   const handleContributionChange = (e) => {
@@ -406,7 +368,6 @@ const Form = () => {
         { project: selectedProject, ...currentContribution, department: prevState.department || userDepartment },
       ],
       blockers: formData.blockers,
-      campus: formData.campus,
     }));
     setSaved(true); // Set saved to true when a contribution is added
     setSelectedProject(""); // Reset project selection
@@ -415,9 +376,22 @@ const Form = () => {
   };
   const handleEditContributionChange = (e) => {
     const { name, value } = e.target;
+    let newValue = value;
+
+    if (name === "hours") {
+    const project = formData.contributions[editIndex]?.project;
+
+    if (project === "Ad-hoc tasks") {
+      if (newValue > 2) newValue = 2;
+      if (newValue < 0) newValue = 0;
+    } else {
+      if (newValue > 15) newValue = 15;
+      if (newValue < 0) newValue = 0;
+    }
+  }
     setEditContribution({
       ...editContribution,
-      [name]: value,
+      [name]: newValue,
     });
   };
 
@@ -481,11 +455,9 @@ const Form = () => {
         workDescription: c.task,
         entryDate: formData.selectedDate,
         department: userDepartment, // original department
-        campus: formData.campus || "", // current selected campus
         workingDepartment: c.department || userDepartment, // current selected
         ...(department === "Residential Program" && {
           blockers: formData.blockers,
-          campus: formData.campus,
         }),
       })),
     };
@@ -675,7 +647,6 @@ const Form = () => {
   }, []);
 
   const currentDept = formData.department || userDepartment;
-  const currentCampus = formData.campus || "";
 
   return (
     <div className="form-container" style={{ overflowY: "scroll", height: "100vh", marginTop: "-20px" }}>
@@ -782,7 +753,6 @@ const Form = () => {
                   selectedDate: newValue ? dayjs(newValue).format("YYYY-MM-DD") : ""
                 }));
               }}
-              
               format="DD/MM/YYYY"
               slotProps={{
                 textField: {
@@ -796,31 +766,7 @@ const Form = () => {
             />
           </LocalizationProvider>
         </div>
-        {((formData.department || userDepartment) === "Residential Program"
-          || formData.department === "Culture"
-          || formData.department === "Academics"
-          || formData.department === "Operations"
-          || formData.department === "LXD & ETC"
-          || formData.department === "Campus Support Staff"
-          || formData.department === "Campus_Security"
-        ) && (
-            <div>
-              <label>Please select your campus :</label>
-              <select
-                name="campus"
-                value={formData.campus}
-                onChange={handleChange}
-                required
-              >
-                <option value="">--Select a campus--</option>
-                {campuses.map((c, index) => (
-                  <option key={index} value={c.campus}>
-                    {c.campus}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+
         {formData.contributions.length > 0 && (
           <div>
             <h3>Contributions Summary</h3>
@@ -912,6 +858,10 @@ const Form = () => {
                             name="hours"
                             value={editContribution.hours}
                             onChange={handleEditContributionChange}
+                            inputPropes={{
+                              min:0,
+                              max: formData.contributions[editIndex]?.project === "Ad-hoc tasks" ? 2 : 15,
+                            }}
                             size="small"
                             sx={{
                               width: '50px',

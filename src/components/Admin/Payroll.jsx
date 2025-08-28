@@ -182,6 +182,7 @@ async function downloadCSV() {
       email: item.email,
       name: item.name,
       teamName: item.teamName,
+      employmentType: item.employmentType,
       'Week 1': item['Week 1'],
       'Week 2': item['Week 2'],
       'Week 3': item['Week 3'],

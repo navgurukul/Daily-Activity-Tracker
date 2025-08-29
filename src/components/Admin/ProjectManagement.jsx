@@ -14,6 +14,7 @@ import {
   Tooltip,
   FormHelperText,
   Snackbar,
+  Pagination,
 } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import { handleBeforeUnload } from "../../utils/beforeUnloadHandler";
@@ -101,6 +102,10 @@ const ProjectManagement = () => {
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 10;
 
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -325,6 +330,17 @@ const ProjectManagement = () => {
     return true;
   };
 
+  // Handle pagination change
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
+
+  // Slice filtered projects for current page
+  const paginatedProjects = filteredProjects.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
+
   return (
     <div
       className="admin-container"
@@ -486,7 +502,7 @@ const ProjectManagement = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredProjects.map((project, index) => (
+                  {paginatedProjects.map((project, index) => (
                     <tr
                       key={index}
                       onClick={() => handleOpen(project)}
@@ -501,7 +517,7 @@ const ProjectManagement = () => {
                           className="editBtn"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleEditProject(project, index);
+                            handleEditProject(project, (page - 1) * rowsPerPage + index);
                           }}
                         >
                           ✏️
@@ -511,6 +527,16 @@ const ProjectManagement = () => {
                   ))}
                 </tbody>
               </table>
+              <Box sx={{ mt: 3, display: "flex", justifyContent: "center" }}>
+                <Pagination
+                  count={Math.ceil(filteredProjects.length / rowsPerPage)}
+                  page={page}
+                  onChange={handlePageChange}
+                  color="primary"
+                  siblingCount={0}
+                  boundaryCount={1}
+                />
+              </Box>
 
               {/* Single Modal for all project types */}
               <Modal open={open} onClose={handleClose}>

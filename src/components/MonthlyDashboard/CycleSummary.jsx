@@ -106,6 +106,10 @@ const CycleSummary = ({ selectedDate }) => {
         {labels.totalPayableDays}:{" "}
         <strong>{cycle.totalPayableDays ?? "N/A"}</strong>
       </Typography>
+      <Typography variant="body2" sx={{ color: "text.secondary", mt:0.5 }}>
+        {labels.totalHours}:{" "}
+        <strong>{cycle.totalHours ?? "N/A"}</strong>
+      </Typography>
     </Card>
   );
 

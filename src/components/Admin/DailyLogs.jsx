@@ -19,14 +19,12 @@ import {
   DialogTitle,
   Snackbar,
   IconButton,
-  Chip,
   CircularProgress,
   MenuItem,
   FormControl,
   InputLabel,
   Select,
 } from "@mui/material";
-
 import Autocomplete from "@mui/material/Autocomplete";
 import debounce from "lodash/debounce";
 import { Edit, Check, Close } from "@mui/icons-material";
@@ -34,12 +32,18 @@ import axios from "axios";
 import AddLogModal from "./AddLogModal";
 
 function DailyLogs() {
+  // State for filters
   const [projectName, setProjectName] = useState("");
   const [email, setEmail] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
+
+  // Data lists
   const [emailsList, setEmailsList] = useState([]);
   const [projectList, setProjectList] = useState([]);
+  const [allEmails, setAllEmails] = useState([]);
+
+  // Editing state
   const userEmail = localStorage.getItem("email");
   const [editLog, setEditLog] = useState(null);
   const [editedData, setEditedData] = useState({
@@ -50,34 +54,41 @@ function DailyLogs() {
     totalHoursSpent: "",
     date: "",
   });
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", error: false });
-  const [loading, setLoading] = useState(false);
 
+  // Snackbar state
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    error: false
+  });
+
+  // Loading & modal state
+  const [loading, setLoading] = useState(false);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [logToApprove, setLogToApprove] = useState(null);
-
-  // state to reject logs
   const [logToReject, setLogToReject] = useState(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
-
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
+  const [adjustModalOpen, setAdjustModalOpen] = useState(false);
 
+  // Logs & pagination state
   const [logs, setLogs] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [nextPage, setNextPage] = useState(null);
   const [previousPages, setPreviousPages] = useState([]);
-  const [allEmails, setAllEmails] = useState([]);
-  const [adjustModalOpen, setAdjustModalOpen] = useState(false);
 
+  // API Base URLs
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const ACTIVITY_LOGS_URL = `${API_BASE_URL}/activityLogs`;
 
+  // Fetch logs when filters change
   useEffect(() => {
     debouncedFilter();
-    setCurrentPage(1); // Reset to page 1 when filters change
+    setCurrentPage(1);
   }, [projectName, email, month, year]);
 
+  // Fetch team email IDs
   useEffect(() => {
     const fetchEmails = async () => {
       try {
@@ -100,12 +111,37 @@ function DailyLogs() {
     fetchEmails();
   }, []);
 
+  // Fetch filter options
+  useEffect(() => {
+    fetchFilterOptions();
+  }, []);
+
+  const fetchFilterOptions = async () => {
+    try {
+      const response = await fetch(ACTIVITY_LOGS_URL);
+      const data = await response.json();
+      const AllProject = await fetch(`${API_BASE_URL}/employees`);
+      const projectData = await AllProject.json();
+
+      const allLogs = Object.entries(data.data).flatMap(([email, logs]) =>
+        logs.map((log) => ({
+          email,
+          project: log.projectName,
+        }))
+      );
+
+      setEmailsList([...new Set(allLogs.map(log => log.email))]);
+      setProjectList([...new Set(projectData?.data?.map(project => project.projectName))]);
+    } catch (error) {
+      console.error("Failed to load filters:", error);
+    }
+  };
+
+  // Fetch logs
   const fetchLogs = async ({ pageToken = 1, email = "", projectName = "", month = "", year = "" } = {}) => {
     setLoading(true);
     try {
       let url = ACTIVITY_LOGS_URL;
-
-      // If email is present, it's part of the path
       if (email) url += `/${email}`;
 
       // Add query params
@@ -115,7 +151,7 @@ function DailyLogs() {
         params.append("month", month);
         params.append("year", year);
       }
-      params.append("page", pageToken); // ✅ pagination query
+      params.append("page", pageToken);
 
       if (params.toString()) {
         url += `?${params.toString()}`;
@@ -124,6 +160,7 @@ function DailyLogs() {
       const response = await fetch(url);
       const data = await response.json();
 
+      // Format the logs
       const formattedLogs = Object.entries(data.data).flatMap(([email, logs]) =>
         logs.map((log) => ({
           Id: log.Id,
@@ -140,9 +177,6 @@ function DailyLogs() {
       setLogs(formattedLogs);
       setCurrentPage(data.page || 1);
       setNextPage(data.nextPage || null);
-      console.log("currentPage:", data.page);
-      console.log("nextPage:", data.nextPage);
-
     } catch (err) {
       console.error("Fetch failed:", err);
     } finally {
@@ -150,6 +184,7 @@ function DailyLogs() {
     }
   };
 
+  // Handle applying filters
   const handleFilter = () => {
     let url = ACTIVITY_LOGS_URL;
     const params = new URLSearchParams();
@@ -170,6 +205,7 @@ function DailyLogs() {
     });
   };
 
+  // Clear all filters
   const clearFilters = () => {
     setProjectName("");
     setEmail("");
@@ -179,8 +215,10 @@ function DailyLogs() {
     fetchLogs();
   };
 
+  // Debounced filter
   const debouncedFilter = useCallback(debounce(handleFilter, 500), [projectName, email, month, year])
 
+  // Editing handlers
   const handleEditClick = (log) => {
     setEditedData({
       Id: log.Id,
@@ -193,22 +231,22 @@ function DailyLogs() {
     setEditLog(log);
   };
 
+  // Handle changes in the edit form
   const handleEditChange = (field, value) => {
     setEditedData((prev) => ({ ...prev, [field]: value }));
   };
 
+  // Handle form submission
   const handleEditSubmit = async () => {
     const dateOfLog = editLog.date;
-    // Convert edited hours to number (in case user enters string)
     const editedHours = Number(editedData.totalHoursSpent) || 0;
-    // Calculate total hours for the same date, excluding the current editing log
+
+    // Validate max 15 hrs/day
     const totalHoursForDate = logs
       .filter((log) => log.date === dateOfLog && log.Id !== editLog.Id && log.email === editLog.email)
       .reduce((sum, log) => sum + (Number(log.totalHoursSpent) || 0), 0);
 
     const newTotal = totalHoursForDate + editedHours;
-    console.log(`Total hours for ${dateOfLog} excluding current log: ${totalHoursForDate}`);
-
     if (newTotal > 15) {
       setSnackbar({
         open: true,
@@ -217,6 +255,7 @@ function DailyLogs() {
       });
       return;
     }
+
     // Proceed to update
     try {
       const entryDate = editedData?.date;
@@ -252,18 +291,19 @@ function DailyLogs() {
     }
   };
 
-  // Function to handle log approval
+  // Approve handlers
   const handleApproveClick = (log) => {
     setLogToApprove(log);
     setShowApprovalModal(true);
   };
 
-  // Function to handle log rejection
+  // Reject handlers
   const handleRejectClick = (log) => {
     setLogToReject(log);
     setShowRejectModal(true);
   };
 
+  // Approve log
   const handleApprove = async (log) => {
     if (!logToApprove) return;
     setIsApproving(true);
@@ -296,6 +336,7 @@ function DailyLogs() {
     }
   };
 
+  // Reject log
   const handleReject = async () => {
     if (!logToReject) return;
     setIsRejecting(true);
@@ -328,39 +369,13 @@ function DailyLogs() {
     }
   }
 
-  useEffect(() => {
-    fetchFilterOptions();
-  }, []);
-
-  const fetchFilterOptions = async () => {
-    try {
-      const response = await fetch(ACTIVITY_LOGS_URL);
-      const data = await response.json();
-      const AllProject = await fetch(`${API_BASE_URL}/employees`);
-      const projectData = await AllProject.json();
-
-      const allLogs = Object.entries(data.data).flatMap(([email, logs]) =>
-        logs.map((log) => ({
-          email,
-          project: log.projectName,
-        }))
-      );
-
-      setEmailsList([...new Set(allLogs.map(log => log.email))]);
-      // setProjectList([...new Set(allLogs.map(log => log.project))]);
-      setProjectList([...new Set(projectData?.data?.map(project => project.projectName))]);
-    } catch (error) {
-      console.error("Failed to load filters:", error);
-    }
-  };
-
   return (
     <Box>
       <Typography variant="h5" align="center" mb={3}>
         Daily Logs
       </Typography>
 
-      {/* Filters */}
+      {/* Filters Section */}
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 3, justifyContent: "center" }}>
         <Autocomplete
           options={projectList}
@@ -476,6 +491,7 @@ function DailyLogs() {
         </Button>
       </Box>
 
+      {/* Loader */}
       {isApproving && (
         <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999, background: "rgba(255, 255, 255, 0.7)" }}>
           <CircularProgress size={24} />
@@ -516,7 +532,6 @@ function DailyLogs() {
                   >
                     Submission Time
                   </TableCell>
-                  {/* <TableCell>Status</TableCell> */}
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -529,9 +544,6 @@ function DailyLogs() {
                     <TableCell>{log.totalHoursSpent}</TableCell>
                     <TableCell>{log.description}</TableCell>
                     <TableCell>{log.updatedAt?.split(".")[0]}</TableCell>
-                    {/* <TableCell>
-                      <Chip label={log.logStatus} color={log.logStatus === "approved" ? "success" : log.logStatus === "rejected" ? "error" : "warning"} size="small" />
-                    </TableCell> */}
                     <TableCell>
                       <Box
                         sx={{
@@ -544,13 +556,11 @@ function DailyLogs() {
                         }}
                       >
                         <IconButton size="small" onClick={() => handleEditClick(log)} title="Edit Log" sx={{ height: '50px', width: '50px', color: "primary", "&:hover": { backgroundColor: "#1976d21a" } }}><Edit /></IconButton>
-                        {/* <IconButton size="small" onClick={() => handleApproveClick(log)} disabled={log.logStatus === "approved"} title="Approve Log" sx={{ height:'50px', width:'50px', color: "primary", "&:hover": { backgroundColor: "#2e7d321a"}}}><Check /></IconButton> */}
                         <IconButton
                           size="small"
                           title="Reject Log"
                           color="error"
                           onClick={() => handleRejectClick(log)}
-                          // disabled={log.logStatus === "approved" || log.logStatus === "rejected"}
                           disabled={log.logStatus === "rejected"}
                           sx={{ height: '50px', width: '50px', color: "primary", "&:hover": { backgroundColor: "#d32f2f1a" } }}
                         >
@@ -587,7 +597,7 @@ function DailyLogs() {
         <Typography align="center" color="textSecondary">No logs found for selected filters.</Typography>
       )}
 
-      {/* add new log */}
+      {/* Add log modal */}
       <Dialog
         open={adjustModalOpen}
         onClose={() => setAdjustModalOpen(false)}
@@ -606,7 +616,7 @@ function DailyLogs() {
         </DialogActions>
       </Dialog>
 
-      {/* Edit Dialog  */}
+      {/* Edit log modal */}
       <Dialog
         open={!!editLog}
         onClose={() => setEditLog(null)}
@@ -622,10 +632,9 @@ function DailyLogs() {
           <TextField
             type="date"
             label="Log Date"
-            value={editedData.date} // ✅ Changed from editLog.date to editedData.date
+            value={editedData.date}
             onChange={(e) => handleEditChange("date", e.target.value)}
           />
-          {/* <TextField label="Project Name" value={editedData.projectName} onChange={(e) => handleEditChange("projectName", e.target.value)} /> */}
           <FormControl sx={{ minWidth: 280 }} size="small">
             <InputLabel>Project Name</InputLabel>
             <Select
@@ -635,7 +644,7 @@ function DailyLogs() {
               MenuProps={{
                 PaperProps: {
                   style: {
-                    maxHeight: 200, 
+                    maxHeight: 200,
                   },
                 },
               }}
@@ -662,7 +671,7 @@ function DailyLogs() {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar */}
+      {/* Snackbar message */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
@@ -671,6 +680,7 @@ function DailyLogs() {
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         ContentProps={{ style: { backgroundColor: snackbar.error ? "#d32f2f" : "#4caf50" } }}
       />
+
       {/* Approval Modal */}
       <Dialog
         open={showApprovalModal}
@@ -702,6 +712,7 @@ function DailyLogs() {
           </Button>
         </DialogActions>
       </Dialog>
+
       {/* Reject Modal */}
       <Dialog
         open={showRejectModal}

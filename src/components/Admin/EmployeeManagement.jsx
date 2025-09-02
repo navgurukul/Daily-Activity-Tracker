@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 
 const EmployeeManagement = () => {
+  // State Management
   const [employeeData, setEmployeeData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -22,8 +23,10 @@ const EmployeeManagement = () => {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
+  // API Base URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+  // Fetch employee data 
   useEffect(() => {
     const fetchEmployeeData = async () => {
       setLoading(true);
@@ -43,6 +46,7 @@ const EmployeeManagement = () => {
     fetchEmployeeData();
   }, []);
 
+  // Filter employees whenever searchQuery changes
   useEffect(() => {
     const lowerQuery = searchQuery.toLowerCase();
     const filtered = employeeData.filter(
@@ -51,11 +55,13 @@ const EmployeeManagement = () => {
         employee["Team ID"]?.toLowerCase().includes(lowerQuery)
     );
     setFilteredData(filtered);
-    setPage(1); // reset to first page on search
+    setPage(1); 
   }, [searchQuery, employeeData]);
 
+  // Handle pagination page change
   const handlePageChange = (event, value) => setPage(value);
 
+  // Slice data for current page
   const paginatedData = filteredData.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage
@@ -67,6 +73,7 @@ const EmployeeManagement = () => {
         Employee List
       </Typography>
 
+      {/* Search Field */}
       <TextField
         label="Search by name or email"
         variant="outlined"
@@ -75,17 +82,20 @@ const EmployeeManagement = () => {
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
-
+      {/* Loader */}
       {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
           <p>Loading...</p>
           <CircularProgress />
         </Box>
       )}
+
+      {/* No Data Message */}
       {!loading && paginatedData.length === 0 && (
         <Typography>No employee data found.</Typography>
       )}
 
+      {/* Employee List */}
       <List sx={{ bgcolor: "#f7f7f7", borderRadius: 2 }}>
         {paginatedData.map((employee, index) => (
           <ListItem
@@ -109,6 +119,7 @@ const EmployeeManagement = () => {
         ))}
       </List>
 
+      {/* Pagination Controls */}
       <Box sx={{ mt: 3, display: "flex", justifyContent: "center" }}>
         <Pagination
           count={Math.ceil(filteredData.length / itemsPerPage)}
@@ -120,6 +131,7 @@ const EmployeeManagement = () => {
         />
       </Box>
 
+      {/* Employee Detail Modal */}
       <Modal
         open={!!selectedEmployee}
         onClose={() => setSelectedEmployee(null)}

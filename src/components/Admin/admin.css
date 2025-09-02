@@ -1,3 +1,4 @@
+/* Admin Container */
 .admin-container {
   margin-left: 50px;
   padding: 20px;
@@ -5,12 +6,15 @@
   min-height: 100vh;
   overflow-x: auto;
 }
+
+/* Admin Title */
 .admin-title {
   text-align: center;
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 20px;
 }
+
 /* Form Section */
 .form-container {
   background: white;
@@ -19,21 +23,28 @@
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
   margin-bottom: 20px;
 }
+
+/* Form Title */
 .form-container h2 {
   margin-bottom: 15px;
 }
+
+/* Form Fields */
 .form-fields {
   display: flex;
   gap: 5px;
   flex-wrap: wrap;
 }
+
+/* Input Fields */
 .input-field {
-  /* flex: 1; */
   width: calc(25% - 10px);
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+
+/* Add Button */
 .add-btn {
   background-color: #4CAF50;
   color: white;
@@ -44,9 +55,12 @@
   margin-top: 10px;
   width: 97.5%;
 }
+
+/* Add Button Hover */
 .add-btn:hover {
   background-color: #45A049;
 }
+
 /* Table Section */
 .table-container {
   background: white;
@@ -54,32 +68,48 @@
   border-radius: 8px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
 }
+
+/* Table Title */
 .table-container h2 {
   margin-bottom: 15px;
 }
+
+/* Table Wrapper */
 .table-wrapper {
   overflow-x: auto;
 }
+
+/* Table */
 table {
   width: 99.5%;
   border-collapse: collapse;
 }
+
+/* Table Header and Data */
 th, td {
   padding: 10px;
   border: 1px solid #ddd;
   text-align: left;
 }
+
+/* Table Header */
 th {
   background-color: #F0F0F0;
 }
+
+/* Table Status */
 .active-status {
   color: green;
   font-weight: bold;
 }
+
+/* Inactive Status */
 .inactive-status {
   color: red;
   font-weight: bold;
 }
+
+/* No Projects */
 .no-projects {
   text-align: center;
   color: gray;

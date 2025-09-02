@@ -1,16 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import "../Form/Form.css";
-import url from "../../../public/api";
-import { json, useLocation, useNavigate } from "react-router-dom";
 import { LoginContext } from "../context/LoginContext";
 import DeleteIcon from "@mui/icons-material/Delete";
-
-import CircularProgress from "@mui/material/CircularProgress";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import LoadingSpinner from "../Loader/LoadingSpinner";
 import { useLoader } from "../context/LoadingContext";
-import TraansitionModal from "../Modal/TraansitionModal";
 import {
   Dialog,
   DialogActions,
@@ -32,16 +27,18 @@ import {
   Box,
 } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
-import { set } from "lodash";
-
 
 const Form = () => {
+  // Contexts
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
-  const userName = localStorage.getItem("name");
-  const userDepartment = localStorage.getItem("department");
-  // const userDepartment = "Residential Program";
   const { loading, setLoading } = useLoader();
+
+  // User details from localStorage
+  const userDepartment = localStorage.getItem("department");
+  const role = localStorage.getItem("role");
+
+  // Utility Functions
   const getTodayDate = () => {
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -50,74 +47,82 @@ const Form = () => {
     return `${yyyy}-${mm}-${dd}`;
   };
 
+  // State Variables 
   const initialFormData = {
     email: "",
     selectedDate: dataContext.selectedDate || getTodayDate(),
     contributions: [],
     blockers: "",
   };
-  const [formData, setFormData] = useState(initialFormData);
 
-  // const [projectData, setProjectData] = useState([]);
-  // const [residentialProjectData, setResidentialProjectData] = useState([]);
+  const [formData, setFormData] = useState(initialFormData);
   const [projectByDepartment, setProjectByDepartment] = useState({});
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [projectsLoading, setProjectsLoading] = useState(true);
+
   const [selectedProject, setSelectedProject] = useState("");
   const [currentContribution, setCurrentContribution] = useState({
     hours: "0",
     task: "",
   });
-  const [maxHours, setMaxHours] = useState(12);
-  const [showProjectForm, setShowProjectForm] = useState(false);
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [saved, setSaved] = useState(false);
-  const [showSelect, setShowSelect] = useState(true);
-  const [editIndex, setEditIndex] = useState(null);
-
   const [editContribution, setEditContribution] = useState({
     hours: "",
     task: "",
   });
 
+  const [maxHours, setMaxHours] = useState(12);
+  const [saved, setSaved] = useState(false);
+  const [editIndex, setEditIndex] = useState(null);
   const [open, setOpen] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(null);
-  const navigate = useNavigate();
-  const [previousEntriesDone, setPreviousEntriesDone] = useState(0);
-  const today = new Date().toISOString().split("T")[0];
-  const [attempt, setAttempt] = useState(0);
-  const [isDateDisabled, setIsDateDisabled] = useState(true);
-  const [attemptLoading, setAttemptLoading] = useState(true);
 
+  // Error handling states
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [showProjectError, setShowProjectError] = useState(false);
+  const [showHoursError, setShowHoursError] = useState(false);
+  const [showTaskError, setShowTaskError] = useState(false);
+  const [showEmailError, setShowEmailError] = useState(false);
+  const [showSaveError, setShowSaveError] = useState(false);
+
+  // Snackbar notifications
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbaropen, setSnackbaropen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [alertMessage, setAlertMessage] = useState("");
 
-  const [showProjectError, setShowProjectError] = useState(false);
-  const [showHoursError, setShowHoursError] = useState(false);
-  const [showTaskError, setShowTaskError] = useState(false);
-  const [showEmailError, setShowEmailError] = useState(false);
+  // Other data
   const [departments, setDepartments] = useState([]);
-
-  const [showSaveError, setShowSaveError] = useState(false);
   const [projectNameToId, setProjectNameToId] = useState({});
   const [employees, setEmployees] = useState([]);
   const [employeeDepartment, setEmployeeDepartment] = useState("");
+  const [previousEntriesDone, setPreviousEntriesDone] = useState(0);
+  const [attemptLoading, setAttemptLoading] = useState(true);
+  const [showProjectForm, setShowProjectForm] = useState(false);
 
+  const today = new Date().toISOString().split("T")[0];
 
-
-  const location = useLocation();
-  const role = localStorage.getItem("role");
-
+  // API Base URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  // Snackbar Handlers
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") return;
+    setSnackbarOpen(false);
+  };
 
   const handleCloseSnackbar = () => {
     setSnackbaropen(false);
   };
 
+  // Fetch Employees
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
@@ -133,17 +138,7 @@ const Form = () => {
     fetchEmployees();
   }, []);
 
-  const showSnackbar = (message, severity = "success") => {
-    setSnackbarMessage(message);
-    setSnackbarSeverity(severity);
-    setSnackbarOpen(true);
-  };
-
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") return;
-    setSnackbarOpen(false);
-  };
-
+  // Fetch Projects
   useEffect(() => {
     let email = localStorage.getItem("email") ?? "";
     setAttemptLoading(true);
@@ -174,13 +169,12 @@ const Form = () => {
 
     initPreviousEntries();
 
+    // Fetch active projects
     try {
       fetch(`${API_BASE_URL}/employees`)
         .then((response) => response.json())
         .then((data) => {
-          console.log("Fetched data:", data.data);
-
-          const projectByDepartment = {}; // move declaration here
+          const projectByDepartment = {};
           const nameToIdMap = {};
           const projects = data.data.map((project) => {
             return {
@@ -223,8 +217,6 @@ const Form = () => {
           });
 
           setProjectByDepartment(projectByDepartment);
-          console.log("Project By Department:", projectByDepartment);
-
           setProjectNameToId(nameToIdMap);
           setProjectsLoading(false);
         });
@@ -233,6 +225,7 @@ const Form = () => {
     }
   }, []);
 
+  // Fetch Departments
   useEffect(() => {
     const currentDept = formData.department;
     if (!currentDept) {
@@ -258,39 +251,14 @@ const Form = () => {
       }
     };
     fetchDepartmentProjects();
-  }, [formData.department, userDepartment]); 
+  }, [formData.department, userDepartment]);
 
-  document.querySelectorAll('input[type="number"]').forEach(function (input) {
-    input.addEventListener("wheel", function (event) {
-      event.preventDefault();
-    });
-  });
-
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }
-
-  const handleProjectSelect = (e) => {
-    setSaved(false);
-    //  setOpen(true);
-    if (e.target.value === "Ad-hoc tasks")
-      setError("You can only log a maximum of 2 hours for Ad-hoc tasks");
-    setSelectedProject(e.target.value);
-    setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
-
-    if (e.target.value !== "") {
-      setShowProjectError(false);
-    }
-  };
-
+  // Set max hours
   useEffect(() => {
     setMaxHours(15);
   }, [selectedProject]);
 
+  // Set save error
   useEffect(() => {
     if (showSaveError) {
       const timer = setTimeout(() => {
@@ -301,6 +269,55 @@ const Form = () => {
     }
   }, [showSaveError]);
 
+  // Fetch list of all departments
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await fetch(
+          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
+        );
+        const data = await res.json();
+        if (data.success) {
+          const allDepartments = data.data.map((item) => item.Department);
+          const uniqueDepartments = [...new Set(allDepartments)];
+          setDepartments(uniqueDepartments);
+        }
+      } catch (err) {
+        console.error("Error fetching departments:", err);
+      }
+    };
+    fetchDepartments();
+  }, []);
+
+  document.querySelectorAll('input[type="number"]').forEach(function (input) {
+    input.addEventListener("wheel", function (event) {
+      event.preventDefault();
+    });
+  });
+
+  // Input & Form Handlers
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
+
+  // Project dropdown selection
+  const handleProjectSelect = (e) => {
+    setSaved(false);
+    if (e.target.value === "Ad-hoc tasks")
+      setError("You can only log a maximum of 2 hours for Ad-hoc tasks");
+    setSelectedProject(e.target.value);
+    setCurrentContribution({ hours: "", task: "" });
+
+    if (e.target.value !== "") {
+      setShowProjectError(false);
+    }
+  };
+
+  // Check max hours validation
   function checkMaxValue(input) {
     if (selectedProject === "Ad-hoc tasks") {
       if (input.value > 2) {
@@ -308,6 +325,8 @@ const Form = () => {
       }
     }
   }
+
+  // Change contribution handler
   const handleContributionChange = (e) => {
     const { name, value } = e.target;
     setCurrentContribution({
@@ -316,6 +335,7 @@ const Form = () => {
     });
   };
 
+  // Add new contribution to list
   const addContribution = () => {
     if (!selectedProject) {
       setShowProjectError(true);
@@ -350,11 +370,13 @@ const Form = () => {
       ],
       blockers: formData.blockers,
     }));
-    setSaved(true); // Set saved to true when a contribution is added
-    setSelectedProject(""); // Reset project selection
+    setSaved(true);
+    setSelectedProject("");
     setCurrentContribution({ hours: "", task: "" });
-    setShowProjectForm(false); // Hide the project form
+    setShowProjectForm(false);
   };
+
+  // Edit contribution handlers
   const handleEditContributionChange = (e) => {
     const { name, value } = e.target;
     setEditContribution({
@@ -363,11 +385,13 @@ const Form = () => {
     });
   };
 
+  // Edit handler
   const handleEdit = (index) => {
     setEditIndex(index);
     setEditContribution(formData.contributions[index]);
   };
 
+  // Save edited contribution
   const handleSaveEdit = (index) => {
     const updatedContributions = formData.contributions.map(
       (contribution, idx) => (idx === index ? editContribution : contribution)
@@ -379,11 +403,13 @@ const Form = () => {
     setEditIndex(null);
   };
 
+  // Delete contribution
   const handleDelete = (index) => {
     setDeleteIndex(index);
     setOpen(true);
   };
 
+  // Confirm delete
   const confirmDelete = () => {
     const updatedContributions = formData.contributions.filter(
       (contribution, idx) => idx !== deleteIndex
@@ -395,28 +421,35 @@ const Form = () => {
     setOpen(false);
   };
 
+  // Close delete confirmation dialog
   const handleClose = () => {
     setOpen(false);
   };
 
+  // Form submission handler
   const handleSubmit = async (e) => {
+    // Stop default form submit
     e.preventDefault();
 
-    if(!formData.email){
+    // Validate email
+    if (!formData.email) {
       setShowEmailError(true);
       return;
     }
+
+    // Show loader
     setLoading(true);
+
+    // Ensure contribution saved
     if (!saved) {
       setShowSaveError(true);
       return;
     }
 
-    // const userEmail = localStorage.getItem("email");
     const userEmail = email;
     const department = employeeDepartment || formData.department;
-    // const department = "Residential Program";
 
+    // Build payload for API
     const newEntry = {
       entries: formData.contributions.map((c) => ({
         email: formData.email,
@@ -426,14 +459,13 @@ const Form = () => {
         totalHoursSpent: Number(c.hours),
         workDescription: c.task,
         entryDate: formData.selectedDate,
-        department: employeeDepartment, // original department
-        workingDepartment: c.department, // current selected
+        department: employeeDepartment,
+        workingDepartment: c.department,
         ...(department === "Residential Program" && {
           blockers: formData.blockers,
         }),
       })),
     };
-    console.log("New Entry:", newEntry);
 
     // Save to localStorage for dashboard view
     const newLog = {
@@ -442,22 +474,20 @@ const Form = () => {
       hours: newEntry.totalHoursSpent,
       description: newEntry.workDescription,
     };
-
     const existingLogs = JSON.parse(localStorage.getItem("dailyLogs")) || [];
     localStorage.setItem(
       "dailyLogs",
       JSON.stringify([...existingLogs, newLog])
     );
-    console.log("Existing Logs:", existingLogs);
 
+    // Validate contributions before submitting
     if (formData.contributions.length === 0) {
       setShowProjectError(true);
       return;
     }
 
-    // Send to API
+    // Send data to backend API
     try {
-      console.log("Ready to send to backend", newEntry);
       const response = await fetch(
         `${API_BASE_URL}/activityLogs/admin`,
         {
@@ -468,23 +498,21 @@ const Form = () => {
           body: JSON.stringify(newEntry),
         }
       );
-      console.log("Response of Post API:", response);
       if (!response.ok) {
         throw new Error(result.message || "Failed to save entry");
       }
+
+      // Show success message
       showSnackbar("Entry successfully saved!", "success");
 
       const result = await response.json();
-      console.log("Response from backend:", result);
 
-
-      // Check if the response has results and the first result's status is "success"
+      // Get first result status
       const entryStatus = result?.results?.[0]?.status;
-
-      console.log(entryStatus, "entryStatus");
-
       const resultItem = result?.results?.[0];
       const EntryStatus = resultItem?.status;
+
+      // Case: Entry explicitly failed
       if (EntryStatus === "failed") {
         showSnackbar(resultItem?.reason || "Entry was skipped or not saved.", "error");
         setFormData((prev) => ({ ...prev, contributions: [] }));
@@ -492,31 +520,32 @@ const Form = () => {
         return;
       }
 
+      // Case: Entry is not success or update
       if (entryStatus !== "success" && entryStatus !== "updated") {
         throw new Error(
           result?.results?.[0]?.message || "Entry was skipped or not saved."
         );
       }
 
-
+      // Case: Entry updated instead of newly created
       if (entryStatus === "updated") {
         showSnackbar("Entry successfully updated!", "info");
       }
 
-      console.log("Entry successfully sent to backend");
-
-      // Clear the form
+      // Clear form after successful submission
       setFormData({ ...initialFormData });
-      console.log("Form Data after submission:", formData);
-
       setLoading(false);
+
     } catch (error) {
       console.error("Error posting entry:", error);
       showSnackbar(error.message || "Failed to save entry", "error");
     }
+
+    // Reset project error after submission
     setShowProjectError(false);
   };
 
+  // Change page opacity while loading
   const handleLoading = (load) => {
     load == true
       ? (document.getElementById("root").style.opacity = "0.8")
@@ -524,30 +553,16 @@ const Form = () => {
   };
 
 
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      try {
-        const res = await fetch(
-          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
-        );
-        const data = await res.json();
-        if (data.success) {
-          const allDepartments = data.data.map((item) => item.Department);
-          const uniqueDepartments = [...new Set(allDepartments)];
-          setDepartments(uniqueDepartments);
-        }
-      } catch (err) {
-        console.error("Error fetching departments:", err);
-      }
-    };
-    fetchDepartments();
-  }, []);
-
+  // Current department: selected or default user department
   const currentDept = formData.department || "";
 
   return (
     <div className="" style={{ overflowY: "scroll", height: "85vh", marginBottom: "5px", width: "100%" }}>
+
+      {/* Loader */}
       <LoadingSpinner loading={loading} className="loader-container" />
+
+      {/* Header */}
       <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
         <h1
           style={{
@@ -560,8 +575,12 @@ const Form = () => {
           Add New Logs
         </h1>
       </div>
+
+      {/* Main Form */}
       <form onSubmit={handleSubmit} className="admin-from">
         {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
+
+        {/* Employee Selection */}
         <div>
           <label>Employee Email:</label>
           <select
@@ -579,7 +598,7 @@ const Form = () => {
               setEmployeeDepartment(emp ? emp["Department"] || "" : "");
               setShowEmailError(false)
             }}
-            
+
           >
             <option value="">--Select an email--</option>
             {employees
@@ -592,10 +611,10 @@ const Form = () => {
               ))}
           </select>
           {showEmailError && (
-              <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem" }}>
-                Email cannot be empty*
-              </div>
-              )}
+            <div style={{ display: "flex", color: "red", marginTop: "4px", fontSize: "0.85rem" }}>
+              Email cannot be empty*
+            </div>
+          )}
         </div>
 
         <div>
@@ -623,7 +642,7 @@ const Form = () => {
         <div>
           <label>Current Working Department:</label>
           <select
-          style={{ maxHeight: "50px", overflowY: "auto" }}
+            style={{ maxHeight: "50px", overflowY: "auto" }}
             name="department"
             value={formData.department || ""}
             onChange={(e) => {
@@ -632,7 +651,6 @@ const Form = () => {
                 ...prev,
                 department: newDepartment,
               }));
-              // Reset project and contribution when department changes
               setSelectedProject("");
               setCurrentContribution({ hours: "", task: "" });
             }}
@@ -659,6 +677,7 @@ const Form = () => {
           />
         </div>
 
+        {/* Contributions Summary */}
         {formData.contributions.length > 0 && (
           <div>
             <h3>Contributions Summary</h3>
@@ -690,6 +709,8 @@ const Form = () => {
               >
                 <TableHead sx={{ margin: 0, padding: 0 }}>
                   <TableRow sx={{ backgroundColor: '#f5f5f5', margin: 0, padding: 0 }}>
+
+                    {/* Project */}
                     <TableCell
                       sx={{
                         fontWeight: 'bold',
@@ -699,6 +720,8 @@ const Form = () => {
                     >
                       Project
                     </TableCell>
+
+                    {/* Hours */}
                     <TableCell
                       sx={{
                         fontWeight: 'bold',
@@ -709,6 +732,8 @@ const Form = () => {
                     >
                       Hours
                     </TableCell>
+
+                    {/* Task */}
                     <TableCell
                       sx={{
                         fontWeight: 'bold',
@@ -718,6 +743,8 @@ const Form = () => {
                     >
                       Task
                     </TableCell>
+
+                    {/* Action */}
                     <TableCell
                       sx={{
                         fontWeight: 'bold',
@@ -901,6 +928,8 @@ const Form = () => {
             </p>
           </div>
         )}
+
+        {/* Project Selection */}
         <div>
           <label>Select a project in which you contributed:</label>
           {projectsLoading ? (
@@ -936,6 +965,8 @@ const Form = () => {
           )}
           <br />
           <br />
+
+          {/* Hours and Task Input */}
           {selectedProject && (
             <div>
               <label>Total Hours Spent:</label>
@@ -975,15 +1006,21 @@ const Form = () => {
             </div>
           )}
         </div>
+
+        {/* Save Error */}
         {showSaveError && (
           <p style={{ display: "flex", color: "red", marginTop: "4px" }}>
             Please save your contribution before submitting.
           </p>
         )}
+
+        {/* Submit Button */}
         <button type="submit" className="full-width-button" disabled={formData.contributions.length === 0 || editIndex !== null}>
           Submit
         </button>
       </form>
+
+      {/* Delete Confirmation Dialog */}
       <Dialog
         open={open}
         onClose={handleClose}
@@ -1005,6 +1042,8 @@ const Form = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar for notifications */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={4000}
@@ -1019,6 +1058,7 @@ const Form = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
+
       <Snackbar
         open={snackbaropen}
         autoHideDuration={6000}

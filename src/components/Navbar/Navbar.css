@@ -1,25 +1,26 @@
+/* Navbar container */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 1rem;
-  background-color: #878787; /* Subtle light gray background */
+  background-color: #878787;
   color: white;
   background-color: inherit;
 }
 
-
-
+/* Navigation buttons container */
 .nav-buttons {
   display: flex;
   list-style: none;
-  gap: 1rem; /* Add space between buttons */
+  gap: 1rem;
   margin: 0;
   justify-content: flex-end;
   padding: 0;
   width: 80%;
 }
 
+/* Individual nav button */
 .nav-button {
   padding: 0.5rem 1rem;
   border-radius: 5px;
@@ -27,19 +28,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; /* Combined transition */
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
+/* Selected nav button */
 .nav-button.selected {
-  background-color: #ffffff; /* Customize selected button color */
-  color: #000000; /* Customize selected button text color */
+  background-color: #ffffff;
+  color: #000000;
 }
 
+/* Hover effect for nav button */
 .nav-button:hover {
-  background-color: #b5b5b5; /* Customize hover background color */
-  color: #333; /* Customize hover text color */
+  background-color: #b5b5b5;
+  color: #333;
 }
 
+/* Logout button */
 .logout {
   padding: 0.5rem 1rem;
   border-radius: 5px;
@@ -47,17 +51,63 @@
   background-color: #5c0000;
 }
 
+/* Hover effect for logout */
 .logout:hover {
-  background-color: #f60000; /* Customize hover background color */
-  color: #ffffff; /* Customize hover text color */
+  background-color: #f60000;
+  color: #ffffff;
 }
 
+/* Heading hover */
 .heading:hover {
   color: #4E545C !important;
   cursor: pointer;
 }
 
-/* Responsive styles */
+/* Left bottom buttons container */
+.left-buttons {
+  position: fixed;
+  bottom: 0px;
+  left: 10px;
+  display: flex;
+  flex-direction: row;
+  margin: 10px;
+  justify-content: space-between;
+  width: 400px;
+}
+
+/* Left bottom button */
+.left-bottom {
+  margin: 10px;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Styled buttons */
+.btns {
+  background-color: #afc2e8;
+}
+.btns:hover {
+  background-color: white;
+}
+
+/* Text links */
+.text {
+  color: black;
+  text-decoration: none;
+}
+.text:hover {
+  text-decoration: none;
+}
+
+/* Responsive div hidden by default */
+.responsive-div {
+  display: none;
+}
+
+/* == Responsive styles == */
+/* Hide heading below 1008px */
 @media (max-width: 1008px) {
   .heading {
     display: none;
@@ -66,101 +116,71 @@
   }
 }
 
+/* Show responsive div below 900px */
+@media (max-width: 900px) {
+  .responsive-div {
+    display: block;
+  }
+}
+
+/* Adjust buttons below 768px */
 @media (max-width: 768px) {
   .nav-button {
     width: 80px;
     height: 20px;
     font-size: x-small;
   }
+
   .nav-button,
   .logout {
-    padding: 0.5rem 0.75rem; /* Adjust padding for smaller screens */
+    padding: 0.5rem 0.75rem;
   }
 }
 
+/* Adjust layout below 480px */
 @media (max-width: 480px) {
-    .nav-buttons {
-  display: flex;
-  justify-content: space-around;
-  list-style: none;
-  gap: 1rem; /* Add space between buttons */
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
+  .nav-buttons {
+    display: flex;
+    justify-content: space-around;
+    list-style: none;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+
   .nav-button {
     width: auto;
     height: auto;
     font-size: xx-small;
   }
+
   .nav-button,
   .logout {
-    padding: 0.5rem 0.75rem; /* Adjust padding for smaller screens */
+    padding: 0.5rem 0.75rem;
   }
 }
 
+/* Adjust layout below 390px */
 @media (max-width: 390px) {
   .nav-buttons {
-  display: flex;
-  justify-content: space-around;
-  list-style: none;
-  gap: 1rem; /* Add space between buttons */
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
-
+    display: flex;
+    justify-content: space-around;
+    list-style: none;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
 
   .nav-button {
     width: auto;
     height: auto;
     font-size: xx-small;
   }
+
   .nav-button,
   .logout {
-    padding: 0.5rem 0.75rem; /* Adjust padding for smaller screens */
+    padding: 0.5rem 0.75rem;
   }
 }
-
-.left-buttons {
-  position: fixed;
-  bottom: 0px; /* Adjust as needed */
-  left: 10px; /* Adjust as needed */
-  display: flex;
-  flex-direction: row;
-  margin: 10px;
-  justify-content: space-between;
-  width:400px;
-}
-.left-bottom{
-  margin: 10px;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-}
-.btns{
-  background-color: #afc2e8;
-
-}
-.btns:hover{
-  background-color: white;
-}
-.text{
-  color:black;
-  text-decoration: none;
-}
-.text:hover {
-  text-decoration: none; /* Ensure underline is removed on hover */
-}
-     .responsive-div {
-            display: none; /* Hide by default */
-        }
-
-
-
-  @media (max-width: 900px) {
-            .responsive-div {
-                display: block; /* Show if width is below 600px */
-            }
-        }

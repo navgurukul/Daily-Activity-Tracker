@@ -1,3 +1,4 @@
+/* Main wrapper */
 .main {
   width: 90%;
   display: flex;
@@ -6,18 +7,21 @@
   margin-left: 60px;
 }
 
+/* Container for role update*/
 .role-update-container {
   width: 100%;
   padding: 20px;
   font-family: sans-serif;
 }
 
+/* Tabs section */
 .tabs {
   margin-left: 0;
   display: flex;
   gap: 10px;
 }
 
+/* Tab button styles */
 .tabs-button {
   padding: 10px 20px;
   border: 2px solid #ccc;
@@ -29,20 +33,25 @@
   transition: all 0.2s ease-in-out;
 }
 
+/* Tab button hover */
 .tabs-button:hover {
   background-color: #e0e0e0;
 }
 
+/* Active tab highlight */
 .active-tab {
   background-color: #2e7d32;
   color: white;
   border-color: #2e7d32;
 }
+
+/* Active tab hover */
 .active-tab:hover {
   background-color: #1b5e20;
   border-color: #1b5e20;
 }
 
+/* Filter sections */
 .filter-section {
   margin-bottom: 20px;
   display: flex;
@@ -51,8 +60,7 @@
   flex-wrap: wrap;
 }
 
-
-
+/* Filter role sections */
 .filter-role {
   margin-bottom: 20px;
   display: flex;
@@ -61,15 +69,15 @@
   flex-wrap: wrap;
 }
 
-
-
-/* Responsiveness */
+/* == Responsive styles == */
+/* Laptops */
 @media (max-width: 1024px) {
   .main {
     margin-left: 80px;
   }
 }
 
+/* Tablets */
 @media (max-width: 768px) {
   .main {
     width: 95%;
@@ -83,6 +91,7 @@
   }
 }
 
+/* Mobile devices */
 @media (max-width: 425px) {
   .main {
     width: 96%;
@@ -110,7 +119,6 @@
     justify-content: center;
   }
 
-
   .assign-role h2 {
     text-align: center;
   }
@@ -118,9 +126,9 @@
   .filter-role {
     justify-content: center;
   }
-
 }
 
+/* Small mobile devices */
 @media (max-width: 375px) {
   .main {
     width: 99%;
@@ -142,9 +150,10 @@
   .filter-section {
     justify-content: center;
   }
-
 }
 
+
+/* Extra small mobile devices */
 @media (max-width: 320px) {
   .main {
     width: 97%;
@@ -165,5 +174,5 @@
 
   .filter-section {
     justify-content: center;
-  } 
+  }
 }

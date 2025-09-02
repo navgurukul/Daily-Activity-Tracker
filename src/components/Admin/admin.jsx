@@ -1,6 +1,8 @@
 import { useState } from "react";
 import "./admin.css";
+
 const admin = () => {
+  // State to store form inputs 
   const [data, setData] = useState({
     projectName: "",
     channelName: "",
@@ -11,6 +13,8 @@ const admin = () => {
     priorities: "",
     budget: "",
   });
+
+  // Add project handler
   const handleAddProject = () => {
     if (projectName && clientName) {
       setProjects([...projects, { projectName, clientName, status }]);
@@ -19,13 +23,16 @@ const admin = () => {
       setStatus("active");
     }
   };
+
   return (
     <div className="admin-container">
+      {/* Page Title */}
       <h1 className="admin-title">Admin - Project Tracker </h1>
       {/* Form to Add New Project */}
       <div className="form-container">
         <h2>Add New Project</h2>
         <div className="form-fields">
+          {/* Project input fields */}
           <input
             type="text"
             placeholder="Project Name"
@@ -75,6 +82,8 @@ const admin = () => {
             value={data.budget}
             onChange={(e) => setData({ ...data, budget: e.target.value })}
           />
+
+          {/* Status Dropdown */}
           <select
             className="input-field"
             value={data.status}
@@ -84,6 +93,8 @@ const admin = () => {
             <option value="inactive">Inactive</option>
           </select>
         </div>
+
+        {/* Add Project Button */}
         <button className="add-btn" onClick={handleAddProject}>
           Add Project
         </button>
@@ -101,29 +112,6 @@ const admin = () => {
               </tr>
             </thead>
             <tbody>
-              {/* {projects.length > 0 ? (
-                projects.map((project, index) => (
-                  <tr key={index}>
-                    <td>{project.projectName}</td>
-                    <td>{project.clientName}</td>
-                    <td
-                      className={
-                        project.status === "active"
-                          ? "active-status"
-                          : "inactive-status"
-                      }
-                    >
-                      {project.status}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="no-projects">
-                    No projects added yet.
-                  </td>
-                </tr>
-              )} */}
             </tbody>
           </table>
         </div>
@@ -131,4 +119,5 @@ const admin = () => {
     </div>
   );
 };
+
 export default admin;

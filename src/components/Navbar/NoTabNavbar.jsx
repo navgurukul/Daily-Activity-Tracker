@@ -1,6 +1,7 @@
 import React from "react";
 import "./NoTabNavbar.css";
 
+// Simple Navbar without tabs, only heading
 const NoTabNavBar = () => {
   return (
     <nav
@@ -13,6 +14,7 @@ const NoTabNavBar = () => {
         marginTop: "0",
       }}
     >
+      {/* Main heading */}
       <h1 className="no-tab-heading">
         Welcome to the Daily Activities Tracker
       </h1>

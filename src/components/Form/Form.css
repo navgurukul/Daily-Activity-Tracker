@@ -1,3 +1,4 @@
+/* Reset defaults */
 html,
 body {
   margin: 0;
@@ -5,10 +6,12 @@ body {
   height: 100%;
 }
 
+/* form wrapper */
 .form-container {
   margin-top: 0px;
 }
 
+/* Form styling */
 form {
   display: flex;
   flex-direction: column;
@@ -23,23 +26,29 @@ form {
   margin: auto;
 }
 
+/* Form elements */
 form > div {
   width: 100%;
 }
 
+/* Label styling */
 label {
   font-weight: bold;
   margin-bottom: 5px;
   display: block;
 }
+
+/* Dropdown */
 select {
   font-size: 1rem;
 }
 
+/* Textarea */
 textarea {
   resize: vertical;
 }
 
+/* Inputs,, textarea & selects */
 input,
 textarea,
 select {
@@ -51,10 +60,12 @@ select {
   box-sizing: border-box;
 }
 
+/* Textarea */
 textarea {
   resize: vertical;
 }
 
+/* Buttons */
 button {
   padding: 10px 20px;
   background-color: #61dafb;
@@ -66,73 +77,88 @@ button {
   transition: background-color 0.3s ease;
 }
 
+/* Button hover */
 button:hover {
   background-color: #21a1f1;
 }
 
+/* Header section */
 .App-header {
   background-color: #282c34;
   padding: 20px;
   color: white;
 }
 
+/* Header heading */
 .App-header h1 {
   margin: 0;
 }
 
+/* Special button */
 #green-button {
   color: #4caf50;
 }
 
+/* Full-width button styling */
 .full-width-button {
   width: 100%;
   box-sizing: border-box;
   margin: 0 !important;
 }
 
+/* Disabled button style */
 .full-width-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
   color: #666;
 }
 
+/* == Responsive styles == */
+/* Laptops */
 @media (max-width: 1024px) {
   .full-width-button{
     max-width: 100%;
   }
 }
 
+/* Tablets */
 @media (max-width: 768px) {
   .full-width-button {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
   }
+
   .formContainer{
     margin-top: 40px !important;
   }
+
   h3 {
     margin-top: 60px;
   }
 }
 
+/* Small tablets */
 @media (max-width: 700px) {
   .from-1 {
     width: 90%;
     max-width: 300px;
   }
+
   .admin-from{
     width: 90%;
     max-width: 300px;
   }
 }
 
+/* Mobile devices */
 @media (max-width:425px){
   .full-width-button{
     max-width: 300px;
   }
 }
 
+/* Small mobile devices */
 @media (max-width: 320px) {
   .from-1 {
     margin: 0;
@@ -140,6 +166,7 @@ button:hover {
     width: 86%;
     max-width: 270px;
   }
+  
   .admin-from {
     margin: 0px;
     margin-left: 0px;

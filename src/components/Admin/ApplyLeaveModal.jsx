@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { LoginContext } from "../context/LoginContext";
-import { useLoader } from "../context/LoadingContext";
+import { LoginContext } from "../Context/LoginContext";
+import { useLoader } from "../Context/LoadingContext";
 import {
   Container,
   Paper,

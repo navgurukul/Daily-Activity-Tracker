@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import "./LeaveManagement.css";
-import { LoginContext } from "../context/LoginContext";
+import { LoginContext } from "../Context/LoginContext";
 import {
   Snackbar,
   Alert,

@@ -1,3 +1,4 @@
+/* Main container */
 .main-container {
   display: flex;
   justify-content: center;
@@ -6,6 +7,7 @@
   margin-left: -15%;
 }
 
+/* Login container */
 #login-container {
   background: rgba(255, 255, 255, 0.9);
   padding: 40px;
@@ -16,9 +18,9 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  /* border: 2px solid blue; */
 }
 
+/* Learn heading */
 #learn-heading {
   font-size: 24px;
   margin-bottom: 20px;
@@ -26,7 +28,7 @@
   width: 70%;
 }
 
-/* Styling the Google button */
+/* Google button styles */
 .custom-google-button {
   display: inline-block;
   color: white;
@@ -36,41 +38,7 @@
   cursor: pointer;
 }
 
-@media (max-width: 768px) {
-  .main-container {
-    margin-left: 0;
-  }
-}
-
-@media (max-width: 425px) {
-  #login-container {
-    width: 75%;
-  }
-  #learn-heading{
-    width: 100%;
-    font-size: 1.2rem;
-  }
-}
-
-@media (max-width: 375px) {
-  #login-container {
-    width: 72%;
-  }
-  #learn-heading{
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 320px) {
-  #login-container {
-    width: 70%;
-  }
-  #learn-heading{
-    font-size: 0.9rem;
-  }
-}
-
-
+/* Segmented loader styles */
 .segmented-loader {
   width: 40px;
   height: 40px;
@@ -79,6 +47,7 @@
   position: relative;
 }
 
+/* Segmented loader animation */
 .segmented-loader::before {
   content: '';
   box-sizing: border-box;
@@ -92,6 +61,7 @@
   animation: segmentedSpin 1s linear infinite;
 }
 
+/* Segmented loader inner circle */
 .segmented-loader::after {
   content: '';
   box-sizing: border-box;
@@ -104,11 +74,55 @@
   animation: segmentedSpin 2s linear infinite reverse;
 }
 
+/* == Animations == */
 @keyframes segmentedSpin {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
+  }
+}
+
+
+@media (max-width: 768px) {
+  .main-container {
+    margin-left: 0;
+  }
+}
+
+/* == Responsive styles == */
+/* Mobiles */
+@media (max-width: 425px) {
+  #login-container {
+    width: 75%;
+  }
+
+  #learn-heading {
+    width: 100%;
+    font-size: 1.2rem;
+  }
+}
+
+/* Small Mobiles */
+@media (max-width: 375px) {
+  #login-container {
+    width: 72%;
+  }
+
+  #learn-heading {
+    font-size: 1rem;
+  }
+}
+
+/* Extra Small Mobiles */
+@media (max-width: 320px) {
+  #login-container {
+    width: 70%;
+  }
+
+  #learn-heading {
+    font-size: 0.9rem;
   }
 }

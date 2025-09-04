@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import {
   Paper,
-  Typography,
   Table,
   TableBody,
   TableCell,
@@ -17,11 +16,12 @@ import {
   InputLabel,
   CircularProgress,
 } from "@mui/material";
-import { LoginContext } from "../context/LoginContext";
+import { LoginContext } from "../Context/LoginContext";
 import ArrowBackIcon from "@mui/icons-material/KeyboardArrowLeft";
 import ArrowForwardIcon from "@mui/icons-material/KeyboardArrowRight";
 
 const PersonalHistory = () => {
+  // State management
   const [tabIndex, setTabIndex] = useState(0);
   const [currentLeaves, setCurrentLeaves] = useState([]);
   const [pages, setPages] = useState({
@@ -39,26 +39,28 @@ const PersonalHistory = () => {
     pending: "",
     rejected: "",
   });
-
   const [loading, setLoading] = useState({
     approved: false,
     pending: false,
     rejected: false,
   });
 
+  // Context
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
-  console.log("User email:", email);
-  
+
+  // API base URL
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  // Tab key mapping
+  const tabKeys = ["pending", "approved", "rejected"];
+
+  // Fetch leave data when dependencies change
   useEffect(() => {
     const key = tabKeys[tabIndex];
     fetchLeaveData(key, pages[key], selectedMonths[key]);
   }, [email, tabIndex, pages, selectedMonths]);
-  
-  const tabKeys = ["pending", "approved", "rejected"];
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  
   const fetchLeaveData = async (statusKey, page, month = "") => {
     if (!email) return;
     setLoading((prev) => ({ ...prev, [statusKey]: true }));
@@ -79,13 +81,15 @@ const PersonalHistory = () => {
       setLoading((prev) => ({ ...prev, [statusKey]: false }));
     }
   };
-  
+
+  // Handle tab click
   const handleTabClick = (index) => {
     const key = tabKeys[index];
     setTabIndex(index);
     fetchLeaveData(key, pages[key], selectedMonths[key]);
   };
-  
+
+  // Handle month change
   const handleMonthChange = (e, statusKey) => {
     const newMonth = e.target.value;
     setSelectedMonths((prev) => ({
@@ -98,7 +102,8 @@ const PersonalHistory = () => {
     }));
     fetchLeaveData(statusKey, 1, newMonth);
   };
-  
+
+  // Handle page change
   const handlePageChange = (newPage) => {
     const key = tabKeys[tabIndex];
     if (newPage >= 1) {
@@ -106,7 +111,8 @@ const PersonalHistory = () => {
       fetchLeaveData(key, newPage, selectedMonths[key]);
     }
   };
-  
+
+  // Render table row
   const renderTableRow = (leave, index) => (
     <TableRow key={index}>
       <TableCell>{leave.leaveType}</TableCell>
@@ -116,7 +122,8 @@ const PersonalHistory = () => {
       <TableCell>{leave.reasonForLeave}</TableCell>
     </TableRow>
   );
-  
+
+  // Render pagination
   const renderPagination = (currentPage, hasNextPage) => {
     const pageNumbers = [];
     for (let i = 1; i <= currentPage; i++) pageNumbers.push(i);
@@ -154,7 +161,8 @@ const PersonalHistory = () => {
       </Box>
     );
   };
-  
+
+  // Render leave category
   const renderLeaveCategory = (leaves, statusKey) => (
     <>
       <FormControl sx={{ minWidth: 155, mb: 1, ml: { xs: 1, sm: 0 } }}>
@@ -187,22 +195,22 @@ const PersonalHistory = () => {
       ) : leaves.length > 0 ? (
         <>
           <div style={{ overflowX: 'auto', width: '100%' }}>
-  <TableContainer component={Paper} sx={{ minWidth: 800, overflowX: { xs: "auto", sm: "hidden" } }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Leave Type</TableCell>
-                  <TableCell>Start Date</TableCell>
-                  <TableCell>End Date</TableCell>
-                  <TableCell>Duration</TableCell>
-                  <TableCell>Reason</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {leaves.map((leave, index) => renderTableRow(leave, index))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+            <TableContainer component={Paper} sx={{ minWidth: 800, overflowX: { xs: "auto", sm: "hidden" } }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Leave Type</TableCell>
+                    <TableCell>Start Date</TableCell>
+                    <TableCell>End Date</TableCell>
+                    <TableCell>Duration</TableCell>
+                    <TableCell>Reason</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {leaves.map((leave, index) => renderTableRow(leave, index))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </div>
           {renderPagination(pages[statusKey], hasMore[statusKey])}
         </>
@@ -211,9 +219,10 @@ const PersonalHistory = () => {
       )}
     </>
   );
-  
+
   return (
     <Box sx={{ p: 2 }}>
+      {/* Tab buttons */}
       <div className="leave-tab">
         <button
           className={`leave-tab-button ${tabIndex === 0 ? "active-tab" : ""}`}
@@ -234,6 +243,8 @@ const PersonalHistory = () => {
           🚫 Rejected Leaves
         </button>
       </div>
+
+      {/* Active tab content */}
       <Box sx={{ marginTop: "20px" }}>
         {renderLeaveCategory(currentLeaves, tabKeys[tabIndex])}
       </Box>

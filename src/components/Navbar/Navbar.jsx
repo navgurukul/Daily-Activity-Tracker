@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./Navbar.css";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LoginContext } from "../context/LoginContext";
+import { LoginContext } from "../Context/LoginContext";
 import PropTypes from "prop-types";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";

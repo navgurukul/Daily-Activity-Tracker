@@ -1,54 +1,62 @@
 import React, { useContext, useEffect, useState } from "react";
-import Form from "./components/Form/Form";
+import { Route, Routes, Navigate } from "react-router-dom";
+import { Box, CircularProgress } from "@mui/material";
+
 import "./App.css";
-import { Route, Routes, Link, Navigate } from "react-router-dom";
+import Form from "./components/Form/Form";
 import Leaves from "./components/Leaves/Leaves";
 import Navbar from "./components/Navbar/Navbar";
 import Login from "./components/Login/Login";
 import NoTabNavBar from "./components/Navbar/NoTabNavbar";
-import { LoginContext } from "./components/context/LoginContext";
-import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
-import brainImg from "../public/brain.png";
 import CompOff from "./components/CompOff/CompOff";
 import TraansitionModal from "./components/Modal/TraansitionModal";
 import MonthlyDashboard from "./components/MonthlyDashboard/MonthlyDashboard";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import LeaveHistory from "./components/LeaveHistory/LeaveHistory";
-import {handleBeforeUnload} from "./utils/beforeUnloadHandler";
-
 import RoleUpdateForm from "./components/Navbar/RoleUpdateForm";
 import ProjectManagement from "./components/Admin/ProjectManagement";
-
 import Unauthorized from "./components/Unauthorized/Unauthorized";
 
-import { Box, CircularProgress } from "@mui/material";
+import { LoginContext } from "./components/Context/LoginContext";
+import { handleBeforeUnload } from "./utils/beforeUnloadHandler";
+
 
 function App() {
+  // Context
   const dataContext = useContext(LoginContext);
   const { email, isAdmin, loading } = dataContext;
+
+  // State management
   const [feedbackData, setFeedbackData] = useState(null);
 
+  // Effect for beforeunload event
   useEffect(() => {
     window.addEventListener("beforeunload", handleBeforeUnload);
-
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
 
+  // Protected route component
   const ProtectedRoute = ({ children }) => {
-  const email = localStorage.getItem("email");
-  return email ? children : <Navigate to="/" replace />;
-};
+    const email = localStorage.getItem("email");
+    return email ? children : <Navigate to="/" replace />;
+  };
 
   return (
     <div className="App">
+      {/* Navbar changes based on login state */}
       {email && email !== "" ? <Navbar /> : <NoTabNavBar />}
       <br />
       <br />
+
+      {/* Application routes */}
       <main>
         <Routes>
+          {/* Public Route: Login */}
           <Route path="/" element={<Login />} />
+
+          {/* Protected Routes: Require login */}
           <Route
             path="/activity-tracker"
             element={
@@ -57,6 +65,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/comp-off-application"
             element={
@@ -65,6 +74,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/leave-application"
             element={
@@ -73,6 +83,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/leaves"
             element={
@@ -81,6 +92,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/monthly-activity-dashboard"
             element={
@@ -89,10 +101,13 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* Admin Routes: Require admin role */}
           <Route
             path="/admin"
             element={
               loading ? (
+                // Loader while admin check is pending
                 <Box
                   style={{
                     display: "flex",
@@ -111,6 +126,7 @@ function App() {
               )
             }
           />
+
           <Route
             path="/leave-history"
             element={
@@ -119,6 +135,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/role-update"
             element={
@@ -141,6 +158,7 @@ function App() {
               )
             }
           />
+
           <Route
             path="/project-management"
             element={
@@ -163,9 +181,13 @@ function App() {
               )
             }
           />
+
+          {/* Public Route: Unauthorized */}
           <Route path="/unauthorized" element={<Unauthorized />} />
         </Routes>
       </main>
+
+      {/* Feedback Modal */}
       {feedbackData && feedbackData.length > 0 && (
         <TraansitionModal feedbackData={feedbackData} />
       )}

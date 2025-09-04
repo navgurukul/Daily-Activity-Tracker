@@ -1,23 +1,22 @@
 import "./CompOff.css";
 import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { LoginContext } from "../context/LoginContext";
+import { LoginContext } from "../Context/LoginContext";
 import LoadingSpinner from "../Loader/LoadingSpinner";
-import { useLoader } from "../context/LoadingContext";
+import { useLoader } from "../Context/LoadingContext";
 import { Snackbar, Alert, Box, Typography, Autocomplete, TextField } from "@mui/material";
-import url from "../../../public/api";
 
 const CompOff = () => {
+  // Context
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
-  const { loading, setLoading } = useLoader();
-  const navigate = useNavigate();
-  const [showAuthError, setShowAuthError] = useState(false);
 
+  // Loading State
+  const { loading, setLoading } = useLoader();
+
+  // Email State
   const [emailList, setEmailList] = useState([]);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
+  // Get today’s date in YYYY-MM-DD format
   const getTodayDate = () => {
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -26,6 +25,7 @@ const CompOff = () => {
     return `${yyyy}-${mm}-${dd}`;
   };
 
+  // Leave Data State
   const [leaveData, setLeaveData] = useState({
     leaveType: "Compensatory Leave",
     reasonForLeave: "",
@@ -33,11 +33,12 @@ const CompOff = () => {
     endDate: getTodayDate(),
     userEmail: "",
     leaveIsRaisingFrom: email,
-    durationType: "",  // full-day or half-day
-    halfDayStatus: "", // first-half or second-half
+    durationType: "",
+    halfDayStatus: "",
     status: "pending",
   });
 
+  // Error & Success State
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState({
@@ -47,6 +48,32 @@ const CompOff = () => {
     halfDayStatus: "",
   });
 
+  // API Base URL
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  // Fetch team email IDs
+  useEffect(() => {
+    const fetchEmails = async () => {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
+        );
+        const result = await response.json();
+        if (result.success) {
+          const emails = result.data
+            .map((item) => item["Team ID"])
+            .filter((email) => email)
+            .sort((a, b) => a.localeCompare(b));
+          setEmailList(emails);
+        }
+      } catch (error) {
+        console.error("Error fetching emails:", error);
+      }
+    };
+    fetchEmails();
+  }, []);
+
+  // Input change handler
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLeaveData((prevData) => ({
@@ -55,11 +82,12 @@ const CompOff = () => {
     }));
   };
 
+  // Form submission handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     handleLoading(true);
-    // 🗝️ Local validation
+    // Local validation
     const errors = {
       userEmail: leaveData.userEmail.trim() === "" ? "Please select an email*" : "",
       reasonForLeave: leaveData.reasonForLeave.trim() === "" ? "Please enter a reason*" : "",
@@ -72,20 +100,23 @@ const CompOff = () => {
 
     setFieldErrors(errors);
 
-    // If any error exists, stop submit
+    // Stop submission if errors exist
     if (Object.values(errors).some(Boolean)) {
       setLoading(false);
       handleLoading(false);
-      return; // Stop
+      return;
     }
 
+    // Prepare payload for submission
     const payload = { ...leaveData };
     if (payload.durationType !== "half-day") {
       delete payload.halfDayStatus;
     }
 
+    // Get JWT token from local storage
     const token = localStorage.getItem("jwtToken");
 
+    // Submit leave request
     try {
       const response = await fetch(
         `${API_BASE_URL}/employmentLeavePolicy/Compensatory`,
@@ -100,15 +131,15 @@ const CompOff = () => {
       );
 
       const responseData = await response.json();
-      console.log(responseData, "Response from API");
 
+      // Handle Backend validation errors
       if (!response.ok) {
-        // Show the specific message from backend if available
         const errorMessage =
           responseData?.message || "Failed to submit leave request.";
         throw new Error(errorMessage);
       }
 
+      // Reset form and show success message
       setSuccessMessage("Compensatory request submitted successfully!");
       setLeaveData({
         leaveType: "Compensatory Leave",
@@ -121,6 +152,7 @@ const CompOff = () => {
         halfDayStatus: "",
         status: "pending",
       });
+
       setFieldErrors({});
       setTimeout(() => setSuccessMessage(""), 4000);
     } catch (error) {
@@ -132,39 +164,24 @@ const CompOff = () => {
     }
   };
 
+  // Loading state handler
   const handleLoading = (load) => {
     document.getElementById("root").style.opacity = load ? "0.8" : "1";
   };
 
-  useEffect(() => {
-    const fetchEmails = async () => {
-      try {
-        const response = await fetch(
-          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
-        );
-        const result = await response.json();
-        if (result.success) {
-          const emails = result.data
-            .map((item) => item["Team ID"])
-            .filter((email) => email) // filter out null/undefined
-            .sort((a,b)=>a.localeCompare(b));
-          setEmailList(emails);
-        }
-      } catch (error) {
-        console.error("Error fetching emails:", error);
-      }
-    };
-    fetchEmails();
-  }, []);
 
   return (
     <div style={{ overflowY: "scroll", height: "100vh", marginTop: "45px" }}>
+      {/* Loading Spinner */}
       <LoadingSpinner loading={loading} />
+      {/* Form Header */}
       <h1 style={{ textAlign: "center" }}>
         Compensatory Request Application Form
       </h1>
 
+      {/* Comp Off Form */}
       <form onSubmit={handleSubmit} className="form-1">
+        {/* Employee Email with Dropdown */}
         <Box sx={{ textAlign: 'left', mb: 0 }}>
           <Typography
             htmlFor="userEmail"
@@ -202,13 +219,14 @@ const CompOff = () => {
               />
             )}
           />
+          {/** Error Message */}
           {fieldErrors.userEmail && (
             <div className="error-message" style={{ marginTop: "-24px" }}>{fieldErrors.userEmail}</div>
           )}
         </Box>
 
 
-        {/* Reason */}
+        {/* Reason field */}
         <div>
           <label>Reason for Working:</label>
           <textarea
@@ -275,6 +293,7 @@ const CompOff = () => {
               <option value="first-half">First Half</option>
               <option value="second-half">Second Half</option>
             </select>
+            {/* Error Message */}
             {fieldErrors.halfDayStatus && (
               <div className="error-message" style={{ marginTop: "0px" }}>{fieldErrors.halfDayStatus}</div>
             )}
@@ -293,6 +312,7 @@ const CompOff = () => {
           />
         </div>
 
+        {/* Submit Button */}
         <button type="submit">Submit</button>
       </form>
 
@@ -311,6 +331,7 @@ const CompOff = () => {
           {successMessage}
         </Alert>
       </Snackbar>
+
       {/* Error Snackbar */}
       <Snackbar
         open={Boolean(error)}

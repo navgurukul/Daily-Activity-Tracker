@@ -1,5 +1,6 @@
 import React from 'react';
 
+// Unauthorized component
 const Unauthorized = () => {
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>

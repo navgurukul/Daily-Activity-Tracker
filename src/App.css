@@ -1,26 +1,27 @@
-/* App.css */
-
+/* body */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  /* background-color: #f4f4f9; */
   box-sizing: content-box;
 }
 
+/* main */
 main {
   margin: 0 auto;
   margin-left: 15%;
   margin-top: -3rem;
-  /* display: flex; */
   justify-content: center;
   align-items: center;
 }
+
+/* App-footer */
 .App-footer p {
   margin: 0;
   font-size: 0.9rem;
 }
 
+/* form */
 form {
   background: white;
   padding: 20px;
@@ -29,16 +30,19 @@ form {
   max-width: 50%;
 }
 
+/* form elements */
 form div {
   margin-bottom: 15px;
 }
 
+/* form labels */
 form label {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
 }
 
+/* form inputs */
 form input,
 form textarea,
 form select {
@@ -49,6 +53,7 @@ form select {
   font-size: 1rem;
 }
 
+/* form buttons */
 form button {
   background-color: #61dafb;
   color: white;
@@ -59,20 +64,19 @@ form button {
   font-size: 1rem;
 }
 
+/* form buttons hover */
 form button:hover {
   background-color: #21a1f1;
 }
 
-
+/* == Responsive styles == */
 @media screen and (max-width: 1008px) {
-  main{
+  main {
     margin-left: 0;
     font-size: small;
-    
   }
+
   form {
     margin-top: 2rem;
-    
   }
-  
 }

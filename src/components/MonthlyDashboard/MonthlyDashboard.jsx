@@ -20,7 +20,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
-// Shared utility function to get leave status attributes
+// Utility: Return label attributes for leave status
 const getLeaveStatusAttributes = (status) => {
   switch (status) {
     case "approved":
@@ -62,7 +62,7 @@ const getLeaveStatusAttributes = (status) => {
   }
 };
 
-// Static styles to avoid recreation
+// Predefined Static styles
 const leavePreviewStyles = {
   backgroundColor: "#fff3e0",
   borderRadius: "6px",
@@ -104,18 +104,23 @@ const approvalDetailsStyles = {
   color: "#666",
 };
 
+// Main Component
 const MonthlyDashboard = () => {
+  // State management
   const [employeeData, setEmployeeData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
+  // Derived state
   const selectedMonth = selectedDate.getMonth();
   const selectedYear = selectedDate.getFullYear();
+
+  // API Base URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  // Memoized email getter
+  // Get user email
   const email = useMemo(() => {
     return localStorage.getItem("email") ?? "";
   }, []);
@@ -135,7 +140,7 @@ const MonthlyDashboard = () => {
     });
   }, [selectedMonth, selectedYear]);
 
-  // Memoized month and year string
+  // Current month and year string
   const currentMonthYear = useMemo(() => {
     return new Date(selectedYear, selectedMonth).toLocaleString("default", {
       month: "long",
@@ -143,7 +148,7 @@ const MonthlyDashboard = () => {
     });
   }, [selectedMonth, selectedYear]);
 
-  // Memoized data getter function
+  // Data fetching function
   const getDataForDate = useCallback(
     (date) => {
       if (!employeeData) return { activities: [], leaves: [] };
@@ -170,18 +175,19 @@ const MonthlyDashboard = () => {
     [employeeData]
   );
 
-  // Memoized day selection handler
+  // Day selection handler
   const handleDaySelect = useCallback((date, activities, leaves) => {
     if (activities.length > 0 || leaves.length > 0) {
       setSelectedDay({ date, activities, leaves });
     }
   }, []);
 
-  // Memoized dialog close handler
+  // Dialog close handler
   const handleDialogClose = useCallback(() => {
     setSelectedDay(null);
   }, []);
 
+  // Fetch data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -217,6 +223,7 @@ const MonthlyDashboard = () => {
     fetchData();
   }, [selectedMonth, selectedYear, email, API_BASE_URL]);
 
+  // Loader
   if (loading) {
     return (
       <Box className="loading-container">
@@ -226,15 +233,18 @@ const MonthlyDashboard = () => {
     );
   }
 
+  // Error handling
   if (error) {
     return <Alert severity="error">{error}</Alert>;
   }
 
+  // Render main Dashboard
   return (
     <Paper
       className="dashboard-container"
       style={{ overflowY: "scroll", height: "90vh" }}
     >
+      {/* Header Section */}
       <div className="dashboard-header-container">
         <div className="dashboard-header">
           <Typography variant="h4" sx={{ marginBottom: 2 }}>
@@ -255,17 +265,21 @@ const MonthlyDashboard = () => {
         </div>
       </div>
 
+      {/* Calendar Grid */}
       <div className="calender">
         <div className="calendar-grid">
+          {/* Weekday Headers */}
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
             <div key={day} className="weekday-header">
               {day}
             </div>
           ))}
+          {/* Day Cells */}
           {daysInMonth.map((date, index) => {
             const { activities, leaves } = getDataForDate(date);
             const dayOfWeek = new Date(date).getDay();
 
+            // Fill empty cells for the first week alignment
             if (index === 0) {
               const emptyCells = Array(dayOfWeek).fill(null);
               return [
@@ -295,6 +309,7 @@ const MonthlyDashboard = () => {
         </div>
       </div>
 
+      {/* Day Details Dialog */}
       {selectedDay && (
         <DayDetailsDialog
           selectedDay={selectedDay}
@@ -305,8 +320,10 @@ const MonthlyDashboard = () => {
   );
 };
 
+// Day Cell Component
 const DayCell = React.memo(
   ({ date, activities = [], leaves = [], onSelect }) => {
+    // Check if the day is today
     const isToday = useMemo(() => {
       return (
         new Date(date).toISOString().split("T")[0] ===
@@ -314,6 +331,7 @@ const DayCell = React.memo(
       );
     }, [date]);
 
+    // Calculate total hours for the day
     const totalHours = useMemo(() => {
       return activities.reduce(
         (sum, act) => sum + Number(act["totalHoursSpent"] || 0),
@@ -336,12 +354,12 @@ const DayCell = React.memo(
 
     return (
       <Card
-        className={`day-cell ${isToday ? "today" : ""} ${
-          hasData ? "has-activities" : ""
-        }`}
+        className={`day-cell ${isToday ? "today" : ""} ${hasData ? "has-activities" : ""
+          }`}
         onClick={handleClick}
       >
         <CardContent className="day-content">
+          {/* Day number + chips */}
           <div className="day-header">
             <Typography variant="body2" className="date-number">
               {new Date(date).getDate()}
@@ -369,6 +387,8 @@ const DayCell = React.memo(
               )}
             </div>
           </div>
+
+          {/* Activities and Leaves Preview */}
           <div className="activities-preview">
             {leaves.length > 0 && (
               <div style={leavePreviewStyles}>
@@ -397,7 +417,9 @@ const DayCell = React.memo(
   }
 );
 
+// Day Details Dialog
 const DayDetailsDialog = React.memo(({ selectedDay, onClose }) => {
+  // Format date for display
   const formatDate = useCallback((dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       weekday: "long",
@@ -407,6 +429,7 @@ const DayDetailsDialog = React.memo(({ selectedDay, onClose }) => {
     });
   }, []);
 
+  // Calculate total hours for the day
   const totalHours = useMemo(() => {
     return selectedDay.activities.reduce(
       (sum, act) => sum + (act["totalHoursSpent"] || 0),
@@ -422,6 +445,7 @@ const DayDetailsDialog = React.memo(({ selectedDay, onClose }) => {
       fullWidth
       className="day-dialog"
     >
+      {/* Dialog header */}
       <DialogTitle className="dialog-title">
         <div>
           {formatDate(selectedDay.date)}
@@ -435,7 +459,10 @@ const DayDetailsDialog = React.memo(({ selectedDay, onClose }) => {
           <CloseIcon />
         </IconButton>
       </DialogTitle>
+
+      {/* Dialog body */}
       <DialogContent>
+        {/* Leaves details */}
         {selectedDay.leaves.length > 0 && (
           <div className="leaves-section">
             <Typography variant="h6" className="section-title">
@@ -484,6 +511,8 @@ const DayDetailsDialog = React.memo(({ selectedDay, onClose }) => {
             })}
           </div>
         )}
+
+        {/* Activities details */}
         {selectedDay.activities.length > 0 && (
           <div className="activities-section">
             <Typography variant="h6" className="section-title">

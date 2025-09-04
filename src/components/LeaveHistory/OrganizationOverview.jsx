@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Box, 
-  Typography, 
-  Paper, 
+import {
+  Box,
+  Paper,
   Table,
   TableBody,
   TableCell,
@@ -20,15 +19,17 @@ import {
 } from "@mui/material";
 
 const OrganizationOverview = () => {
+  // State management
   const [approvedLeaves, setApprovedLeaves] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filterEmail, setFilterEmail] = useState("");
   const [filterMonth, setFilterMonth] = useState("");
   const [allEmails, setAllEmails] = useState([]);
 
+  // API base URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  // Fetch ALL organization-wide approved leaves (all pages)
+  // Fetch approved leaves from backend 
   const fetchOrganizationLeaves = async (email = '', month = '') => {
     setLoading(true);
     let allLeaves = [];
@@ -42,22 +43,23 @@ const OrganizationOverview = () => {
           `${API_BASE_URL}/leave-records?status=approved&employeeEmail=${email}&month=${month}&limit=100&page=${page}`
         );
         const data = await response.json();
-        
+
         const pageResults = [];
         const pageEmails = [];
 
+        // Extract emails from the current page
         Object.keys(data).forEach((emailKey) => {
           pageEmails.push(emailKey);
           const userLeaves = data[emailKey];
-
           userLeaves?.approved?.forEach((record) =>
             pageResults.push({ email: emailKey, ...record })
           );
         });
 
+        // Append to overall results
         allLeaves = [...allLeaves, ...pageResults];
         allEmails = [...allEmails, ...pageEmails];
-        
+
         // Check if we got less than 100 records (no more pages)
         hasMore = pageResults.length === 100;
         page++;
@@ -67,12 +69,10 @@ const OrganizationOverview = () => {
       }
 
       setApprovedLeaves(allLeaves);
-      
+
       // Extract unique emails for filter dropdown
       const uniqueEmails = [...new Set(allEmails)];
       setAllEmails(uniqueEmails);
-
-      console.log(`Fetched ${allLeaves.length} approved leaves from ${page - 1} pages`);
 
     } catch (err) {
       console.error("Failed to fetch organization leaves", err);
@@ -91,6 +91,7 @@ const OrganizationOverview = () => {
     fetchOrganizationLeaves(filterEmail, filterMonth);
   }, [filterEmail, filterMonth]);
 
+  // Clear filters
   const clearFilters = () => {
     setFilterEmail("");
     setFilterMonth("");
@@ -99,14 +100,15 @@ const OrganizationOverview = () => {
   return (
     <Box sx={{ p: 0 }}>
       {/* Filter Section */}
-      <div style={{ 
-        display: "flex", 
-        gap: "10px", 
-        flexWrap: "wrap", 
-        alignItems: "center", 
+      <div style={{
+        display: "flex",
+        gap: "10px",
+        flexWrap: "wrap",
+        alignItems: "center",
         justifyContent: 'center',
         marginBottom: "20px"
       }}>
+        {/* Email Filter */}
         <Autocomplete
           options={allEmails}
           value={filterEmail}
@@ -116,6 +118,7 @@ const OrganizationOverview = () => {
           freeSolo
         />
 
+        {/* Month Filter */}
         <FormControl size="small" sx={{ minWidth: { xs: 260, sm: 160 } }}>
           <InputLabel id="month-select-label">Month</InputLabel>
           <Select
@@ -140,6 +143,7 @@ const OrganizationOverview = () => {
           </Select>
         </FormControl>
 
+        {/* Clear Filters Button */}
         <Button
           onClick={clearFilters}
           sx={{
@@ -158,51 +162,51 @@ const OrganizationOverview = () => {
         </Button>
       </div>
 
-      {/* Data Table */}
+      {/* Data Table Section */}
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", mt: 5, gap: 1 }}>
           <p>Loading...</p>
           <CircularProgress />
         </Box>
       ) : (
+        // Render results in Table
         <div>
           {approvedLeaves.length === 0 ? (
             <p style={{ fontSize: '17px', textAlign: "center" }}>No approved leaves found.</p>
           ) : (
             <div style={{ overflowX: 'auto', width: '100%' }}>
-  <TableContainer component={Paper} sx={{ minWidth: 800, overflowX: { xs: "auto", sm: "hidden" } }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Email</TableCell>
-                    <TableCell>Leave Type</TableCell>
-                    <TableCell>Start Date</TableCell>
-                    <TableCell>End Date</TableCell>
-                    <TableCell>Duration</TableCell>
-                    <TableCell>Type</TableCell>
-                    <TableCell>Reason</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {approvedLeaves.map((leave, index) => (
-                    <TableRow key={index} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
-                      <TableCell>{leave.email}</TableCell>
-                      <TableCell>{leave.leaveType}</TableCell>
-                      <TableCell>{leave.startDate}</TableCell>
-                      <TableCell>{leave.endDate}</TableCell>
-                      <TableCell>{leave.leaveDuration} days</TableCell>
-                      <TableCell>{leave.durationType}</TableCell>
-                      <TableCell>{leave.reasonForLeave}</TableCell>
+              <TableContainer component={Paper} sx={{ minWidth: 800, overflowX: { xs: "auto", sm: "hidden" } }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Email</TableCell>
+                      <TableCell>Leave Type</TableCell>
+                      <TableCell>Start Date</TableCell>
+                      <TableCell>End Date</TableCell>
+                      <TableCell>Duration</TableCell>
+                      <TableCell>Type</TableCell>
+                      <TableCell>Reason</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </div>
+                  </TableHead>
+                  <TableBody>
+                    {approvedLeaves.map((leave, index) => (
+                      <TableRow key={index} sx={{ '&:hover': { backgroundColor: '#f5f5f5' } }}>
+                        <TableCell>{leave.email}</TableCell>
+                        <TableCell>{leave.leaveType}</TableCell>
+                        <TableCell>{leave.startDate}</TableCell>
+                        <TableCell>{leave.endDate}</TableCell>
+                        <TableCell>{leave.leaveDuration} days</TableCell>
+                        <TableCell>{leave.durationType}</TableCell>
+                        <TableCell>{leave.reasonForLeave}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </div>
           )}
         </div>
       )}
-
     </Box>
   );
 };

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./Form.css";
 import { useLocation, useNavigate } from "react-router-dom";
-import { LoginContext } from "../context/LoginContext";
+import { LoginContext } from "../Context/LoginContext";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import LoadingSpinner from "../Loader/LoadingSpinner";
-import { useLoader } from "../context/LoadingContext";
+import { useLoader } from "../Context/LoadingContext";
 import {
   Dialog,
   DialogActions,

@@ -23,7 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-
 # OUR FILES
 .env
 
@@ -47,4 +46,5 @@ amplify-gradle-config.json
 amplifytools.xcconfig
 .secret-*
 **.sample
+
 #amplify-do-not-edit-end

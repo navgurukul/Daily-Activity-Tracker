@@ -1,3 +1,4 @@
+/* Form Styles */
 form {
   width: 95%;
   margin: 0 auto;
@@ -6,10 +7,14 @@ form {
   border-radius: 8px;
   background-color: #f9f9f9;
 }
+
+/* Tooltip Styles */
 .tooltip {
   position: relative;
   display: inline-block;
 }
+
+/* Tooltip Text */
 .tooltip .texttool {
   visibility: hidden;
   width: 120px;
@@ -26,6 +31,8 @@ form {
   opacity: 0;
   transition: opacity 0.3s;
 }
+
+/* Tooltip Arrow */
 .tooltip .texttool::after {
   content: "";
   position: absolute;
@@ -36,43 +43,45 @@ form {
   border-style: solid;
   border-color: #555 transparent transparent transparent;
 }
+
+/* Tooltip Text */
 .texttool {
   display: flex;
   width: 300px;
 }
+
+/* Tooltip Hover */
 .tooltip:hover .texttool {
   visibility: visible;
   opacity: 1;
 }
+
+/* Error Message */
 .error-message {
   color: red !important;
   font-size: 14px !important;
   font-weight: bold;
 }
-@media (max-width: 700px) {
-  .form-1 {
-    width: 90%;
-    max-width: 300px;
-  }
-}
-@media (max-width: 320px) {
-  .form-1 {
-    width: 83%;
-    max-width: 300px;
-  }
-}
+
+/* Form Header */
 form h1 {
   font-size: 24px;
   text-align: center;
 }
+
+/* Form Div */
 form div {
   margin-bottom: 15px;
 }
+
+/* Form Label */
 form label {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
 }
+
+/* Form Input */
 form input[type="text"],
 form input[type="email"],
 form input[type="date"],
@@ -84,9 +93,13 @@ form textarea {
   border-radius: 4px;
   box-sizing: border-box;
 }
+
+/* Form Textarea */
 form textarea {
   height: 100px;
 }
+
+/* Form Button */
 form button {
   width: 100%;
   padding: 10px 15px;
@@ -97,20 +110,45 @@ form button {
   cursor: pointer;
   font-size: 16px;
 }
+
+/* Form Button Hover */
 form button:hover {
   background-color: #45a049;
 }
+
+/* Form Paragraph */
 form p {
   color: red;
   font-weight: bold;
 }
+
+/* Form Header */
 form h1 {
   color: green;
   text-align: center;
 }
+
+/* == Responsive styles == */
+/* Tablets */
 @media (max-width: 768px) {
   .form {
     width: 90%;
+    max-width: 300px;
+  }
+}
+
+/* Small Tablets */
+@media (max-width: 700px) {
+  .form-1 {
+    width: 90%;
+    max-width: 300px;
+  }
+}
+
+/* Extra Small Mobiles */
+@media (max-width: 320px) {
+  .form-1 {
+    width: 83%;
     max-width: 300px;
   }
 }

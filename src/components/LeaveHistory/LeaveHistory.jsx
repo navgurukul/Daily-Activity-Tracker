@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { Box } from "@mui/material";
 import PersonalHistory from "./PersonalHistory";
 import OrganizationOverview from "./OrganizationOverview";
 import "./LeaveHistory.css";
 
 const LeaveHistory = () => {
+  // State management
   const [mainTabIndex, setMainTabIndex] = useState(0);
 
+  // Tab click handler
   const handleMainTabClick = (index) => {
     setMainTabIndex(index);
   };
@@ -16,13 +17,13 @@ const LeaveHistory = () => {
       {/* Admin Panel Style Header */}
       <div className="admin-header-container">
         <div className="admin-header-tabs">
-          <div 
+          <div
             className={`admin-tab ${mainTabIndex === 0 ? "active" : ""}`}
             onClick={() => handleMainTabClick(0)}
           >
             👤 Personal History
           </div>
-          <div 
+          <div
             className={`admin-tab ${mainTabIndex === 1 ? "active" : ""}`}
             onClick={() => handleMainTabClick(1)}
           >

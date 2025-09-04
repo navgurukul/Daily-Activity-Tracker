@@ -6,8 +6,6 @@ import Fade from "@mui/material/Fade";
 import Typography from "@mui/material/Typography";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import Link from "@mui/material/Link";
-import Divider from "@mui/material/Divider";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import DescriptionIcon from "@mui/icons-material/Description";
 import Card from "@mui/material/Card";
@@ -15,6 +13,7 @@ import CardContent from "@mui/material/CardContent";
 import LaunchIcon from "@mui/icons-material/Launch";
 import Button from "@mui/material/Button";
 
+// Styles
 const style = {
   position: "absolute",
   top: "50%",
@@ -55,15 +54,18 @@ const footerStyle = {
   borderRadius: "0 0 12px 12px",
 };
 
+// Transition Modal Component
 export default function TransitionModal({ feedbackData }) {
   const [hideModal, setHideModal] = React.useState(false);
   const [showModal, setShowModal] = React.useState(true);
 
+  // Filter active feedback forms
   const activeFeedbacks = React.useMemo(
     () => feedbackData.filter((feedback) => feedback.Status === "Active"),
     [feedbackData]
   );
 
+  // Check local storage for modal visibility
   React.useEffect(() => {
     const shouldHideModal = localStorage.getItem("hideFormsModal") === "true";
     if (shouldHideModal) {
@@ -71,6 +73,7 @@ export default function TransitionModal({ feedbackData }) {
     }
   }, []);
 
+  // Handle modal visibility toggle
   const handleHideModal = (event) => {
     setHideModal(event.target.checked);
     if (event.target.checked) {
@@ -79,6 +82,7 @@ export default function TransitionModal({ feedbackData }) {
     }
   };
 
+  // Format date for display
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -87,6 +91,7 @@ export default function TransitionModal({ feedbackData }) {
     });
   };
 
+  // Check modal visibility
   if (!showModal) return null;
 
   return (
@@ -102,6 +107,7 @@ export default function TransitionModal({ feedbackData }) {
     >
       <Fade in={showModal}>
         <Box sx={style}>
+          {/* Header */}
           <Box sx={headerStyle}>
             <Typography
               variant="h5"
@@ -111,10 +117,11 @@ export default function TransitionModal({ feedbackData }) {
                 color: "primary.main",
               }}
             >
-             Mandatory forms to be filled
+              Mandatory forms to be filled
             </Typography>
           </Box>
 
+          {/* Form List */}
           <Box sx={{ p: 3 }}>
             {activeFeedbacks.map((form, index) => (
               <Card
@@ -131,10 +138,12 @@ export default function TransitionModal({ feedbackData }) {
                 elevation={1}
               >
                 <CardContent>
+                  {/* Form title */}
                   <Typography variant="h6" component="h3" gutterBottom>
                     {form.Sheet_Name}
                   </Typography>
 
+                  {/* Description */}
                   <Box sx={{ display: "flex", alignItems: "start", mb: 2 }}>
                     <DescriptionIcon
                       sx={{ mr: 1, color: "text.secondary", mt: 0.5 }}
@@ -144,6 +153,7 @@ export default function TransitionModal({ feedbackData }) {
                     </Typography>
                   </Box>
 
+                  {/* Due Date */}
                   <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                     <CalendarTodayIcon sx={{ mr: 1, color: "error.main" }} />
                     <Typography
@@ -157,6 +167,7 @@ export default function TransitionModal({ feedbackData }) {
                     </Typography>
                   </Box>
 
+                  {/* Open form Button */}
                   <Box sx={{ display: "flex", gap: 2 }}>
                     <Button
                       variant="contained"
@@ -168,22 +179,13 @@ export default function TransitionModal({ feedbackData }) {
                     >
                       Open Form
                     </Button>
-                    {/* <Button
-                      variant="outlined"
-                      href={form.Sheet_Link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      startIcon={<DescriptionIcon />}
-                      sx={{ flexGrow: 1 }}
-                    >
-                      View Sheet
-                    </Button> */}
                   </Box>
                 </CardContent>
               </Card>
             ))}
           </Box>
 
+          {/* Footer */}
           <Box sx={footerStyle}>
             <Box sx={{ mb: 1.5 }}>
               <Typography
@@ -203,6 +205,8 @@ export default function TransitionModal({ feedbackData }) {
                 completed
               </Typography>
             </Box>
+
+            {/* Checkbox to hide modal in future */}
             <FormControlLabel
               control={
                 <Checkbox

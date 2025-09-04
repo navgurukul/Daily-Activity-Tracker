@@ -11,20 +11,23 @@ import {
   IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import axios from "axios";
-import { LoginContext } from "../context/LoginContext";
-import { se } from "date-fns/locale";
+import { LoginContext } from "../Context/LoginContext";
 
 const CycleSummary = ({ selectedDate }) => {
+  // Context
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
+
+  // State management
   const [summaryData, setSummaryData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [openCycle, setOpenCycle] = useState(null); // 'cycle1' or 'cycle2' or null
+  const [openCycle, setOpenCycle] = useState(null);
 
+  // API Base URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+  // Fetch cycle summary data
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("jwtToken");
@@ -71,6 +74,7 @@ const CycleSummary = ({ selectedDate }) => {
     fetchData();
   }, [email, selectedDate]);
 
+  // Labels for cycle summary
   const labels = {
     totalHours: "⏰ Total Hours Worked",
     totalWorkingDays: "📆 Total Working Days",
@@ -106,7 +110,7 @@ const CycleSummary = ({ selectedDate }) => {
         {labels.totalPayableDays}:{" "}
         <strong>{cycle.totalPayableDays ?? "N/A"}</strong>
       </Typography>
-      <Typography variant="body2" sx={{ color: "text.secondary", mt:0.5 }}>
+      <Typography variant="body2" sx={{ color: "text.secondary", mt: 0.5 }}>
         {labels.totalHours}:{" "}
         <strong>{cycle.totalHours ?? "N/A"}</strong>
       </Typography>
@@ -134,7 +138,6 @@ const CycleSummary = ({ selectedDate }) => {
       <DialogContent dividers>
         {Object.entries(cycle).map(([key, value]) => {
           if (value === null || value === undefined) return null;
-          // Use label if exists, else show raw key
           const label = labels[key] ?? key;
           return (
             <Box
@@ -156,6 +159,7 @@ const CycleSummary = ({ selectedDate }) => {
     </>
   );
 
+  // Loader
   if (loading)
     return (
       <Box display="flex" alignItems="center" gap={1}>
@@ -165,23 +169,27 @@ const CycleSummary = ({ selectedDate }) => {
     );
   if (error) return <Alert severity="error">{error}</Alert>;
 
+  // Render the cycle summary
   return (
-    <Box sx={{mt:4, textAlign:'center'}}>
+    <Box sx={{ mt: 4, textAlign: 'center' }}>
       <Typography variant="h6" gutterBottom fontWeight="bold">
         Payable Days Cycle Summary
       </Typography>
       <Typography
         variant="subtitle2"
-        sx={{ color: "text.secondary", width:'100%', fontSize: {xs:'10.5px', sm:"13px"}, flexWrap:'wrap' }}
+        sx={{ color: "text.secondary", width: '100%', fontSize: { xs: '10.5px', sm: "13px" }, flexWrap: 'wrap' }}
         gutterBottom
       >
         ( Cycle 1 - 1st to 25th, Cycle 2 - 26th to end of the month )
       </Typography>
-      <Box sx={{display:'flex', justifyContent:'center',alignItems:'center', flexDirection:{xs:'column', sm:'row'}, gap: {xs:1,md:3},mb:{xs:3,sm:0}}}>
+
+      {/* Cycle Summary Cards */}
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 1, md: 3 }, mb: { xs: 3, sm: 0 } }}>
         {renderCycleSummary(summaryData.cycle1, "Cycle 1", "cycle1")}
         {renderCycleSummary(summaryData.cycle2, "Cycle 2", "cycle2")}
       </Box>
 
+      {/* Cycle Details Modal */}
       <Dialog
         open={!!openCycle}
         onClose={() => setOpenCycle(null)}

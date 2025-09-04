@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { LoginContext } from "../context/LoginContext";
-import { useLoader } from "../context/LoadingContext";
+import { LoginContext } from "../Context/LoginContext";
+import { useLoader } from "../Context/LoadingContext";
 import {
   Container,
   Paper,
@@ -135,6 +135,12 @@ const Leaves = () => {
   const role = localStorage.getItem("role");
   const isEditable = role === "admin" || role === "superAdmin";
 
+  // Get today’s date
+  function getTodayDate() {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  }
+
   // State for leave application form
   const [leaveData, setLeaveData] = useState({
     "leaveType": "",
@@ -172,12 +178,6 @@ const Leaves = () => {
 
   // Base API URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-  // Get today’s date
-  function getTodayDate() {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  }
 
   // Fetch allocated leave data for current user
   const fetchData = async () => {

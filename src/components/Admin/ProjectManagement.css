@@ -1,10 +1,12 @@
-/* Existing Admin Container Styles */
+/* Admin Container */
 .admin-container {
   margin-left: 40px;
   padding: 20px;
   background-color: #F4F4F4;
   overflow-x: auto;
 }
+
+/* Admin Title */
 .admin-title {
   text-align: center;
   font-size: 24px;
@@ -20,29 +22,37 @@
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
   margin-bottom: 20px;
 }
+
+/* Form Heading */
 .form-container h2 {
   margin-bottom: 15px;
   margin-left: 15px;
 }
+
+/* Form Fields */
 .form-fields {
   display: flex;
   gap: 2px;
   flex-wrap: wrap;
-  width:100%;
+  width: 100%;
   margin-left: 15px;
   overflow-x: hidden !important;
 }
+
+/* Input Wrapper */
 .input-wrapper {
   display: flex;
   flex-direction: column;
   width: 32.99%;
   position: relative;
 }
+
+/* Tooltip Container */
 .tooltip-container {
   position: relative;
-  /* width: 255px; */
 }
 
+/* Custom Tooltip */
 .custom-tooltip {
   position: absolute;
   bottom: -30px;
@@ -52,20 +62,26 @@
   padding: 8px;
   font-size: 12px;
   border-radius: 4px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   z-index: 10;
   white-space: normal;
 }
+
+/* Input Field */
 .input-field {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+
+/* Input Field */
 .input_field {
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+
+/* Add Button */
 .add-btn {
   background-color: #4CAF50;
   color: white;
@@ -77,6 +93,8 @@
   width: 96%;
   margin-left: 15px;
 }
+
+/* Add Button Hover */
 .add-btn:hover {
   background-color: #45A049;
 }
@@ -88,17 +106,23 @@
   border-radius: 8px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
 }
+
+/* Table Heading */
 .table-container h2 {
   margin-bottom: 15px;
   display: inline;
 }
-.Project-tab{
+
+/* Project Tab */
+.Project-tab {
   display: flex inline;
   gap: 10px;
   margin-left: 20px;
   margin-bottom: 20px;
 }
-.Project-tab-button{
+
+/* Project Tab Button */
+.Project-tab-button {
   padding: 10px 20px;
   border: 2px solid rgb(161, 157, 157);
   border-radius: 5px;
@@ -108,51 +132,75 @@
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
-.Project-tab-button:hover{
+
+/* Project Tab Button Hover */
+.Project-tab-button:hover {
   background-color: #e0e0e0;
 }
+
+/* Active Tab */
 .active-tab {
   background-color: #2e7d32;
   color: white;
   border-color: #2e7d32;
 }
 
+/* Active Tab Hover */
 .active-tab:hover {
   background-color: #1b5e20;
   border-color: #1b5e20;
 }
+
+/* Table Section */
 table {
   width: 99.5%;
   border-collapse: collapse;
 }
-th, td {
+
+/* Table Cells */
+th,
+td {
   padding: 10px;
   border: 1px solid #ddd;
   text-align: left;
 }
+
+/* Table Heading */
 th {
   background-color: #F0F0F0;
 }
+
+/* Active Status */
 .active-status {
   color: green;
   font-weight: bold;
 }
+
+/* Inactive Status */
 .inactive-status {
   color: red;
   font-weight: bold;
 }
+
+/* No Projects */
 .no-projects {
   text-align: center;
   color: gray;
   padding: 10px;
 }
+
+/* Edit Button */
 .editBtn {
   background-color: #f1f0f0;
 }
+
+/* Edit Button Hover */
 .editBtn:hover {
   background-color: #bbb;
 }
 
+
+/* Error Message */
 .error-message {
   color: red;
   font-size: 0.85rem;
@@ -160,6 +208,8 @@ th {
   margin-bottom: 10px;
   text-align: left;
 }
+
+/* Delete Button */
 .deleteBtn {
   margin-left: 8px;
   background-color: #ff4d4d;
@@ -169,16 +219,23 @@ th {
   border-radius: 4px;
   cursor: pointer;
 }
+
+/* Delete Button Hover */
 .deleteBtn:hover {
   background-color: #cc0000;
 }
+
+/* Filters */
 .filters {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   align-items: center;
 }
-.filters input, .filters select {
+
+/* Filters Input and Select */
+.filters input,
+.filters select {
   width: auto;
   padding: 6px 10px;
   border: 1px solid #ccc;
@@ -186,32 +243,38 @@ th {
   min-width: 200px;
   font-size: 14px;
 }
+
+/* No Data Section */
 .no-data {
   text-align: center;
   color: gray;
   padding: 20px;
   font-size: 18px;
 }
+
+/* Clear Filters Button */
 .clear-filters-btn {
   height: 8px !important;
   width: 100px;
-  border: 2px solid #f44336 ;
-  color: #f44336 ;
+  border: 2px solid #f44336;
+  color: #f44336;
   background-color: white;
   font-size: small;
   border-radius: 4px;
   cursor: pointer;
   display: flex;
-  align-items: center;   
-  justify-content: center; 
+  align-items: center;
+  justify-content: center;
 }
 
+/* Clear Filters Button Hover */
 .clear-filters-btn:hover {
   background-color: #b0412e;
   color: white;
   border-color: #b0412e;
 }
 
+/* Update Button */
 .update-btn {
   background-color: #4CAF50;
   color: white;
@@ -222,6 +285,8 @@ th {
   margin-top: 10px;
   width: 90%;
 }
+
+/* Update Button Hover */
 .update-btn:hover {
   background-color: #45A049;
 }
@@ -240,7 +305,7 @@ th {
   z-index: 1000;
 }
 
-/* White Modal Styles for AddProjectModal */
+/* White Modal for AddProjectModal */
 .modal-content-white {
   background-color: white;
   border-radius: 8px;
@@ -253,6 +318,7 @@ th {
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
 }
 
+/* White Modal Header */
 .modal-header-white {
   display: flex;
   justify-content: space-between;
@@ -261,6 +327,7 @@ th {
   border-bottom: 1px solid #ddd;
 }
 
+/* White Modal Header Title */
 .modal-header-white h2 {
   margin: 0;
   font-size: 18px;
@@ -268,6 +335,7 @@ th {
   color: #333;
 }
 
+/* White Modal Close Button */
 .close-btn-white {
   background: none;
   border: none;
@@ -282,14 +350,17 @@ th {
   justify-content: center;
 }
 
+/* White Modal Close Button Hover */
 .close-btn-white:hover {
   color: #333;
 }
 
+/* White Modal Body */
 .modal-body-white {
   padding: 20px 24px;
 }
 
+/* White Modal Form Fields */
 .form-fields-white {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -297,16 +368,19 @@ th {
   width: 100%;
 }
 
+/* White Modal Input Wrapper */
 .input-wrapper-white {
   display: flex;
   flex-direction: column;
   position: relative;
 }
 
+/* White Modal Input Wrapper Full Width */
 .input-wrapper-white.full-width {
   grid-column: 1 / -1;
 }
 
+/* White Modal Field Label */
 .field-label {
   font-size: 14px;
   font-weight: 500;
@@ -314,6 +388,7 @@ th {
   margin-bottom: 6px;
 }
 
+/* White Modal Input Field */
 .input-field-white {
   padding: 12px 14px;
   border: 1px solid #ccc;
@@ -324,23 +399,28 @@ th {
   transition: border-color 0.2s ease;
 }
 
+/* White Modal Input Field Focus */
 .input-field-white:focus {
   outline: none;
   border-color: #4CAF50;
 }
 
+/* White Modal Input Field Hover */
 .input-field-white:hover {
   border-color: #999;
 }
 
+/* White Modal Input Field Placeholder */
 .input-field-white::placeholder {
   color: #999;
 }
 
+/* White Modal Input Field Error */
 .input-field-white.error {
   border-color: #e74c3c;
 }
 
+/* White Modal Footer */
 .modal-footer-white {
   display: flex;
   justify-content: flex-end;
@@ -349,6 +429,7 @@ th {
   border-top: 1px solid #ddd;
 }
 
+/* White Modal Cancel Button */
 .cancel-btn-white {
   padding: 6px 12px;
   background-color: #f8f9fa;
@@ -362,10 +443,12 @@ th {
   height: 28px;
 }
 
+/* White Modal Cancel Button Hover */
 .cancel-btn-white:hover {
   background-color: #e9ecef;
 }
 
+/* White Modal Create Button */
 .create-btn-white {
   padding: 6px 12px;
   background-color: #28a745;
@@ -379,6 +462,7 @@ th {
   height: 28px;
 }
 
+/* White Modal Create Button Hover */
 .create-btn-white:hover {
   background-color: #218838;
 }
@@ -395,6 +479,7 @@ th {
   color: white;
 }
 
+/* Modal Header */
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -403,12 +488,14 @@ th {
   border-bottom: 1px solid #333;
 }
 
+/* Modal Header Title */
 .modal-header h2 {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
 }
 
+/* Modal Close Button */
 .close-btn {
   background: none;
   border: none;
@@ -423,29 +510,35 @@ th {
   justify-content: center;
 }
 
+/* Modal Close Button Hover */
 .close-btn:hover {
   color: white;
 }
 
+/* Modal Body */
 .modal-body {
   padding: 24px;
 }
 
+/* Modal Form Fields */
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
+/* Modal Form Group */
 .form-group {
   display: flex;
   flex-direction: column;
 }
 
+/* Modal Form Group Full Width */
 .form-group.full-width {
   grid-column: 1 / -1;
 }
 
+/* Modal Form Group Label */
 .form-group label {
   font-size: 14px;
   font-weight: 500;
@@ -453,6 +546,7 @@ th {
   color: #e0e0e0;
 }
 
+/* Modal Form Group Input and Select */
 .form-group input,
 .form-group select {
   background-color: #2a2a2a;
@@ -464,27 +558,32 @@ th {
   transition: border-color 0.2s;
 }
 
+/* Modal Form Group Input and Select Focus */
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
   border-color: #4CAF50;
 }
 
+/* Modal Form Group Input Placeholder */
 .form-group input::placeholder {
   color: #888;
 }
 
+/* Modal Form Group Input and Select Error */
 .form-group input.error,
 .form-group select.error {
   border-color: #ff4444;
 }
 
+/* Modal Form Group Error Text */
 .error-text {
   color: #ff4444;
   font-size: 12px;
   margin-top: 4px;
 }
 
+/* Tooltip */
 .tooltip {
   position: absolute;
   top: 100%;
@@ -500,6 +599,7 @@ th {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* Modal Footer */
 .modal-footer {
   display: flex;
   justify-content: flex-end;
@@ -508,6 +608,7 @@ th {
   border-top: 1px solid #333;
 }
 
+/* Modal Cancel Button */
 .cancel-btn {
   padding: 8px 16px;
   background-color: #404040;
@@ -520,10 +621,12 @@ th {
   transition: background-color 0.2s;
 }
 
+/* Modal Cancel Button Hover */
 .cancel-btn:hover {
   background-color: #4a4a4a;
 }
 
+/* Modal Create Button */
 .create-btn {
   padding: 8px 16px;
   background-color: #4CAF50;
@@ -536,6 +639,7 @@ th {
   transition: background-color 0.2s;
 }
 
+/* Modal Create Button Hover */
 .create-btn:hover {
   background-color: #45a049;
 }
@@ -546,6 +650,7 @@ th {
   z-index: 2000;
 }
 
+/* Edit Modal Content */
 .modal-content.edit-modal {
   background-color: white;
   color: black;
@@ -557,6 +662,7 @@ th {
   overflow-y: auto;
 }
 
+/* Close Button */
 .close-button {
   position: absolute;
   right: 15px;
@@ -566,230 +672,286 @@ th {
   cursor: pointer;
   background-color: #4CAF50;
 }
+
+/* Close Button Hover */
 .close-button:hover {
   background-color: #45A049;
 }
 
-/* Responsiveness */
+/* == Responsive styles == */
+/* Large Screens */
 @media (max-width: 1440px) {
   .table-wrapper {
     overflow-x: auto;
   }
-  .form-container button{
+
+  .form-container button {
     max-width: 1066px;
     margin-left: 14px;
   }
 }
+
+/* Medium Screens */
 @media (max-width: 1024px) {
- .admin-container {
+  .admin-container {
     margin-left: 80px;
   }
-  .form-fields input, .form-fields select {
+
+  .form-fields input,
+  .form-fields select {
     width: 235px;
   }
-  .form-container h2{
+
+  .form-container h2 {
     margin-left: 5px;
   }
+
   .form-fields {
     margin-left: 5px;
   }
-  .form-container button{
+
+  .form-container button {
     max-width: 690px;
     margin-left: 5px;
   }
 
- .filters{
+  .filters {
     row-gap: 0;
   }
-  .filters h4{
+
+  .filters h4 {
     margin: 0;
   }
-  .filters input, .filters select {
+
+  .filters input,
+  .filters select {
     width: 200px;
   }
-  .filters select:first-of-type{
-    margin-left:63px;
+
+  .filters select:first-of-type {
+    margin-left: 63px;
   }
-  .filters button{
+
+  .filters button {
     width: 177px;
   }
+
   .table-wrapper {
     overflow-x: auto;
   }
 
-  .modal-overlay{
+  .modal-overlay {
     margin-left: 250px;
   }
-  .modal-content .add-btn{
+
+  .modal-content .add-btn {
     width: 440px;
   }
 
-  .tooltip{
+  .tooltip {
     width: 255px;
   }
+
   .clear-filters-btn {
     width: 156px !important;
   }
 }
 
+/* Tablets */
 @media (max-width: 768px) {
- .admin-container {
+  .admin-container {
     margin-left: 0px;
     margin-top: 35px;
   }
-  .form-fields input, .form-fields select{
+
+  .form-fields input,
+  .form-fields select {
     width: 225px;
   }
-  
-  .form-container button{
+
+  .form-container button {
     max-width: 665px;
   }
-  .filters{
+
+  .filters {
     row-gap: 0;
   }
-  .filters h4{
+
+  .filters h4 {
     font-size: medium;
     margin: 0;
   }
-  .filters input, .filters select {
+
+  .filters input,
+  .filters select {
     width: 200px;
   }
-  .filters select:first-of-type{
-    margin-left:65px;
+
+  .filters select:first-of-type {
+    margin-left: 65px;
   }
-  .filters button{
+
+  .filters button {
     width: 177px;
   }
 
-  .modal-overlay{
+  .modal-overlay {
     margin-left: 0px;
   }
-  .modal-content .add-btn{
+
+  .modal-content .add-btn {
     width: 425px;
   }
-  .tooltip{
+
+  .tooltip {
     width: 245px;
   }
-  
+
   .form-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .modal-content {
     width: 95%;
     margin: 20px;
   }
-  
+
   .form-fields-white {
     grid-template-columns: 1fr;
   }
-  
+
   .modal-content-white {
     width: 95%;
     margin: 20px;
   }
 }
 
+/* Mobiles */
 @media (max-width: 425px) {
-  .form-container{
+  .form-container {
     text-align: center;
   }
-  .form-container h2{
+
+  .form-container h2 {
     margin-left: 0;
   }
-  .form-fields{
+
+  .form-fields {
     display: flex;
     justify-content: center;
     align-items: center;
     margin-left: 0;
   }
-  .input-wrapper{
+
+  .input-wrapper {
     width: 260px;
   }
-  .form-fields input, .form-fields select{
+
+  .form-fields input,
+  .form-fields select {
     width: 260px;
   }
-  .form-container button{
+
+  .form-container button {
     max-width: 230px;
     margin-left: 0;
   }
 
-  .table-container h2{
+  .table-container h2 {
     text-align: center;
   }
-  .filters{
+
+  .filters {
     row-gap: 0;
     display: flex;
     justify-content: center;
   }
-  .filters h4{
+
+  .filters h4 {
     font-size: medium;
     width: 250px;
     margin: 0;
   }
-  .filters input, .filters select {
+
+  .filters input,
+  .filters select {
     width: 250px;
   }
-  .filters select:first-of-type{
-    margin-left:0px;
+
+  .filters select:first-of-type {
+    margin-left: 0px;
   }
-  .filters button{
+
+  .filters button {
     width: 228px;
   }
 
-  .modal-content{
+  .modal-content {
     width: 340px;
   }
-  .modal-content h2{
+
+  .modal-content h2 {
     text-align: center;
   }
-  .modal-content .add-btn{
+
+  .modal-content .add-btn {
     width: 232px;
     margin-left: 40px;
   }
 
-  .tooltip{
+  .tooltip {
     width: 280px;
     margin-left: -10px;
   }
+
   .clear-filters-btn {
     width: 205px !important;
   }
 
-  .Project-tab{
+  .Project-tab {
     margin-left: 0 !important;
   }
-  .Project-tab-button{
+
+  .Project-tab-button {
     font-size: small;
   }
+
   .update-btn {
     width: 85%;
   }
 }
 
+/* Small Mobiles */
 @media (max-width: 375px) {
-  .form-fields input, .form-fields select{
+
+  .form-fields input,
+  .form-fields select {
     width: 250px;
   }
-  .form-container button{
+
+  .form-container button {
     max-width: 220px;
     margin-left: -10px;
   }
 
-  .modal-content{
+  .modal-content {
     width: 300px;
   }
-  .modal-content .add-btn{
+
+  .modal-content .add-btn {
     width: 220px;
     margin-left: 25px;
   }
+
   .tooltip-container {
     margin-left: -10px;
   }
-  .tooltip{
+
+  .tooltip {
     width: 270px;
   }
-  .Project-tab-button{
+
+  .Project-tab-button {
     max-width: 150px !important;
   }
 
@@ -798,21 +960,26 @@ th {
   }
 }
 
+/* Extra Small Mobiles */
 @media (max-width: 320px) {
-  .form-container button{
-   max-width: 220px;
+  .form-container button {
+    max-width: 220px;
   }
-  .modal-content{
+
+  .modal-content {
     width: 245px;
   }
-  .modal-content .add-btn{
+
+  .modal-content .add-btn {
     width: 215px;
     margin-left: 0px;
   }
-  .Project-tab-button{
+
+  .Project-tab-button {
     max-width: 70px !important;
   }
-   .update-btn {
+
+  .update-btn {
     width: 80%;
   }
 }

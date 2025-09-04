@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./admin.css";
+import "./Admin.css";
 
 const admin = () => {
   // State to store form inputs 

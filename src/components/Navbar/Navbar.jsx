@@ -171,7 +171,7 @@ const Navbar = (props) => {
             <ListItemButton
               onClick={() => handleClick(item.route)}
               sx={{
-                backgroundColor: isActiveTab(item.route) ? "#e0e0e0" : "transparent", // Grey background for active tab
+                backgroundColor: isActiveTab(item.route) ? "#e0e0e0" : "transparent", 
                 "&:hover": {
                   backgroundColor: isActiveTab(item.route) ? "#e0e0e0" : "#f5f5f5",
                 }
@@ -183,7 +183,7 @@ const Navbar = (props) => {
               <ListItemText
                 primary={item.text}
                 sx={{
-                  color: isActiveTab(item.route) ? "#4caf50" : "inherit" // Green color for active tab text
+                  color: isActiveTab(item.route) ? "#4caf50" : "inherit" 
                 }}
               />
             </ListItemButton>
@@ -202,7 +202,7 @@ const Navbar = (props) => {
                 <ListItemButton
                   onClick={() => handleClick("project-management")}
                   sx={{
-                    backgroundColor: isActiveTab("project-management") ? "#e0e0e0" : "transparent", // Grey background for active tab
+                    backgroundColor: isActiveTab("project-management") ? "#e0e0e0" : "transparent", 
                     "&:hover": {
                       backgroundColor: isActiveTab("project-management") ? "#e0e0e0" : "#f5f5f5",
                     }
@@ -214,7 +214,7 @@ const Navbar = (props) => {
                   <ListItemText
                     primary="Project Management"
                     sx={{
-                      color: isActiveTab("project-management") ? "#4caf50" : "inherit" // Green color for active tab text
+                      color: isActiveTab("project-management") ? "#4caf50" : "inherit" 
                     }}
                   />
                 </ListItemButton>
@@ -227,7 +227,7 @@ const Navbar = (props) => {
                 <ListItemButton
                   onClick={() => handleClick("admin")}
                   sx={{
-                    backgroundColor: isActiveTab("admin") ? "#e0e0e0" : "transparent", // Grey background for active tab
+                    backgroundColor: isActiveTab("admin") ? "#e0e0e0" : "transparent", 
                     "&:hover": {
                       backgroundColor: isActiveTab("admin") ? "#e0e0e0" : "#f5f5f5",
                     }
@@ -239,7 +239,7 @@ const Navbar = (props) => {
                   <ListItemText
                     primary="Admin"
                     sx={{
-                      color: isActiveTab("admin") ? "#4caf50" : "inherit" // Green color for active tab text
+                      color: isActiveTab("admin") ? "#4caf50" : "inherit" 
                     }}
                   />
                 </ListItemButton>
@@ -252,7 +252,7 @@ const Navbar = (props) => {
                 <ListItemButton
                   onClick={() => handleClick("role-update")}
                   sx={{
-                    backgroundColor: isActiveTab("role-update") ? "#e0e0e0" : "transparent", // Grey background for active tab
+                    backgroundColor: isActiveTab("role-update") ? "#e0e0e0" : "transparent", 
                     "&:hover": {
                       backgroundColor: isActiveTab("role-update") ? "#e0e0e0" : "#f5f5f5",
                     }
@@ -264,7 +264,7 @@ const Navbar = (props) => {
                   <ListItemText
                     primary="Access Control"
                     sx={{
-                      color: isActiveTab("role-update") ? "#4caf50" : "inherit" // Green color for active tab text
+                      color: isActiveTab("role-update") ? "#4caf50" : "inherit" 
                     }}
                   />
                 </ListItemButton>

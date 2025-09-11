@@ -26,7 +26,6 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
-  Autocomplete,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { styled } from "@mui/material/styles";
@@ -133,7 +132,6 @@ const Leaves = () => {
   const userName = localStorage.getItem("name");
   const department = localStorage.getItem("department");
   const role = localStorage.getItem("role");
-  const isEditable = role === "admin" || role === "superAdmin";
 
   // Get today’s date
   function getTodayDate() {
@@ -576,32 +574,13 @@ const Leaves = () => {
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <StyledFormControl>
-                <Autocomplete
-                  options={allEmails}
-                  value={allEmails.includes(leaveData.userEmail) ? leaveData.userEmail : null}
-                  onChange={(e, newValue) => handleChange({ target: { name: "userEmail", value: newValue } })}
-                  disabled={!isEditable}
-                  freeSolo
-                  disableClearable
-                  slotProps={{
-                    paper: {
-                      sx: {
-                        '& ul': {
-                          maxHeight: 250,
-                          overflowY: 'auto',
-                        },
-                      },
-                    },
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Employee Email"
-                      name="userEmail"
-                      fullWidth
-                      variant="outlined"
-                    />
-                  )}
+                <TextField
+                  label="Employee Email"
+                  name="userEmail"
+                  value={email}
+                  fullWidth
+                  variant="outlined"
+                  disabled
                 />
               </StyledFormControl>
             </Grid>

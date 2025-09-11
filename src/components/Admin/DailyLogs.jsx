@@ -30,13 +30,18 @@ import debounce from "lodash/debounce";
 import { Edit, Check, Close } from "@mui/icons-material";
 import axios from "axios";
 import AddLogModal from "./AddLogModal";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+
 
 function DailyLogs() {
   // State for filters
   const [projectName, setProjectName] = useState("");
   const [email, setEmail] = useState("");
-  const [month, setMonth] = useState("");
-  const [year, setYear] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
 
   // Data lists
   const [emailsList, setEmailsList] = useState([]);
@@ -86,7 +91,7 @@ function DailyLogs() {
   useEffect(() => {
     debouncedFilter();
     setCurrentPage(1);
-  }, [projectName, email, month, year]);
+  }, [projectName, email, startDate, endDate]);
 
   // Fetch team email IDs
   useEffect(() => {
@@ -138,7 +143,7 @@ function DailyLogs() {
   };
 
   // Fetch logs
-  const fetchLogs = async ({ pageToken = 1, email = "", projectName = "", month = "", year = "" } = {}) => {
+  const fetchLogs = async ({ pageToken = 1, email = "", projectName = "", startDate = "", endDate = "" } = {}) => {
     setLoading(true);
     try {
       let url = ACTIVITY_LOGS_URL;
@@ -147,10 +152,10 @@ function DailyLogs() {
       // Add query params
       const params = new URLSearchParams();
       if (projectName) params.append("projectName", projectName);
-      if (month && year) {
-        params.append("month", month);
-        params.append("year", year);
-      }
+      const formatDate = (date) => (date ? date.toLocaleDateString('en-CA') : '');
+      if (startDate) params.append("startDate", formatDate(startDate));
+      if (endDate) params.append("endDate", formatDate(endDate));
+
       params.append("page", pageToken);
 
       if (params.toString()) {
@@ -190,18 +195,18 @@ function DailyLogs() {
     const params = new URLSearchParams();
     if (email) url += `/${email}`;
     if (projectName) params.append("projectName", projectName);
-    if (month && year) {
-      params.append("month", month);
-      params.append("year", year);
-    }
+    const formatDate = (date) => (date ? date.toLocaleDateString('en-CA') : '');
+    if (startDate) params.append("startDate", formatDate(startDate));
+    if (endDate) params.append("endDate", formatDate(endDate));
+
     if (params.toString()) url += "?" + params.toString();
     setPreviousPages([]);
     fetchLogs({
       pageToken: 1,
       email,
       projectName,
-      month,
-      year
+      startDate,
+      endDate
     });
   };
 
@@ -209,14 +214,14 @@ function DailyLogs() {
   const clearFilters = () => {
     setProjectName("");
     setEmail("");
-    setMonth("");
-    setYear("");
+    setStartDate(null);
+    setEndDate(null);
     setCurrentPage(1);
     fetchLogs();
   };
 
   // Debounced filter
-  const debouncedFilter = useCallback(debounce(handleFilter, 500), [projectName, email, month, year])
+  const debouncedFilter = useCallback(debounce(handleFilter, 500), [projectName, email, startDate, endDate])
 
   // Editing handlers
   const handleEditClick = (log) => {
@@ -409,61 +414,52 @@ function DailyLogs() {
             },
           }}
         />
-        <TextField
-          select
-          label="Month"
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          size="small"
-          sx={{ minWidth: { xs: 130, sm: 200 } }}
-          SelectProps={{
-            MenuProps: {
-              PaperProps: {
-                style: {
-                  maxHeight: 200,
-                },
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DatePicker
+            label="Start Date"
+            value={startDate}
+            onChange={(newValue) => {
+              setStartDate(newValue)
+              if (endDate && newValue && newValue > endDate) {
+                setEndDate(null);
+              }
+            }}
+            format="dd/MM/yyyy"
+            maxDate={new Date()}
+            slotProps={{
+              textField: {
+                size: "small",
+                sx: { minWidth: 280 },
               },
-            },
-          }}
-        >
-          {Array.from({ length: 12 }, (_, i) => (
-            <MenuItem key={i + 1} value={i + 1}>
-              {i + 1}
-            </MenuItem>
-          ))}
-        </TextField>
-        <TextField
-          select
-          label="Year"
-          value={year}
-          onChange={(e) => setYear(e.target.value)}
-          size="small" sx={{ minWidth: { xs: 130, sm: 200 } }}
-          SelectProps={{
-            MenuProps: {
-              PaperProps: {
-                style: {
-                  maxHeight: 200,
-                },
+            }}
+          />
+          <DatePicker
+            label="End Date"
+            value={endDate}
+            onChange={(newValue) => {
+              setEndDate(newValue);
+              if (startDate && newValue && newValue < startDate) {
+                setStartDate(null);
+              }
+            }}
+            format="dd/MM/yyyy"
+            minDate={startDate || undefined}
+            maxDate={new Date()}
+            disabled={!startDate}
+            slotProps={{
+              textField: {
+                size: "small",
+                sx: { minWidth: 280 },
               },
-            },
-          }}
-        >
-          {Array.from({ length: 25 }, (_, i) => {
-            const currentYear = new Date().getFullYear()
-            const year = currentYear - i;
-            return (
-              <MenuItem key={year} value={year}>
-                {year}
-              </MenuItem>
-            );
-          })}
-        </TextField>
+            }}
+          />
+        </LocalizationProvider>
+
         <Button
           onClick={clearFilters}
           sx={{
             border: '2px solid #f44336',
             color: '#f44336',
-            // fontWeight:'bold',
             backgroundColor: 'white',
             '&:hover': {
               backgroundColor: '#b0412e',
@@ -575,15 +571,15 @@ function DailyLogs() {
           </TableContainer>
           <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
             <Pagination
-              count={nextPage ? nextPage : currentPage} // total pages (adjust if API provides totalPages)
+              count={nextPage ? nextPage : currentPage}
               page={currentPage}
               onChange={(event, value) => {
                 fetchLogs({
                   pageToken: value,
                   email,
                   projectName,
-                  month,
-                  year
+                  startDate,
+                  endDate
                 });
               }}
               color="primary"

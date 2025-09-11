@@ -39,8 +39,6 @@ function DailyLogs() {
   // State for filters
   const [projectName, setProjectName] = useState("");
   const [email, setEmail] = useState("");
-  // const [month, setMonth] = useState("");
-  // const [year, setYear] = useState("");
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
@@ -416,56 +414,6 @@ function DailyLogs() {
             },
           }}
         />
-        {/* <TextField
-          select
-          label="Month"
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          size="small"
-          sx={{ minWidth: { xs: 130, sm: 200 } }}
-          SelectProps={{
-            MenuProps: {
-              PaperProps: {
-                style: {
-                  maxHeight: 200,
-                },
-              },
-            },
-          }}
-        >
-          {Array.from({ length: 12 }, (_, i) => (
-            <MenuItem key={i + 1} value={i + 1}>
-              {i + 1}
-            </MenuItem>
-          ))}
-        </TextField> */}
-        {/* <TextField
-          select
-          label="Year"
-          value={year}
-          onChange={(e) => setYear(e.target.value)}
-          size="small" sx={{ minWidth: { xs: 130, sm: 200 } }}
-          SelectProps={{
-            MenuProps: {
-              PaperProps: {
-                style: {
-                  maxHeight: 200,
-                },
-              },
-            },
-          }}
-        >
-          {Array.from({ length: 25 }, (_, i) => {
-            const currentYear = new Date().getFullYear()
-            const year = currentYear - i;
-            return (
-              <MenuItem key={year} value={year}>
-                {year}
-              </MenuItem>
-            );
-          })}
-        </TextField> */}
-
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DatePicker
             label="Start Date"

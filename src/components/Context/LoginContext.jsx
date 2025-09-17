@@ -21,8 +21,15 @@ function LoginProvider({ children }) {
         const userEmail = localStorage.getItem("email") ?? "";
         if (!userEmail) return;
 
-        const roleUrl = `${API_BASE_URL}/accessControl?email=${userEmail}`;
-        const res = await fetch(roleUrl);
+        const roleUrl = `${API_BASE_URL}/accessControl`;
+        const res = await fetch(`${API_BASE_URL}/accessControl`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+        },
+      });
+
         const data = await res.json();
 
         const roles =

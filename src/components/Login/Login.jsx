@@ -89,9 +89,13 @@ function Login() {
 
     if (!hasNumbers) {
       try {
-        // Step 1: Fetch role from accessControl API
-        const roleUrl = `${API_BASE_URL}/accessControl?email=${userEmail}`;
-        const res = await fetch(roleUrl);
+        const res = await fetch(`${API_BASE_URL}/accessControl`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      });
         const data = await res.json();
 
         // All existing error handling preserved

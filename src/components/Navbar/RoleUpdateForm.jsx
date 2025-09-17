@@ -55,9 +55,13 @@ const RoleUpdateForm = () => {
     if (page > 1) queryParams.append("page", page);
 
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/accessControl?${queryParams.toString()}`,
-      );
+      const res = await fetch(`${API_BASE_URL}/accessControl?admin=true`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+        },
+      });
       const data = await res.json();
 
       setUsers(data.items || []);
@@ -146,7 +150,7 @@ const RoleUpdateForm = () => {
 
     // Check if role is already assigned
     try {
-      const resCheck = await fetch(`${API_BASE_URL}/accessControl?email=${email}`, {
+      const resCheck = await fetch(`${API_BASE_URL}/accessControl`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

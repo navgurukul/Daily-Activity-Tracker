@@ -55,6 +55,21 @@ const RoleUpdateForm = () => {
     if (page > 1) queryParams.append("page", page);
 
     try {
+      if (queryParams.toString()) {
+        const res = await fetch(`${API_BASE_URL}/accessControl?${queryParams.toString()}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+        });
+        const data = await res.json();
+
+        setUsers(data.items || []);
+        setNextPage(data.nextPage || null);
+        setCurrentPage(page);
+        return;
+      }
       const res = await fetch(`${API_BASE_URL}/accessControl?admin=true`, {
         method: "GET",
         headers: {
@@ -150,7 +165,7 @@ const RoleUpdateForm = () => {
 
     // Check if role is already assigned
     try {
-      const resCheck = await fetch(`${API_BASE_URL}/accessControl`, {
+      const resCheck = await fetch(`${API_BASE_URL}/accessControl?email=${email}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -473,7 +488,7 @@ const RoleUpdateForm = () => {
                       disabled={previousPage.length === 0}
                       onClick={() => {
                         const prev = [...previousPage];
-                        const lastToken = prev.pop(); 
+                        const lastToken = prev.pop();
                         setPreviousPage(prev);
                         fetchFilteredUsers(lastToken);
                       }}

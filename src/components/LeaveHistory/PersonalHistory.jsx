@@ -48,6 +48,7 @@ const PersonalHistory = () => {
   // Context
   const dataContext = useContext(LoginContext);
   const { email } = dataContext;
+  const token = localStorage.getItem("jwtToken");
 
   // API base URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -65,9 +66,13 @@ const PersonalHistory = () => {
     if (!email) return;
     setLoading((prev) => ({ ...prev, [statusKey]: true }));
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/leave-records?status=${statusKey}&employeeEmail=${email}&month=${month}&limit=5&page=${page}`
-      );
+      // const response = await fetch(`${API_BASE_URL}/leave-records?status=${statusKey}&employeeEmail=${email}&month=${month}&limit=5&page=${page}`);
+      const response = await fetch(`${API_BASE_URL}/leave-records?status=${statusKey}&month=${month}&limit=5&page=${page}&flagHistoryOwn=true`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       const data = await response.json();
       const records = data[email]?.[statusKey] || [];
       setCurrentLeaves(records);

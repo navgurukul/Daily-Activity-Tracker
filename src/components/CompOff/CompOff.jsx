@@ -32,7 +32,6 @@ const CompOff = () => {
     startDate: getTodayDate(),
     endDate: getTodayDate(),
     userEmail: "",
-    leaveIsRaisingFrom: email,
     durationType: "",
     halfDayStatus: "",
     status: "pending",
@@ -147,7 +146,6 @@ const CompOff = () => {
         startDate: getTodayDate(),
         endDate: getTodayDate(),
         userEmail: "",
-        leaveIsRaisingFrom: email,
         durationType: "",
         halfDayStatus: "",
         status: "pending",
@@ -306,7 +304,7 @@ const CompOff = () => {
           <input
             type="text"
             name="leaveIsRaisingFrom"
-            value={leaveData.leaveIsRaisingFrom}
+            value={email}
             disabled
             readOnly
           />

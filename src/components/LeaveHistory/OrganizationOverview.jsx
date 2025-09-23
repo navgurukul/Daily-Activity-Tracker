@@ -28,6 +28,7 @@ const OrganizationOverview = () => {
 
   // API base URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const token = localStorage.getItem("jwtToken");
 
   // Fetch approved leaves from backend 
   const fetchOrganizationLeaves = async (email = '', month = '') => {
@@ -39,9 +40,13 @@ const OrganizationOverview = () => {
 
     try {
       while (hasMore) {
-        const response = await fetch(
-          `${API_BASE_URL}/leave-records?status=approved&employeeEmail=${email}&month=${month}&limit=100&page=${page}`
-        );
+        // const response = await fetch(`${API_BASE_URL}/leave-records?status=approved&employeeEmail=${email}&month=${month}&limit=100&page=${page}&flagHistory=true`);
+        const response = await fetch(`${API_BASE_URL}/leave-records?status=approved&employeeEmail=${email}&month=${month}&limit=100&page=${page}&flagHistory=true`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
         const data = await response.json();
 
         const pageResults = [];

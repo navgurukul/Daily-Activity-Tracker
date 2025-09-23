@@ -65,14 +65,22 @@ const LeaveManagement = () => {
 
   // API Base URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const token = localStorage.getItem("jwtToken");
 
   // Fetch leaves based on status
   const fetchLeavesData = async (status, email = '', month = '') => {
     setLoading(true)
+
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/leave-records?status=${status}&employeeEmail=${email}&month=${month}&limit=100&page=1`
-      );
+      // const response = await fetch(
+      //   `${API_BASE_URL}/leave-records?status=${status}&employeeEmail=${email}&month=${month}&limit=100&page=1`
+      // );
+      const response = await fetch(`${API_BASE_URL}/leave-records?status=${status}&employeeEmail=${email}&month=${month}&limit=100&page=1`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       const data = await response.json();
 
       const result = [];
@@ -220,8 +228,13 @@ const LeaveManagement = () => {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/employmentLeavePolicy?email=${searchEmail}`
-      );
+        `${API_BASE_URL}/employmentLeavePolicy?email=${searchEmail}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
       const result = await response.json();
 
       if (result.success && result.data.length > 0) {
@@ -252,9 +265,13 @@ const LeaveManagement = () => {
   const fetchLeaveHistory = async (email, month) => {
     setLoading(true)
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/leave-records?employeeEmail=${email}&month=${month}&limit=100&page=1`
-      );
+      // const response = await fetch(`${API_BASE_URL}/leave-records?employeeEmail=${email}&month=${month}&limit=100&page=1`);
+      const response = await fetch(`${API_BASE_URL}/leave-records?employeeEmail=${email}&month=${month}&limit=100&page=1&flagHistory=true`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       const data = await response.json();
       const history = [];
       Object.keys(data).forEach((emailKey) => {

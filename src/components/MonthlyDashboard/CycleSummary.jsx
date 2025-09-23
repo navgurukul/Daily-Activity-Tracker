@@ -43,7 +43,7 @@ const CycleSummary = ({ selectedDate }) => {
 
       try {
         const response = await fetch(
-          `${API_BASE_URL}/payableDaysCalculation?email=${email}&year=${year}&month=${month}`,
+          `${API_BASE_URL}/payableDaysCalculation?year=${year}&month=${month}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

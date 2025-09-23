@@ -190,14 +190,26 @@ const MonthlyDashboard = () => {
   // Fetch data
   useEffect(() => {
     const fetchData = async () => {
+      const token = localStorage.getItem("jwtToken");
       try {
         const [activityRes, leaveRes] = await Promise.all([
           fetch(
-            `${API_BASE_URL}/activityLogs/${email}?month=${String(
+            `${API_BASE_URL}/activityLogs?month=${String(
               selectedMonth + 1
-            ).padStart(2, "0")}&year=${selectedYear}`
+            ).padStart(2, "0")}&year=${selectedYear}`,
+            {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
           ),
-          fetch(`${API_BASE_URL}/leave-records?employeeEmail=${email}`),
+          fetch(`${API_BASE_URL}/leave-records`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }),
         ]);
 
         const [activityData, leaveData] = await Promise.all([
@@ -206,7 +218,7 @@ const MonthlyDashboard = () => {
         ]);
 
         const userActivities = activityData.data[email] || [];
-        const userLeaves = leaveData[email] || [];
+        const userLeaves = leaveData || [];
 
         setEmployeeData({
           activities: userActivities,
@@ -221,7 +233,7 @@ const MonthlyDashboard = () => {
     };
 
     fetchData();
-  }, [selectedMonth, selectedYear, email, API_BASE_URL]);
+  }, [selectedMonth, selectedYear, API_BASE_URL]);
 
   // Loader
   if (loading) {

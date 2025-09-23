@@ -86,6 +86,7 @@ function DailyLogs() {
   // API Base URLs
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const ACTIVITY_LOGS_URL = `${API_BASE_URL}/activityLogs`;
+  const token = localStorage.getItem("jwtToken");
 
   // Fetch logs when filters change
   useEffect(() => {
@@ -123,7 +124,13 @@ function DailyLogs() {
 
   const fetchFilterOptions = async () => {
     try {
-      const response = await fetch(ACTIVITY_LOGS_URL);
+      const response = await fetch(`${ACTIVITY_LOGS_URL}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
       const AllProject = await fetch(`${API_BASE_URL}/employees`);
       const projectData = await AllProject.json();
@@ -159,10 +166,16 @@ function DailyLogs() {
       params.append("page", pageToken);
 
       if (params.toString()) {
-        url += `?${params.toString()}`;
+        url += `?${params.toString()}&admin=true`;
       }
-
-      const response = await fetch(url);
+      
+      const response = await fetch(url,
+        {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
 
       // Format the logs

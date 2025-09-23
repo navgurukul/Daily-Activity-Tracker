@@ -173,9 +173,14 @@ const ApplyLeaveModal = () => {
       }
       setLeavesLoading(true);
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/employmentLeavePolicy?email=${leaveData.userEmail}`
-        );
+        // const response = await fetch(`${API_BASE_URL}/employmentLeavePolicy?email=${leaveData.userEmail}`);
+        const response = await fetch(`${API_BASE_URL}/employmentLeavePolicy?email=${leaveData.userEmail}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+        });
         const data = await response.json();
         if (data.success && Array.isArray(data.data)) {
           setAllLeaves(data.data);

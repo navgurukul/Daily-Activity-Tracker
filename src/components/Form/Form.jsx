@@ -282,7 +282,14 @@ const Form = () => {
 
     const fetchUserAttempts = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/attempts?email=${email}`);
+        // const response = await fetch(`${API_BASE_URL}/attempts`);
+        const response = await fetch(`${API_BASE_URL}/attempts`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+        });
         const data = await response.json();
         if (data?.data) {
           setBackdatedAttemptsLeft(data?.data?.attemptsLeft);

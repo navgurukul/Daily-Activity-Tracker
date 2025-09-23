@@ -62,7 +62,11 @@ const Payroll = () => {
         const queryParams = new URLSearchParams();
 
         // Append filters to query params
-        if (emailFilter) queryParams.append("email", emailFilter);
+        if (emailFilter) {
+          queryParams.append("email", emailFilter);
+        } else {
+          queryParams.append("admin", "true");
+        }
         if (monthFilter) queryParams.append("month", parseInt(monthFilter) - 1);
         if (yearFilter) queryParams.append("year", yearFilter);
 

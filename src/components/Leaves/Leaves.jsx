@@ -30,7 +30,6 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { styled } from "@mui/material/styles";
 import LoadingSpinner from "../Loader/LoadingSpinner";
-import axios from "axios";
 
 
 // Styled Components
@@ -161,7 +160,6 @@ const Leaves = () => {
   const [availableLeaveTypes, setAvailableLeaveTypes] = useState();
   const [leavesData, setLeavesData] = useState([]);
   const [allLeaves, setAllLeaves] = useState({});
-  const [allEmails, setAllEmails] = useState([]);
   const [leavesLoading, setLeavesLoading] = useState(false);
 
   // Snackbar & Error handling
@@ -181,9 +179,14 @@ const Leaves = () => {
   const fetchData = async () => {
     setLeavesLoading(true);
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/employmentLeavePolicy?email=${email}`
-      );
+      // const response = await fetch(`${API_BASE_URL}/employmentLeavePolicy`);
+      const response = await fetch(`${API_BASE_URL}/employmentLeavePolicy`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+        },
+      });
       const data = await response.json();
       if (data.success) {
         setAllLeaves(data.data);
@@ -219,29 +222,6 @@ const Leaves = () => {
       });
     }
   }, [email, navigate]);
-
-  // Fetch team email IDs
-  useEffect(() => {
-    const fetchEmails = async () => {
-      try {
-        const response = await axios.get(
-          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
-        );
-        const teamIDs = Array.from(
-          new Set(
-            response.data?.data
-              ?.map((entry) => entry["Team ID"])
-              ?.filter((id) => !!id)
-          )
-        );
-        setAllEmails(teamIDs);
-      } catch (error) {
-        console.error("Error fetching emails:", error);
-        setSnackbarMessage("Failed to fetch emails");
-      }
-    };
-    fetchEmails();
-  }, []);
 
   // Auto-update remaining leaves when email or type changes
   useEffect(() => {

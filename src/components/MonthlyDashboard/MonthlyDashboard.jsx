@@ -19,6 +19,7 @@ import CycleSummary from "./CycleSummary";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { extractEmailFromGoogleToken } from "../../utils/verifyGoogleToken";
 
 // Utility: Return label attributes for leave status
 const getLeaveStatusAttributes = (status) => {
@@ -121,9 +122,11 @@ const MonthlyDashboard = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   // Get user email
-  const email = useMemo(() => {
-    return localStorage.getItem("email") ?? "";
-  }, []);
+  // const email = useMemo(() => {
+  //   return localStorage.getItem("email") ?? "";
+  // }, []);
+  const googleTokenPayload = extractEmailFromGoogleToken(localStorage.getItem("jwtToken"));
+  const { email } = googleTokenPayload;
 
   // Memoized days calculation
   const daysInMonth = useMemo(() => {

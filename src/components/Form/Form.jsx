@@ -31,17 +31,15 @@ import MuiAlert from "@mui/material/Alert";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { extractEmailFromGoogleToken } from "../../utils/verifyGoogleToken";
-
 import dayjs from "dayjs";
+import { extractEmailFromGoogleToken } from "../../utils/verifyGoogleToken";
 
 const Form = () => {
   // Contexts
   const dataContext = useContext(LoginContext);
   const googleTokenPayload = extractEmailFromGoogleToken(localStorage.getItem("jwtToken"));
-  console.log(googleTokenPayload.email); // prints user email if present
-
   const { email } = googleTokenPayload;
+  
   const { loading, setLoading } = useLoader();
 
   // User details from localStorage

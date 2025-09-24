@@ -19,6 +19,7 @@ import {
 import { styled } from "@mui/material/styles";
 import LoadingSpinner from "../Loader/LoadingSpinner";
 import axios from "axios";
+import { extractEmailFromGoogleToken } from "../../utils/verifyGoogleToken";
 
 
 // Styled Components
@@ -112,7 +113,10 @@ const StyledFormControl = styled(FormControl)(({ theme }) => ({
 const ApplyLeaveModal = () => {
   // Context & Navigation
   const dataContext = useContext(LoginContext);
-  const { email } = dataContext;
+  // const { email } = dataContext;
+  const googleTokenPayload = extractEmailFromGoogleToken(localStorage.getItem("jwtToken"));
+  const { email } = googleTokenPayload;
+  
   const navigate = useNavigate();
   const { loading, setLoading } = useLoader();
 

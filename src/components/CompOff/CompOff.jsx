@@ -4,11 +4,13 @@ import { LoginContext } from "../Context/LoginContext";
 import LoadingSpinner from "../Loader/LoadingSpinner";
 import { useLoader } from "../Context/LoadingContext";
 import { Snackbar, Alert, Box, Typography, Autocomplete, TextField } from "@mui/material";
+import { extractEmailFromGoogleToken } from "../../utils/verifyGoogleToken";
 
 const CompOff = () => {
   // Context
   const dataContext = useContext(LoginContext);
-  const { email } = dataContext;
+  const googleTokenPayload = extractEmailFromGoogleToken(localStorage.getItem("jwtToken"));
+  const { email } = googleTokenPayload;
 
   // Loading State
   const { loading, setLoading } = useLoader();

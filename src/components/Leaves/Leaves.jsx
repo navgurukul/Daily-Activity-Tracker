@@ -30,6 +30,7 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { styled } from "@mui/material/styles";
 import LoadingSpinner from "../Loader/LoadingSpinner";
+import { extractEmailFromGoogleToken } from "../../utils/verifyGoogleToken";
 
 
 // Styled Components
@@ -123,12 +124,13 @@ const StyledFormControl = styled(FormControl)(({ theme }) => ({
 const Leaves = () => {
   // Context & Navigation
   const dataContext = useContext(LoginContext);
-  const { email } = dataContext;
+  const googleTokenPayload = extractEmailFromGoogleToken(localStorage.getItem("jwtToken"));
+  const { email } = googleTokenPayload;
   const navigate = useNavigate();
   const { loading, setLoading } = useLoader();
 
   // User details
-  const userName = localStorage.getItem("name");
+  const userName = googleTokenPayload.name ? googleTokenPayload.name : localStorage.getItem("name");
   const department = localStorage.getItem("department");
   const role = localStorage.getItem("role");
 

@@ -19,6 +19,7 @@ import {
 import { LoginContext } from "../Context/LoginContext";
 import ArrowBackIcon from "@mui/icons-material/KeyboardArrowLeft";
 import ArrowForwardIcon from "@mui/icons-material/KeyboardArrowRight";
+import { extractEmailFromGoogleToken } from "../../utils/verifyGoogleToken";
 
 const PersonalHistory = () => {
   // State management
@@ -47,7 +48,8 @@ const PersonalHistory = () => {
 
   // Context
   const dataContext = useContext(LoginContext);
-  const { email } = dataContext;
+  const googleTokenPayload = extractEmailFromGoogleToken(localStorage.getItem("jwtToken"));
+  const { email } = googleTokenPayload;
   const token = localStorage.getItem("jwtToken");
 
   // API base URL

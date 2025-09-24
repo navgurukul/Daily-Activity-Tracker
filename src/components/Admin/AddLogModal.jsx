@@ -27,11 +27,14 @@ import {
   Box,
 } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
+import { extractEmailFromGoogleToken } from "../../utils/verifyGoogleToken";
 
 const Form = () => {
   // Contexts
   const dataContext = useContext(LoginContext);
-  const { email } = dataContext;
+  // const { email } = dataContext;
+  const googleTokenPayload = extractEmailFromGoogleToken(localStorage.getItem("jwtToken"));
+  const { email } = googleTokenPayload;
   const { loading, setLoading } = useLoader();
 
   // User details from localStorage

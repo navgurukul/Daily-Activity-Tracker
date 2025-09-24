@@ -68,7 +68,7 @@ const AdjustLeaveModal = ({
     }
     setSubmitError("");
   };
-
+  
   // Form validation rules
   const validateForm = () => {
     const newErrors = {};

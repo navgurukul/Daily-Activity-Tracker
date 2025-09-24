@@ -22,11 +22,13 @@ import {
 import axios from "axios";
 import AdjustLeaveModal from "./AdjustLeaveModal";
 import ApplyLeaveModal from "./ApplyLeaveModal";
+import { extractEmailFromGoogleToken } from "../../utils/verifyGoogleToken";
 
 const LeaveManagement = () => {
   // Contexts
   const dataContext = useContext(LoginContext);
-  const { email } = dataContext;
+  const googleTokenPayload = extractEmailFromGoogleToken(localStorage.getItem("jwtToken"));
+  const { email } = googleTokenPayload;
 
   // State management
   const [pendingLeaves, setPendingLeaves] = useState([]);

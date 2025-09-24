@@ -12,11 +12,13 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { LoginContext } from "../Context/LoginContext";
+import { extractEmailFromGoogleToken } from "../../utils/verifyGoogleToken";
 
 const CycleSummary = ({ selectedDate }) => {
   // Context
   const dataContext = useContext(LoginContext);
-  const { email } = dataContext;
+  const googleTokenPayload = extractEmailFromGoogleToken(localStorage.getItem("jwtToken"));
+  const { email } = googleTokenPayload;
 
   // State management
   const [summaryData, setSummaryData] = useState(null);

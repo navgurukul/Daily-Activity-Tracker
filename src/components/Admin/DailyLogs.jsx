@@ -33,6 +33,7 @@ import AddLogModal from "./AddLogModal";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { extractEmailFromGoogleToken } from "../../utils/verifyGoogleToken";
 
 
 function DailyLogs() {
@@ -49,7 +50,9 @@ function DailyLogs() {
   const [allEmails, setAllEmails] = useState([]);
 
   // Editing state
-  const userEmail = localStorage.getItem("email");
+  const googleTokenPayload = extractEmailFromGoogleToken(localStorage.getItem("jwtToken"));
+  const userEmail = googleTokenPayload.email;
+  
   const [editLog, setEditLog] = useState(null);
   const [editedData, setEditedData] = useState({
     Id: "",

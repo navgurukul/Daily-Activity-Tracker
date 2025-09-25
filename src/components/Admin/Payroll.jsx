@@ -187,7 +187,10 @@ const Payroll = () => {
   // CSV download function
   async function downloadCSV() {
     try {
-      const response = await fetch(`${API_BASE_URL}/payableDaysCalculation`, {
+      const queryParams = new URLSearchParams();
+      queryParams.append("admin", "true");
+      const url = `${API_BASE_URL}/payableDaysCalculation${queryParams.toString() ? "?" + queryParams.toString() : ""}`;
+      const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
         },
@@ -248,12 +251,12 @@ const Payroll = () => {
 
       // Trigger download
       const blob = new Blob([csv], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
+      const link = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
+      a.href = link;
       a.download = 'payable_data.csv';
       a.click();
-      window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(link);
     } catch (error) {
       console.error('❌ Error downloading CSV:', error);
       alert('Failed to download CSV. See console for error.');

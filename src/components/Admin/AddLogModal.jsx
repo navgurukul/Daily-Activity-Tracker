@@ -98,6 +98,7 @@ const Form = () => {
   // Other data
   const [departments, setDepartments] = useState([]);
   const [projectNameToId, setProjectNameToId] = useState({});
+  const [projectIdToName, setProjectIdToName] = useState({});
   const [employees, setEmployees] = useState([]);
   const [employeeDepartment, setEmployeeDepartment] = useState("");
   const [previousEntriesDone, setPreviousEntriesDone] = useState(0);
@@ -179,6 +180,7 @@ const Form = () => {
         .then((data) => {
           const projectByDepartment = {};
           const nameToIdMap = {};
+          const idToNameMap = {};
           const projects = data.data.map((project) => {
             return {
               projectId: project.Id,
@@ -209,8 +211,9 @@ const Form = () => {
               }
               projectByDepartment[dept].add(projectName);
 
-              // Name to ID mapping
+              // Name/ID mappings
               nameToIdMap[projectName] = project.projectId;
+              idToNameMap[project.projectId] = projectName;
             }
           });
 
@@ -221,6 +224,7 @@ const Form = () => {
 
           setProjectByDepartment(projectByDepartment);
           setProjectNameToId(nameToIdMap);
+          setProjectIdToName(idToNameMap);
           setProjectsLoading(false);
         });
     } catch (error) {
@@ -243,7 +247,7 @@ const Form = () => {
           const activeProjects = data.data.filter(
             (project) => project.projectStatus === "Active"
           );
-          let filtered = activeProjects.map((p) => p.projectName);
+          let filtered = activeProjects.map((p) => ({ id: p.Id, name: p.projectName }));
           setFilteredProjects(filtered);
         } else {
           setFilteredProjects([]);
@@ -310,9 +314,10 @@ const Form = () => {
   // Project dropdown selection
   const handleProjectSelect = (e) => {
     setSaved(false);
-    if (e.target.value === "Ad-hoc tasks")
+    const selectedId = e.target.value;
+    if (projectIdToName[selectedId] === "Ad-hoc tasks")
       setError("You can only log a maximum of 2 hours for Ad-hoc tasks");
-    setSelectedProject(e.target.value);
+    setSelectedProject(selectedId);
     setCurrentContribution({ hours: "", task: "" });
 
     if (e.target.value !== "") {
@@ -322,7 +327,7 @@ const Form = () => {
 
   // Check max hours validation
   function checkMaxValue(input) {
-    if (selectedProject === "Ad-hoc tasks") {
+    if (projectIdToName[selectedProject] === "Ad-hoc tasks") {
       if (input.value > 2) {
         input.value = 2;
       }
@@ -369,7 +374,7 @@ const Form = () => {
       ...prevState,
       contributions: [
         ...prevState.contributions,
-        { project: selectedProject, ...currentContribution, department: prevState.department },
+        { projectId: selectedProject, project: projectIdToName[selectedProject], ...currentContribution, department: prevState.department },
       ],
       blockers: formData.blockers,
     }));
@@ -458,7 +463,7 @@ const Form = () => {
         email: formData.email,
         raisedEmail: userEmail,
         projectName: c.project,
-        projectId: projectNameToId[c.project],
+        projectId: c.projectId,
         totalHoursSpent: Number(c.hours),
         workDescription: c.task,
         entryDate: formData.selectedDate,
@@ -947,9 +952,9 @@ const Form = () => {
             >
               <option value="">--Select a project--</option>
               {filteredProjects.length > 0 ? (
-                filteredProjects.map((project, index) => (
-                  <option key={index} value={project}>
-                    {project}
+                filteredProjects.map((p, index) => (
+                  <option key={index} value={p.id}>
+                    {p.name}
                   </option>
                 ))
               ) : (

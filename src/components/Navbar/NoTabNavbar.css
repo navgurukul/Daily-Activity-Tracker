@@ -1,21 +1,26 @@
+/* Heading style for NoTabNavbar */
 .no-tab-heading {
   color: white;
   text-align: center;
   font-size: 1.5rem;
 }
 
+/* == Responsive styles == */
+/* Smaller heading below 425px */
 @media (max-width: 425px) {
   .no-tab-heading {
     font-size: 1.3rem;
   }
 }
 
+/* Smaller heading below 375px */
 @media (max-width: 375px) {
   .no-tab-heading {
     font-size: 1.1rem;
   }
 }
 
+/* Smaller heading below 320px */
 @media (max-width: 320px) {
   .no-tab-heading {
     font-size: 0.96rem;

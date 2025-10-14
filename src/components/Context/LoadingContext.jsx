@@ -1,7 +1,9 @@
-import React, { createContext, useState,useContext } from "react";
+import React, { createContext, useState, useContext } from "react";
 
+// Create context for global loading state
 export const LoadingContext = createContext();
 
+// Provider to wrap the app and manage loading state
 export const LoadingProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
@@ -11,8 +13,10 @@ export const LoadingProvider = ({ children }) => {
     </LoadingContext.Provider>
   );
 };
-export  const useLoader=()=>{
+
+// Custom hook for easy access to loading context
+export const useLoader = () => {
   return useContext(
-     LoadingContext
+    LoadingContext
   )
 }

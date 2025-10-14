@@ -1,16 +1,12 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./Form.css";
-import url from "../../../public/api";
-import { json, useLocation, useNavigate } from "react-router-dom";
-import { LoginContext } from "../context/LoginContext";
+import { useLocation, useNavigate } from "react-router-dom";
+import { LoginContext } from "../Context/LoginContext";
 import DeleteIcon from "@mui/icons-material/Delete";
-
-import CircularProgress from "@mui/material/CircularProgress";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import LoadingSpinner from "../Loader/LoadingSpinner";
-import { useLoader } from "../context/LoadingContext";
-import TraansitionModal from "../Modal/TraansitionModal";
+import { useLoader } from "../Context/LoadingContext";
 import {
   Dialog,
   DialogActions,
@@ -32,19 +28,25 @@ import {
   Box,
 } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
-import { set } from "lodash";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import { extractEmailFromGoogleToken } from "../../utils/verifyGoogleToken";
 
 const Form = () => {
+  // Contexts
   const dataContext = useContext(LoginContext);
-  const { email } = dataContext;
-  const userName = localStorage.getItem("name");
-  const userDepartment = localStorage.getItem("department");
-  // const userDepartment = "Residential Program";
+  const googleTokenPayload = extractEmailFromGoogleToken(localStorage.getItem("jwtToken"));
+  const { email } = googleTokenPayload;
+  
   const { loading, setLoading } = useLoader();
+
+  // User details from localStorage
+  const userName = googleTokenPayload.name ? googleTokenPayload.name : localStorage.getItem("name");
+  const userDepartment = localStorage.getItem("department");
+
+  // Get today’s date in YYYY-MM-DD format
   const getTodayDate = () => {
     const today = new Date();
     const yyyy = today.getFullYear();
@@ -53,16 +55,16 @@ const Form = () => {
     return `${yyyy}-${mm}-${dd}`;
   };
 
+  // Initial state for form data
   const initialFormData = {
     email: email,
     selectedDate: dataContext.selectedDate || getTodayDate(),
     contributions: [],
     blockers: "",
   };
-  const [formData, setFormData] = useState(initialFormData);
 
-  // const [projectData, setProjectData] = useState([]);
-  // const [residentialProjectData, setResidentialProjectData] = useState([]);
+  // State hooks
+  const [formData, setFormData] = useState(initialFormData);
   const [projectByDepartment, setProjectByDepartment] = useState({});
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [projectsLoading, setProjectsLoading] = useState(true);
@@ -78,52 +80,49 @@ const Form = () => {
   const [saved, setSaved] = useState(false);
   const [showSelect, setShowSelect] = useState(true);
   const [editIndex, setEditIndex] = useState(null);
-
   const [editContribution, setEditContribution] = useState({
     hours: "",
     task: "",
   });
 
+  // Delete confirmation dialog
   const [open, setOpen] = useState(false);
   const [deleteIndex, setDeleteIndex] = useState(null);
-  const navigate = useNavigate();
+
+  // Attempts tracking
   const [previousEntriesDone, setPreviousEntriesDone] = useState(0);
-  const today = new Date().toISOString().split("T")[0];
   const [attempt, setAttempt] = useState(0);
-  const [isDateDisabled, setIsDateDisabled] = useState(true);
+  const [backdatedAttemptsLeft, setBackdatedAttemptsLeft] = useState(0);
   const [attemptLoading, setAttemptLoading] = useState(true);
 
+  // Snackbar states
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbaropen, setSnackbaropen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [alertMessage, setAlertMessage] = useState("");
 
+  // Error flags
   const [showProjectError, setShowProjectError] = useState(false);
   const [showHoursError, setShowHoursError] = useState(false);
   const [showTaskError, setShowTaskError] = useState(false);
-  const [departments, setDepartments] = useState([]);
-
   const [showSaveError, setShowSaveError] = useState(false);
+
+  // Department data
+  const [departments, setDepartments] = useState([]);
   const [projectNameToId, setProjectNameToId] = useState({});
-  const [backdatedAttemptsLeft, setBackdatedAttemptsLeft] = useState(0);
 
+  const navigate = useNavigate();
   const location = useLocation();
+  const today = new Date().toISOString().split("T")[0];
 
+  // Base API URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+  // Snackbar Handlers 
   const handleCloseSnackbar = () => {
     setSnackbaropen(false);
   };
-
-  useEffect(() => {
-    if (location.state?.message) {
-      setAlertMessage(location.state.message);
-
-      setSnackbaropen(true)
-      navigate(location.pathname, { replace: true });
-    }
-  }, [location.state, location.pathname, navigate]);
 
   const showSnackbar = (message, severity = "success") => {
     setSnackbarMessage(message);
@@ -136,10 +135,21 @@ const Form = () => {
     setSnackbarOpen(false);
   };
 
+  // Handle alert messages passed via navigation state
+  useEffect(() => {
+    if (location.state?.message) {
+      setAlertMessage(location.state.message);
+      setSnackbaropen(true)
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.state, location.pathname, navigate]);
+
+  // Fetch employees and project data
   useEffect(() => {
     let email = localStorage.getItem("email") ?? "";
     setAttemptLoading(true);
 
+    // Reset monthly attempts if new month
     const initPreviousEntries = () => {
       const storedData = JSON.parse(localStorage.getItem("previousEntriesDone"));
       const today = new Date();
@@ -166,13 +176,12 @@ const Form = () => {
 
     initPreviousEntries();
 
+    // Fetch active projects
     try {
       fetch(`${API_BASE_URL}/employees`)
         .then((response) => response.json())
         .then((data) => {
-          console.log("Fetched data:", data.data);
-
-          const projectByDepartment = {}; // move declaration here
+          const projectByDepartment = {};
           const nameToIdMap = {};
           const projects = data.data.map((project) => {
             return {
@@ -193,6 +202,7 @@ const Form = () => {
             activeProjectNames.push("Saturday-Peer-Learning");
           }
 
+          // Map projects by department
           projects.forEach((project) => {
             if (project.status === "Active") {
               const dept = project.department.trim();
@@ -215,8 +225,6 @@ const Form = () => {
           });
 
           setProjectByDepartment(projectByDepartment);
-          console.log("Project By Department:", projectByDepartment);
-
           setProjectNameToId(nameToIdMap);
           setProjectsLoading(false);
         });
@@ -225,12 +233,15 @@ const Form = () => {
     }
   }, []);
 
+  // Department Filter
   useEffect(() => {
     const currentDept = formData.department || userDepartment;
     if (!currentDept) {
       setFilteredProjects([]);
       return;
     }
+
+    // Fetch department-specific projects
     const fetchDepartmentProjects = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/employees?department=${encodeURIComponent(currentDept)}`);
@@ -250,63 +261,14 @@ const Form = () => {
       }
     };
     fetchDepartmentProjects();
-  }, [formData.department, userDepartment]); 
+  }, [formData.department, userDepartment]);
 
-  document.querySelectorAll('input[type="number"]').forEach(function (input) {
-    input.addEventListener("wheel", function (event) {
-      event.preventDefault();
-    });
-  });
-
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setFormData({
-  //     ...formData,
-  //     [name]: value,
-  //   });
-  // };
-
-  //  function isInvalidDate(dateStr) {
-  //    const date = new Date(dateStr);
-  //    const day = date.getDay(); // 0 = Sunday, 6 = Saturday
-  //    const dateNum = date.getDate();
-  //    const week = Math.floor((dateNum - 1) / 7) + 1;
-
-  //    // Disable Sunday or 2nd/4th Saturday
-  //    return day === 0 || (day === 6 && (week === 2 || week === 4));
-  //  }
-
-  function handleChange(e) {
-    const { name, value } = e.target;
-
-    // if (isInvalidDate(value)) {
-    //   alert("This date is not allowed");
-    //   return;
-    // }
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }
-
-  const handleProjectSelect = (e) => {
-    setSaved(false);
-    //  setOpen(true);
-    if (e.target.value === "Ad-hoc tasks")
-      setError("You can only log a maximum of 2 hours for Ad-hoc tasks");
-    setSelectedProject(e.target.value);
-    setCurrentContribution({ hours: "", task: "" }); // Reset current contribution
-
-    if (e.target.value !== "") {
-      setShowProjectError(false);
-    }
-  };
-
+  // Set max hours
   useEffect(() => {
     setMaxHours(15);
   }, [selectedProject]);
 
+  // Set save error
   useEffect(() => {
     if (showSaveError) {
       const timer = setTimeout(() => {
@@ -317,302 +279,20 @@ const Form = () => {
     }
   }, [showSaveError]);
 
-  function checkMaxValue(input) {
-    if (selectedProject === "Ad-hoc tasks") {
-      if (input.value > 2) input.value = 2;
-      if (input.value < 0) input.value = 0;
-      
-    }else{
-      if ( input.value > 15) input.value = 15;
-      if (input.value < 0) input.value = 0;
-    }
-  }
-  const handleContributionChange = (e) => {
-    const { name, value } = e.target;
-    setCurrentContribution({
-      ...currentContribution,
-      [name]: value,
-    });
-  };
-
-  const addContribution = () => {
-    if (!selectedProject) {
-      setShowProjectError(true);
-      return;
-    } else {
-      setShowProjectError(false);
-    }
-    if (!currentContribution.hours) {
-      setShowHoursError(true);
-      return;
-    } else {
-      setShowHoursError(false);
-    }
-    if (!currentContribution.task) {
-      setShowTaskError(true);
-      return;
-    } else {
-      setShowTaskError(false);
-    }
-    if (currentContribution.hours < 0) {
-      setShowHoursError(true);
-      return;
-    } else {
-      setShowHoursError(false);
-    }
-
-    setFormData((prevState) => ({
-      ...prevState,
-      contributions: [
-        ...prevState.contributions,
-        { project: selectedProject, ...currentContribution, department: prevState.department || userDepartment },
-      ],
-      blockers: formData.blockers,
-    }));
-    setSaved(true); // Set saved to true when a contribution is added
-    setSelectedProject(""); // Reset project selection
-    setCurrentContribution({ hours: "", task: "" });
-    setShowProjectForm(false); // Hide the project form
-  };
-  const handleEditContributionChange = (e) => {
-    const { name, value } = e.target;
-    let newValue = value;
-
-    if (name === "hours") {
-    const project = formData.contributions[editIndex]?.project;
-
-    if (project === "Ad-hoc tasks") {
-      if (newValue > 2) newValue = 2;
-      if (newValue < 0) newValue = 0;
-    } else {
-      if (newValue > 15) newValue = 15;
-      if (newValue < 0) newValue = 0;
-    }
-  }
-    setEditContribution({
-      ...editContribution,
-      [name]: newValue,
-    });
-  };
-
-  const handleEdit = (index) => {
-    setEditIndex(index);
-    setEditContribution(formData.contributions[index]);
-  };
-
-  const handleSaveEdit = (index) => {
-    const updatedContributions = formData.contributions.map(
-      (contribution, idx) => (idx === index ? editContribution : contribution)
-    );
-    setFormData({
-      ...formData,
-      contributions: updatedContributions,
-    });
-    setEditIndex(null);
-  };
-
-  const handleDelete = (index) => {
-    setDeleteIndex(index);
-    setOpen(true);
-  };
-
-  const confirmDelete = () => {
-    const updatedContributions = formData.contributions.filter(
-      (contribution, idx) => idx !== deleteIndex
-    );
-    setFormData({
-      ...formData,
-      contributions: updatedContributions,
-    });
-    setOpen(false);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    setLoading(true);
-
-    if (!saved) {
-      setShowSaveError(true);
-      return;
-    }
-
-    // const userEmail = localStorage.getItem("email");
-    const userEmail = email;
-    const department = localStorage.getItem("department");
-    // const department = "Residential Program";
-
-    const newEntry = {
-      entries: formData.contributions.map((c) => ({
-        email: userEmail,
-        projectName: c.project,
-        projectId: projectNameToId[c.project],
-        totalHoursSpent: Number(c.hours),
-        workDescription: c.task,
-        entryDate: formData.selectedDate,
-        department: userDepartment, // original department
-        workingDepartment: c.department || userDepartment, // current selected
-        ...(department === "Residential Program" && {
-          blockers: formData.blockers,
-        }),
-      })),
-    };
-    console.log("New Entry:", newEntry);
-
-    // Save to localStorage for dashboard view
-    const newLog = {
-      date: newEntry.entryDate,
-      project: newEntry.projectName,
-      hours: newEntry.totalHoursSpent,
-      description: newEntry.workDescription,
-    };
-
-    const existingLogs = JSON.parse(localStorage.getItem("dailyLogs")) || [];
-    localStorage.setItem(
-      "dailyLogs",
-      JSON.stringify([...existingLogs, newLog])
-    );
-    console.log("Existing Logs:", existingLogs);
-
-    if (formData.contributions.length === 0) {
-      setShowProjectError(true);
-      return;
-    }
-
-    // Send to API
-    try {
-      console.log("Ready to send to backend", newEntry);
-      const response = await fetch(
-        `${API_BASE_URL}/activityLogs`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newEntry),
-        }
-      );
-      console.log("Response of Post API:", response);
-      if (!response.ok) {
-        throw new Error(result.message || "Failed to save entry");
-        // console.error("Failed to save entry:");
-      }
-      showSnackbar("Entry successfully saved!", "success");
-
-      const result = await response.json();
-      console.log("Response from backend:", result);
-
-      if (result.message === 'You already finished your 3 attempts') {
-        setSnackbarMessage('You have 0 attempts remaining for backdated entries!');
-        setSnackbarSeverity('warning');
-        setSnackbarOpen(true);
-        setFormData((prev) => ({ ...prev, contributions: [] }));
-        setLoading(false);
-        return;
-      }
-
-      // Check if the response has results and the first result's status is "success"
-      const entryStatus = result?.results?.[0]?.status;
-
-      console.log(entryStatus, "entryStatus");
-
-      const resultItem = result?.results?.[0];
-      const EntryStatus = resultItem?.status;
-      if (EntryStatus === "failed") {
-        showSnackbar(resultItem?.reason || "Entry was skipped or not saved.", "error");
-        setFormData((prev) => ({ ...prev, contributions: [] }));
-        setLoading(false);
-        return;
-      }
-
-      if (entryStatus !== "success" && entryStatus !== "updated") {
-        throw new Error(
-          result?.results?.[0]?.message || "Entry was skipped or not saved."
-        );
-      }
-
-      if (result?.backdatedLeft?.[userEmail] !== undefined) {
-        const backdatedLeft = result.backdatedLeft[userEmail];
-        showSnackbar(
-          `Entry successfully processed! Backdated entries left: ${backdatedLeft}`,
-          "info"
-        );
-        setAttempt(backdatedLeft);
-        localStorage.setItem("attemptsLeft", backdatedLeft);
-      }
-
-      if (entryStatus === "updated") {
-        showSnackbar("Entry successfully updated!", "info");
-      }
-
-      console.log("Entry successfully sent to backend");
-
-      // Clear the form
-      setFormData({ ...initialFormData });
-      console.log("Form Data after submission:", formData);
-
-      setLoading(false);
-    } catch (error) {
-      console.error("Error posting entry:", error);
-      showSnackbar(error.message || "Failed to save entry", "error");
-    }
-    setShowProjectError(false);
-  };
-
-  const handleLoading = (load) => {
-    load == true
-      ? (document.getElementById("root").style.opacity = "0.8")
-      : (document.getElementById("root").style.opacity = "1");
-  };
-
-  function getMinDate() {
-    const today = new Date();
-    const validDates = [];
-    let i = 1; // Start with yesterday
-    while (validDates.length < 3) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-      const day = date.getDay(); // 0 = Sunday, 6 = Saturday
-      // Skip Sundays
-      if (day === 0) {
-        i++;
-        continue;
-      }
-      // Skip 2nd and 4th Saturdays
-      if (day === 6) {
-        const dateNum = date.getDate();
-        const month = date.getMonth();
-        const year = date.getFullYear();
-        // Count which Saturday it is in the month
-        let saturdayCount = 0;
-        for (let d = 1; d <= dateNum; d++) {
-          const tempDate = new Date(year, month, d);
-          if (tempDate.getDay() === 6) {
-            saturdayCount++;
-          }
-        }
-        if (saturdayCount === 2 || saturdayCount === 4) {
-          i++;
-          continue; // Skip 2nd or 4th Saturday
-        }
-      }
-      validDates.push(new Date(date)); // Store a copy
-      i++;
-    }
-    // Return the earliest valid date among the 3
-    return validDates[validDates.length - 1].toISOString().split("T")[0];
-  }
-
+  // Fetch backdated attempts left for user
   useEffect(() => {
     const email = localStorage.getItem("email") ?? "";
 
     const fetchUserAttempts = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/attempts?email=${email}`);
+        // const response = await fetch(`${API_BASE_URL}/attempts`);
+        const response = await fetch(`${API_BASE_URL}/attempts`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+        });
         const data = await response.json();
         if (data?.data) {
           setBackdatedAttemptsLeft(data?.data?.attemptsLeft);
@@ -627,6 +307,7 @@ const Form = () => {
     }
   }, []);
 
+  // Fetch list of all departments
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
@@ -646,11 +327,362 @@ const Form = () => {
     fetchDepartments();
   }, []);
 
+  document.querySelectorAll('input[type="number"]').forEach(function (input) {
+    input.addEventListener("wheel", function (event) {
+      event.preventDefault();
+    });
+  });
+
+  // Input & Form Handlers
+  function handleChange(e) {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
+
+  // Project dropdown selection
+  const handleProjectSelect = (e) => {
+    setSaved(false);
+    if (e.target.value === "Ad-hoc tasks")
+      setError("You can only log a maximum of 2 hours for Ad-hoc tasks");
+    setSelectedProject(e.target.value);
+    setCurrentContribution({ hours: "", task: "" });
+    if (e.target.value !== "") {
+      setShowProjectError(false);
+    }
+  };
+
+  // Check max hours validation
+  function checkMaxValue(input) {
+    if (selectedProject === "Ad-hoc tasks") {
+      if (input.value > 2) input.value = 2;
+      if (input.value < 0) input.value = 0;
+
+    } else {
+      if (input.value > 15) input.value = 15;
+      if (input.value < 0) input.value = 0;
+    }
+  }
+
+  // Change contribution handler
+  const handleContributionChange = (e) => {
+    const { name, value } = e.target;
+    setCurrentContribution({
+      ...currentContribution,
+      [name]: value,
+    });
+  };
+
+  // Add new contribution to list
+  const addContribution = () => {
+    if (!selectedProject) {
+      setShowProjectError(true);
+      return;
+    } else {
+      setShowProjectError(false);
+    }
+
+    if (!currentContribution.hours) {
+      setShowHoursError(true);
+      return;
+    } else {
+      setShowHoursError(false);
+    }
+
+    if (!currentContribution.task) {
+      setShowTaskError(true);
+      return;
+    } else {
+      setShowTaskError(false);
+    }
+
+    if (currentContribution.hours < 0) {
+      setShowHoursError(true);
+      return;
+    } else {
+      setShowHoursError(false);
+    }
+
+    setFormData((prevState) => ({
+      ...prevState,
+      contributions: [
+        ...prevState.contributions,
+        { project: selectedProject, ...currentContribution, department: prevState.department || userDepartment },
+      ],
+      blockers: formData.blockers,
+    }));
+
+    setSaved(true);
+    setSelectedProject("");
+    setCurrentContribution({ hours: "", task: "" });
+    setShowProjectForm(false);
+  };
+
+  // Edit contribution handlers
+  const handleEditContributionChange = (e) => {
+    const { name, value } = e.target;
+    let newValue = value;
+
+    if (name === "hours") {
+      const project = formData.contributions[editIndex]?.project;
+
+      if (project === "Ad-hoc tasks") {
+        if (newValue > 2) newValue = 2;
+        if (newValue < 0) newValue = 0;
+      } else {
+        if (newValue > 15) newValue = 15;
+        if (newValue < 0) newValue = 0;
+      }
+    }
+    setEditContribution({
+      ...editContribution,
+      [name]: newValue,
+    });
+  };
+
+  // Edit handler
+  const handleEdit = (index) => {
+    setEditIndex(index);
+    setEditContribution(formData.contributions[index]);
+  };
+
+  // Save edited contribution
+  const handleSaveEdit = (index) => {
+    const updatedContributions = formData.contributions.map(
+      (contribution, idx) => (idx === index ? editContribution : contribution)
+    );
+    setFormData({
+      ...formData,
+      contributions: updatedContributions,
+    });
+    setEditIndex(null);
+  };
+
+  // Delete contribution
+  const handleDelete = (index) => {
+    setDeleteIndex(index);
+    setOpen(true);
+  };
+
+  // Confirm delete
+  const confirmDelete = () => {
+    const updatedContributions = formData.contributions.filter(
+      (contribution, idx) => idx !== deleteIndex
+    );
+    setFormData({
+      ...formData,
+      contributions: updatedContributions,
+    });
+    setOpen(false);
+  };
+
+  // Close delete confirmation dialog
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  // Form submission handler
+  const handleSubmit = async (e) => {
+    // Stop default form submit
+    e.preventDefault();
+
+    // Show loader
+    setLoading(true);
+
+    // Ensure contribution saved
+    if (!saved) {
+      setShowSaveError(true);
+      return;
+    }
+
+    const userEmail = email;
+    const department = localStorage.getItem("department");
+
+    // Build payload for API
+    const newEntry = {
+      entries: formData.contributions.map((c) => ({
+        email: userEmail,
+        projectName: c.project,
+        projectId: projectNameToId[c.project],
+        totalHoursSpent: Number(c.hours),
+        workDescription: c.task,
+        entryDate: formData.selectedDate,
+        department: userDepartment,
+        workingDepartment: c.department || userDepartment,
+        ...(department === "Residential Program" && {
+          blockers: formData.blockers,
+        }),
+      })),
+    };
+
+    // Save to localStorage for dashboard view
+    const newLog = {
+      date: newEntry.entryDate,
+      project: newEntry.projectName,
+      hours: newEntry.totalHoursSpent,
+      description: newEntry.workDescription,
+    };
+    const existingLogs = JSON.parse(localStorage.getItem("dailyLogs")) || [];
+    localStorage.setItem(
+      "dailyLogs",
+      JSON.stringify([...existingLogs, newLog])
+    );
+
+    // Validate contributions before submitting
+    if (formData.contributions.length === 0) {
+      setShowProjectError(true);
+      return;
+    }
+
+    // Send data to backend API
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/activityLogs`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newEntry),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to save entry");
+      }
+
+      // Show success message
+      showSnackbar("Entry successfully saved!", "success");
+
+      // Case: No attempts left for backdated entries
+      if (result.message === 'You already finished your 3 attempts') {
+        setSnackbarMessage('You have 0 attempts remaining for backdated entries!');
+        setSnackbarSeverity('warning');
+        setSnackbarOpen(true);
+        setFormData((prev) => ({ ...prev, contributions: [] }));
+        setLoading(false);
+        return;
+      }
+
+      // Get first result status
+      const entryStatus = result?.results?.[0]?.status;
+      const resultItem = result?.results?.[0];
+      const EntryStatus = resultItem?.status;
+
+      // Case: Entry explicitly failed
+      if (EntryStatus === "failed") {
+        showSnackbar(resultItem?.reason || "Entry was skipped or not saved.", "error");
+        setFormData((prev) => ({ ...prev, contributions: [] }));
+        setLoading(false);
+        return;
+      }
+
+      // Case: Entry is not success or update
+      if (entryStatus !== "success" && entryStatus !== "updated") {
+        throw new Error(
+          result?.results?.[0]?.message || "Entry was skipped or not saved."
+        );
+      }
+
+      // Show remaining attempts for backdated entries if available
+      if (result?.backdatedLeft?.[userEmail] !== undefined) {
+        const backdatedLeft = result.backdatedLeft[userEmail];
+        showSnackbar(
+          `Entry successfully processed! Backdated entries left: ${backdatedLeft}`,
+          "info"
+        );
+        setAttempt(backdatedLeft);
+        localStorage.setItem("attemptsLeft", backdatedLeft);
+      }
+
+      // Case: Entry updated instead of newly created
+      if (entryStatus === "updated") {
+        showSnackbar("Entry successfully updated!", "info");
+      }
+
+      // Clear form after successful submission
+      setFormData({ ...initialFormData });
+      setLoading(false);
+
+    } catch (error) {
+      console.error("Error posting entry:", error);
+      showSnackbar(error.message || "Failed to save entry", "error");
+    }
+
+    // Reset project error after submission
+    setShowProjectError(false);
+  };
+
+  // Change page opacity while loading
+  const handleLoading = (load) => {
+    load == true
+      ? (document.getElementById("root").style.opacity = "0.8")
+      : (document.getElementById("root").style.opacity = "1");
+  };
+
+  // Get earliest valid date (last 3 working days, skip Sun + 2nd/4th Sat)
+  function getMinDate() {
+    const today = new Date();
+    const validDates = [];
+
+    // Start from yesterday
+    let i = 1;
+    while (validDates.length < 3) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+
+      // 0 = Sunday, 6 = Saturday
+      const day = date.getDay();
+
+      // Skip Sundays
+      if (day === 0) {
+        i++;
+        continue;
+      }
+
+      // Skip 2nd and 4th Saturdays
+      if (day === 6) {
+        const dateNum = date.getDate();
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        let saturdayCount = 0;
+
+        for (let d = 1; d <= dateNum; d++) {
+          const tempDate = new Date(year, month, d);
+          if (tempDate.getDay() === 6) {
+            saturdayCount++;
+          }
+        }
+
+        if (saturdayCount === 2 || saturdayCount === 4) {
+          i++;
+          continue;
+        }
+      }
+
+      // Save valid date
+      validDates.push(new Date(date));
+      i++;
+    }
+
+    // Return the earliest valid date among the 3
+    return validDates[validDates.length - 1].toISOString().split("T")[0];
+  }
+
+  // Current department: selected or default user department
   const currentDept = formData.department || userDepartment;
 
   return (
     <div className="form-container" style={{ overflowY: "scroll", height: "100vh", marginTop: "-20px" }}>
+
+      {/* Loader */}
       <LoadingSpinner loading={loading} className="loader-container" />
+
+      {/* Greeting Section */}
       <div style={{ textAlign: "center", marginTop: "1.5rem" }}>
         <h3 style={{ fontSize: "32px", fontWeight: "bold", color: "#000" }}>
           Welcome Back, <span style={{ color: "#2E7D32" }}>{userName}</span>
@@ -679,8 +711,12 @@ const Form = () => {
           Daily Employee's Activity Tracker
         </h1>
       </div>
+
+      {/* Main Form */}
       <form onSubmit={handleSubmit} className="from-1">
         {successMessage && <h1 style={{ color: "green" }}>{successMessage}</h1>}
+
+        {/* Employee Info */}
         <div>
           <label>Employee Email:</label>
           <input
@@ -715,6 +751,8 @@ const Form = () => {
             color="red"
           />
         </div>
+
+        {/* Current Department Select */}
         <div>
           <label>Current Working Department:</label>
           <select
@@ -726,7 +764,6 @@ const Form = () => {
                 ...prev,
                 department: newDepartment,
               }));
-              // Reset project and contribution when department changes
               setSelectedProject("");
               setCurrentContribution({ hours: "", task: "" });
             }}
@@ -742,6 +779,7 @@ const Form = () => {
           </select>
         </div>
 
+        {/* Date Picker */}
         <div>
           <label>Select the date for which you want to update the form:</label>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -758,7 +796,7 @@ const Form = () => {
                 textField: {
                   fullWidth: true,
                   required: true,
-                  size: "small", 
+                  size: "small",
                 }
               }}
               minDate={dayjs(getMinDate())}
@@ -767,6 +805,7 @@ const Form = () => {
           </LocalizationProvider>
         </div>
 
+        {/* Contributions Summary */}
         {formData.contributions.length > 0 && (
           <div>
             <h3>Contributions Summary</h3>
@@ -798,6 +837,8 @@ const Form = () => {
               >
                 <TableHead sx={{ margin: 0, padding: 0 }}>
                   <TableRow sx={{ backgroundColor: '#f5f5f5', margin: 0, padding: 0 }}>
+
+                    {/* Project */}
                     <TableCell
                       sx={{
                         fontWeight: 'bold',
@@ -807,6 +848,8 @@ const Form = () => {
                     >
                       Project
                     </TableCell>
+
+                    {/* Hours */}
                     <TableCell
                       sx={{
                         fontWeight: 'bold',
@@ -817,6 +860,8 @@ const Form = () => {
                     >
                       Hours
                     </TableCell>
+
+                    {/* Task */}
                     <TableCell
                       sx={{
                         fontWeight: 'bold',
@@ -826,6 +871,8 @@ const Form = () => {
                     >
                       Task
                     </TableCell>
+
+                    {/* Action */}
                     <TableCell
                       sx={{
                         fontWeight: 'bold',
@@ -859,7 +906,7 @@ const Form = () => {
                             value={editContribution.hours}
                             onChange={handleEditContributionChange}
                             inputPropes={{
-                              min:0,
+                              min: 0,
                               max: formData.contributions[editIndex]?.project === "Ad-hoc tasks" ? 2 : 15,
                             }}
                             size="small"
@@ -1003,16 +1050,13 @@ const Form = () => {
               </Table>
             </TableContainer>
             <br />
-
-            <p
-              style={{
-                color: "green",
-              }}
-            >
+            <p style={{ color: "green" }}>
               You can select multiple projects by clicking on the dropdown below
             </p>
           </div>
         )}
+
+        {/* Project Selection */}
         <div>
           <label>Select a project in which you contributed:</label>
           {projectsLoading ? (
@@ -1048,6 +1092,8 @@ const Form = () => {
           )}
           <br />
           <br />
+
+          {/* Hours and Task Input */}
           {selectedProject && (
             <div>
               <label>Total Hours Spent:</label>
@@ -1087,15 +1133,21 @@ const Form = () => {
             </div>
           )}
         </div>
+
+        {/* Save Error */}
         {showSaveError && (
           <p style={{ display: "flex", color: "red", marginTop: "4px" }}>
             Please save your contribution before submitting.
           </p>
         )}
+
+        {/* Submit Button */}
         <button type="submit" className="full-width-button" disabled={formData.contributions.length === 0 || editIndex !== null}>
           Submit
         </button>
       </form>
+
+      {/* Delete Confirmation Dialog */}
       <Dialog
         open={open}
         onClose={handleClose}
@@ -1117,6 +1169,8 @@ const Form = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar for notifications */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={4000}
@@ -1131,6 +1185,7 @@ const Form = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
+
       <Snackbar
         open={snackbaropen}
         autoHideDuration={6000}

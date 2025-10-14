@@ -1,20 +1,24 @@
+/* Leave Container */
 .leave-container {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+/* Heading Styles */
 h1 {
   text-align: center;
   color: #333;
 }
 
+/* Navigation Tabs */
 .tab {
   display: flex;
   gap: 10px;
   margin-bottom: 20px;
 }
 
+/* Tab Button Styles */
 .tab_button {
   padding: 10px 20px;
   border: 2px solid rgb(131, 128, 128);
@@ -26,27 +30,32 @@ h1 {
   transition: all 0.2s ease-in-out;
 }
 
+/* Tab Button Hover */
 .tab_button:hover {
   background-color: #e0e0e0;
 }
 
+/* Active Tab */
 .active-tab {
   background-color: #2e7d32;
   color: white;
   border-color: #2e7d32;
 }
 
+/* Active Tab Hover */
 .active-tab:hover {
   background-color: #1b5e20;
   border-color: #1b5e20;
 }
 
+/* Table Styles */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
 }
 
+/* Table Header and Cell */
 table th,
 table td {
   border: 1px solid #ccc;
@@ -54,10 +63,12 @@ table td {
   text-align: left;
 }
 
+/* Table Header */
 table th {
   background-color: #f2f2f2;
 }
 
+/* Approve Button */
 .approve-button {
   background-color: #4caf50;
   color: white;
@@ -68,15 +79,19 @@ table th {
   font-size: 14px;
 }
 
+/* Approve Button Hover */
 .approve-button:hover {
   background-color: #45a049;
 }
 
+/* Label Styles */
 label {
   font-weight: bold;
   margin-right: 10px;
 }
 
+
+/* Filter Button */
 .filter-btn{
   background-color: #17a2b8;
   color: white;
@@ -86,15 +101,19 @@ label {
   font-size: 14px;
 }
 
+/* Filter Button Hover */
 .filter-btn:hover{
   background-color: #138496;
 }
 
+/* Balance Tab Select */
 .balance-tab select{
   width: 300px;
   padding: 8px;
   font-size: 14px;
 }
+
+/* Balance Tab */
 .balance-tab {
   width: 100%;
   margin-bottom: 15px;
@@ -105,6 +124,7 @@ label {
   justify-content: center;
 }
 
+/* Loader Styles */
 .loader-overlay {
   position: fixed;
   top: 0;
@@ -119,6 +139,7 @@ label {
   z-index: 9999;
 }
 
+/* Loader Box */
 .loader-box {
   background: white;
   border: 2px solid green;
@@ -128,76 +149,95 @@ label {
   align-items: center;
 }
 
+/* Adjust Leaves Button */
 .adjust-leaves-button{
   margin-left: 120px !important;
 }
 
+/* Loader Animation */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
+/* Balance Data Table */
 .balance-data table{
   width: 100%;
   min-width: 1000px;
 
 }
 
+/* == Responsive styles == */
+/* Laptops */
 @media (max-width: 1024px) {
   .pending-data{
     max-width: 765px;
     overflow: scroll;
   }
+
   .approved-data{
     max-width: 765px;
     overflow: scroll;
   }
+
   .history-data{
     max-width: 765px;
     overflow: scroll;
   }
+
   .balance-data table{
     min-width: 700px;
   }
 }
 
+/* Tablets */
 @media (max-width: 768px) {
   .pending-data{
     max-width: 760px;
   }
+
   .approved-data{
     max-width: 760px;
   }
+
   .history-data{
     max-width: 760px;
   }
 }
 
+/* Mobile */
 @media (max-width: 425px) {
   .pending-data{
     max-width: 415px;
   }
+
   .approved-data{
     max-width: 415px;
   }
+
   .tab {
     flex-wrap: wrap;
     justify-content: center;
   }
+
   .tab_button{
     width: 200px;
   }
+
   .balance-tab select{
     width: 300px;
     padding: 8px;
     font-size: 14px;
   }
+
   .history-data{
     max-width: 415px;
   }
+
   .balance-data table{
     min-width: auto;
   }
+
   .filter-btn{
     margin-top: 5px;
   }
@@ -205,38 +245,46 @@ label {
   .balance-tab {
     justify-content: left;
   }
+
   .adjust-leaves-button{
     margin-left: 50px !important;
   }
- 
 }
 
+/* Small Mobile */
 @media (max-width: 375px) {
   .pending-data{
     max-width: 370px;
   }
+
   .approved-data{
     max-width: 370px;
   }
+
   .balance-data{
     max-width: 370px;
     overflow: scroll;
   }
+
   .history-data{
     max-width: 370px;
   }
 }
 
+/* Extra Small Mobile */
 @media (max-width: 320px) {
   .pending-data{
     max-width: 315px;
   }
+
   .approved-data{
     max-width: 315px;
   }
+
   .balance-data{
     max-width: 315px;
   }
+  
   .history-data{
     max-width: 315px;
   }

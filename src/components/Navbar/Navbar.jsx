@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import "./Navbar.css";
 import { useNavigate, useLocation } from "react-router-dom";
-import { LoginContext } from "../context/LoginContext";
+import { LoginContext } from "../Context/LoginContext";
 import PropTypes from "prop-types";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -19,13 +19,8 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import LogoutIcon from "@mui/icons-material/Logout";
-import FeedbackIcon from "@mui/icons-material/Feedback";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
-import AssessmentIcon from "@mui/icons-material/Assessment";
-import ParkIcon from "@mui/icons-material/Park";
 import PostAddIcon from "@mui/icons-material/PostAdd";
-import LockIcon from "@mui/icons-material/Lock";
-import LockOpenIcon from "@mui/icons-material/LockOpen";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -49,9 +44,9 @@ const drawerWidth = 240;
 const Navbar = (props) => {
   const { window } = props;
   const navigate = useNavigate();
-  const location = useLocation(); // Added for active tab detection
-  
-  // ============== ALL EXISTING STATE PRESERVED ==============
+  const location = useLocation();
+
+  // All existing state preserved
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
@@ -62,35 +57,24 @@ const Navbar = (props) => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
-  // ============== ENHANCED CONTEXT WITH ROLE FUNCTIONS ==============
+  // Context data (role and permissions)
   const dataContext = useContext(LoginContext);
-  const { 
-    email, 
-    setEmail, 
-    isAdmin, // Your existing isAdmin preserved
-    userRole, // New standardized role
-    canSeeAdminPanel, 
-    canSeeAccessControl, 
-    canSeeProjectManagement 
+  const {
+    email,
+    setEmail,
+    isAdmin,
+    userRole,
+    canSeeAdminPanel,
+    canSeeAccessControl,
+    canSeeProjectManagement
   } = dataContext;
 
-  // ============== HELPER FUNCTION TO CHECK ACTIVE TAB ==============
+  // Helper function to check active tab
   const isActiveTab = (route) => {
     return location.pathname === `/${route}` || location.pathname === route;
   };
 
-  // ============== DEBUG LOGGING FOR ROLE PERMISSIONS ==============
-  useEffect(() => {
-    console.log("=== NAVBAR ROLE DEBUG ===");
-    console.log("Current user role:", userRole);
-    console.log("Can see admin panel:", canSeeAdminPanel());
-    console.log("Can see access control:", canSeeAccessControl());
-    console.log("Can see project management:", canSeeProjectManagement());
-    console.log("Is Admin (legacy):", isAdmin);
-    // console.log("========================");
-  }, [email, userRole]);
-
-  // ============== ALL EXISTING useEffects PRESERVED ==============
+  // Handle resize for mobile detection
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -108,7 +92,7 @@ const Navbar = (props) => {
     };
   }, []);
 
-  // ============== ALL EXISTING FUNCTIONS PRESERVED ==============
+  // Drawer toggle functions
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
   };
@@ -117,6 +101,7 @@ const Navbar = (props) => {
     setDrawerOpen(false);
   };
 
+  // Password dialog handlers
   const handlePasswordDialogOpen = () => {
     setOpenPasswordDialog(true);
     setError("");
@@ -129,14 +114,14 @@ const Navbar = (props) => {
     setError("");
   };
 
+  // Handle navigation clicks
   const handleClick = (button) => {
-    console.log("Handleclick", button);
     if (button === "logout") {
       localStorage.clear();
       sessionStorage.clear();
       setEmail("");
-      return navigate("/",{
-        state:{message:"Logged-out successfully!"}
+      return navigate("/", {
+        state: { message: "Logged-out successfully!" }
       })
     }
 
@@ -144,11 +129,12 @@ const Navbar = (props) => {
     handleDrawerClose();
   };
 
-  const headingClick=()=>{
+  // Navigate on heading click
+  const headingClick = () => {
     navigate('/activity-tracker')
   }
 
-  // ============== ENHANCED DRAWER WITH ROLE-BASED NAVIGATION AND ACTIVE TAB STYLING ==============
+  // Drawer content with navigation and role-based items
   const drawer = (
     <div style={{ marginTop: "1rem", padding: "none" }}>
       <h1
@@ -167,8 +153,8 @@ const Navbar = (props) => {
         Daily Tracker
       </h1>
       <Divider />
-      
-      {/* ============== BASIC NAVIGATION ITEMS (AVAILABLE TO ALL USERS) ============== */}
+
+      {/* Basic navigation items (all users) */}
       <List>
         {[
           { text: "Activity Tracker", icon: <PostAddIcon />, route: "activity-tracker" },
@@ -182,10 +168,10 @@ const Navbar = (props) => {
             disablePadding
             style={{ marginTop: "0.5rem" }}
           >
-            <ListItemButton 
+            <ListItemButton
               onClick={() => handleClick(item.route)}
               sx={{
-                backgroundColor: isActiveTab(item.route) ? "#e0e0e0" : "transparent", // Grey background for active tab
+                backgroundColor: isActiveTab(item.route) ? "#e0e0e0" : "transparent", 
                 "&:hover": {
                   backgroundColor: isActiveTab(item.route) ? "#e0e0e0" : "#f5f5f5",
                 }
@@ -194,10 +180,10 @@ const Navbar = (props) => {
               <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
                 {item.icon}
               </ListItemIcon>
-              <ListItemText 
-                primary={item.text} 
+              <ListItemText
+                primary={item.text}
                 sx={{
-                  color: isActiveTab(item.route) ? "#4caf50" : "inherit" // Green color for active tab text
+                  color: isActiveTab(item.route) ? "#4caf50" : "inherit" 
                 }}
               />
             </ListItemButton>
@@ -205,8 +191,7 @@ const Navbar = (props) => {
         ))}
       </List>
 
-      {/* ============== ROLE-BASED ADMIN NAVIGATION ITEMS ============== */}
-      {/* Show admin section only if user has any elevated permissions */}
+      {/* Role-based navigation items */}
       {(canSeeAdminPanel() || canSeeAccessControl() || canSeeProjectManagement()) && (
         <>
           <Divider />
@@ -214,10 +199,10 @@ const Navbar = (props) => {
             {/* Project Management - Visible to Project Manager and above */}
             {canSeeProjectManagement() && (
               <ListItem disablePadding>
-                <ListItemButton 
+                <ListItemButton
                   onClick={() => handleClick("project-management")}
                   sx={{
-                    backgroundColor: isActiveTab("project-management") ? "#e0e0e0" : "transparent", // Grey background for active tab
+                    backgroundColor: isActiveTab("project-management") ? "#e0e0e0" : "transparent", 
                     "&:hover": {
                       backgroundColor: isActiveTab("project-management") ? "#e0e0e0" : "#f5f5f5",
                     }
@@ -226,23 +211,23 @@ const Navbar = (props) => {
                   <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
                     <MenuBookIcon />
                   </ListItemIcon>
-                  <ListItemText 
-                    primary="Project Management" 
+                  <ListItemText
+                    primary="Project Management"
                     sx={{
-                      color: isActiveTab("project-management") ? "#4caf50" : "inherit" // Green color for active tab text
+                      color: isActiveTab("project-management") ? "#4caf50" : "inherit" 
                     }}
                   />
                 </ListItemButton>
               </ListItem>
             )}
 
-            {/* Admin Panel - Visible only to Admin and Super Admin */}
+            {/* Admin Panel - Visible to Admin and Super Admin */}
             {canSeeAdminPanel() && (
               <ListItem disablePadding>
-                <ListItemButton 
+                <ListItemButton
                   onClick={() => handleClick("admin")}
                   sx={{
-                    backgroundColor: isActiveTab("admin") ? "#e0e0e0" : "transparent", // Grey background for active tab
+                    backgroundColor: isActiveTab("admin") ? "#e0e0e0" : "transparent", 
                     "&:hover": {
                       backgroundColor: isActiveTab("admin") ? "#e0e0e0" : "#f5f5f5",
                     }
@@ -251,23 +236,23 @@ const Navbar = (props) => {
                   <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
                     <AdminPanelSettingsIcon />
                   </ListItemIcon>
-                  <ListItemText 
-                    primary="Admin" 
+                  <ListItemText
+                    primary="Admin"
                     sx={{
-                      color: isActiveTab("admin") ? "#4caf50" : "inherit" // Green color for active tab text
+                      color: isActiveTab("admin") ? "#4caf50" : "inherit" 
                     }}
                   />
                 </ListItemButton>
               </ListItem>
             )}
 
-            {/* Access Control - Visible only to Admin and Super Admin */}
+            {/* Access Control - Visible to Admin and Super Admin */}
             {canSeeAccessControl() && (
               <ListItem disablePadding>
-                <ListItemButton 
+                <ListItemButton
                   onClick={() => handleClick("role-update")}
                   sx={{
-                    backgroundColor: isActiveTab("role-update") ? "#e0e0e0" : "transparent", // Grey background for active tab
+                    backgroundColor: isActiveTab("role-update") ? "#e0e0e0" : "transparent", 
                     "&:hover": {
                       backgroundColor: isActiveTab("role-update") ? "#e0e0e0" : "#f5f5f5",
                     }
@@ -276,10 +261,10 @@ const Navbar = (props) => {
                   <ListItemIcon sx={{ minWidth: "28px", marginRight: "6px" }}>
                     <ManageAccountsIcon />
                   </ListItemIcon>
-                  <ListItemText 
-                    primary="Access Control" 
+                  <ListItemText
+                    primary="Access Control"
                     sx={{
-                      color: isActiveTab("role-update") ? "#4caf50" : "inherit" // Green color for active tab text
+                      color: isActiveTab("role-update") ? "#4caf50" : "inherit" 
                     }}
                   />
                 </ListItemButton>
@@ -289,7 +274,7 @@ const Navbar = (props) => {
         </>
       )}
 
-      {/* ============== EXISTING LOGOUT SECTION PRESERVED ============== */}
+      {/* Logout section */}
       <Divider />
       <List
         style={{
@@ -309,36 +294,17 @@ const Navbar = (props) => {
           </ListItemButton>
         </ListItem>
       </List>
-
-      {/* ============== DEBUG INFO (REMOVE IN PRODUCTION) ============== */}
-      {/* Uncomment below for debugging role permissions during development */}
-      {/*
-      <div style={{ 
-        position: "fixed", 
-        bottom: "10px", 
-        left: "10px",
-        fontSize: "10px", 
-        color: "#666",
-        backgroundColor: "rgba(255,255,255,0.9)",
-        padding: "5px",
-        borderRadius: "3px"
-      }}>
-        Role: {userRole} | 
-        Admin Panel: {canSeeAdminPanel() ? "✓" : "✗"} | 
-        Access Control: {canSeeAccessControl() ? "✓" : "✗"} |
-        Project Mgmt: {canSeeProjectManagement() ? "✓" : "✗"}
-      </div>
-      */}
     </div>
   );
 
   const container =
     window !== undefined ? () => window().document.body : undefined;
 
-  // ============== ALL EXISTING JSX STRUCTURE COMPLETELY PRESERVED ============== 
+  // All existing JSX structure completely preserved
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
+      {/* Top AppBar (visible on small screens) */}
       <AppBar
         position="fixed"
         sx={{
@@ -369,6 +335,7 @@ const Navbar = (props) => {
         </div>
       </AppBar>
 
+      {/* Drawer for navigation */}
       <Box
         component="nav"
         sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
@@ -406,7 +373,7 @@ const Navbar = (props) => {
         </Drawer>
       </Box>
 
-      {/* ============== ALL EXISTING DIALOGS AND SNACKBARS PRESERVED ============== */}
+      {/* Password dialog */}
       <Dialog open={openPasswordDialog} onClose={handlePasswordDialogClose}>
         <DialogTitle>Enter Password</DialogTitle>
         <DialogContent>
@@ -442,6 +409,7 @@ const Navbar = (props) => {
         </DialogActions>
       </Dialog>
 
+      {/* Snackbar for feedback */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}

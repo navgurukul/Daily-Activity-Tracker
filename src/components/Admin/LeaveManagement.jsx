@@ -1,14 +1,36 @@
 import React, { useEffect, useState, useContext } from "react";
 import "./LeaveManagement.css";
-import { LoginContext } from "../context/LoginContext";
-import { Snackbar, Alert, TextField, Autocomplete, CircularProgress, Select, MenuItem, FormControl, InputLabel, Checkbox, Box, Button, Chip, FormControlLabel, Dialog, DialogActions } from "@mui/material";
+import { LoginContext } from "../Context/LoginContext";
+import {
+  Snackbar,
+  Alert,
+  TextField,
+  Autocomplete,
+  CircularProgress,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Checkbox,
+  Box,
+  Button,
+  Chip,
+  FormControlLabel,
+  Dialog,
+  DialogActions
+} from "@mui/material";
 import axios from "axios";
 import AdjustLeaveModal from "./AdjustLeaveModal";
-import ApplyLeaveModal from "./ApplyLeaveModal"; 
+import ApplyLeaveModal from "./ApplyLeaveModal";
+import { extractEmailFromGoogleToken } from "../../utils/verifyGoogleToken";
 
 const LeaveManagement = () => {
+  // Contexts
   const dataContext = useContext(LoginContext);
-  const { email } = dataContext;
+  const googleTokenPayload = extractEmailFromGoogleToken(localStorage.getItem("jwtToken"));
+  const { email } = googleTokenPayload;
+
+  // State management
   const [pendingLeaves, setPendingLeaves] = useState([]);
   const [approvedLeaves, setApprovedLeaves] = useState([]);
   const [selectedTab, setSelectedTab] = useState("pending");
@@ -20,34 +42,47 @@ const LeaveManagement = () => {
   const [allEmails, setAllEmails] = useState([]);
   const [filteredLeaveHistory, setFilteredLeaveHistory] = useState([]);
 
+  // Snackbar states
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
+  // Loading states
   const [isApproving, setIsApproving] = useState(false);
   const [isRejecting, setIsRejecting] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
+  // Filter states
   const [filterEmail, setFilterEmail] = useState("");
   const [filterMonth, setFilterMonth] = useState("");
 
+  // Modal states 
+  const [adjustModalOpen, setAdjustModalOpen] = useState(false);
+  const [applyModalOpen, setApplyModalOpen] = useState(false);
+
+  // Other states
   const [inputError, setInputError] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedLeave, setSelectedLeave] = useState([]);
 
-  const [isDownloading, setIsDownloading] = useState(false);
-
+  // API Base URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  // NEW STATE FOR MODAL
-  const [adjustModalOpen, setAdjustModalOpen] = useState(false);
-  const [applyModalOpen, setApplyModalOpen] = useState(false);
+  const token = localStorage.getItem("jwtToken");
 
-
+  // Fetch leaves based on status
   const fetchLeavesData = async (status, email = '', month = '') => {
     setLoading(true)
+
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/leave-records?status=${status}&employeeEmail=${email}&month=${month}&limit=100&page=1`
-      );
+      // const response = await fetch(
+      //   `${API_BASE_URL}/leave-records?status=${status}&employeeEmail=${email}&month=${month}&limit=100&page=1`
+      // );
+      const response = await fetch(`${API_BASE_URL}/leave-records?status=${status}&employeeEmail=${email}&month=${month}&limit=100&page=1`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       const data = await response.json();
 
       const result = [];
@@ -69,39 +104,73 @@ const LeaveManagement = () => {
       }
 
     } catch (err) {
-      
+
       console.error(`Failed to fetch ${status} leaves`, err);
     } finally {
       setLoading(false);
     }
   };
 
+  // Initial fetch (load pending leaves first)
   useEffect(() => {
     fetchLeavesData("pending");
   }, []);
 
+  // Reset filters on tab change
   useEffect(() => {
     setSearchEmail("");
     setFilterEmail("");
     setFilterMonth("");
   }, [selectedTab]);
 
+  // Re-fetch data when filters or tab changes
   useEffect(() => {
     if (selectedTab === "pending") {
       if (filterEmail || filterMonth) {
         fetchLeavesData("pending", filterEmail, filterMonth);
       } else {
-        fetchLeavesData("pending"); // No filters applied
+        fetchLeavesData("pending");
       }
     } else if (selectedTab === "approved") {
       if (filterEmail || filterMonth) {
         fetchLeavesData("approved", filterEmail, filterMonth);
       } else {
-        fetchLeavesData("approved"); // No filters applied
+        fetchLeavesData("approved");
       }
     }
   }, [filterEmail, filterMonth, selectedTab]);
 
+  // Fetch team email IDs
+  useEffect(() => {
+    const fetchEmails = async () => {
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
+        );
+        const teamIDs = Array.from(
+          new Set(
+            response.data?.data
+              ?.map((entry) => entry["Team ID"])
+              ?.filter((id) => !!id)
+          )
+        ).sort((a, b) => a.localeCompare(b));
+        setAllEmails(teamIDs);
+      } catch (error) {
+        console.error("Error fetching emails:", error);
+        setSnackbarMessage("Failed to fetch emails");
+      }
+    };
+    fetchEmails();
+  }, []);
+
+  // Fetch leave history when tab changes
+  useEffect(() => {
+    if (selectedTab === "history") {
+      fetchLeaveHistory(searchEmail, filterMonth);
+    }
+  }, [selectedTab, searchEmail, filterMonth]);
+
+  // Handle leave approval
   const handleApprove = async (leaveId) => {
     setIsApproving(true);
     try {
@@ -147,21 +216,27 @@ const LeaveManagement = () => {
     }
   };
 
+  // Fetch leave balance
   const fetchLeaveBalance = async () => {
     if (!searchEmail) {
       setInputError("Please select an email*")
       return;
     }
-    setInputError("");
 
+    setInputError("");
     setLoadingBalance(true);
     setBalanceError("");
     setLeaveBalance([]);
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/employmentLeavePolicy?email=${searchEmail}`
-      );
+        `${API_BASE_URL}/employmentLeavePolicy?email=${searchEmail}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
       const result = await response.json();
 
       if (result.success && result.data.length > 0) {
@@ -177,46 +252,28 @@ const LeaveManagement = () => {
     setLoadingBalance(false);
   };
 
-  // NEW FUNCTION FOR HANDLING SUCCESSFUL LEAVE ADJUSTMENT
+  // Handle successful leave adjustment
   const handleAdjustSuccess = (message) => {
     setSnackbarMessage(message);
     setSnackbarSeverity("success");
     setSnackbarOpen(true);
 
-    // Refresh leave balance data if user is still selected
     if (searchEmail) {
       fetchLeaveBalance();
     }
   };
 
-  useEffect(() => {
-    const fetchEmails = async () => {
-      try {
-        const response = await axios.get(
-          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
-        );
-        const teamIDs = Array.from(
-          new Set(
-            response.data?.data
-              ?.map((entry) => entry["Team ID"])
-              ?.filter((id) => !!id)
-          )
-        ).sort((a,b)=>a.localeCompare(b));
-        setAllEmails(teamIDs);
-      } catch (error) {
-        console.error("Error fetching emails:", error);
-        setSnackbarMessage("Failed to fetch emails");
-      }
-    };
-    fetchEmails();
-  }, []);
-
+  // Fetch leave history based on email and month
   const fetchLeaveHistory = async (email, month) => {
     setLoading(true)
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/leave-records?employeeEmail=${email}&month=${month}&limit=100&page=1`
-      );
+      // const response = await fetch(`${API_BASE_URL}/leave-records?employeeEmail=${email}&month=${month}&limit=100&page=1`);
+      const response = await fetch(`${API_BASE_URL}/leave-records?employeeEmail=${email}&month=${month}&limit=100&page=1&flagHistory=true`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       const data = await response.json();
       const history = [];
       Object.keys(data).forEach((emailKey) => {
@@ -249,18 +306,14 @@ const LeaveManagement = () => {
     }
   };
 
-  useEffect(() => {
-    if (selectedTab === "history") {
-      fetchLeaveHistory(searchEmail, filterMonth);
-    }
-  }, [selectedTab, searchEmail, filterMonth]);
-
+  // Clear filters
   const clearFilters = () => {
     setFilterEmail("");
     setSearchEmail("")
     setFilterMonth("");
   };
 
+  // Handle checkbox selection 
   const handleCheckbox = (leaveId) => {
     setSelectedLeave((prevSelected) =>
       prevSelected.includes(leaveId)
@@ -269,7 +322,7 @@ const LeaveManagement = () => {
     );
   };
 
-
+  // Bulk approve handlers
   const handleApproveAll = async () => {
     const role = localStorage.getItem("role");
     if (selectedLeave.length === 0) {
@@ -279,10 +332,10 @@ const LeaveManagement = () => {
       return;
     }
 
-    // Prevent approving own leave
     const invalidLeaves = pendingLeaves.filter(
       (leave) => selectedLeave.includes(leave.Id) && leave.email === email
     );
+
     if (invalidLeaves.length > 0 && role !== "superAdmin") {
       setSnackbarMessage("You cannot approve your own leave request.");
       setSnackbarSeverity("error");
@@ -291,17 +344,16 @@ const LeaveManagement = () => {
     }
 
     setIsApproving(true);
-
     const approverEmail = email;
     const token = localStorage.getItem("jwtToken");
 
     const leaveData = pendingLeaves
-    .filter((leave) => selectedLeave.includes(leave.Id))
-    .map((leave) => ({
-      Id: leave.Id,
-      approverEmail,
-      status: "approved",
-    }));
+      .filter((leave) => selectedLeave.includes(leave.Id))
+      .map((leave) => ({
+        Id: leave.Id,
+        approverEmail,
+        status: "approved",
+      }));
 
     try {
       const response = await fetch(
@@ -320,11 +372,8 @@ const LeaveManagement = () => {
       );
 
       const result = await response.json();
-      console.log("Bulk approval response:", result);
 
       if (response.ok) {
-        // setApprovedLeaves((prev) => [...prev, ...pendingLeaves]);
-        // setPendingLeaves([]);
         const newlyApproved = pendingLeaves.filter((leave) => selectedLeave.includes(leave.Id));
         const stillPending = pendingLeaves.filter((leave) => !selectedLeave.includes(leave.Id));
 
@@ -350,6 +399,7 @@ const LeaveManagement = () => {
     }
   };
 
+  // Bulk reject handlers
   const handleRejectAll = async () => {
     const role = localStorage.getItem("role");
     if (selectedLeave.length === 0) {
@@ -359,7 +409,6 @@ const LeaveManagement = () => {
       return;
     }
 
-    // Prevent rejecting own leave
     const invalidLeaves = pendingLeaves.filter(
       (leave) => selectedLeave.includes(leave.Id) && leave.email === email
     );
@@ -371,7 +420,6 @@ const LeaveManagement = () => {
     }
 
     setIsRejecting(true);
-
     const approverEmail = email;
     const token = localStorage.getItem("jwtToken");
 
@@ -400,8 +448,6 @@ const LeaveManagement = () => {
       );
 
       const result = await response.json();
-      console.log("Bulk rejection response:", result);
-
       if (response.ok) {
         const stillPending = pendingLeaves.filter((leave) => !selectedLeave.includes(leave.Id));
         setPendingLeaves(stillPending);
@@ -425,6 +471,7 @@ const LeaveManagement = () => {
     }
   };
 
+  // Handle select all checkbox
   const handleSelectAll = (isChecked) => {
     if (isChecked) {
       const allIds = pendingLeaves.map(leave => leave.Id);
@@ -434,8 +481,9 @@ const LeaveManagement = () => {
     }
   };
 
+  // Download CSV
   const downloadCSV = async () => {
-    setIsDownloading(true); // show loader
+    setIsDownloading(true);
 
     let currentPage = 1;
     const totalPages = 45;
@@ -492,7 +540,7 @@ const LeaveManagement = () => {
       console.error('Error downloading:', error);
       alert('Error occurred during download.');
     } finally {
-      setIsDownloading(false); // hide loader
+      setIsDownloading(false);
     }
   };
 
@@ -500,6 +548,7 @@ const LeaveManagement = () => {
     <div className="leave-container">
       <h1>Leave Dashboard </h1>
 
+      {/* Tabs Navigation */}
       <div className="tab">
         <button
           className={`tab_button ${selectedTab === "pending" ? "active-tab" : ""
@@ -538,6 +587,7 @@ const LeaveManagement = () => {
         </button>
       </div>
 
+      {/* Pending Leaves */}
       {selectedTab === "pending" && (
         <>
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center", justifyContent: 'center' }}>
@@ -623,7 +673,6 @@ const LeaveManagement = () => {
               Apply Leaves
             </Button>
           </div>
-          {/* Apply leave*/}
           <Dialog
             open={applyModalOpen}
             onClose={() => setApplyModalOpen(false)}
@@ -736,7 +785,6 @@ const LeaveManagement = () => {
                         <th>Duration</th>
                         <th>Type</th>
                         <th>Reason</th>
-                        {/* <th>Action</th> */}
                       </tr>
                     </thead>
                     <tbody>
@@ -756,14 +804,6 @@ const LeaveManagement = () => {
                           <td>{leave.leaveDuration}</td>
                           <td>{leave.durationType}</td>
                           <td>{leave.reasonForLeave}</td>
-                          {/* <td>
-                            <button
-                              className="approve-button"
-                              onClick={() => handleApprove(leave.Id)}
-                            >
-                              Approve
-                            </button>
-                          </td> */}
                         </tr>
                       ))}
                     </tbody>
@@ -775,6 +815,7 @@ const LeaveManagement = () => {
         </>
       )}
 
+      {/* Approved Leaves */}
       {selectedTab === "approved" && (
         <>
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "10px", alignItems: "center", marginTop: '5px', justifyContent: 'center' }}>
@@ -887,6 +928,7 @@ const LeaveManagement = () => {
         </>
       )}
 
+      {/* Balance Tab */}
       {selectedTab === "balance" && (
         <>
           <div className="balance-tab"
@@ -1043,7 +1085,7 @@ const LeaveManagement = () => {
             )}
           </div>
 
-          {/* NEW MODAL COMPONENT */}
+          {/* New modal component */}
           <AdjustLeaveModal
             open={adjustModalOpen}
             onClose={() => setAdjustModalOpen(false)}
@@ -1054,6 +1096,7 @@ const LeaveManagement = () => {
         </>
       )}
 
+      {/* History Tab */}
       {selectedTab === "history" && (
         <>
           <div
@@ -1197,6 +1240,8 @@ const LeaveManagement = () => {
           </div>
         </>
       )}
+
+      {/* Snackbar message */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={5000}

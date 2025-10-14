@@ -8,10 +8,6 @@ import {
   TextField,
   Autocomplete,
   FormControl,
-  FormLabel,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
   Select,
   MenuItem,
   InputLabel,
@@ -21,26 +17,29 @@ import {
   Alert,
 } from "@mui/material";
 
-const AdjustLeaveModal = ({ 
-  open, 
-  onClose, 
-  allEmails, 
-  adminEmail, 
-  onSuccess 
+const AdjustLeaveModal = ({
+  open,
+  onClose,
+  allEmails,
+  adminEmail,
+  onSuccess
 }) => {
+  // State Management
   const [formData, setFormData] = useState({
     userEmail: "",
     leaveType: "",
     actionType: "increase",
     amount: "",
   });
-  
+
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
+  // API Base URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+  // Predefined leave types
   const leaveTypes = [
     "Exam Leave",
     "Casual Leave",
@@ -54,13 +53,13 @@ const AdjustLeaveModal = ({
     "Miscarriage Leave"
   ];
 
+  // Clear error when user starts typing
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
-    
-    // Clear error when user starts typing
+
     if (errors[field]) {
       setErrors(prev => ({
         ...prev,
@@ -69,83 +68,87 @@ const AdjustLeaveModal = ({
     }
     setSubmitError("");
   };
-
+  
+  // Form validation rules
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.userEmail) {
       newErrors.userEmail = "Please select an employee email";
     }
-    
+
     if (!formData.leaveType) {
       newErrors.leaveType = "Please select a leave type";
     }
-    
+
     if (formData.amount === "" || formData.amount < 0) {
       newErrors.amount = "Please enter a valid number of days (0 or greater)";
     }
-    
+
     if (formData.amount > 365) {
       newErrors.amount = "Number of days cannot exceed 365";
     }
-    
-    // Validate half-day increments (0.5 steps) - but allow 0
+
+    // Only allow full or half-day increments
     const amount = parseFloat(formData.amount);
     if (amount > 0 && (amount * 2) % 1 !== 0) {
       newErrors.amount = "Please enter days in 0.5 increments (e.g., 0, 0.5, 1, 1.5, 2)";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
- const handleSubmit = async () => {
-  if (!validateForm()) return;
-  
-  setLoading(true);
-  setSubmitError("");
-  
-  try {
-    const payload = {
-      userEmail: formData.userEmail,
-      leaveType: formData.leaveType,
-      IncreaseOrDecreaseBy: adminEmail,
-    };
+  // Submit leave adjustment
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
 
-    payload.allotedLeaves = parseFloat(formData.amount);
-    
-    const response = await fetch(
-      `${API_BASE_URL}/employmentLeaveUpgrade`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-        },
-        body: JSON.stringify(payload),
+    setLoading(true);
+    setSubmitError("");
+
+    try {
+      const payload = {
+        userEmail: formData.userEmail,
+        leaveType: formData.leaveType,
+        IncreaseOrDecreaseBy: adminEmail,
+      };
+
+      payload.allotedLeaves = parseFloat(formData.amount);
+
+      const response = await fetch(
+        `${API_BASE_URL}/employmentLeaveUpgrade`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        const days = parseFloat(formData.amount);
+        let successMessage;
+
+        const dayText = days === 1 ? "day" : "days";
+        successMessage = `Successfully allotted ${days} ${dayText} of ${formData.leaveType} to ${formData.userEmail}`;
+
+        onSuccess(successMessage);
+        handleClose();
+      } else {
+        setSubmitError(result?.message || "Failed to adjust leave balance. Please try again.");
       }
-    );
-
-    const result = await response.json();
-
-    if (response.ok) {
-      const days = parseFloat(formData.amount);
-      let successMessage;
-      
-      const dayText = days === 1 ? "day" : "days";
-successMessage = `Successfully allotted ${days} ${dayText} of ${formData.leaveType} to ${formData.userEmail}`;
-      
-      onSuccess(successMessage);
-      handleClose();
-    } else {
-      setSubmitError(result?.message || "Failed to adjust leave balance. Please try again.");
+    } catch (error) {
+      setSubmitError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    setSubmitError("Something went wrong. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
+
+  // Reset form & close modal
   const handleClose = () => {
     setFormData({
       userEmail: "",
@@ -158,11 +161,12 @@ successMessage = `Successfully allotted ${days} ${dayText} of ${formData.leaveTy
     onClose();
   };
 
+  // Render Modal 
   return (
-    <Dialog 
-      open={open} 
-      onClose={handleClose} 
-      maxWidth="sm" 
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="sm"
       fullWidth
       PaperProps={{
         sx: { borderRadius: 2 }
@@ -171,13 +175,14 @@ successMessage = `Successfully allotted ${days} ${dayText} of ${formData.leaveTy
         margin: -1,
       }}
     >
+      {/* Modal Title */}
       <DialogTitle sx={{ pb: 1 }}>
         Adjust Leave Balance
       </DialogTitle>
-      
+
       <DialogContent>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 3, pt: 1 }}>
-          
+
           {/* Employee Email */}
           <Autocomplete
             options={allEmails}
@@ -206,7 +211,7 @@ successMessage = `Successfully allotted ${days} ${dayText} of ${formData.leaveTy
           />
 
           {/* Leave Type */}
-          <FormControl 
+          <FormControl
             error={Boolean(errors.leaveType)}
             required
           >
@@ -237,10 +242,10 @@ successMessage = `Successfully allotted ${days} ${dayText} of ${formData.leaveTy
             onChange={(e) => handleInputChange("amount", e.target.value)}
             error={Boolean(errors.amount)}
             helperText={errors.amount || "Enter the number of leave days to adjust"}
-            inputProps={{ 
-              min: 0, 
-              max: 365, 
-              step: 0.5 
+            inputProps={{
+              min: 0,
+              max: 365,
+              step: 0.5
             }}
             required
           />
@@ -254,8 +259,9 @@ successMessage = `Successfully allotted ${days} ${dayText} of ${formData.leaveTy
         </Box>
       </DialogContent>
 
+      {/* Modal Actions */}
       <DialogActions sx={{ px: 3, pb: 3 }}>
-        <Button 
+        <Button
           onClick={handleClose}
           disabled={loading}
           sx={{ textTransform: "none" }}
@@ -269,10 +275,10 @@ successMessage = `Successfully allotted ${days} ${dayText} of ${formData.leaveTy
           startIcon={loading && <CircularProgress size={20} />}
           sx={{ textTransform: "none" }}
         >
-          {loading 
-  ? "Processing..." 
-  : `Allot ${formData.amount || 0} ${parseFloat(formData.amount) === 1 ? "Day" : "Days"}`
-}
+          {loading
+            ? "Processing..."
+            : `Allot ${formData.amount || 0} ${parseFloat(formData.amount) === 1 ? "Day" : "Days"}`
+          }
         </Button>
       </DialogActions>
     </Dialog>

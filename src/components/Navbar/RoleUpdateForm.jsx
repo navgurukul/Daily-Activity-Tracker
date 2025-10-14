@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from "react";
 import {
   TextField,
-  MenuItem,
   Button,
   CircularProgress,
-  Select,
-  FormControl,
-  InputLabel,
   Box,
   Snackbar,
   Alert,
@@ -25,7 +21,9 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import "./RoleUpdateForm.css";
+
 const RoleUpdateForm = () => {
+  // State management
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -43,39 +41,69 @@ const RoleUpdateForm = () => {
   const [previousPage, setPreviousPage] = useState([]);
   const [currentPage, setCurrentPage] = useState(null);
   const [emailError, setEmailError] = useState(false);
-const [roleError, setRoleError] = useState(false);
+  const [roleError, setRoleError] = useState(false);
+
+  // Base API URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  // Fetch users with filters and pagination
   const fetchFilteredUsers = async (page = 1) => {
     setLoading(true);
     const queryParams = new URLSearchParams();
     if (filterEmail.trim()) queryParams.append("email", filterEmail.trim());
     if (filterRole.trim()) queryParams.append("role", filterRole.trim());
     if (page > 1) queryParams.append("page", page);
+
     try {
-      const res = await fetch(
-        `${API_BASE_URL}/accessControl?${queryParams.toString()}`,
-      );
+      if (queryParams.toString()) {
+        const res = await fetch(`${API_BASE_URL}/accessControl?${queryParams.toString()}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+        });
+        const data = await res.json();
+
+        setUsers(data.items || []);
+        setNextPage(data.nextPage || null);
+        setCurrentPage(page);
+        return;
+      }
+      const res = await fetch(`${API_BASE_URL}/accessControl?admin=true`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+        },
+      });
       const data = await res.json();
+
       setUsers(data.items || []);
-      setNextPage(data.nextPage || null); // store nextPage instead of nextPage
-      setCurrentPage(page); // optional: store the current page number
+      setNextPage(data.nextPage || null);
+      setCurrentPage(page);
     } catch (err) {
       console.error("Filtering error:", err);
     } finally {
       setLoading(false);
     }
   };
+
+  // Auto-fetch users when filters change
   useEffect(() => {
     const controller = new AbortController();
     const timeout = setTimeout(() => {
       setPreviousPage([]);
       fetchFilteredUsers();
     }, 400);
+
     return () => {
       clearTimeout(timeout);
       controller.abort();
     };
   }, [filterEmail, filterRole]);
+
+  // Fetch team email IDs
   useEffect(() => {
     const fetchEmails = async () => {
       try {
@@ -88,7 +116,7 @@ const [roleError, setRoleError] = useState(false);
               ?.map((entry) => entry["Team ID"])
               ?.filter((id) => !!id)
           )
-        ).sort((a,b)=>a.localeCompare(b));
+        ).sort((a, b) => a.localeCompare(b));
         setTeamIds(teamIDs);
       } catch (error) {
         console.error("Error fetching emails:", error);
@@ -97,121 +125,125 @@ const [roleError, setRoleError] = useState(false);
     };
     fetchEmails();
   }, []);
+
+  // Format role name for display 
   const formatRole = (role) => {
     if (!role) return "";
     return role
-      .replace(/([A-Z])/g, " $1") // Insert space before capital letters
-      .replace(/^./, (str) => str.toUpperCase()); // Capitalize first letter
+      .replace(/([A-Z])/g, " $1")
+      .replace(/^./, (str) => str.toUpperCase());
   };
 
-const handleAssignRole = async (e) => {
-  e.preventDefault();
+  // Assign role to user 
+  const handleAssignRole = async (e) => {
+    e.preventDefault();
 
-  let hasError = false;
+    let hasError = false;
 
-  if (!email) {
-    setEmailError(true);
-    hasError = true;
-  } else {
-    setEmailError(false);
-  }
-
-  if (!selectedRole) {
-    setRoleError(true);
-    hasError = true;
-  } else {
-    setRoleError(false);
-  }
-
-  if (hasError) {
-    setSnackbarMessage("Please fill all required fields");
-    setSnackbarSeverity("warning");
-    setSnackbarOpen(true);
-    return;
-  }
-
-  const roleDisplay = formatRole(selectedRole);
-
-  // 🔍 Check if role is already assigned
-  try {
-    const resCheck = await fetch(`${API_BASE_URL}/accessControl?email=${email}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-      },
-    });
-
-    if (resCheck.ok) {
-      const userData = await resCheck.json();
-      // const existingRoles = userData.role || [];
-      const existingRoles = userData.items?.map(item => item.role) || [];
-      
-      if (existingRoles.includes(selectedRole)) {
-        setSnackbarMessage(`"${roleDisplay}" role is already assigned to "${email}".`);
-        setSnackbarSeverity("info");
-        setSnackbarOpen(true);
-        return;
-      }
+    if (!email) {
+      setEmailError(true);
+      hasError = true;
     } else {
-      console.warn("Failed to fetch existing roles for user.");
+      setEmailError(false);
     }
-  } catch (error) {
-    console.error("Error checking existing roles:", error);
-  }
 
-  // 🟢 Proceed to assign role
-  const payload = {
-    email,
-    roles: [selectedRole],
-  };
-
-  try {
-    const res = await fetch(`${API_BASE_URL}/accessControl`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      setSnackbarMessage(
-        `Successfully assigned the "${roleDisplay}" role to "${email}".`
-      );
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-      setFilterEmail("");
-      setEmail("");
-      setSelectedRole("");
-      fetchFilteredUsers();
+    if (!selectedRole) {
+      setRoleError(true);
+      hasError = true;
     } else {
-      const data = await res.json();
-      setSnackbarMessage(data.message || "Failed to assign role");
+      setRoleError(false);
+    }
+
+    if (hasError) {
+      setSnackbarMessage("Please fill all required fields");
+      setSnackbarSeverity("warning");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    const roleDisplay = formatRole(selectedRole);
+
+    // Check if role is already assigned
+    try {
+      const resCheck = await fetch(`${API_BASE_URL}/accessControl?email=${email}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+        },
+      });
+
+      if (resCheck.ok) {
+        const userData = await resCheck.json();
+        const existingRoles = userData.items?.map(item => item.role) || [];
+
+        if (existingRoles.includes(selectedRole)) {
+          setSnackbarMessage(`"${roleDisplay}" role is already assigned to "${email}".`);
+          setSnackbarSeverity("info");
+          setSnackbarOpen(true);
+          return;
+        }
+      } else {
+        console.warn("Failed to fetch existing roles for user.");
+      }
+    } catch (error) {
+      console.error("Error checking existing roles:", error);
+    }
+
+    // Proceed to assign new role
+    const payload = {
+      email,
+      roles: [selectedRole],
+    };
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/accessControl`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setSnackbarMessage(
+          `Successfully assigned the "${roleDisplay}" role to "${email}".`
+        );
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+        setFilterEmail("");
+        setEmail("");
+        setSelectedRole("");
+        fetchFilteredUsers();
+      } else {
+        const data = await res.json();
+        setSnackbarMessage(data.message || "Failed to assign role");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      }
+    } catch (err) {
+      console.error("Error assigning role:", err);
+      setSnackbarMessage("Something went wrong");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
-  } catch (err) {
-    console.error("Error assigning role:", err);
-    setSnackbarMessage("Something went wrong");
-    setSnackbarSeverity("error");
-    setSnackbarOpen(true);
-  }
-};
-  
+  };
+
+  // Delete role handlers
   const handleDelete = (emailToDelete, idToDelete) => {
     setDeleteTarget({ email: emailToDelete, id: idToDelete });
     setDeleteDialogOpen(true);
   };
+
   const confirmDelete = async (option) => {
     setDeleteDialogOpen(false);
     const { email, id } = deleteTarget;
     let url = "";
+
     if (option === "email") {
-      url = `${API_BASE_URL}/accessControl?email=${encodeURIComponent(email
-      )}`;
+      url = `${API_BASE_URL}/accessControl?email=${encodeURIComponent(email)}`;
     } else if (option === "id") {
       url = `${API_BASE_URL}/accessControl?Id=${id}`;
     } else {
@@ -220,12 +252,12 @@ const handleAssignRole = async (e) => {
       setSnackbarOpen(true);
       return;
     }
+
     try {
       const res = await fetch(url, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          // Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
           Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
         },
       });
@@ -247,19 +279,26 @@ const handleAssignRole = async (e) => {
       setSnackbarOpen(true);
     }
   };
+
+  // Clear filters 
   const handleClearFilters = () => {
     setFilterEmail("");
     setFilterRole("");
   };
+
+  // Role options
   const roles = [
     { label: "Admin", value: "admin" },
     { label: "Project Manager", value: "projectManager" },
     { label: "Super Admin", value: "superAdmin" },
   ];
+
   return (
     <div style={{ overflowY: "scroll", height: "100vh" }}>
       <div className="main">
         <div className="role-update-container">
+
+          {/* Tabs: Manage Users / Assign Roles */}
           <div className="tabs">
             <button
               className={`tabs-button ${tabIndex === 0 ? "active-tab" : ""}`}
@@ -267,6 +306,7 @@ const handleAssignRole = async (e) => {
             >
               👤 Manage Users
             </button>
+
             <button
               className={`tabs-button ${tabIndex === 1 ? "active-tab" : ""}`}
               onClick={() => setTabIndex(1)}
@@ -274,9 +314,13 @@ const handleAssignRole = async (e) => {
               🛡️ Assign Roles
             </button>
           </div>
+
+          {/* Manage Users Tab */}
           {tabIndex === 0 && (
             <div className="all-users">
               <h2>All Users</h2>
+
+              {/* Filters */}
               <div className="filter-section">
                 <Autocomplete
                   options={teamIds}
@@ -302,6 +346,7 @@ const handleAssignRole = async (e) => {
                     }
                   }}
                 />
+
                 <Autocomplete
                   options={roles}
                   key={filterRole}
@@ -317,6 +362,7 @@ const handleAssignRole = async (e) => {
                   freeSolo
                   sx={{ minWidth: { xs: 300, sm: 200 } }}
                 />
+
                 <Button
                   onClick={handleClearFilters}
                   sx={{
@@ -334,6 +380,8 @@ const handleAssignRole = async (e) => {
                   Clear Filters
                 </Button>
               </div>
+
+              {/* User list with pagination */}
               {loading ? (
                 <Box sx={{ display: "flex", justifyContent: "center", marginTop: "50px" }}>
                   <Typography variant="h6" sx={{ mb: 2 }}>
@@ -354,6 +402,7 @@ const handleAssignRole = async (e) => {
                 </div>
               ) : (
                 <>
+                  {/* User table */}
                   <div style={{ width: "100%", overflow: "auto" }}>
                     <table
                       border="1"
@@ -396,6 +445,8 @@ const handleAssignRole = async (e) => {
                       </tbody>
                     </table>
                   </div>
+
+                  {/* Delete confirmation dialog */}
                   <Dialog
                     open={deleteDialogOpen}
                     onClose={() => setDeleteDialogOpen(false)}
@@ -422,6 +473,8 @@ const handleAssignRole = async (e) => {
                       </Button>
                     </DialogContent>
                   </Dialog>
+
+                  {/* Pagination buttons */}
                   <Box
                     sx={{
                       display: "flex",
@@ -435,7 +488,7 @@ const handleAssignRole = async (e) => {
                       disabled={previousPage.length === 0}
                       onClick={() => {
                         const prev = [...previousPage];
-                        const lastToken = prev.pop(); // ✅ Go back to last token
+                        const lastToken = prev.pop();
                         setPreviousPage(prev);
                         fetchFilteredUsers(lastToken);
                       }}
@@ -445,6 +498,7 @@ const handleAssignRole = async (e) => {
                     >
                       Previous
                     </Button>
+
                     <Button
                       variant="contained"
                       disabled={!nextPage}
@@ -452,7 +506,7 @@ const handleAssignRole = async (e) => {
                         setPreviousPage([
                           ...previousPage,
                           currentPage,
-                        ]); // ✅ Store current before moving
+                        ]);
                         fetchFilteredUsers(nextPage);
                       }}
                       sx={{
@@ -466,15 +520,18 @@ const handleAssignRole = async (e) => {
               )}
             </div>
           )}
+
+          {/* Assign Roles Tab */}
           {tabIndex === 1 && (
             <div className="assign-role">
               <h2>Assign Role</h2>
+
+              {/* Role assignment form */}
               <div className="filter-role">
                 <Autocomplete
                   options={teamIds}
                   value={email}
-                  onChange={(event, value) => 
-                  {
+                  onChange={(event, value) => {
                     setEmail(value || "")
                     setEmailError(!value);
                   }
@@ -506,9 +563,9 @@ const handleAssignRole = async (e) => {
                   key={selectedRole}
                   value={roles.find((role) => role.value === selectedRole) || null}
                   onChange={(event, newValue) => {
-    setSelectedRole(newValue ? newValue.value : "");
-    setRoleError(false);
-  }}
+                    setSelectedRole(newValue ? newValue.value : "");
+                    setRoleError(false);
+                  }}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -521,6 +578,7 @@ const handleAssignRole = async (e) => {
                   freeSolo
                   sx={{ minWidth: { xs: 300, sm: 200 } }}
                 />
+
                 <Button
                   variant="contained"
                   onClick={handleAssignRole}
@@ -529,6 +587,8 @@ const handleAssignRole = async (e) => {
                   Assign Role
                 </Button>
               </div>
+
+              {/* Role description table */}
               <Box>
                 <TableContainer component={Paper} elevation={1} sx={{ overflowX: "hidden" }}>
                   <Table>
@@ -563,6 +623,8 @@ const handleAssignRole = async (e) => {
               </Box>
             </div>
           )}
+
+          {/* Snackbar for feedback */}
           <Snackbar
             open={snackbarOpen}
             autoHideDuration={3000}
@@ -587,4 +649,5 @@ const handleAssignRole = async (e) => {
     </div>
   );
 };
+
 export default RoleUpdateForm;

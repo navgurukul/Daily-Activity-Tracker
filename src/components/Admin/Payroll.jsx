@@ -24,6 +24,7 @@ import {
 } from "@mui/material";
 
 const Payroll = () => {
+  // State Management
   const [payrollData, setPayrollData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -31,17 +32,20 @@ const Payroll = () => {
   const [page, setPage] = useState(1);
   const rowsPerPage = 9;
 
-  // Filters and Sorting
+  // Filters and Sorting states
   const [emailFilter, setEmailFilter] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [monthFilter, setMonthFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
 
+  // Dropdown states
   const [allEmails, setAllEmails] = useState([]);
   const [allNames, setAllNames] = useState([]);
 
+  // API Base URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+  // Fetch payroll data when filters change
   useEffect(() => {
     const fetchPayrollData = async () => {
       const token = localStorage.getItem("jwtToken");
@@ -56,20 +60,30 @@ const Payroll = () => {
         let url =
           `${API_BASE_URL}/payableDaysCalculation`;
         const queryParams = new URLSearchParams();
-        if (emailFilter) queryParams.append("email", emailFilter);
+
+        // Append filters to query params
+        if (emailFilter) {
+          queryParams.append("email", emailFilter);
+        } else {
+          queryParams.append("admin", "true");
+        }
         if (monthFilter) queryParams.append("month", parseInt(monthFilter) - 1);
         if (yearFilter) queryParams.append("year", yearFilter);
+
         if (queryParams.toString()) {
           url += `?${queryParams.toString()}`;
         }
+
         const response = await fetch(url, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
+
         if (!response.ok) {
           throw new Error("Failed to fetch payroll data");
         }
+
         const result = await response.json();
         setPayrollData(result.data);
       } catch (error) {
@@ -81,19 +95,24 @@ const Payroll = () => {
     fetchPayrollData();
   }, [emailFilter, monthFilter, yearFilter]);
 
+  // Fetch employee emails and names
   useEffect(() => {
     const fetchEmailsAndNames = async () => {
       try {
         const response = await axios.get(
           `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
         );
+
+        // Extract unique team IDs
         const teamIDs = Array.from(
           new Set(
             response.data?.data
               ?.map((entry) => entry["Team ID"])
               ?.filter((id) => !!id)
           )
-        ).sort((a,b)=>a.localeCompare(b));
+        ).sort((a, b) => a.localeCompare(b));
+
+        // Extract unique names
         const names = Array.from(
           new Set(
             response.data?.data
@@ -111,21 +130,22 @@ const Payroll = () => {
     fetchEmailsAndNames();
   }, []);
 
-
+  // Dialog controls
   const handleClickOpen = (person) => {
     setSelectedPerson(person);
     setOpen(true);
   };
-
   const handleClose = () => {
     setOpen(false);
     setSelectedPerson(null);
   };
 
+  // Pagination controls
   const handleChangePage = (event, value) => {
     setPage(value);
   };
 
+  // Sort order handler
   const handleSortChange = (event) => {
     setSortOrder(event.target.value);
   };
@@ -144,11 +164,13 @@ const Payroll = () => {
       }
     });
 
+  // Paginate visible data
   const visibleData = filteredData.slice(
     (page - 1) * rowsPerPage,
     page * rowsPerPage
   );
 
+  // Loader
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
@@ -162,116 +184,123 @@ const Payroll = () => {
     );
   }
 
-async function downloadCSV() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/payableDaysCalculation`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-      },
-    });
+  // CSV download function
+  async function downloadCSV() {
+    try {
+      const queryParams = new URLSearchParams();
+      queryParams.append("admin", "true");
+      const url = `${API_BASE_URL}/payableDaysCalculation${queryParams.toString() ? "?" + queryParams.toString() : ""}`;
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+        },
+      });
 
-    const result = await response.json();
-    const data = result.data;
+      const result = await response.json();
+      const data = result.data;
 
-    if (!Array.isArray(data)) {
-      throw new Error("Invalid data format");
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid data format");
+      }
+
+      // Flatten nested payroll objects for CSV export
+      const flattened = data.map(item => ({
+        email: item.email,
+        name: item.name,
+        teamName: item.teamName,
+        employmentType: item.employmentType,
+        'Week 1': item['Week 1'],
+        'Week 2': item['Week 2'],
+        'Week 3': item['Week 3'],
+        'Week 4': item['Week 4'],
+        'Week 5': item['Week 5'],
+        totalHours: item.totalHours,
+        totalWorkingDays: item.totalWorkingDays,
+        paidLeaves: item.paidLeaves,
+        totalCompOffLeaveTaken: item.totalCompOffLeaveTaken,
+        weekOffDays: item.weekOffDays,
+        totalPayableDays: item.totalPayableDays,
+        numOfWorkOnWeekendDays: item.numOfWorkOnWeekendDays,
+        LWP: item.LWP,
+        // Cycle 1 data
+        cycle1_totalHours: item.cycle1?.totalHours,
+        cycle1_totalWorkingDays: item.cycle1?.totalWorkingDays,
+        cycle1_paidLeaves: item.cycle1?.paidLeaves,
+        cycle1_totalCompOffLeaveTaken: item.cycle1?.totalCompOffLeaveTaken,
+        cycle1_weekOffDays: item.cycle1?.weekOffDays,
+        cycle1_totalPayableDays: item.cycle1?.totalPayableDays,
+        cycle1_LWP: item.cycle1?.LWP,
+        // Cycle 2 data
+        cycle2_totalHours: item.cycle2?.totalHours,
+        cycle2_totalWorkingDays: item.cycle2?.totalWorkingDays,
+        cycle2_paidLeaves: item.cycle2?.paidLeaves,
+        cycle2_totalCompOffLeaveTaken: item.cycle2?.totalCompOffLeaveTaken,
+        cycle2_weekOffDays: item.cycle2?.weekOffDays,
+        cycle2_totalPayableDays: item.cycle2?.totalPayableDays,
+        cycle2_LWP: item.cycle2?.LWP,
+      }));
+
+      // Generate CSV
+      const headers = Object.keys(flattened[0]);
+      const csv = [
+        headers.join(','),
+        ...flattened.map(row =>
+          headers.map(h => `"${(row[h] ?? "").toString().replace(/"/g, '""')}"`).join(',')
+        )
+      ].join('\n');
+
+      // Trigger download
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const link = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = link;
+      a.download = 'payable_data.csv';
+      a.click();
+      window.URL.revokeObjectURL(link);
+    } catch (error) {
+      console.error('❌ Error downloading CSV:', error);
+      alert('Failed to download CSV. See console for error.');
     }
-
-    // Flatten data like your Node.js function
-    const flattened = data.map(item => ({
-      email: item.email,
-      name: item.name,
-      teamName: item.teamName,
-      employmentType: item.employmentType,
-      'Week 1': item['Week 1'],
-      'Week 2': item['Week 2'],
-      'Week 3': item['Week 3'],
-      'Week 4': item['Week 4'],
-      'Week 5': item['Week 5'],
-      totalHours: item.totalHours,
-      totalWorkingDays: item.totalWorkingDays,
-      paidLeaves: item.paidLeaves,
-      totalCompOffLeaveTaken: item.totalCompOffLeaveTaken,
-      weekOffDays: item.weekOffDays,
-      totalPayableDays: item.totalPayableDays,
-      numOfWorkOnWeekendDays: item.numOfWorkOnWeekendDays,
-      LWP: item.LWP,
-      cycle1_totalHours: item.cycle1?.totalHours,
-      cycle1_totalWorkingDays: item.cycle1?.totalWorkingDays,
-      cycle1_paidLeaves: item.cycle1?.paidLeaves,
-      cycle1_totalCompOffLeaveTaken: item.cycle1?.totalCompOffLeaveTaken,
-      cycle1_weekOffDays: item.cycle1?.weekOffDays,
-      cycle1_totalPayableDays: item.cycle1?.totalPayableDays,
-      cycle1_LWP: item.cycle1?.LWP,
-      cycle2_totalHours: item.cycle2?.totalHours,
-      cycle2_totalWorkingDays: item.cycle2?.totalWorkingDays,
-      cycle2_paidLeaves: item.cycle2?.paidLeaves,
-      cycle2_totalCompOffLeaveTaken: item.cycle2?.totalCompOffLeaveTaken,
-      cycle2_weekOffDays: item.cycle2?.weekOffDays,
-      cycle2_totalPayableDays: item.cycle2?.totalPayableDays,
-      cycle2_LWP: item.cycle2?.LWP,
-    }));
-
-    // Generate CSV
-    const headers = Object.keys(flattened[0]);
-    const csv = [
-      headers.join(','), // header row
-      ...flattened.map(row =>
-        headers.map(h => `"${(row[h] ?? "").toString().replace(/"/g, '""')}"`).join(',')
-      )
-    ].join('\n');
-
-    // Trigger download
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'payable_data.csv';
-    a.click();
-    window.URL.revokeObjectURL(url);
-  } catch (error) {
-    console.error('❌ Error downloading CSV:', error);
-    alert('Failed to download CSV. See console for error.');
   }
-}
 
   return (
     <Box sx={{ p: { xs: 0, sm: 3 } }}>
-<Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
-  <Box>
-    <Typography
-      variant="h4"
-      mb={0.5}
-      fontWeight="bold"
-      sx={{ fontSize: { xs: "1.5rem", sm: "2.15rem" } }}
-    >
-      Employee Payable Days Overview
-    </Typography>
-    <Typography variant="subtitle1" color="text.secondary">
-      Track total payable days for each team member
-    </Typography>
-  </Box>
+      {/* Header Section */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap" gap={2}>
+        <Box>
+          <Typography
+            variant="h4"
+            mb={0.5}
+            fontWeight="bold"
+            sx={{ fontSize: { xs: "1.5rem", sm: "2.15rem" } }}
+          >
+            Employee Payable Days Overview
+          </Typography>
+          <Typography variant="subtitle1" color="text.secondary">
+            Track total payable days for each team member
+          </Typography>
+        </Box>
 
-  <Button variant="contained" onClick={downloadCSV}
-  sx={{
-    backgroundColor: '#1976D2',
-    color: '#fff',
-    fontWeight: 'bold',
-    textTransform: 'none',
-    px: 3,
-    py: 1,
-    borderRadius: 2,
-    boxShadow: 2,
-    '&:hover': {
-      backgroundColor: '#115293',
-    }
-  }}>
-    Download CSV
-  </Button>
-</Box>
+        <Button variant="contained" onClick={downloadCSV}
+          sx={{
+            backgroundColor: '#1976D2',
+            color: '#fff',
+            fontWeight: 'bold',
+            textTransform: 'none',
+            px: 3,
+            py: 1,
+            borderRadius: 2,
+            boxShadow: 2,
+            '&:hover': {
+              backgroundColor: '#115293',
+            }
+          }}>
+          Download CSV
+        </Button>
+      </Box>
 
 
-      {/* Filters */}
+      {/* Filters Section */}
       <Box sx={{ display: "flex", gap: { xs: 1, sm: 2 }, flexWrap: "wrap", mb: 3, justifyContent: "center" }}>
         <Autocomplete
           options={allEmails}
@@ -285,7 +314,7 @@ async function downloadCSV() {
               size="small"
               sx={{ width: { xs: 300, sm: 320 } }}
             />
-            
+
           )}
           freeSolo
           ListboxProps={{
@@ -365,22 +394,22 @@ async function downloadCSV() {
             setSortOrder("asc");
           }}
           sx={{
-            width:{xs:140, sm:150,} ,
-                border: '2px solid #f44336',
-                color: '#f44336',
-                backgroundColor: 'white',
-                '&:hover': {
-                  backgroundColor: '#b0412e',
-                  color: "white",
-                  borderColor: '#b0412e',
-                },
-              }}
+            width: { xs: 140, sm: 150, },
+            border: '2px solid #f44336',
+            color: '#f44336',
+            backgroundColor: 'white',
+            '&:hover': {
+              backgroundColor: '#b0412e',
+              color: "white",
+              borderColor: '#b0412e',
+            },
+          }}
         >
           Clear Filters
         </Button>
       </Box>
 
-      {/* Table Layout */}
+      {/* Table Section */}
       <TableContainer
         component={Paper}
         sx={{ maxWidth: "100%", overflow: { xs: "scroll", sm: "hidden" } }}
@@ -420,7 +449,7 @@ async function downloadCSV() {
         </Table>
       </TableContainer>
 
-      {/* Pagination */}
+      {/* Pagination Controls */}
       <Box display="flex" justifyContent="center" mt={4}>
         <Pagination
           count={Math.ceil(filteredData.length / rowsPerPage)}

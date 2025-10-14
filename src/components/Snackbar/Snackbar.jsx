@@ -5,25 +5,29 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
 const SimpleSnackbar = ({ message, isOpen, onClose }) => {
+  // Snackbar state
   const [open, setOpen] = useState(isOpen);
 
+  // Sync state with prop
   useEffect(() => {
     setOpen(isOpen);
   }, [isOpen]);
 
+  // Click handler
   const handleClick = () => {
     setOpen(true);
   };
 
+  // Close handler
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
     }
-
     setOpen(false);
     onClose(event, reason);
   };
 
+  // Action buttons inside Snackbar
   const action = (
     <React.Fragment>
       <Button color="secondary" size="small" onClick={handleClose}>
@@ -42,7 +46,10 @@ const SimpleSnackbar = ({ message, isOpen, onClose }) => {
 
   return (
     <div>
+      {/* Snackbar trigger button */}
       <Button onClick={handleClick}>Open Snackbar</Button>
+
+      {/* Snackbar component */}
       <Snackbar
         open={open}
         autoHideDuration={6000}

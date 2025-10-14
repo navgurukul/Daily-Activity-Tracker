@@ -1,25 +1,25 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   Box,
   Typography,
   Button,
-  DialogActions,
   CircularProgress,
   FormControl,
   TextField,
   InputLabel,
   Select,
   MenuItem,
-  Tooltip,
   FormHelperText,
   Snackbar,
+  Pagination,
 } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import { handleBeforeUnload } from "../../utils/beforeUnloadHandler";
 import AddProjectModal from "./AddProjectModal";
 import "./ProjectManagement.css";
 
+// Modal styles
 const style = {
   position: "absolute",
   top: "50%",
@@ -34,8 +34,11 @@ const style = {
 };
 
 const ProjectManagement = () => {
+  // State Management
   const [projects, setProjects] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
+
+  // Editing State
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
   const [editData, setEditData] = useState({
@@ -52,9 +55,10 @@ const ProjectManagement = () => {
     campus: "",
     discordWebhook: "",
     poc_of_project: "",
-    projectStatus: "", // Add this field
+    projectStatus: "",
   });
 
+  // Filters state
   const [filters, setFilters] = useState({
     department: "",
     campus: "",
@@ -63,9 +67,9 @@ const ProjectManagement = () => {
     projectStatus: "",
   });
 
+  // Dropdown states
   const [departments, setDepartments] = useState([]);
   const [selectedDept, setSelectedDept] = useState("");
-
   const [campuses, setCampuses] = useState([
     "Bangalore",
     "Himachal",
@@ -82,13 +86,13 @@ const ProjectManagement = () => {
     "Raigarh",
   ]);
 
+  // Modal States
   const [open, setOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // Add Project Modal States
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+  // Other States
+  const [loading, setLoading] = useState(true);
   const [validationMsgOnEdit, setValidationMsgOnEdit] = useState({
     channelId: "",
     campus: "",
@@ -98,23 +102,29 @@ const ProjectManagement = () => {
     projectBudget: "",
     projectStatus: "",
   });
-
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 10;
+
+  // API Base URL
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  // Alert component
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
+  // Modal handlers
   const handleOpen = (project) => {
     setSelectedProject(project);
     setOpen(true);
   };
-
   const handleClose = () => setOpen(false);
 
+  // Fetch departments
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
@@ -158,22 +168,7 @@ const ProjectManagement = () => {
     setFilteredProjects(filtered);
   }, [filters, projects]);
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleClearFilters = () => {
-    setFilters({
-      department: "",
-      campus: "",
-      projectName: "",
-      projectMasterEmail: "",
-      projectStatus: "",
-    });
-  };
-
-  // Fetch all projects from single API
+  // Fetch all projects from API
   useEffect(() => {
     fetch(`${API_BASE_URL}/employees`)
       .then((res) => res.json())
@@ -190,6 +185,23 @@ const ProjectManagement = () => {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  // Filter change handler
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Clear filters
+  const handleClearFilters = () => {
+    setFilters({
+      department: "",
+      campus: "",
+      projectName: "",
+      projectMasterEmail: "",
+      projectStatus: "",
+    });
+  };
 
   // Refetch all projects function
   const refetchProjects = () => {
@@ -229,12 +241,12 @@ const ProjectManagement = () => {
       });
   };
 
+  // Edit project handler
   const handleEditProject = (project, index) => {
     setEditData(project);
     setIsEditMode(true);
     setEditingIndex(index);
     setSelectedDept(project.department);
-    // Clear validation errors when opening edit modal
     setValidationMsgOnEdit({
       channelId: "",
       campus: "",
@@ -246,6 +258,7 @@ const ProjectManagement = () => {
     });
   };
 
+  // Update project handler
   const handleUpdateProject = () => {
     fetch(`${API_BASE_URL}/employees`, {
       method: "PUT",
@@ -255,7 +268,6 @@ const ProjectManagement = () => {
       body: JSON.stringify(editData),
     })
       .then((res) => {
-        console.log("Response from server:", res);
         return res.json();
       })
       .then((updatedProject) => {
@@ -288,18 +300,9 @@ const ProjectManagement = () => {
       .catch((err) => console.error("Error updating project:", err));
   };
 
-  // FIXED: Simplified validation logic
+  // Form validation
   const isFormValid = () => {
     const isNonResidential = selectedDept !== "Residential Program";
-
-    console.log("Form validation check:", {
-      projectName: editData.projectName,
-      projectMasterEmail: editData.projectMasterEmail,
-      projectBudget: editData.projectBudget,
-      projectStatus: editData.projectStatus,
-      selectedDept: selectedDept,
-      isNonResidential: isNonResidential,
-    });
 
     // Basic required fields check
     if (!editData.projectName?.trim()) return false;
@@ -308,13 +311,11 @@ const ProjectManagement = () => {
       return false;
     if (!editData.projectStatus) return false;
 
-    // Type-specific validation - MADE CHANNELID OPTIONAL
+    // Residential projects require campus and POC
     if (!isNonResidential) {
-      // Residential needs campus and POC
       if (!editData.campus?.trim()) return false;
       if (!editData.poc_of_project?.trim()) return false;
     }
-    // Note: Removed channelId requirement for Non-Residential projects
 
     // Check if there are validation errors
     const hasErrors = Object.values(validationMsgOnEdit).some(
@@ -324,6 +325,17 @@ const ProjectManagement = () => {
 
     return true;
   };
+
+  // Pagination handler
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
+
+  // Slice filtered projects for current page
+  const paginatedProjects = filteredProjects.slice(
+    (page - 1) * rowsPerPage,
+    page * rowsPerPage
+  );
 
   return (
     <div
@@ -386,6 +398,7 @@ const ProjectManagement = () => {
         departments={departments}
       />
 
+      {/* Snackbar messages */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
@@ -401,14 +414,13 @@ const ProjectManagement = () => {
         </Alert>
       </Snackbar>
 
+      {/* Project Table Section */}
       <div className="table-container">
         <h2>All Projects</h2>
 
-        {/* Updated Filters - Show all filter options */}
+        {/* Filters Section */}
         <div className="filters">
           <h4>Filters:</h4>
-
-          {/* Department Filter */}
           <input
             type="text"
             name="department"
@@ -416,17 +428,6 @@ const ProjectManagement = () => {
             value={filters.department}
             onChange={handleFilterChange}
           />
-
-          {/* Campus Filter */}
-          {/* <input
-            type="text"
-            name="campus"
-            placeholder="Filter by Campus"
-            value={filters.campus}
-            onChange={handleFilterChange}
-          /> */}
-
-          {/* Common Filters */}
           <input
             type="text"
             name="projectName"
@@ -458,7 +459,7 @@ const ProjectManagement = () => {
           </button>
         </div>
 
-        {/* Single Unified Table */}
+        {/* Project Table */}
         <div className="table-wrapper">
           {loading ? (
             <Box
@@ -486,7 +487,7 @@ const ProjectManagement = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredProjects.map((project, index) => (
+                  {paginatedProjects.map((project, index) => (
                     <tr
                       key={index}
                       onClick={() => handleOpen(project)}
@@ -501,7 +502,7 @@ const ProjectManagement = () => {
                           className="editBtn"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleEditProject(project, index);
+                            handleEditProject(project, (page - 1) * rowsPerPage + index);
                           }}
                         >
                           ✏️
@@ -512,7 +513,19 @@ const ProjectManagement = () => {
                 </tbody>
               </table>
 
-              {/* Single Modal for all project types */}
+              {/* Pagination Controls */}
+              <Box sx={{ mt: 3, display: "flex", justifyContent: "center" }}>
+                <Pagination
+                  count={Math.ceil(filteredProjects.length / rowsPerPage)}
+                  page={page}
+                  onChange={handlePageChange}
+                  color="primary"
+                  siblingCount={0}
+                  boundaryCount={1}
+                />
+              </Box>
+
+              {/* Project Details Modal */}
               <Modal open={open} onClose={handleClose}>
                 <Box sx={style}>
                   {selectedProject && (
@@ -592,7 +605,7 @@ const ProjectManagement = () => {
         </div>
       </div>
 
-      {/* EDIT PROJECT MODAL - BOTH ISSUES FIXED */}
+      {/* Edit Project Modal */}
       {isEditMode && (
         <div
           className="modal-overlay edit-modal"
@@ -628,7 +641,6 @@ const ProjectManagement = () => {
                 position: "relative",
               }}
             >
-              {/* Project Name - Disabled */}
               <TextField
                 label="Project Name"
                 variant="outlined"
@@ -636,8 +648,6 @@ const ProjectManagement = () => {
                 value={editData.projectName || ""}
                 disabled
               />
-
-              {/* Non-Residential Projects Fields */}
               {selectedDept !== "Residential Program" && (
                 <TextField
                   label="Slack Channel ID (Optional)"
@@ -647,7 +657,6 @@ const ProjectManagement = () => {
                   onChange={(e) => {
                     const value = e.target.value;
                     setEditData({ ...editData, channelId: value });
-                    // No validation needed since it's optional
                   }}
                 />
               )}
@@ -722,7 +731,6 @@ const ProjectManagement = () => {
                 </>
               )}
 
-              {/* Common Fields for All Projects */}
               <TextField
                 label="PM Email"
                 variant="outlined"
@@ -741,7 +749,6 @@ const ProjectManagement = () => {
                 helperText={validationMsgOnEdit.pmEmail}
               />
 
-              {/* Discord Channel Web Hook URL - For All Projects */}
               <TextField
                 label="Discord Channel Web Hook URL"
                 variant="outlined"
@@ -775,7 +782,7 @@ const ProjectManagement = () => {
                 helperText={validationMsgOnEdit.projectBudget}
               />
 
-              {/* STATUS DROPDOWN - COMPLETELY FIXED */}
+              {/* Status Dropdown */}
               <FormControl
                 fullWidth
                 error={!!validationMsgOnEdit.projectStatus}
@@ -821,6 +828,8 @@ const ProjectManagement = () => {
                 )}
               </FormControl>
             </Box>
+
+            {/* Update Project Button */}
             <button
               className="update-btn"
               onClick={handleUpdateProject}

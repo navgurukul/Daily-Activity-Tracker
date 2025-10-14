@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 const AddProjectModal = ({ isOpen, onClose, onSubmit, departments }) => {
+  // State Management
   const [data, setData] = useState({
     department: "",
     projectName: "",
@@ -28,10 +29,11 @@ const AddProjectModal = ({ isOpen, onClose, onSubmit, departments }) => {
     }
   }, [isOpen]);
 
+  // Form Submit Handler
   const handleSubmit = () => {
     const newErrors = {};
-    
-    // Validation for the 4 required fields only
+
+    // Required field validations
     if (!data.department) {
       newErrors.department = "Please select a department*";
     }
@@ -47,24 +49,24 @@ const AddProjectModal = ({ isOpen, onClose, onSubmit, departments }) => {
       newErrors.projectBudget = "Please enter a valid project budget*";
     }
 
-    // Removed validation for channelId and discordWebhook as they are now optional
-
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
+    // Clear errors 
     setErrors({});
-    
+
     // Add projectStatus: "Active" to the submitted data
     const submissionData = {
       ...data,
       projectStatus: "Active"
     };
-    
+
     onSubmit(submissionData);
   };
 
+  // Cancel Handler (resets form and closes modal) 
   const handleCancel = () => {
     setData({
       department: "",
@@ -78,18 +80,21 @@ const AddProjectModal = ({ isOpen, onClose, onSubmit, departments }) => {
     onClose();
   };
 
+  // If modal is closed render nothing
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content-white" onClick={(e) => e.stopPropagation()}>
+        {/* Modal Header */}
         <div className="modal-header-white">
           <h2>Add New Project</h2>
           <button className="close-btn-white" onClick={onClose}>
             ×
           </button>
         </div>
-        
+
+        {/* Modal Body (Form Fields) */}
         <div className="modal-body-white">
           <div className="form-fields-white">
             {/* Row 1: Department & Project Name */}
@@ -190,15 +195,16 @@ const AddProjectModal = ({ isOpen, onClose, onSubmit, departments }) => {
           </div>
         </div>
 
+        {/* Modal Footer (Action Buttons) */}
         <div className="modal-footer-white">
-          <button 
-            className="cancel-btn-white" 
+          <button
+            className="cancel-btn-white"
             onClick={handleCancel}
           >
             Cancel
           </button>
-          <button 
-            className="create-btn-white" 
+          <button
+            className="create-btn-white"
             onClick={handleSubmit}
           >
             Add Project

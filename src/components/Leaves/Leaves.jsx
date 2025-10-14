@@ -1,8 +1,7 @@
-// Leaves.jsx
 import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { LoginContext } from "../context/LoginContext";
-import { useLoader } from "../context/LoadingContext";
+import { LoginContext } from "../Context/LoginContext";
+import { useLoader } from "../Context/LoadingContext";
 import {
   Container,
   Paper,
@@ -24,19 +23,14 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Checkbox,
-  FormControlLabel,
-  Tooltip,
   Snackbar,
   Alert,
   CircularProgress,
-  Autocomplete,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { styled } from "@mui/material/styles";
-
 import LoadingSpinner from "../Loader/LoadingSpinner";
-import axios from "axios";
+import { extractEmailFromGoogleToken } from "../../utils/verifyGoogleToken";
 
 
 // Styled Components
@@ -126,15 +120,27 @@ const StyledFormControl = styled(FormControl)(({ theme }) => ({
   },
 }));
 
+// Main Component
 const Leaves = () => {
+  // Context & Navigation
   const dataContext = useContext(LoginContext);
-  const { email } = dataContext;
-  const userName = localStorage.getItem("name");
-  const department = localStorage.getItem("department");
-  const { loading, setLoading } = useLoader();
+  const googleTokenPayload = extractEmailFromGoogleToken(localStorage.getItem("jwtToken"));
+  const { email } = googleTokenPayload;
   const navigate = useNavigate();
-  const [leaveResult, setLeaveResult] = useState();
-  const [isAccordionOpen, setIsAccordionOpen] = useState(true);
+  const { loading, setLoading } = useLoader();
+
+  // User details
+  const userName = googleTokenPayload.name ? googleTokenPayload.name : localStorage.getItem("name");
+  const department = localStorage.getItem("department");
+  const role = localStorage.getItem("role");
+
+  // Get today’s date
+  function getTodayDate() {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  }
+
+  // State for leave application form
   const [leaveData, setLeaveData] = useState({
     "leaveType": "",
     "reasonForLeave": "",
@@ -147,19 +153,20 @@ const Leaves = () => {
     "status": "pending",
     "department": department,
   });
+
+  // Other state variables
+  const [leaveResult, setLeaveResult] = useState();
+  const [isAccordionOpen, setIsAccordionOpen] = useState(true);
   const [remainingLeaves, setRemainingLeaves] = useState();
   const [halfDay, setHalfDay] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const [availableLeaveTypes, setAvailableLeaveTypes] = useState();
-
   const [leavesData, setLeavesData] = useState([]);
   const [allLeaves, setAllLeaves] = useState({});
-
-  const [allEmails, setAllEmails] = useState([]);
   const [leavesLoading, setLeavesLoading] = useState(false);
 
-
+  // Snackbar & Error handling
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState({
     leaveType: "",
     reasonForLeave: "",
@@ -167,19 +174,22 @@ const Leaves = () => {
     halfDayStatus: "",
   });
 
-  const role = localStorage.getItem("role");
-  const isEditable = role === "admin" || role === "superAdmin";
-
+  // Base API URL
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+  // Fetch allocated leave data for current user
   const fetchData = async () => {
     setLeavesLoading(true);
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/employmentLeavePolicy?email=${email}`
-      );
+      // const response = await fetch(`${API_BASE_URL}/employmentLeavePolicy`);
+      const response = await fetch(`${API_BASE_URL}/employmentLeavePolicy`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+        },
+      });
       const data = await response.json();
-      console.log("Data:", data);
       if (data.success) {
         setAllLeaves(data.data);
       }
@@ -190,10 +200,12 @@ const Leaves = () => {
     }
   };
 
+  // Run fetch on mount
   useEffect(() => {
     fetchData();
   }, []);
 
+  // Extract leave records from response
   useEffect(() => {
     if (allLeaves[0] && allLeaves[0].leaveRecords) {
       setLeavesData(allLeaves[0].leaveRecords);
@@ -202,11 +214,7 @@ const Leaves = () => {
     }
   }, [email, allLeaves]);
 
-  function getTodayDate() {
-    const today = new Date();
-    return today.toISOString().split("T")[0];
-  }
-
+  // Check login + fetch available leave types
   useEffect(() => {
     if (!email) {
       navigate("/");
@@ -217,28 +225,36 @@ const Leaves = () => {
     }
   }, [email, navigate]);
 
+  // Auto-update remaining leaves when email or type changes
   useEffect(() => {
-    const fetchEmails = async () => {
-      try {
-        const response = await axios.get(
-          `${API_BASE_URL}/employeeSheetRecords?sheet=pncdata`
-        );
-        const teamIDs = Array.from(
-          new Set(
-            response.data?.data
-              ?.map((entry) => entry["Team ID"])
-              ?.filter((id) => !!id)
-          )
-        );
-        setAllEmails(teamIDs);
-      } catch (error) {
-        console.error("Error fetching emails:", error);
-        setSnackbarMessage("Failed to fetch emails");
-      }
-    };
-    fetchEmails();
-  }, []);
+    const email = leaveData.userEmail;
+    const type = leaveData.leaveType;
+    if (email && type && Array.isArray(allLeaves)) {
+      const userData = allLeaves.find((user) => user.userEmail === email);
+      const matchedLeave = userData?.leaveRecords?.find(
+        (leave) => leave.leaveType?.toLowerCase() === type.toLowerCase()
+      );
+      setRemainingLeaves(matchedLeave?.leaveLeft ?? undefined);
+    } else {
+      setRemainingLeaves(undefined);
+    }
 
+  }, [leaveData.userEmail, leaveData.leaveType, allLeaves]);
+
+  // Keep end date in sync for half-day leaves
+  useEffect(() => {
+    if (leaveData.durationType === "half-day") {
+      if (leaveData.startDate && leaveData.startDate !== leaveData.endDate) {
+        setLeaveData(prevData => ({
+          ...prevData,
+          endDate: prevData.startDate
+        }));
+      }
+    }
+    // For full-day, leave dates independent
+  }, [leaveData.durationType, leaveData.startDate]);
+
+  // Fetch available leave types 
   const fetchAvailableLeaveTypes = async () => {
     try {
       const response = await fetch(
@@ -252,17 +268,21 @@ const Leaves = () => {
     }
   };
 
+  // Handle form input changes
   const handleChange = (e) => {
     setErrorMessage("");
     const { name, value } = e.target;
 
+    // Map "email" field to "userEmail"
     const keyToUpdate = name === "email" ? "userEmail" : name;
 
+    // Update leaveData state
     setLeaveData((prevData) => ({
       ...prevData,
       [keyToUpdate]: value,
     }));
 
+    // Clear field error if value exists
     if (value) {
       setFieldErrors((prevErrors) => ({
         ...prevErrors,
@@ -271,40 +291,12 @@ const Leaves = () => {
     }
   };
 
-  useEffect(() => {
-  const email = leaveData.userEmail;
-  const type = leaveData.leaveType;
-  if (email && type && Array.isArray(allLeaves)) {
-    const userData = allLeaves.find((user) => user.userEmail === email);
-    const matchedLeave = userData?.leaveRecords?.find(
-      (leave) => leave.leaveType?.toLowerCase() === type.toLowerCase()
-    );
-    setRemainingLeaves(matchedLeave?.leaveLeft ?? undefined);
-  } else {
-    setRemainingLeaves(undefined);
-  }
-  
-}, [leaveData.userEmail, leaveData.leaveType, allLeaves]);
-
-  // NEW: Half-day date synchronization useEffect
-  useEffect(() => {
-    // Only sync dates when durationType is "half-day"
-    if (leaveData.durationType === "half-day") {
-      // Auto-set end date to match start date for half-day leaves
-      if (leaveData.startDate && leaveData.startDate !== leaveData.endDate) {
-        setLeaveData(prevData => ({
-          ...prevData,
-          endDate: prevData.startDate
-        }));
-      }
-    }
-    // For "full-day" or empty durationType, do nothing - allow independent date selection
-  }, [leaveData.durationType, leaveData.startDate]);
-
+  // Handle half-day checkbox
   const handleHalfDayChange = (e) => {
     setHalfDay(e.target.checked);
   };
 
+  // Calculate total leave days (skip Sun + 2nd/4th Sat)
   const calculateNumberOfDays = (fromDate, toDate, halfDay) => {
     const from = new Date(fromDate);
     const to = new Date(toDate);
@@ -319,6 +311,7 @@ const Leaves = () => {
       const isFourthSaturday =
         dayOfWeek === 6 && dateOfMonth >= 22 && dateOfMonth <= 28;
 
+      // Count only working days
       if (dayOfWeek !== 0 && !isSecondSaturday && !isFourthSaturday) {
         totalDays++;
       }
@@ -326,6 +319,7 @@ const Leaves = () => {
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
+    // Adjust for half-day
     if (halfDay && totalDays > 0) {
       totalDays -= 0.5;
     }
@@ -333,11 +327,12 @@ const Leaves = () => {
     return totalDays;
   };
 
+  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // 1️⃣ Reset errors
+    // Reset errors
     const errors = {
       leaveType: "",
       reasonForLeave: "",
@@ -345,7 +340,7 @@ const Leaves = () => {
       halfDayStatus: "",
     };
 
-    // 2️⃣ Validate each field
+    // Validate fields
     if (!leaveData.leaveType) {
       errors.leaveType = "Please select a leave type*";
     }
@@ -368,17 +363,17 @@ const Leaves = () => {
       errors.halfDayStatus = "Please select a half day status*";
     }
 
-    // 3️⃣ Apply errors to state
+    // Apply errors to state
     setFieldErrors(errors);
 
-    // 4️⃣ If any error found, stop here
+    // Stop if any error exists
     const hasError = Object.values(errors).some(Boolean);
     if (hasError) {
       setLoading(false);
       return;
     }
 
-    // ✅ 5️⃣ Also check required non-error-tracked fields
+    // Check required fields not tracked in fieldErrors
     if (
       !leaveData.startDate ||
       !leaveData.endDate ||
@@ -389,13 +384,14 @@ const Leaves = () => {
       return;
     }
 
-    // 6️⃣ Submit to backend
+    // Prepare payload
     const payload = { ...leaveData };
     if (payload.durationType !== "half-day") {
       delete payload.halfDayStatus;
     }
 
     try {
+      // Submit leave request
       const response = await fetch(
         `${API_BASE_URL}/employmentLeavePolicy`,
         {
@@ -405,6 +401,7 @@ const Leaves = () => {
         }
       );
 
+      // Check for errors
       if (!response.ok) {
         const errorData = await response.json();
         setErrorMessage(errorData.message || "Something went wrong.");
@@ -412,9 +409,11 @@ const Leaves = () => {
         return;
       }
 
-      // ✅ Success
+      // Success message
       setSuccessMessage("Leave request submitted successfully!");
       setErrorMessage("");
+
+      // Reset form fields
       setLeaveData({
         endDate: getTodayDate(),
         durationType: "",
@@ -425,6 +424,7 @@ const Leaves = () => {
         status: "pending",
         userEmail: email,
       });
+
     } catch (error) {
       console.error("Error submitting leave request:", error);
       setErrorMessage("Error submitting leave request.");
@@ -436,8 +436,10 @@ const Leaves = () => {
 
   return (
     <StyledContainer style={{ overflowY: "scroll", height: "100vh", marginTop: "45px" }}>
+      {/* Loader */}
       <LoadingSpinner loading={loading} />
 
+      {/* Page Title */}
       <Typography
         variant="h4"
         component="h1"
@@ -454,6 +456,7 @@ const Leaves = () => {
         Leave Application Form
       </Typography>
 
+      {/* Page Subtitle */}
       <Typography
         variant="subtitle1"
         align="center"
@@ -467,6 +470,7 @@ const Leaves = () => {
         Make sure to check the leave balance before applying
       </Typography>
 
+      {/* Allocated Leaves Accordion */}
       <Accordion
         expanded={isAccordionOpen}
         onChange={() => setIsAccordionOpen(!isAccordionOpen)}
@@ -505,6 +509,7 @@ const Leaves = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
+                  {/* Loader inside table */}
                   {leavesLoading ? (
                     <TableRow>
                       <TableCell colSpan={5} align="center">
@@ -515,11 +520,12 @@ const Leaves = () => {
                       </TableCell>
                     </TableRow>
                   ) : leavesData.length > 0 ? (
+                    // Show leave records
                     leavesData.map((leave, index) => {
                       if (leave.leaveType === "Special Leave" && !isEditable) {
-                        return null; // Skip special leave for non-admins
+                        // Skip special leave for non-admins
+                        return null;
                       }
-
                       return (
                         <TableRow key={index}>
                           <TableCell>{leave.leaveType}</TableCell>
@@ -538,48 +544,30 @@ const Leaves = () => {
                     </TableRow>
                   )}
                 </TableBody>
-
               </Table>
             </TableContainer>
           )}
         </AccordionDetails>
       </Accordion>
 
+      {/* Leave Application Form */}
       <StyledPaper>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
               <StyledFormControl>
-                <Autocomplete
-                  options={allEmails}
-                  value={allEmails.includes(leaveData.userEmail) ? leaveData.userEmail : null}
-                  onChange={(e, newValue) => handleChange({ target: { name: "userEmail", value: newValue } })}
-                  disabled={!isEditable}
-                  freeSolo
-                  disableClearable
-                  slotProps={{
-                    paper: {
-                      sx: {
-                        '& ul': {
-                          maxHeight: 250,
-                          overflowY: 'auto',
-                        },
-                      },
-                    },
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Employee Email"
-                      name="userEmail"
-                      fullWidth
-                      variant="outlined"
-                    />
-                  )}
+                <TextField
+                  label="Employee Email"
+                  name="userEmail"
+                  value={email}
+                  fullWidth
+                  variant="outlined"
+                  disabled
                 />
               </StyledFormControl>
             </Grid>
 
+            {/* Leave Type Dropdown */}
             <Grid item xs={12} md={6}>
               <StyledFormControl>
                 <InputLabel>Leave Type</InputLabel>
@@ -598,11 +586,13 @@ const Leaves = () => {
                       </MenuItem>
                     ))}
                 </Select>
+                {/* Error Message */}
                 {fieldErrors.leaveType && (
                   <Typography variant="caption" sx={{ color: "red", fontSize: 14, fontWeight: 'bold', mt: -1 }}>
                     {fieldErrors.leaveType}
                   </Typography>
                 )}
+                {/* Remaining leave info */}
                 {leaveData.leaveType && (
                   <Typography
                     variant="caption"
@@ -620,6 +610,7 @@ const Leaves = () => {
               </StyledFormControl>
             </Grid>
 
+            {/* Reason for Leave */}
             <Grid item xs={12}>
               <StyledFormControl>
                 <TextField
@@ -664,6 +655,7 @@ const Leaves = () => {
               </StyledFormControl>
             </Grid>
 
+            {/* Start Date */}
             <Grid item xs={12} md={6}>
               <StyledFormControl>
                 <TextField
@@ -687,6 +679,7 @@ const Leaves = () => {
               </StyledFormControl>
             </Grid>
 
+            {/* End Date */}
             <Grid item xs={12} md={6}>
               <StyledFormControl>
                 <TextField
@@ -711,6 +704,7 @@ const Leaves = () => {
               </StyledFormControl>
             </Grid>
 
+            {/* Half Day Leave notice */}
             {leaveData.durationType === "half-day" && (
               <Grid item xs={12}>
                 <Typography
@@ -718,7 +712,6 @@ const Leaves = () => {
                   sx={{
                     color: "red",
                     fontSize: "0.875rem",
-                    // fontStyle: "italic",
                     display: "block",
                     textAlign: "center",
                     mt: -1
@@ -729,6 +722,7 @@ const Leaves = () => {
               </Grid>
             )}
 
+            {/* Duration Type */}
             <Grid item xs={12} md={6}>
               <StyledFormControl>
                 <InputLabel>Duration Type</InputLabel>
@@ -761,6 +755,7 @@ const Leaves = () => {
               </StyledFormControl>
             </Grid>
 
+            {/* Half Day Status */}
             {leaveData.durationType === "half-day" && (
               <Grid item xs={12} md={6}>
                 <StyledFormControl>
@@ -795,6 +790,7 @@ const Leaves = () => {
               </Grid>
             )}
 
+            {/* Submit Button */}
             <Grid item xs={12}>
               <Button
                 type="submit"
@@ -821,6 +817,10 @@ const Leaves = () => {
         </form>
       </StyledPaper>
 
+      {/* Loading Spinner */}
+      {loading && <CircularProgress />}
+
+      {/* Error Snackbar */}
       {errorMessage && (
         <Snackbar
           open={Boolean(errorMessage)}
@@ -838,6 +838,7 @@ const Leaves = () => {
         </Snackbar>
       )}
 
+      {/* Success Snackbar */}
       <Snackbar
         open={Boolean(successMessage)}
         autoHideDuration={6000}

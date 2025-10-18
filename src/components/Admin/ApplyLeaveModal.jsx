@@ -419,7 +419,10 @@ const ApplyLeaveModal = () => {
         `${API_BASE_URL}/employmentLeavePolicy`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
           body: JSON.stringify(payload),
         }
       );

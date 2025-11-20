@@ -44,155 +44,172 @@ function App() {
   };
 
   return (
-    <div className="App">
-      {/* Navbar changes based on login state */}
-      {email && email !== "" ? <Navbar /> : <NoTabNavBar />}
-      <br />
-      <br />
-
-      {/* Application routes */}
-      <main>
-        <Routes>
-          {/* Public Route: Login */}
-          <Route path="/" element={<Login />} />
-
-          {/* Protected Routes: Require login */}
-          <Route
-            path="/activity-tracker"
-            element={
-              <ProtectedRoute>
-                <Form />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/comp-off-application"
-            element={
-              <ProtectedRoute>
-                <CompOff />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/leave-application"
-            element={
-              <ProtectedRoute>
-                <Leaves />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/leaves"
-            element={
-              <ProtectedRoute>
-                <Leaves />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/monthly-activity-dashboard"
-            element={
-              <ProtectedRoute>
-                <MonthlyDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Admin Routes: Require admin role */}
-          <Route
-            path="/admin"
-            element={
-              loading ? (
-                // Loader while admin check is pending
-                <Box
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "400px",
-                  }}
-                >
-                  Loading...
-                  <CircularProgress style={{ marginLeft: "10px" }} />
-                </Box>
-              ) : (
-                <ProtectedRoute>
-                  {isAdmin ? <AdminDashboard /> : <Navigate to="/unauthorized" replace />}
-                </ProtectedRoute>
-              )
-            }
-          />
-
-          <Route
-            path="/leave-history"
-            element={
-              <ProtectedRoute>
-                <LeaveHistory />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/role-update"
-            element={
-              loading ? (
-                <Box
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "400px",
-                  }}
-                >
-                  Loading...
-                  <CircularProgress style={{ marginLeft: "10px" }} />
-                </Box>
-              ) : (
-                <ProtectedRoute>
-                  {isAdmin ? <RoleUpdateForm /> : <Navigate to="/unauthorized" replace />}
-                </ProtectedRoute>
-              )
-            }
-          />
-
-          <Route
-            path="/project-management"
-            element={
-              loading ? (
-                <Box
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "400px",
-                  }}
-                >
-                  Loading...
-                  <CircularProgress style={{ marginLeft: "10px" }} />
-                </Box>
-              ) : (
-                <ProtectedRoute>
-                  {isAdmin ? <ProjectManagement /> : <Navigate to="/unauthorized" replace />}
-                </ProtectedRoute>
-              )
-            }
-          />
-
-          {/* Public Route: Unauthorized */}
-          <Route path="/unauthorized" element={<Unauthorized />} />
-        </Routes>
-      </main>
-
-      {/* Feedback Modal */}
-      {feedbackData && feedbackData.length > 0 && (
-        <TraansitionModal feedbackData={feedbackData} />
-      )}
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      textAlign: 'center',
+      padding: '20px'
+    }}>
+      <h1 style={{ fontSize: '2.5rem', marginBottom: '20px' }}>Site Under Maintenance</h1>
+      <p style={{ fontSize: '1.2rem', color: '#666' }}>
+        We are currently performing scheduled maintenance. Please check back later.
+      </p>
     </div>
   );
 }
 
 export default App;
+
+
+
+    // <div className="App">
+    //   {/* Navbar changes based on login state */}
+    //   {email && email !== "" ? <Navbar /> : <NoTabNavBar />}
+    //   <br />
+    //   <br />
+
+    //   {/* Application routes */}
+    //   <main>
+    //     <Routes>
+    //       {/* Public Route: Login */}
+    //       <Route path="/" element={<Login />} />
+
+    //       {/* Protected Routes: Require login */}
+    //       <Route
+    //         path="/activity-tracker"
+    //         element={
+    //           <ProtectedRoute>
+    //             <Form />
+    //           </ProtectedRoute>
+    //         }
+    //       />
+
+    //       <Route
+    //         path="/comp-off-application"
+    //         element={
+    //           <ProtectedRoute>
+    //             <CompOff />
+    //           </ProtectedRoute>
+    //         }
+    //       />
+
+    //       <Route
+    //         path="/leave-application"
+    //         element={
+    //           <ProtectedRoute>
+    //             <Leaves />
+    //           </ProtectedRoute>
+    //         }
+    //       />
+
+    //       <Route
+    //         path="/leaves"
+    //         element={
+    //           <ProtectedRoute>
+    //             <Leaves />
+    //           </ProtectedRoute>
+    //         }
+    //       />
+
+    //       <Route
+    //         path="/monthly-activity-dashboard"
+    //         element={
+    //           <ProtectedRoute>
+    //             <MonthlyDashboard />
+    //           </ProtectedRoute>
+    //         }
+    //       />
+
+    //       {/* Admin Routes: Require admin role */}
+    //       <Route
+    //         path="/admin"
+    //         element={
+    //           loading ? (
+    //             // Loader while admin check is pending
+    //             <Box
+    //               style={{
+    //                 display: "flex",
+    //                 justifyContent: "center",
+    //                 alignItems: "center",
+    //                 height: "400px",
+    //               }}
+    //             >
+    //               Loading...
+    //               <CircularProgress style={{ marginLeft: "10px" }} />
+    //             </Box>
+    //           ) : (
+    //             <ProtectedRoute>
+    //               {isAdmin ? <AdminDashboard /> : <Navigate to="/unauthorized" replace />}
+    //             </ProtectedRoute>
+    //           )
+    //         }
+    //       />
+
+    //       <Route
+    //         path="/leave-history"
+    //         element={
+    //           <ProtectedRoute>
+    //             <LeaveHistory />
+    //           </ProtectedRoute>
+    //         }
+    //       />
+
+    //       <Route
+    //         path="/role-update"
+    //         element={
+    //           loading ? (
+    //             <Box
+    //               style={{
+    //                 display: "flex",
+    //                 justifyContent: "center",
+    //                 alignItems: "center",
+    //                 height: "400px",
+    //               }}
+    //             >
+    //               Loading...
+    //               <CircularProgress style={{ marginLeft: "10px" }} />
+    //             </Box>
+    //           ) : (
+    //             <ProtectedRoute>
+    //               {isAdmin ? <RoleUpdateForm /> : <Navigate to="/unauthorized" replace />}
+    //             </ProtectedRoute>
+    //           )
+    //         }
+    //       />
+
+    //       <Route
+    //         path="/project-management"
+    //         element={
+    //           loading ? (
+    //             <Box
+    //               style={{
+    //                 display: "flex",
+    //                 justifyContent: "center",
+    //                 alignItems: "center",
+    //                 height: "400px",
+    //               }}
+    //             >
+    //               Loading...
+    //               <CircularProgress style={{ marginLeft: "10px" }} />
+    //             </Box>
+    //           ) : (
+    //             <ProtectedRoute>
+    //               {isAdmin ? <ProjectManagement /> : <Navigate to="/unauthorized" replace />}
+    //             </ProtectedRoute>
+    //           )
+    //         }
+    //       />
+
+    //       {/* Public Route: Unauthorized */}
+    //       <Route path="/unauthorized" element={<Unauthorized />} />
+    //     </Routes>
+    //   </main>
+
+    //   {/* Feedback Modal */}
+    //   {feedbackData && feedbackData.length > 0 && (
+    //     <TraansitionModal feedbackData={feedbackData} />
+    //   )}
+    // </div>

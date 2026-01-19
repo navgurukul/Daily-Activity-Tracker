@@ -21,6 +21,27 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { extractEmailFromGoogleToken } from "../../utils/verifyGoogleToken";
 
+// Holidays Configuration - Add holidays in YYYY-MM-DD format
+const HOLIDAYS = {
+  "2026-01-26": "Republic Day",
+  "2026-02-15": "Maha Shivratri",
+  "2026-03-04": "Holi",
+  "2026-03-21": "Eid-ul-Fitr",
+  "2026-05-27": "Eid-ul-Adha",
+  "2026-08-15": "Independence Day",
+  "2026-10-02": "Gandhi Jayanti",
+  "2026-11-07": "Diwali",
+  "2026-11-08": "Diwali",
+  "2026-11-24": "Guru Nanak Jayanti",
+  "2026-12-25": "Christmas",
+  "2026-12-31": "New Year's Eve",
+};
+
+// Utility: Get holiday name for a date
+const getHolidayName = (date) => {
+  return HOLIDAYS[date] || null;
+};
+
 // Utility: Return label attributes for leave status
 const getLeaveStatusAttributes = (status) => {
   switch (status) {
@@ -346,6 +367,15 @@ const DayCell = React.memo(
       );
     }, [date]);
 
+    // Check if the day is a holiday
+    const isHoliday = useMemo(() => {
+      return date in HOLIDAYS;
+    }, [date]);
+
+    const holidayName = useMemo(() => {
+      return getHolidayName(date);
+    }, [date]);
+
     // Calculate total hours for the day
     const totalHours = useMemo(() => {
       return activities.reduce(
@@ -369,8 +399,9 @@ const DayCell = React.memo(
 
     return (
       <Card
-        className={`day-cell ${isToday ? "today" : ""} ${hasData ? "has-activities" : ""
-          }`}
+        className={`day-cell ${isToday ? "today" : ""} ${
+          hasData ? "has-activities" : ""
+        } ${isHoliday ? "holiday" : ""}`}
         onClick={handleClick}
       >
         <CardContent className="day-content">
@@ -380,6 +411,11 @@ const DayCell = React.memo(
               {new Date(date).getDate()}
             </Typography>
             <div className="chips-container">
+              {isHoliday && (
+                <div className="holiday-chip">
+                  🎉
+                </div>
+              )}
               {leaves.length > 0 && leaveStatusAttributes && (
                 <div
                   style={{
@@ -402,6 +438,13 @@ const DayCell = React.memo(
               )}
             </div>
           </div>
+
+          {/* Holiday Label */}
+          {isHoliday && (
+            <Typography variant="caption" className="holiday-label">
+              {holidayName}
+            </Typography>
+          )}
 
           {/* Activities and Leaves Preview */}
           <div className="activities-preview">

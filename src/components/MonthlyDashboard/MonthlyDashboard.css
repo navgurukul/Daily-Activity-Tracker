@@ -67,6 +67,18 @@
   border: 2px solid #5c6bc0;
 }
 
+/* Day Cell Holiday */
+.day-cell.holiday {
+  background: linear-gradient(135deg, #c2f4ac 0%, #b0f3a1 100%) !important;
+  border: 2px dashed #1af70a;
+}
+
+/* Day Cell Holiday Hover */
+.day-cell.holiday:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(26, 247, 10, 0.3);
+}
+
 /* Day Cell Content */
 .day-content {
   height: 100%;
@@ -94,6 +106,30 @@
   background-color: #e8eaf6 !important;
   color: #4CAF50 !important;
   font-weight: 600 !important;
+}
+
+/* Holiday Chip */
+.holiday-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: #fbfdfa;
+  border-radius: 50%;
+  font-size: 14px;
+}
+
+/* Holiday Label */
+.holiday-label {
+  display: block;
+  background-color: #5ef934;
+  color: #0d0d0d;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 8px;
 }
 
 /* Activities Preview */

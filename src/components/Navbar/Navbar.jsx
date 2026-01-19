@@ -33,6 +33,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import SupportIcon from '@mui/icons-material/Support';
+import PolicyIcon from '@mui/icons-material/Policy';
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -125,6 +126,14 @@ const Navbar = (props) => {
       })
     }
 
+    // Handle external link for Leave Policy
+    if (button === "leave-policy") {
+      const url = "https://navgurukul.notion.site/NG-Leave-Policy-2026-2d8a93c7c39180b39018d6c4fd59c969";
+      globalThis.window.open(url, "_blank", "noopener,noreferrer");
+      handleDrawerClose();
+      return;
+    }
+
     navigate(`/${button}`);
     handleDrawerClose();
   };
@@ -162,6 +171,7 @@ const Navbar = (props) => {
           { text: "Comp-off Application", icon: <WysiwygIcon />, route: "comp-off-application" },
           { text: "Monthly Activity-Dashboard", icon: <DashboardIcon />, route: "monthly-activity-dashboard" },
           { text: "Leave History", icon: <SupportIcon />, route: "leave-history" },
+          { text: "Leave Policy", icon: <PolicyIcon />, route: "leave-policy" },
         ].map((item, index) => (
           <ListItem
             key={item.text}

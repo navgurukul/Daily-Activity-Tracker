@@ -43,14 +43,17 @@ const AdjustLeaveModal = ({
   const leaveTypes = [
     "Exam Leave",
     "Casual Leave",
-    "Festival Leave",
     "Bereavement Leave",
-    "Vipassana Leave",
     "Wellness Leave",
     "SRS Leave",
     "Maternity Leave",
     "Parental Leave",
-    "Miscarriage Leave"
+    "Miscarriage Leave",
+    "Wedding Leave",
+    "Election Leave",
+    "L&D",
+    "Vipassana seva",
+    "Vipassana Course Leave"
   ];
 
   // Clear error when user starts typing
